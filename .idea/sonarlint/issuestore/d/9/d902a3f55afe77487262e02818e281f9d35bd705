@@ -1,0 +1,10 @@
+
+Dtypescript:S1128")Remove this unused import of 'SteamIcon'.(ïêŞ,
+Ttypescript:S1128"3Remove this unused import of 'GameIconsArrowScope'.(¢öÆÿÿÿÿÿ
+Utypescript:S1128"9Remove this unused import of 'GameIconsSupersonicBullet'.(ÃúüÏ
+Etypescript:S1128"$Remove this unused import of 'Chip'.(üğºÀşÿÿÿÿ
+?typescript:S125"Remove this commented out code.(Äá‡Ïúÿÿÿÿ
+Utypescript:S1854!"9Remove this useless assignment to variable "videoHeight".(†™…í
+Xtypescript:S1854!"<Remove this useless assignment to variable "setVideoHeight".(†™…í
+9typescript:S6479@"Do not use Array index in keys(óë¥0
+mtypescript:S6855A"LMedia elements such as <audio> and <video> must have a <track> for captions.(½ö³‘ÿÿÿÿÿ
