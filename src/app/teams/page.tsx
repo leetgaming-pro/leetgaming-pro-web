@@ -9,6 +9,7 @@ import { SearchIcon, UserIcon } from "@/components/icons";
 import { Icon } from "@iconify/react";
 import LaunchYourSquadButton from "@/components/teams/team-form/launch-your-squad-button";
 import ApplyNowButton from "@/components/players/player-form/apply-now-button";
+import ContentWrapper from "@/components/atoms/content-wrapper";
 
 const Teams: Team[] = [
   {
@@ -155,27 +156,29 @@ const Teams: Team[] = [
 
 export default function Component() {
   return (
-    <section className="flex max-w-4xl flex-col items-center py-8 px-16">
-      <div className="flex max-w-xl flex-col text-center">
-        <h2 className="font-medium text-secondary">Featured Leet Teams</h2>
-        <h1 className="text-4xl font-medium tracking-tight">Browse Teams</h1>
-        <Spacer y={4} />
-        <h2 className="text-xl text-gray-600">
-          Our philosophy is to help build exceptional teams and empower them to achieve greatness.
-        </h2>
-        <Spacer y={4} />
-        <div className="flex w-full justify-center gap-2">
-          <Button startContent={<SearchIcon size={16} />} variant="ghost">Search</Button>
-          <ApplyNowButton />
-          {/* <Button startContent={<Icon icon="solar:users-group-two-rounded-outline" width={18} />} color="primary" variant="ghost">Launch Your Squad</Button> */}
-          <LaunchYourSquadButton />
+    <section>
+      <ContentWrapper>
+        <div className="flex max-w-xl flex-col text-center">
+          <h2 className="font-medium text-secondary">Featured Leet Teams</h2>
+          <h1 className="text-4xl font-medium tracking-tight">Browse Teams</h1>
+          <Spacer y={4} />
+          <h2 className="text-xl text-gray-600">
+            Our philosophy is to help build exceptional teams and empower them to achieve greatness.
+          </h2>
+          <Spacer y={4} />
+          <div className="flex w-full justify-center gap-2">
+            <Button startContent={<SearchIcon size={16} />} variant="ghost">Search</Button>
+            <ApplyNowButton />
+            {/* <Button startContent={<Icon icon="solar:users-group-two-rounded-outline" width={18} />} color="primary" variant="ghost">Launch Your Squad</Button> */}
+            <LaunchYourSquadButton />
+          </div>
         </div>
-      </div>
-      <div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {Teams.map((team: Team, index) => (
+        <div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {Teams.map((team: Team, index) => (
             <TeamCard key={`${team.tag}-${index}`} {...team} />
-        ))}
-      </div>
+          ))}
+        </div>
+      </ContentWrapper>
     </section>
   );
 }

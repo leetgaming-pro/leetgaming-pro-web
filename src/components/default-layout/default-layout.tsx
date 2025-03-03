@@ -50,32 +50,33 @@ export default function RootLayout({
   }, []);
 
   return (
-    
+
     <html lang="en" suppressHydrationWarning={true}>
-      
+
       <head />
       <body
         className={clsx(
           "min-h-screen bg-background bg-scroll blur-glow-pry-gh antialiased w-full",
           pressStart2P.className
         )}
-      >{ domLoaded && <Box>
-          <Providers themeProps={{ attribute: "class", defaultTheme: "dark"}} >
-            <div className="relative flex flex-col h-screen w-full">
-              <Navbar  />
-              {/* <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow"> */}
-              <main className="flex w-full" style={{
-                width: '100%',
-              }}>
-                {children}
-              </main>
-               <FooterColumns />
-            </div>
-          </Providers>
-        </Box>
-}
+      >
+      {domLoaded && (
+          <Box>
+            <Providers themeProps={{ attribute: "class", defaultTheme: "dark"}} >
+              <div className="relative flex flex-col h-screen w-full">
+                <Navbar  />
+                {/* <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow"> */}
+                <main className="flex w-full justify-center">
+                  {children}
+                </main>
+                 <FooterColumns />
+              </div>
+            </Providers>
+          </Box>
+        )
+      }
       </body>
     </html>
-    
+
   );
 }
