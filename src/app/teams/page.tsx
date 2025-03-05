@@ -10,6 +10,8 @@ import { Icon } from "@iconify/react";
 import LaunchYourSquadButton from "@/components/teams/team-form/launch-your-squad-button";
 import ApplyNowButton from "@/components/players/player-form/apply-now-button";
 import ContentWrapper from "@/components/atoms/content-wrapper";
+import Typography from "@/components/atoms/typography";
+import {twMerge} from "tailwind-merge";
 
 const Teams: Team[] = [
   {
@@ -156,22 +158,21 @@ const Teams: Team[] = [
 
 export default function Component() {
   return (
-    <section>
-      <ContentWrapper>
-        <div className="flex max-w-xl flex-col text-center">
-          <h2 className="font-medium text-secondary">Featured Leet Teams</h2>
-          <h1 className="text-4xl font-medium tracking-tight">Browse Teams</h1>
+    <main className="relative flex flex-1 justify-center">
+      <div className={twMerge('absolute max-w-screen-3xl w-full h-full lg:bg-cs-bg bg-[length:50%_auto] [background-position-y:0px] [background-position-x:100%] bg-right-top bg-no-repeat')} />
+      <ContentWrapper className="pt-10">
+        <div className="flex flex-col items-center mb-10">
+          <h3 className="text-h3 font-medium self-center text-secondary">Featured Leet Teams</h3>
+          <h1 className="text-h1 font-bold tracking-tight">Browse Teams</h1>
           <Spacer y={4} />
-          <h2 className="text-xl text-gray-600">
+          <h3 className="text-h3 w-1/4 text-center text-gray-600">
             Our philosophy is to help build exceptional teams and empower them to achieve greatness.
-          </h2>
-          <Spacer y={4} />
-          <div className="flex w-full justify-center gap-2">
-            <Button startContent={<SearchIcon size={16} />} variant="ghost">Search</Button>
-            <ApplyNowButton />
-            {/* <Button startContent={<Icon icon="solar:users-group-two-rounded-outline" width={18} />} color="primary" variant="ghost">Launch Your Squad</Button> */}
-            <LaunchYourSquadButton />
-          </div>
+          </h3>
+        </div>
+        <Spacer y={4} />
+        <div className="flex w-full justify-center gap-2">
+          <ApplyNowButton />
+          <LaunchYourSquadButton />
         </div>
         <div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {Teams.map((team: Team, index) => (
@@ -179,6 +180,6 @@ export default function Component() {
           ))}
         </div>
       </ContentWrapper>
-    </section>
+    </main>
   );
 }

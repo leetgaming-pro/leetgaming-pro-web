@@ -12,7 +12,22 @@ module.exports = {
     extend: {
       backgroundImage: {
         'blur-glow-pry-gh' : "url('./blur-glow-pry-gh.svg')",
-      }
+        'cs-bg': "url('/custom-bg.png')",
+      },
+      // TODO specify the sizes for mobile display
+      fontSize: {
+        h1: ['3rem', { lineHeight: '1.2', fontWeight: '700' }], // 48px
+        h2: ['2rem', { lineHeight: '1.3', fontWeight: '700' }], // 32px
+        h3: ['1.5rem', { lineHeight: '1.4', fontWeight: '600' }], // 24px
+        h4: ['1.25rem', { lineHeight: '1.4', fontWeight: '600' }], // 20px
+        h5: ['1.125rem', { lineHeight: '1.5', fontWeight: '500' }], // 18px
+        h6: ['1rem', { lineHeight: '1.5', fontWeight: '500' }], // 16px
+        body: ['1rem', { lineHeight: '1.6', fontWeight: '400' }], // 16px
+        bodySmall: ['0.875rem', { lineHeight: '1.6', fontWeight: '400' }], // 14px
+        caption: ['0.75rem', { lineHeight: '1.4', fontWeight: '400' }], // 12px
+        button: ['1rem', { lineHeight: '1.5', fontWeight: '600' }], // 16px
+        buttonSmall: ['0.875rem', { lineHeight: '1.5', fontWeight: '600' }], // 14px
+      },
     },
   },
   darkMode: "class",

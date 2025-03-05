@@ -42,8 +42,8 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
 
     return (
       <motion.div
-        onHoverStart={() => setHovered(true)}
-        onHoverEnd={() => setHovered(false)}
+        // onHoverStart={() => setHovered(true)}
+        // onHoverEnd={() => setHovered(false)}
         style={{ perspective: 1000 }}
       >
         <div

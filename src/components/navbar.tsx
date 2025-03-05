@@ -62,7 +62,7 @@ export const Navbar = () => {
       isBlurred={true}
       style={{ backgroundImage: `url('/blur-glow-pry-gh.svg')` }}
     >
-      <ContentWrapper as="div" className="flex justify-center">
+      <ContentWrapper as="div" className="flex-row justify-center">
         <NavbarContent className="basis-1/5 sm:basis-full justify-center">
           <NavbarBrand as="li" className=" max-w-fit">
             <NextLink className="lg:flex flex justify-left items-left align-left" href="/">

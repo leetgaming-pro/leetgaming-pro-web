@@ -2,7 +2,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-const styles = cva('max-w-screen-2xl w-full');
+const styles = cva('max-w-screen-2xl w-full flex flex-col');
 export type ContentWrapperProps<T extends React.ElementType = 'section'> = {
   as?: React.ElementType;
   children: React.ReactNode;
