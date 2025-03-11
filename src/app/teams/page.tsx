@@ -12,6 +12,9 @@ import ApplyNowButton from "@/components/players/player-form/apply-now-button";
 import ContentWrapper from "@/components/atoms/content-wrapper";
 import Typography from "@/components/atoms/typography";
 import {twMerge} from "tailwind-merge";
+import Card from "@/components/atoms/card";
+import ContentCard from "@/components/molecules/content-card";
+import SearchInput from "@/components/search/search-modal/search-modal";
 
 const Teams: Team[] = [
   {
@@ -160,25 +163,36 @@ export default function Component() {
   return (
     <main className="relative flex flex-1 justify-center">
       <div className={twMerge('absolute max-w-screen-3xl w-full h-full lg:bg-cs-bg bg-[length:50%_auto] [background-position-y:0px] [background-position-x:100%] bg-right-top bg-no-repeat')} />
-      <ContentWrapper className="pt-10">
+      <ContentWrapper className="p-10 z-10">
         <div className="flex flex-col items-center mb-10">
-          <h3 className="text-h3 font-medium self-center text-secondary">Featured Leet Teams</h3>
-          <h1 className="text-h1 font-bold tracking-tight">Browse Teams</h1>
+          <Typography type="h3" variant="primary">Featured Leet Teams</Typography>
+          <Typography type="h1">Browse Teams</Typography>
           <Spacer y={4} />
-          <h3 className="text-h3 w-1/4 text-center text-gray-600">
-            Our philosophy is to help build exceptional teams and empower them to achieve greatness.
-          </h3>
+          <Typography type="h3" className="w-1/4 text-center text-gray-600">Our philosophy is to help build exceptional teams and empower them to achieve greatness.</Typography>
         </div>
         <Spacer y={4} />
         <div className="flex w-full justify-center gap-2">
           <ApplyNowButton />
           <LaunchYourSquadButton />
         </div>
-        <div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {Teams.map((team: Team, index) => (
-            <TeamCard key={`${team.tag}-${index}`} {...team} />
-          ))}
+        <div className="mt-12 mb-6 self-center w-2/3">
+          <SearchInput />
         </div>
+        <div className="grid grid-cols-4 gap-8 mt-8">
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+          <ContentCard />
+        </div>
+        {/*<div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">*/}
+        {/*  {Teams.map((team: Team, index) => (*/}
+        {/*    <TeamCard key={`${team.tag}-${index}`} {...team} />*/}
+        {/*  ))}*/}
+        {/*</div>*/}
       </ContentWrapper>
     </main>
   );

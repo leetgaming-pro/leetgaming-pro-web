@@ -36,9 +36,15 @@ module.exports = {
       themes: {
         light: {
           colors: {
+            border: '#DEE2E6',
+            background: '#F8F9FA',
+            surface: '#FFFFFF',
+            foreground: '#212529',
             // background: "#FFFFFF", // or DEFAULT
             // foreground: "#11181C", // or 50 to 900 DEFAULT
             secondary: "#FF4654",
+            'text-primary': "#212529",
+            'text-secondary': "#6C757D",
             // primary: "#34445C",
 
             // primary: "#34445C",
@@ -61,10 +67,16 @@ module.exports = {
         },
         dark: {
           colors: {
+            background: '#121212',
+            border: '#343A40',
+            surface: '#1E1E1E',
+            foreground: '#FFFFFFD9',
             // background: "#000000", // or DEFAULT
             // foreground: "#ECEDEE", // or 50 to 900 DEFAULT
             // secondary: "#FFC700",
             secondary: "#DCFF37",
+            'text-primary': "#FFFFFF",
+            'text-secondary': "#B0B0B0",
             // primary: "#DCFF37",
             primary: {
               // ... 50 to 900
