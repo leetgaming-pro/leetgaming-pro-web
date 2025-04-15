@@ -109,7 +109,7 @@ export default function FooterColumns() {
               backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.5)" : "",
             }}
     >
-    <footer className="flex w-full justify-center">
+    <footer className="flex w-full justify-center z-10">
       <div className="gap-3 max-w-fit px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 md:pr-8">

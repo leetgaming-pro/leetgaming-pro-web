@@ -8,7 +8,7 @@ const variants = cva(
     variant: {
       elevated: 'bg-content1 shadow-small',
       filed: 'bg-surface',
-      outlined: 'bg-background border border-border',
+      outlined: 'bg-transparent border border-border',
     },
   },
   defaultVariants: {

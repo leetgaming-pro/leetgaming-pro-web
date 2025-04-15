@@ -52,11 +52,9 @@ export default function RootLayout({
       >
         <Box>
           <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-            <div>
-              <main>
-                {children}
-              </main>
-            </div>
+            <main>
+              {children}
+            </main>
           </Providers>
         </Box>
       </body>

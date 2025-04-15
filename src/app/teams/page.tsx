@@ -1,9 +1,6 @@
 "use client";
 
 import type {Team, Squad} from "@/components/teams/team-card/App";
-
-import {Button, Spacer} from "@nextui-org/react";
-
 import TeamCard from "@/components/teams/team-card/App";
 import { SearchIcon, UserIcon } from "@/components/icons";
 import { Icon } from "@iconify/react";
@@ -15,6 +12,10 @@ import {twMerge} from "tailwind-merge";
 import Card from "@/components/atoms/card";
 import ContentCard from "@/components/molecules/content-card";
 import SearchInput from "@/components/search/search-modal/search-modal";
+import Button from "@/components/atoms/button";
+import BrowseTeamBanner from "@/components/molecules/browse-team-banner";
+import TeamCardPreview from "@/components/molecules/team-card-preview";
+import PageBackground from "@/components/atoms/page-background";
 
 const Teams: Team[] = [
   {
@@ -160,40 +161,27 @@ const Teams: Team[] = [
 ];
 
 export default function Component() {
+  const bgImage = 'url(https://cdnb.artstation.com/p/assets/images/images/006/916/727/large/jayson-miller-station-ms-supplemental-03.jpg?1502230582)';
+
   return (
-    <main className="relative flex flex-1 justify-center">
-      <div className={twMerge('absolute max-w-screen-3xl w-full h-full lg:bg-cs-bg bg-[length:50%_auto] [background-position-y:0px] [background-position-x:100%] bg-right-top bg-no-repeat')} />
-      <ContentWrapper className="p-10 z-10">
-        <div className="flex flex-col items-center mb-10">
-          <Typography type="h3" variant="primary">Featured Leet Teams</Typography>
-          <Typography type="h1">Browse Teams</Typography>
-          <Spacer y={4} />
-          <Typography type="h3" className="w-1/4 text-center text-gray-600">Our philosophy is to help build exceptional teams and empower them to achieve greatness.</Typography>
+    <>
+      <PageBackground url={bgImage} />
+      <ContentWrapper className="p-10 z-10 gap-10">
+        <BrowseTeamBanner />
+        <div className="flex shadow-lg flex-col p-10 gap-4 bg-surface rounded-lg border border-border">
+          <div className="flex self-stretch justify-between">
+            <Typography type="h1">My teams</Typography>
+            <Button label="Create a team" />
+          </div>
+          <div className="grid gap-6 grid-cols-2">
+            <TeamCardPreview />
+            <TeamCardPreview />
+            <TeamCardPreview />
+            <TeamCardPreview />
+            <TeamCardPreview />
+          </div>
         </div>
-        <Spacer y={4} />
-        <div className="flex w-full justify-center gap-2">
-          <ApplyNowButton />
-          <LaunchYourSquadButton />
-        </div>
-        <div className="mt-12 mb-6 self-center w-2/3">
-          <SearchInput />
-        </div>
-        <div className="grid grid-cols-4 gap-8 mt-8">
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-          <ContentCard />
-        </div>
-        {/*<div className="mt-12 grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">*/}
-        {/*  {Teams.map((team: Team, index) => (*/}
-        {/*    <TeamCard key={`${team.tag}-${index}`} {...team} />*/}
-        {/*  ))}*/}
-        {/*</div>*/}
       </ContentWrapper>
-    </main>
+    </>
   );
 }

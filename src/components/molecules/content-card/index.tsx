@@ -6,7 +6,11 @@ import {Icon} from "@iconify/react";
 import React from "react";
 import ApplyNowButton from "@/components/players/player-form/apply-now-button";
 
-export default function ContentCard() {
+export interface IContentCard {
+  img?: string;
+}
+
+export default function ContentCard({img}: IContentCard) {
   return (
     <Card>
       <Image src="/squad-avatar.png" alt="Squad" className="w-full" width={300} height={150} />

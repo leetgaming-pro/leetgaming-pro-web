@@ -66,7 +66,7 @@ export default function RootLayout({
               <div className="relative flex flex-col h-screen w-full">
                 <Navbar  />
                 {/* <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow"> */}
-                <main className="flex w-full justify-center">
+                <main id="main-content" className="flex relative w-full justify-center">
                   {children}
                 </main>
                  <FooterColumns />

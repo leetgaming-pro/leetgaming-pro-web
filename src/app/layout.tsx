@@ -8,9 +8,7 @@ export default function HomeLayout({
 }) {
   return (
     <RootLayout>
-      <div>
-        {children}
-      </div>
+      {children}
     </RootLayout>
   );
 }
