@@ -1,17 +1,26 @@
 "use client";
 
-import type {AvatarProps} from "@nextui-org/react";
-
 import React from "react";
 import {Avatar} from "@nextui-org/react";
 
 import {cl} from "../cl";
 
-const TeamAvatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
-  ({name, className, classNames = {}, ...props}, ref) => (
+interface TeamAvatarProps {
+  name?: string;
+  className?: string;
+  classNames?: {
+    base?: string;
+    name?: string;
+    [key: string]: string | undefined;
+  };
+  src?: string;
+}
+
+const TeamAvatar = React.forwardRef<HTMLSpanElement, TeamAvatarProps>(
+  ({name, className, classNames = {}, src}, ref) => (
     <Avatar
-      {...props}
       ref={ref}
+      src={src}
       classNames={{
         ...classNames,
         base: cl("bg-transparent border border-divider", classNames?.base, className),

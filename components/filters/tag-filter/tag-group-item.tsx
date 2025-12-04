@@ -1,21 +1,23 @@
 "use client";
 
-import type {CheckboxProps} from "@nextui-org/react";
-
 import React from "react";
 import {Chip, VisuallyHidden, useCheckbox} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import {cn} from "@nextui-org/react";
 
-export type TagGroupItemProps = Omit<CheckboxProps, "icon"> & {
+export interface TagGroupItemProps {
+  value: string;
+  children?: React.ReactNode;
   icon?: string;
-};
+  size?: "sm" | "md" | "lg";
+}
 
 const TagGroupItem = React.forwardRef<HTMLLabelElement, TagGroupItemProps>(
-  ({icon, size = "md", ...props}, ref) => {
+  ({icon, size = "md", value, children: childrenProp}, ref) => {
     const {children, isSelected, isFocusVisible, getBaseProps, getLabelProps, getInputProps} =
       useCheckbox({
-        ...props,
+        value,
+        children: childrenProp,
       });
 
     return (

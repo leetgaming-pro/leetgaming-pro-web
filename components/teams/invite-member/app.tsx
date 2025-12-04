@@ -1,6 +1,6 @@
 "use client";
 
-import type {CardProps, Selection} from "@nextui-org/react";
+import type {Selection} from "@nextui-org/react";
 
 import React from "react";
 import {
@@ -23,7 +23,11 @@ import {Icon} from "@iconify/react";
 
 import UserCell from "./user-cell";
 
-export default function Component(props: CardProps) {
+interface InviteMemberCardProps {
+  className?: string;
+}
+
+export default function Component({className}: InviteMemberCardProps) {
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set(["can-view"]));
 
   const permissionLabels: Record<string, string> = {
@@ -64,7 +68,7 @@ export default function Component(props: CardProps) {
   );
 
   return (
-    <Card className="w-full max-w-[400px]" {...props}>
+    <Card className={`w-full max-w-[400px] ${className || ''}`}>
       <CardHeader className="justify-center px-6 pb-0 pt-6">
         <div className="flex flex-col items-center">
           <AvatarGroup isBordered size="sm">

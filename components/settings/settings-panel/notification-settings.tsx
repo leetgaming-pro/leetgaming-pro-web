@@ -1,15 +1,17 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {Card, CardHeader, CardBody, Button} from "@nextui-org/react";
 
 import SwitchCell from "./switch-cell";
 
-export default function Component(props: CardProps) {
+interface NotificationSettingsCardProps {
+  className?: string;
+}
+
+export default function Component({className}: NotificationSettingsCardProps) {
   return (
-    <Card className="w-full max-w-lg p-2" {...props}>
+    <Card className={`w-full max-w-lg p-2 ${className || ''}`}>
       <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
         <p className="text-large">Notification Settings</p>
         <p className="text-small text-default-500">Manage your notification preferences</p>

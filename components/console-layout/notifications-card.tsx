@@ -1,7 +1,5 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {
   Button,
@@ -118,13 +116,17 @@ const notifications: Record<NotificationTabs, Notification[]> = {
   archive: [],
 };
 
-export default function Component(props: CardProps) {
+interface NotificationsCardProps {
+  className?: string;
+}
+
+export default function Component({className}: NotificationsCardProps) {
   const [activeTab, setActiveTab] = React.useState<NotificationTabs>(NotificationTabs.All);
 
   const activeNotifications = notifications[activeTab];
 
   return (
-    <Card className="w-full max-w-[420px]" {...props}>
+    <Card className={`w-full max-w-[420px] ${className || ''}`}>
       <CardHeader className="flex flex-col px-0 pb-0">
         <div className="flex w-full items-center justify-between px-5 py-2">
           <div className="inline-flex items-center gap-1">

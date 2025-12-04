@@ -1,26 +1,33 @@
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = async (req: any, res: any) => {
+interface OnboardRequestBody {
+  v_hash: string;
+  steam_id: string;
+}
+
+export const POST = async (req: NextRequest) => {
+  const body = await req.json() as OnboardRequestBody;
 
   const ctoken = await fetch(process.env.REPLAY_API_URL + '/onboard/steam', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
-      v_hash: req.body.v_hash,
+      v_hash: body.v_hash,
       steam: {
-        id: req.body.steam_id,
+        id: body.steam_id,
       },
     }),
   });
 
   if (!ctoken.ok) {
-    return res.status(ctoken.status).json(await ctoken.json());
+    const errorData = await ctoken.json();
+    return NextResponse.json(errorData, { status: ctoken.status });
   }
 
-  const { user_id: uid, resource_owner: rid } = await ctoken.json().then((data) => {
-    return res.json(data);
-  })
+  const data = await ctoken.json();
+  const { user_id: uid, resource_owner: rid } = data;
 
-
-  res.json({ uid, rid });
+  return NextResponse.json({ uid, rid });
 }
-
-export default POST

@@ -1,7 +1,5 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {
   Card,
@@ -19,9 +17,13 @@ import {Icon} from "@iconify/react";
 
 import countries from "./countries";
 
-export default function Component(props: CardProps) {
+interface AccountDetailsCardProps {
+  className?: string;
+}
+
+export default function Component({className}: AccountDetailsCardProps) {
   return (
-    <Card className="max-w-xl p-2" {...props}>
+    <Card className={`max-w-xl p-2 ${className || ''}`}>
       <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
         <p className="text-large">Account Details</p>
         <div className="flex gap-4 py-4">

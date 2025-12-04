@@ -17,21 +17,22 @@ export type MultiStepSidebarProps = React.HTMLAttributes<HTMLDivElement> & {
   onNext: () => void;
   onChangePage: (page: number) => void;
 };
-// #FF4654, #FFC700
+
+// E-sports inspired color scheme - dark with neon accents
 const stepperClasses = cn(
-  // light
-  "[--step-color:hsl(var(--nextui-secondary-400))]",
-  "[--active-color:rgb(33, 62, 105)]",
-  "[--inactive-border-color:rgb(33, 62, 105)]",
-  "[--inactive-bar-color:hsl(var(--nextui-secondary-200))]",
-  "[--inactive-color:hsl(var(--nextui-secondary-300))]",
-  // dark
-  "dark:[--step-color:rgba(255,255,255,0.1)]",
-  "dark:[--active-color:hsl(var(--nextui-foreground-600))]",
-  "dark:[--active-border-color:rgba(255,255,255,0.5)]",
-  "dark:[--inactive-border-color:rgba(255,255,255,0.1)]",
-  "dark:[--inactive-bar-color:rgba(255,255,255,0.1)]",
-  "dark:[--inactive-color:rgba(255,255,255,0.2)]",
+  // light mode - competitive gaming colors
+  "[--step-color:hsl(var(--nextui-primary-500))]",
+  "[--active-color:hsl(var(--nextui-primary-600))]",
+  "[--inactive-border-color:rgba(139,92,246,0.3)]",
+  "[--inactive-bar-color:rgba(139,92,246,0.2)]",
+  "[--inactive-color:rgba(255,255,255,0.5)]",
+  // dark mode - neon gamer aesthetic
+  "dark:[--step-color:hsl(var(--nextui-secondary-400))]",
+  "dark:[--active-color:hsl(var(--nextui-secondary-500))]",
+  "dark:[--active-border-color:rgba(34,211,238,0.8)]",
+  "dark:[--inactive-border-color:rgba(139,92,246,0.4)]",
+  "dark:[--inactive-bar-color:rgba(139,92,246,0.3)]",
+  "dark:[--inactive-color:rgba(255,255,255,0.4)]",
 );
 
 const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>(
@@ -39,12 +40,17 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
     return (
       <div
         ref={ref}
-        className={cn("flex h-[calc(100vh_-_40px)] w-full gap-x-2", className)}
+        className={cn("flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden", className)}
         {...props}
       >
-        <div className="flex hidden h-full w-[344px] flex-shrink-0 flex-col items-start gap-y-8 rounded-large bg-gradient-to-b from-yellow-300 via-orange-400 to-red-500 px-8 py-6 shadow-small lg:flex">
+        {/* Sidebar - E-sports dark gradient with neon accent */}
+        <div className="flex hidden h-full w-[380px] flex-shrink-0 flex-col items-start gap-y-6 rounded-large bg-gradient-to-b from-slate-900 via-purple-950/80 to-slate-900 px-6 py-6 shadow-2xl lg:flex border border-purple-500/20 relative overflow-hidden">
+          {/* Animated background glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 via-transparent to-purple-500/10 pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" />
+
           <Button
-            className="bg-default-50 text-small font-medium text-default-500 shadow-lg"
+            className="bg-slate-800/80 text-small font-medium text-cyan-400 shadow-lg border border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all z-10"
             isDisabled={currentPage === 0}
             radius="full"
             variant="flat"
@@ -53,47 +59,59 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
             <Icon icon="solar:arrow-left-outline" width={18} />
             Back
           </Button>
-          <div>
-            <div className="text-xl font-medium leading-7 text-default-foreground">
-              Team finder
+
+          <div className="z-10">
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:gamepad-bold" className="text-cyan-400" width={28} />
+              <div className="text-xl font-bold leading-7 text-white tracking-tight">
+                MATCHMAKER
+              </div>
             </div>
-            <div className="mt-1 text-base font-medium leading-6 text-default-500">
-              Find a team to play with and leverage your teamplay
+            <div className="mt-2 text-sm font-medium leading-6 text-purple-200/80">
+              Find worthy opponents and dominate the competition
             </div>
           </div>
+
           {/* Desktop Steps */}
           <VerticalSteps
-            className={stepperClasses}
+            className={cn(stepperClasses, "z-10")}
             color="secondary"
             currentStep={currentPage}
             steps={[
               {
-                title: "Choose Your Battleground",
-                description: "Select your region and let the competition begin.",
+                title: "Select Region",
+                description: "Choose your battleground server location.",
               },
               {
-                title: "Pick Your Poison",
-                description: "Select your preferred game mode and rank to find worthy opponents.",
+                title: "Game Mode",
+                description: "Pick your preferred competitive format.",
               },
               {
-                title: "Assemble Your Squad",
-                description: "Gather your gaming buddies and form your dream team.",
+                title: "Squad Up",
+                description: "Assemble your team or go solo.",
               },
               {
-                title: "Flex Your Schedule",
-                description: "Tell us when you're ready to dominate. We'll find matches that fit your schedule.",
+                title: "Set Schedule",
+                description: "When are you ready to compete?",
               },
               {
-                title: "Lock and Load",
-                description: "Your match is almost ready! Prepare for battle and level up your team play.",
+                title: "Prize Pool",
+                description: "How should winnings be distributed?",
+              },
+              {
+                title: "Ready Up",
+                description: "Confirm and enter the queue.",
               },
             ]}
             onStepChange={onChangePage}
           />
-          <SupportCard className="w-full backdrop-blur-lg lg:bg-white/40 lg:shadow-none dark:lg:bg-white/20" />
+          <SupportCard className="w-full backdrop-blur-lg z-10 bg-slate-800/40 border border-purple-500/20 shadow-none" />
         </div>
+
+        {/* Main content area */}
         <div className="flex h-full w-full flex-col items-center gap-4 md:p-4">
-          <div className="sticky top-0 z-10 w-full rounded-large bg-gradient-to-r from-orange-100 via-red-100 to-yellow-100 py-4 shadow-small md:max-w-xl lg:hidden">
+          {/* Mobile header - gaming gradient */}
+          <div className="sticky top-0 z-10 w-full rounded-large bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 py-4 shadow-lg md:max-w-xl lg:hidden border border-purple-500/30">
             <div className="flex justify-center">
               {/* Mobile Steps */}
               <RowSteps
@@ -104,16 +122,19 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
                     title: "Region",
                   },
                   {
-                    title: "Modes",
+                    title: "Mode",
                   },
                   {
                     title: "Squad",
                   },
                   {
-                    title: "Schedule",
+                    title: "Time",
                   },
                   {
-                    title: "Match",
+                    title: "Prizes",
+                  },
+                  {
+                    title: "GO!",
                   },
                 ]}
                 onStepChange={onChangePage}
@@ -127,11 +148,9 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
               className="lg:hidden"
               nextButtonProps={{
                 children:
-                  currentPage === 0
-                    ? "Sign Up for Free"
-                    : currentPage === 4
-                      ? "Go to Battle"
-                      : "Continue",
+                  currentPage === 5
+                    ? "FIND MATCH"
+                    : "CONTINUE",
               }}
               onBack={onBack}
               onNext={onNext}

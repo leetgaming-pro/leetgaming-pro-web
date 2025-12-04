@@ -1,24 +1,29 @@
 "use client";
 
-import type {RadioProps} from "@nextui-org/react";
-
 import React from "react";
 import {Radio} from "@nextui-org/react";
 import { cl } from "@/components/cl";
 
-export type PlanRadioProps = RadioProps & {
+export interface PlanRadioProps {
   icon?: React.ReactNode;
   monthlyPrice?: number;
   label?: string;
-};
+  description?: string;
+  className?: string;
+  classNames?: {
+    base?: string;
+    wrapper?: string;
+    labelWrapper?: string;
+  };
+  value: string;
+}
 
 const PlanRadio = React.forwardRef<HTMLInputElement, PlanRadioProps>(
-  ({icon, monthlyPrice, label, description, className, classNames = {}, ...props}, ref) => (
+  ({icon, monthlyPrice, label, description, className, classNames = {}, value}, ref) => (
     <Radio
-      {...props}
       ref={ref}
+      value={value}
       classNames={{
-        ...classNames,
         base: cl(
           "inline-flex m-0 px-3 py-4 max-w-[100%] items-center justify-between",
           "flex-row-reverse w-full cursor-pointer rounded-lg 3 border-medium border-default-100",

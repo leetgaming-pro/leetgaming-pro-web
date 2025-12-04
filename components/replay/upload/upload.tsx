@@ -2,69 +2,71 @@
 
 import { Button } from '@nextui-org/button'
 import { Input } from '@nextui-org/input'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 import { Chip, Progress, Spacer } from '@nextui-org/react';
 import { SearchIcon } from '../../icons';
-import axios, { AxiosProgressEvent, AxiosRequestConfig } from 'axios';
+import { UploadClient, UploadProgress } from '@/types/replay-api/upload-client';
+import { ReplayApiSettingsMock, GameIDKey } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
+import { isAuthenticatedSync } from '@/types/replay-api/auth';
 
 export function UploadForm() {
 
   const [file, setFile] = useState<File>()
   const [progress, setProgress] = useState(0)
+  const [status, setStatus] = useState<string>('idle')
+  const [error, setError] = useState<string | null>(null)
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!file) return
-
-    try {
-      const data = new FormData()
-      data.set('file', file)
-
-      const res = await fetch('/api/upload/replay', {
-        method: 'POST',
-        body: data
-      })
-
-      if (!res.ok) throw new Error(await res.text())
-    } catch (e: any) {
-      console.error(e)
-    } 
-  }
+  const uploadClient = useMemo(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
+    return new UploadClient({ ...ReplayApiSettingsMock, baseUrl }, logger);
+  }, []);
 
   const onUploadFile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (!file) {
+      setError('Please select a file');
       return;
     }
 
+    // Check authentication
+    if (!isAuthenticatedSync()) {
+      setError('Please sign in to upload replays');
+      return;
+    }
+
+    setError(null);
+    setStatus('uploading');
+    setProgress(0);
+
     try {
-      let formData = new FormData();
-      formData.append("file", file);
-  
-      const options: AxiosRequestConfig = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (!progressEvent.total) {
-            setProgress(0);
+      const result = await uploadClient.uploadReplay(file, {
+        gameId: GameIDKey.CounterStrike2, // Uses CS2 by default; enhance later with auto-detection
+        networkId: 'valve',
+        onProgress: (uploadProgress: UploadProgress) => {
+          setProgress(uploadProgress.percentage);
+          setStatus(uploadProgress.phase);
+          
+          if (uploadProgress.error) {
+            setError(uploadProgress.error);
           }
-
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total!
-          );
-          console.log(`Upload progress: ${percentCompleted}%`);
-          setProgress(percentCompleted/2);
         },
-      };
+      });
 
-      const response = await axios.post("http://localhost:4991/games/csgo/replay", formData, options);
-
-      console.log("Upload successful:", response.data);
-      setProgress(100);
-    } catch (error) {
-      console.error("Error uploading file:", error);
+      if (result.success) {
+        setStatus('completed');
+        setProgress(100);
+        console.log('Upload successful:', result.replayFile);
+      } else {
+        setStatus('failed');
+        setError(result.error || 'Upload failed');
+      }
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      setStatus('failed');
+      setError(error.message || 'Upload failed');
     }
   };
 
@@ -74,7 +76,6 @@ export function UploadForm() {
       <div className="flex w-min-500 flex-col">
         <Input
           startContent={<SearchIcon />}
-          // label="Select match replay file"
           placeholder="Select a file..."
           labelPlacement="outside"
           description="Select the match replay file you want to submit."
@@ -82,28 +83,52 @@ export function UploadForm() {
           name="file"
           variant="faded"
           className='align-baseline'
-          // isInvalid={isInvalid}
-          // color={isInvalid ? "danger" : "success"}
-          // errorMessage={isInvalid && "Please enter a valid email"}
-          // onValueChange={setValue}
+          isInvalid={!!error}
+          color={error ? "danger" : "success"}
+          errorMessage={error}
           onChange={(e) => setFile(e.target.files?.[0])}
+          isDisabled={status === 'uploading' || status === 'processing'}
         />
-        <Progress value={progress} 
-                  classNames={{
-                    base: "max-w-md",
-                    track: "drop-shadow-md border border-default",
-                    indicator: "bg-gradient-to-r from-amber-500 to-yellow-500",
-                    label: "tracking-wider font-medium text-default-600",
-                    value: "text-foreground/60",
-                  }}
-                  showValueLabel={true}
+        <Spacer y={2} />
+        {status !== 'idle' && (
+          <>
+            <Chip 
+              color={
+                status === 'completed' ? 'success' : 
+                status === 'failed' ? 'danger' : 
+                'primary'
+              }
+              variant="flat"
+            >
+              {status === 'uploading' && 'Uploading...'}
+              {status === 'processing' && 'Processing replay...'}
+              {status === 'completed' && 'Upload complete!'}
+              {status === 'failed' && 'Upload failed'}
+            </Chip>
+            <Spacer y={2} />
+          </>
+        )}
+        <Progress 
+          value={progress} 
+          classNames={{
+            base: "max-w-md",
+            track: "drop-shadow-md border border-default",
+            indicator: "bg-gradient-to-r from-amber-500 to-yellow-500",
+            label: "tracking-wider font-medium text-default-600",
+            value: "text-foreground/60",
+          }}
+          showValueLabel={true}
+          label={status !== 'idle' ? status : undefined}
         />
         <Spacer y={6} />
-        {/* <Button radius="full" className="bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-lg">
-          Upload
-        </Button> */}
       </div>
-      <Input type="submit" radius="full" className="bg-gradient-to-tr from-amber-500 to-red-500 text-white shadow-lg" value="" />
+      <Input 
+        type="submit" 
+        radius="full" 
+        className="bg-gradient-to-tr from-amber-500 to-red-500 text-white shadow-lg" 
+        value="Upload Replay"
+        isDisabled={!file || status === 'uploading' || status === 'processing'}
+      />
     </form>
 
   )

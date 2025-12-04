@@ -1,23 +1,20 @@
-# Use the official Node.js 18 image as the base image
+# Minimal Dockerfile using pre-built standalone output
+# Build locally first: npm run build
 FROM node:18-alpine
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Set environment
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV PORT=3030
+ENV HOSTNAME="0.0.0.0"
 
-# Install dependencies
-RUN npm install
+# Copy standalone build output
+COPY .next/standalone ./
+COPY .next/static ./.next/static
+COPY public ./public
 
-# Copy the rest of the application code to the working directory
-COPY . .
-
-# Build the Next.js application
-RUN npm run build
-
-# Expose the port the app runs on
-EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"]
+# Expose port and start
+EXPOSE 3030
+CMD ["node", "server.js"]

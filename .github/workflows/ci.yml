@@ -1,0 +1,383 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      backend_branch:
+        description: 'Backend branch to test against'
+        default: 'main'
+        required: false
+      run_all_browsers:
+        description: 'Run E2E tests on all browser projects'
+        type: boolean
+        default: false
+      skip_e2e:
+        description: 'Skip E2E tests (faster feedback)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  GO_VERSION: '1.24'
+
+jobs:
+  # Stage 1: Lint
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # Stage 2: Type Check
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [lint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+  # Stage 3: Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [type-check]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: web-unit-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # Stage 4: Build
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+            nextjs-${{ runner.os }}-
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next/
+          retention-days: 1
+
+  # Stage 5: E2E Tests (with real API)
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build]
+    if: ${{ !inputs.skip_e2e }}
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test123
+          MONGO_INITDB_DATABASE: leetgaming_test
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Web Frontend
+        uses: actions/checkout@v4
+
+      - name: Checkout Backend API
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/replay-api
+          ref: ${{ inputs.backend_branch || 'main' }}
+          path: replay-api
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: replay-api/go.sum
+
+      - name: Build Backend API
+        working-directory: replay-api
+        run: |
+          go mod download
+          CGO_ENABLED=0 go build -o replay-api ./cmd/rest-api/main.go
+
+      - name: Start Backend API
+        working-directory: replay-api
+        env:
+          MONGO_URI: mongodb://test:test123@localhost:27017/leetgaming_test?authSource=admin
+          PORT: 8080
+          ENV: test
+          LOG_LEVEL: warn
+        run: |
+          ./replay-api &
+          echo $! > /tmp/api.pid
+          # Wait for API to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:8080/health; do sleep 2; done'
+          echo "Backend API is ready"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright dependencies (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run E2E tests (Chromium)
+        if: ${{ !inputs.run_all_browsers }}
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3030
+          NEXT_PUBLIC_REPLAY_API_URL: http://localhost:8080
+          NEXT_PUBLIC_APP_URL: http://localhost:3030
+          NEXTAUTH_URL: http://localhost:3030
+          NEXTAUTH_SECRET: e2e-test-secret-key-for-testing-only
+          CI: true
+        run: npm run test:e2e -- --project=chromium
+
+      - name: Run E2E tests (All browsers)
+        if: ${{ inputs.run_all_browsers }}
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3030
+          NEXT_PUBLIC_REPLAY_API_URL: http://localhost:8080
+          NEXT_PUBLIC_APP_URL: http://localhost:3030
+          NEXTAUTH_URL: http://localhost:3030
+          NEXTAUTH_SECRET: e2e-test-secret-key-for-testing-only
+          CI: true
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Upload failure screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-screenshots
+          path: test-results/**/*.png
+          retention-days: 7
+
+      - name: Stop Backend API
+        if: always()
+        run: |
+          if [ -f /tmp/api.pid ]; then
+            kill $(cat /tmp/api.pid) || true
+          fi
+
+  # E2E Tests with Kind cluster (production-like)
+  e2e-kind:
+    name: E2E (Kind Cluster)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: leetgaming-pro-web
+
+      - name: Checkout Backend API
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/replay-api
+          ref: main
+          path: replay-api
+
+      - name: Checkout K8s configs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/leetgaming-pro
+          ref: main
+          path: leetgaming-pro
+          sparse-checkout: |
+            k8s
+
+      - name: Create Kind Cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: leetgaming-ci
+          config: leetgaming-pro/k8s/kind-config.yaml
+
+      - name: Build Images
+        run: |
+          docker build -t leetgaming-web:ci ./leetgaming-pro-web
+          docker build -t replay-api:ci -f replay-api/cmd/rest-api/Dockerfile.rest-api ./replay-api
+
+      - name: Load Images to Kind
+        run: |
+          kind load docker-image leetgaming-web:ci --name leetgaming-ci &
+          kind load docker-image replay-api:ci --name leetgaming-ci &
+          wait
+
+      - name: Deploy to Kind
+        run: |
+          cd leetgaming-pro
+          kubectl apply -k k8s/overlays/local
+          kubectl wait --for=condition=ready pod -l app=mongodb -n leetgaming --timeout=180s
+          kubectl wait --for=condition=ready pod -l app=replay-api -n leetgaming --timeout=120s
+          kubectl wait --for=condition=ready pod -l app=web-frontend -n leetgaming --timeout=120s
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leetgaming-pro-web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: leetgaming-pro-web
+        run: npm ci
+
+      - name: Install Playwright
+        working-directory: leetgaming-pro-web
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E Tests
+        working-directory: leetgaming-pro-web
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:30300
+          CI: true
+        run: npm run test:e2e -- --project=chromium
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          echo "=== Pod Status ==="
+          kubectl get pods -n leetgaming -o wide
+          echo "=== Events ==="
+          kubectl get events -n leetgaming --sort-by='.lastTimestamp' | tail -30
+          echo "=== API Logs ==="
+          kubectl logs -n leetgaming -l app=replay-api --tail=100 || true
+          echo "=== Web Logs ==="
+          kubectl logs -n leetgaming -l app=web-frontend --tail=100 || true
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-kind
+          path: leetgaming-pro-web/playwright-report/
+          retention-days: 7

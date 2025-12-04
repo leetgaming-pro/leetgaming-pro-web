@@ -1,19 +1,19 @@
 "use client";
 
-import type {RadioGroupProps} from "@nextui-org/react";
-
 import React from "react";
 import {RadioGroup} from "@nextui-org/react";
 import {cn} from "@nextui-org/react";
 
 import RatingRadioItem from "./rating-radio-item";
 
-export type RatingRadioGroupProps = RadioGroupProps & {
+export interface RatingRadioGroupProps {
+  className?: string;
+  label?: React.ReactNode;
   hideStarsText?: boolean;
-};
+}
 
 const RatingRadioGroup = React.forwardRef<HTMLDivElement, RatingRadioGroupProps>(
-  ({className, label, hideStarsText, ...props}, ref) => {
+  ({className, label, hideStarsText}, ref) => {
     const [value, setValue] = React.useState("1");
     const starsText = React.useMemo(() => {
       // Special case for 5 stars
@@ -30,7 +30,6 @@ const RatingRadioGroup = React.forwardRef<HTMLDivElement, RatingRadioGroupProps>
         <RadioGroup
           ref={ref}
           value={value}
-          {...props}
           defaultValue="1"
           orientation="horizontal"
           onValueChange={setValue}

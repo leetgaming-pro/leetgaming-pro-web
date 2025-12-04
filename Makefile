@@ -7,7 +7,7 @@ build:
 
 start:
 	@echo "Starting Next.js application"
-	docker run -d --name leetgaming-pro -p 3000:3000 leetgaming.pro
+	docker run -d --name leetgaming-pro -p 3030:3030 leetgaming.pro
 
 stop:
 	@echo "Stopping Next.js application"

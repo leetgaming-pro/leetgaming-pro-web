@@ -9,11 +9,13 @@ import { Icon } from "@iconify/react";
 import { SearchIcon } from "../icons";
 import { title } from "../primitives";
 import { useTheme } from "next-themes";
+import { useWizard } from "./wizard-context";
 
 export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement>;
 
 const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
   ({ className, ...props }, ref) => {
+    const { updateState } = useWizard();
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
       classNames: {
@@ -46,6 +48,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
 
 
     const teamMock = {
+      id: "team-mock-1",
       displayName: "Eth3ernity*",
       tag: "ETH3",
       url: "leetgaming.pro/teams/ethernity",
@@ -171,7 +174,11 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
               <CardBody>
 
                 {teams.map((team) => (
-                  <Accordion key={team.displayName} selectionMode="multiple">
+                  <Accordion
+                    key={team.displayName}
+                    selectionMode="multiple"
+                    onSelectionChange={() => updateState({ squadId: team.id })}
+                  >
                     <AccordionItem
                       key="1"
                       aria-label={team.displayName}

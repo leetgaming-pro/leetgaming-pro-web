@@ -1,6 +1,3 @@
-import type {ButtonProps} from "@nextui-org/react";
-import type {ButtonWithBorderGradientProps} from "./button-with-border-gradient";
-
 import * as React from "react";
 import {Button} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
@@ -8,11 +5,22 @@ import {cn} from "@nextui-org/react";
 
 import {ButtonWithBorderGradient} from "./button-with-border-gradient";
 
+export interface BackButtonProps {
+  className?: string;
+  isDisabled?: boolean;
+}
+
+export interface NextButtonProps {
+  children?: React.ReactNode;
+  className?: string;
+  isDisabled?: boolean;
+}
+
 type MultistepNavigationButtonsProps = React.HTMLAttributes<HTMLDivElement> & {
   onBack?: () => void;
   onNext?: () => void;
-  backButtonProps?: ButtonProps;
-  nextButtonProps?: ButtonWithBorderGradientProps;
+  backButtonProps?: BackButtonProps;
+  nextButtonProps?: NextButtonProps;
 };
 
 const MultistepNavigationButtons = React.forwardRef<
@@ -28,22 +36,25 @@ const MultistepNavigationButtons = React.forwardRef<
     {...props}
   >
     <Button
-      className="rounded-medium border-default-200 text-medium font-medium text-default-500 lg:hidden"
+      className={cn(
+        "rounded-lg border-2 border-slate-300 dark:border-slate-600 text-medium font-semibold text-slate-600 dark:text-slate-300 hover:border-purple-400 dark:hover:border-cyan-400 hover:text-purple-500 dark:hover:text-cyan-400 transition-all lg:hidden",
+        backButtonProps?.className
+      )}
       variant="bordered"
+      isDisabled={backButtonProps?.isDisabled}
       onPress={onBack}
-      {...backButtonProps}
     >
-      <Icon icon="solar:arrow-left-outline" width={24} />
-      Go Back
+      <Icon icon="solar:arrow-left-outline" width={20} />
+      Back
     </Button>
 
     <ButtonWithBorderGradient
-      className="text-medium font-medium"
+      className={cn("text-medium font-bold px-8", nextButtonProps?.className)}
       type="submit"
+      isDisabled={nextButtonProps?.isDisabled}
       onPress={onNext}
-      {...nextButtonProps}
     >
-      {nextButtonProps?.children || "Sign Up for Free"}
+      {nextButtonProps?.children || "Continue"}
     </ButtonWithBorderGradient>
   </div>
 ));

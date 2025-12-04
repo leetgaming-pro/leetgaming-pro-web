@@ -3,9 +3,15 @@ import { ResultOptions, RouteBuilder } from "@/types/replay-api/replay-api.route
 import { EmptyFilter, CSFilters, RoundData } from "@/types/replay-api/searchable";
 import { ReplayApiResourceType, ReplayApiSettingsMock } from "@/types/replay-api/settings";
 
+interface PageContext {
+  params?: Record<string, string | string[] | undefined>;
+  query?: Record<string, string | string[] | undefined>;
+  body?: Record<string, string | string[] | undefined>;
+  [key: string]: unknown;
+}
 
-export const getContextValue = (context: any, key: string): any[] | undefined | null => {
-    const parameterValue = context.params[key] || context.query[key] || context.body[key] || context[key];
+export const getContextValue = (context: PageContext, key: string): string[] | undefined | null => {
+    const parameterValue = context.params?.[key] || context.query?.[key] || context.body?.[key];
 
     if (parameterValue === null || parameterValue === undefined) {
         return null;
@@ -19,19 +25,18 @@ export const getContextValue = (context: any, key: string): any[] | undefined | 
 }
 
 // { notFound: true; props?: undefined; } | { props: { roundData: RoundData | undefined; }; notFound?: undefined; }
-//: (context: any) => Promise<{ notFound: true; props?: undefined; } | { props: { roundData: RoundData | undefined; }; notFound?: undefined; }>
-export const getServerSideProps = async (context: any) => {
-  const filterPropsKeys = Object.keys(EmptyFilter)
+export const getServerSideProps = async (context: PageContext) => {
+  const filterPropsKeys = Object.keys(EmptyFilter) as (keyof CSFilters)[];
 
-  const queryFilter = filterPropsKeys.reduce((acc, curr) => {
+  const queryFilter = filterPropsKeys.reduce<Partial<CSFilters>>((acc, curr) => {
     const inputValue = getContextValue(context, curr);
 
     if (inputValue !== null && inputValue !== undefined && inputValue.length) {
-        acc[curr] = inputValue;
+        (acc[curr] as string[] | undefined) = inputValue;
     }
 
     return acc
-  }, {} as any);
+  }, {});
 
   if (!queryFilter || !Object.keys(queryFilter).length) {
     console.log('No parameters provided');

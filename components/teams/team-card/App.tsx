@@ -63,17 +63,17 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
 
               <div className="flex gap-4">
                 {social?.twitter && (
-                  <Link isExternal href="#">
+                  <Link isExternal href={social.twitter.startsWith('http') ? social.twitter : `https://twitter.com/${social.twitter.replace('@', '')}`}>
                     <Icon className="text-default-400" icon="bi:twitter" width={20} />
                   </Link>
                 )}
                 {social?.linkedin && (
-                  <Link isExternal href="#">
+                  <Link isExternal href={social.linkedin.startsWith('http') ? social.linkedin : `https://linkedin.com/in/${social.linkedin}`}>
                     <Icon className="text-default-400" icon="bi:linkedin" width={20} />
                   </Link>
                 )}
                 {social?.github && (
-                  <Link isExternal href="#">
+                  <Link isExternal href={social.github.startsWith('http') ? social.github : `https://github.com/${social.github.replace('@', '')}`}>
                     <Icon className="text-default-400" icon="bi:github" width={20} />
                   </Link>
                 )}

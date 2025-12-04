@@ -1,6 +1,5 @@
 "use client";
 
-import type {SliderProps} from "@nextui-org/react";
 import type {RangeFilter, RangeValue} from "./filters-types";
 
 import React from "react";
@@ -9,10 +8,11 @@ import { cl } from "@/components/cl";
 
 export type PriceSliderAnimation = "opacity" | "height";
 
-export type PriceSliderProps = Omit<SliderProps, "ref"> & {
+export interface PriceSliderProps {
+  className?: string;
   range?: RangeFilter;
   animation?: PriceSliderAnimation;
-};
+}
 
 function clampValue(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -69,7 +69,7 @@ const PriceSliderPip: React.FC<PriceSliderPipProps> = ({animation = "height", is
 };
 
 const PriceSlider = React.forwardRef<HTMLDivElement, PriceSliderProps>(
-  ({range, animation, className, ...props}, ref) => {
+  ({range, animation, className}, ref) => {
     const defaultValue = React.useMemo<RangeValue>(
       () => range?.defaultValue || [0, 1000],
       [range?.defaultValue],
@@ -132,7 +132,6 @@ const PriceSlider = React.forwardRef<HTMLDivElement, PriceSliderProps>(
         <div className="flex flex-col gap-1">
           <div className="flex h-12 w-full items-end justify-between px-2">{rangePips}</div>
           <Slider
-            {...props}
             ref={ref}
             formatOptions={{style: "currency", currency: "USD"}}
             maxValue={range?.max}

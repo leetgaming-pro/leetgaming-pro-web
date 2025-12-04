@@ -56,9 +56,9 @@ export default function ConsoleLayout({
   children: React.ReactNode;
 }) {
   const { data: session } = useSession()
-  let { theme, setTheme, systemTheme } = useTheme()
+  const { theme: rawTheme, setTheme: _setTheme, systemTheme: _systemTheme } = useTheme()
 
-  theme ??= "light"
+  const theme = rawTheme ?? "light"
   const backfilter = theme === "light" ? "brightness(1)" : "brightness(0.4)"
 
 
@@ -170,23 +170,52 @@ export default function ConsoleLayout({
                       imgProps: {
                         className: "transition-none",
                       },
-                      src: "/logo_leetgaming-big-g.png",
+                      src: session?.user?.image || "/logo_leetgaming-big-g.png",
                     }}
                     classNames={{
                       name: "text-default-600",
                       description: "text-default-500",
                     }}
-                    description="Customer Support"
-                    name="Unnamed Group 1"
+                    description={session?.user?.email || ""}
+                    name={session?.user?.name || "Guest"}
                   />
                 </DropdownItem>
-                <DropdownItem key="dashboard">Dashboard</DropdownItem>
-                <DropdownItem key="settings">Settings</DropdownItem>
+                <DropdownItem key="dashboard" href="/replays">
+                  Dashboard
+                </DropdownItem>
+                <DropdownItem key="settings" href="/settings">
+                  Settings
+                </DropdownItem>
                 <DropdownItem
-                  key="new_project"
+                  key="upload"
+                  href="/upload"
                   endContent={<Icon className="text-large" icon="lucide:plus" />}
                 >
-                  New Project
+                  Upload Replay
+                </DropdownItem>
+              </DropdownSection>
+
+              <DropdownSection showDivider aria-label="Account">
+                <DropdownItem
+                  key="subscription"
+                  href="/checkout"
+                  startContent={<Icon className="text-warning" icon="solar:crown-bold" width={18} />}
+                >
+                  Subscription
+                </DropdownItem>
+                <DropdownItem
+                  key="billing"
+                  href="/settings?tab=billing"
+                  startContent={<Icon className="text-default-500" icon="solar:card-bold" width={18} />}
+                >
+                  Billing
+                </DropdownItem>
+                <DropdownItem
+                  key="privacy"
+                  href="/settings?tab=privacy"
+                  startContent={<Icon className="text-default-500" icon="solar:shield-check-bold" width={18} />}
+                >
+                  Privacy & Data
                 </DropdownItem>
               </DropdownSection>
 
@@ -203,10 +232,12 @@ export default function ConsoleLayout({
                       className="z-10 w-16 rounded-md border-small border-default-300 bg-transparent py-0.5 text-tiny text-default-500 outline-none group-data-[hover=true]:border-default-500 dark:border-default-200"
                       id="theme"
                       name="theme"
+                      value={theme}
+                      onChange={(e) => _setTheme(e.target.value.toLowerCase())}
                     >
-                      <option>System</option>
-                      <option>Dark</option>
-                      <option>Light</option>
+                      <option value="system">System</option>
+                      <option value="dark">Dark</option>
+                      <option value="light">Light</option>
                     </select>
                   }
                 >
@@ -215,8 +246,12 @@ export default function ConsoleLayout({
               </DropdownSection>
 
               <DropdownSection aria-label="Help & Feedback">
-                <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-                <DropdownItem key="logout">Log Out</DropdownItem>
+                <DropdownItem key="help_and_feedback" href="/help">
+                  Help & Feedback
+                </DropdownItem>
+                <DropdownItem key="logout" className="text-danger" color="danger" onClick={() => signOut()}>
+                  Log Out
+                </DropdownItem>
               </DropdownSection>
             </DropdownMenu>
           </Dropdown>

@@ -17,7 +17,7 @@ export default function SignUpApp() {
 
   useEffect(() => {
     if (isMounted && status === 'authenticated') {
-      router.push('/');
+      router.push('/match-making');
     }
   }, [isMounted, status, router]);
 

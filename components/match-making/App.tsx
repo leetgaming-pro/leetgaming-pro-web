@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import {domAnimation, LazyMotion, m} from "framer-motion";
+import { domAnimation, LazyMotion, m } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/toast/toast-provider";
 
 import MultistepSidebar from "./multistep-sidebar";
 import SquadForm from "./squad-form";
@@ -9,6 +11,9 @@ import ScheduleInformationForm from "./schedule-information-form";
 import ChooseRegionForm from "./choose-region-form";
 import GameModeForm from "./game-mode-form";
 import MultistepNavigationButtons from "./multistep-navigation-buttons";
+import { PrizeDistributionSelector } from "./prize-distribution-selector";
+import ReviewConfirmForm from "./review-confirm-form";
+import { WizardProvider, useWizard } from "./wizard-context";
 
 const variants = {
   enter: (direction: number) => ({
@@ -27,14 +32,17 @@ const variants = {
   }),
 };
 
-export default function Component() {
+function WizardContent() {
+  const { state, updateState, startMatchmaking } = useWizard();
+  const { data: session } = useSession();
+  const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
 
   const paginate = React.useCallback((newDirection: number) => {
     setPage((prev) => {
       const nextPage = prev[0] + newDirection;
 
-      if (nextPage < 0 || nextPage > 3) return prev;
+      if (nextPage < 0 || nextPage > 5) return prev;
 
       return [nextPage, newDirection];
     });
@@ -42,7 +50,7 @@ export default function Component() {
 
   const onChangePage = React.useCallback((newPage: number) => {
     setPage((prev) => {
-      if (newPage < 0 || newPage > 3) return prev;
+      if (newPage < 0 || newPage > 5) return prev;
       const currentPage = prev[0];
 
       return [newPage, newPage > currentPage ? 1 : -1];
@@ -53,9 +61,19 @@ export default function Component() {
     paginate(-1);
   }, [paginate]);
 
-  const onNext = React.useCallback(() => {
-    paginate(1);
-  }, [paginate]);
+  const onNext = React.useCallback(async () => {
+    // If on final step (page 5), trigger matchmaking
+    if (page === 5) {
+      if (!session?.user) {
+        showToast("Please sign in to start matchmaking", "warning");
+        return;
+      }
+      await startMatchmaking((session.user as any)?.id || "mock-player-id");
+      // Keep on same page to show matchmaking status
+    } else {
+      paginate(1);
+    }
+  }, [paginate, page, session, startMatchmaking, showToast]);
 
   const content = React.useMemo(() => {
     let component = <ChooseRegionForm />;
@@ -69,6 +87,18 @@ export default function Component() {
         break;
       case 3:
         component = <ScheduleInformationForm />;
+        break;
+      case 4:
+        component = (
+          <PrizeDistributionSelector
+            currentPool={state.expectedPool || 100}
+            selectedRule={state.distributionRule}
+            onSelectRule={(rule) => updateState({ distributionRule: rule })}
+          />
+        );
+        break;
+      case 5:
+        component = <ReviewConfirmForm />;
         break;
     }
 
@@ -86,7 +116,7 @@ export default function Component() {
               ease: "backOut",
               duration: 0.35,
             },
-            opacity: {duration: 0.4},
+            opacity: { duration: 0.4 },
           }}
           variants={variants}
         >
@@ -106,15 +136,30 @@ export default function Component() {
       <div className="relative flex h-fit w-full flex-col pt-6 text-center lg:h-full lg:justify-center lg:pt-0">
         {content}
         <MultistepNavigationButtons
-          backButtonProps={{isDisabled: page === 0}}
+          backButtonProps={{
+            isDisabled: page === 0 || state.matchmaking?.isSearching,
+          }}
           className="hidden justify-start lg:flex"
           nextButtonProps={{
-            children: page === 0 ? "Next" : page === 3 ? "Find Match" : "Next",
+            children: state.matchmaking?.isSearching
+              ? "Searching..."
+              : page === 5
+              ? "Find Match"
+              : "Next",
+            isDisabled: state.matchmaking?.isSearching,
           }}
           onBack={onBack}
           onNext={onNext}
         />
       </div>
     </MultistepSidebar>
+  );
+}
+
+export default function Component() {
+  return (
+    <WizardProvider>
+      <WizardContent />
+    </WizardProvider>
   );
 }

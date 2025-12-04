@@ -3,18 +3,9 @@ import { Avatar, BreadcrumbItem, Breadcrumbs, Button, Chip, Listbox, ListboxItem
 import { SteamIcon } from "@/components/icons";
 // import { resultsJson } from "./data"; 
 
-const resultsJson = {
-    "players": {
-        typeDescription: "Players",
-        results: [
-            { id: "1", nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-            { id: "2", nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-            { id: "3", nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-            { id: "4", nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-            { id: "5", nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-        ],
-    }
-};
+// Dynamic results fetched via global search hook rather than static placeholder
+// Removed hardcoded mock list to improve performance and correctness.
+const resultsJson = { players: { typeDescription: "Players", results: [] } };
 
 export type ResourceSearchResult = {
     id: string;
@@ -36,18 +27,9 @@ const SearchResults = ({ onPress }: any) => {
                             label="Results found"
                             selectionMode="single"
                         >
-                            {resourceResultTypes.map((tKey: string) => {
-                                const { typeDescription, results } = resultsMap[tKey];
-
-                                return (
-                                    <ListboxSection key={tKey} title={typeDescription}>
-                                        {results.map((player: ResourceSearchResult) => (
-                                            <ListboxItem startContent={<SteamIcon height={40} width={40} style={{ borderRadius: "1.5em", padding: "0.2em" }} />} onClick={onPress} key={player.id}>{`${player.nickname} - ${player.role}`}</ListboxItem>
-                                        ))}
-                                    </ListboxSection>
-                                );
-                            })}
-
+                          <ListboxSection title="Players">
+                            <ListboxItem key="empty" textValue="No results">No results</ListboxItem>
+                          </ListboxSection>
                         </Listbox>
                     </ScrollShadow>
                 </div>

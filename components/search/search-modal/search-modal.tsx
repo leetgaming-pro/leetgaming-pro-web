@@ -1,23 +1,61 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Checkbox, Input, Link, LinkIcon, Kbd } from "@nextui-org/react";
 import { CopyDocumentIcon, DeleteDocumentIcon, EditDocumentIcon, Logo, PlusIcon, SearchIcon, ServerIcon } from '@/components/icons';
 import { ChevronDownIcon } from '@/components/files/replays-table/ChevronDownIcon';
 import SearchResults from "./search-results";
+import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 
 export default function SearchInput() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [query, setQuery] = useState("");
+    const { results, loading, error, search, clear } = useGlobalSearch();
+    const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+    // Debounced search
+    useEffect(() => {
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
+
+        if (query.trim().length >= 2) {
+            debounceTimer.current = setTimeout(() => {
+                search(query);
+            }, 300); // 300ms debounce
+        } else {
+            clear();
+        }
+
+        return () => {
+            if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current);
+            }
+        };
+    }, [query, search, clear]);
+
+    // Clear search when modal closes
+    const handleOpenChange = (open: boolean) => {
+        if (!open) {
+            setQuery("");
+            clear();
+        }
+        onOpenChange();
+    };
+
+    const handleKey = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Escape') {
+            handleOpenChange(false);
+        }
+    }, []);
 
     return (
-        <div className='w-full'>
-            {/* <Button  color="secondary"  className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/50" endContent={<PlusIcon />}>
-              Upload
-            </Button> */}
+        <div className="w-full">
             <Input
                 aria-label="Search"
                 classNames={{
-                    inputWrapper: "bg-default-100",
-                    input: "text-sm radius-none text-default-500",
+                    inputWrapper: "bg-default-100 h-9",
+                    input: "text-sm text-default-500",
                 }}
+                size="sm"
                 onClick={onOpen}
                 // onFocus={onOpen}
                 // onInput={onOpen}
@@ -44,7 +82,7 @@ export default function SearchInput() {
             <Modal
                 backdrop="opaque"
                 isOpen={isOpen}
-                onOpenChange={onOpenChange}
+                onOpenChange={handleOpenChange}
                 placement="top-center"
                 size="5xl"
             >
@@ -52,36 +90,44 @@ export default function SearchInput() {
                     {(onClose) => (
                         <>
                             <ModalHeader className="items-center text-center justify-center">
-                            <Input
+                                <Input
                                     aria-label="Search"
+                                    autoFocus
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={handleKey}
                                     classNames={{
                                         inputWrapper: "bg-default-100",
                                         input: "text-xl",
                                     }}
                                     endContent={
-                                        
-                                        <Kbd keys={["command", "enter"]} title='Search'></Kbd>
-                              
-                                        
+                                        loading ? (
+                                            <div className="animate-spin">⏳</div>
+                                        ) : (
+                                            <Kbd keys={["command", "enter"]} title='Search'></Kbd>
+                                        )
                                     }
                                     labelPlacement="outside"
-                                    placeholder="Search..."
+                                    placeholder="Type at least 2 characters..."
                                     startContent={
-                                        
                                         <SearchIcon className="text-default-300 md" />
-                                        
                                     }
                                     type="search"
                                 />
                             </ModalHeader>
                             <ModalBody>
-                                <SearchResults onPress={onClose} />
+                                <SearchResults
+                                    results={results}
+                                    loading={loading}
+                                    error={error}
+                                    query={query}
+                                    onPress={onClose}
+                                />
                             </ModalBody>
                             <ModalFooter>
-                                {/* <Button variant="faded" color="danger" onPress={onClose} startContent={<DeleteDocumentIcon size={16} height={16} width={16} />}>
-                                    Discard
-                                </Button> */}
-                                
+                                {error && (
+                                    <div className="text-danger text-sm">{error}</div>
+                                )}
                             </ModalFooter>
                         </>
                     )}

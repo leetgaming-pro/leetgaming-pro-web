@@ -12,7 +12,7 @@ interface MatchTimelineData {
 
 export default async function MatchTimelineHorizontalFull(props: any) {
   const [viewModes, setViewModes] = useState<MapViewModeType[]>([MapViewModeType.MapHeatmapLayer]);
-  const mock: MatchTimelineData = { rounds: [] } as any
+  // Removed mock timeline data; expects real roundData from API
 
   const roundData: any | undefined = await fetchRoundData(props.filter)
 

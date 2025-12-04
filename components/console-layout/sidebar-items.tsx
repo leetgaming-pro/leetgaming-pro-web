@@ -12,71 +12,54 @@ import { PlusIcon } from '../icons';
 export const items: SidebarItem[] = [
   {
     key: "home",
-    href: "#",
+    href: "/",
     icon: "solar:home-2-linear",
     title: "Home",
   },
   {
-    key: "projects",
-    href: "#",
-    icon: "solar:widget-2-outline",
-    title: "Projects",
+    key: "match-making",
+    href: "/match-making",
+    icon: "solar:gamepad-bold",
+    title: "Play Now",
     endContent: (
-      <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-    ),
-  },
-  {
-    key: "tasks",
-    href: "#",
-    icon: "solar:checklist-minimalistic-outline",
-    title: "Tasks",
-    endContent: (
-      <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-    ),
-  },
-  {
-    key: "team",
-    href: "#",
-    icon: "solar:users-group-two-rounded-outline",
-    title: "Team",
-  },
-  {
-    key: "tracker",
-    href: "#",
-    icon: "solar:sort-by-time-linear",
-    title: "Tracker",
-    endContent: (
-      <Chip size="sm" variant="flat">
-        New
+      <Chip size="sm" variant="flat" color="success">
+        Live
       </Chip>
     ),
   },
   {
+    key: "tournaments",
+    href: "/tournaments",
+    icon: "solar:cup-star-bold",
+    title: "Tournaments",
+  },
+  {
+    key: "teams",
+    href: "/teams",
+    icon: "solar:users-group-two-rounded-outline",
+    title: "Teams",
+  },
+  {
+    key: "leaderboards",
+    href: "/leaderboards",
+    icon: "solar:ranking-bold",
+    title: "Leaderboards",
+  },
+  {
     key: "analytics",
-    href: "#",
+    href: "/analytics",
     icon: "solar:chart-outline",
     title: "Analytics",
   },
   {
-    key: "perks",
-    href: "#",
-    icon: "solar:gift-linear",
-    title: "Perks",
-    endContent: (
-      <Chip size="sm" variant="flat">
-        3
-      </Chip>
-    ),
-  },
-  {
-    key: "expenses",
-    href: "#",
-    icon: "solar:bill-list-outline",
-    title: "Expenses",
+    key: "wallet",
+    href: "/wallet",
+    icon: "solar:wallet-bold",
+    title: "Wallet",
   },
   {
     key: "settings",
-    href: "#",
+    href: "/settings",
     icon: "solar:settings-outline",
     title: "Settings",
   },
@@ -84,130 +67,162 @@ export const items: SidebarItem[] = [
 
 export const sectionItems: SidebarItem[] = [
   {
-    key: "player",
-    title: "Player",
+    key: "quickstart",
+    title: "Quick Start",
     items: [
       {
+        key: "match-making",
+        href: "/match-making",
+        icon: "solar:gamepad-bold",
+        title: "Play Now",
+        endContent: (
+          <Chip size="sm" variant="flat" color="success" className="text-xs">
+            Live
+          </Chip>
+        ),
+      },
+      {
         key: "upload-replay-file",
-        href: "#",
-        icon: "solar:home-2-linear",
-        title: "Upload",
+        href: "/upload",
+        icon: "solar:cloud-upload-bold",
+        title: "Upload Replay",
         endContent: <PlusIcon />
       },
       {
-        key: "match-making",
-        href: "#",
-        icon: "solar:widget-2-outline",
-        title: "Match Making",
-        endContent: (
-          <Chip size="sm" variant="flat">
-            New
-          </Chip>
-        ),
-      },
-      {
-        key: "create-server",
-        href: "#",
-        icon: "solar:checklist-minimalistic-outline",
-        title: "Create Server",
-        endContent: (
-          <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-        ),
-      },
-      {
-        key: "find-team",
-        href: "#",
-        icon: "solar:users-group-two-rounded-outline",
-        title: "Find Team",
-      },
-      {
-        key: "create-team",
-        href: "#",
-        icon: "solar:sort-by-time-linear",
-        title: "Create Team",
-        endContent: (
-          <Chip size="sm" variant="solid" color="primary">
-            PRO
-          </Chip>
-        ),
+        key: "onboarding",
+        href: "/onboarding",
+        icon: "solar:star-bold",
+        title: "Get Started",
       },
     ],
   },
   {
-    key: "team",
-    title: "Team",
+    key: "compete",
+    title: "Compete",
     items: [
       {
-        key: "public-metrics",
-        href: "#",
-        icon: "solar:chart-outline",
-        title: "Public Metrics",
+        key: "tournaments",
+        href: "/tournaments",
+        icon: "solar:cup-star-bold",
+        title: "Tournaments",
       },
       {
-        key: "ranking",
-        href: "#",
-        icon: "solar:chart-outline",
-        title: "Ranking",
+        key: "leaderboards",
+        href: "/leaderboards",
+        icon: "solar:ranking-bold",
+        title: "Leaderboards",
+      },
+      {
+        key: "ranked",
+        href: "/ranked",
+        icon: "solar:medal-ribbons-star-bold",
+        title: "Ranked Play",
+      },
+    ],
+  },
+  {
+    key: "community",
+    title: "Community",
+    items: [
+      {
+        key: "find-team",
+        href: "/teams",
+        icon: "solar:users-group-two-rounded-bold",
+        title: "Teams",
+      },
+      {
+        key: "players",
+        href: "/players",
+        icon: "solar:user-bold",
+        title: "Players",
+      },
+      {
+        key: "player-register",
+        href: "/players/register",
+        icon: "solar:user-plus-bold",
+        title: "Create Profile",
+      },
+    ],
+  },
+  {
+    key: "storage",
+    title: "Cloud Storage",
+    items: [
+      {
+        key: "cloud",
+        href: "/cloud",
+        icon: "solar:cloud-bold",
+        title: "Dashboard",
+      },
+      {
+        key: "replays",
+        href: "/replays",
+        icon: "solar:videocamera-record-bold",
+        title: "My Replays",
       },
       {
         key: "analytics",
-        href: "#",
-        icon: "solar:chart-outline",
+        href: "/analytics",
+        icon: "solar:chart-2-bold",
         title: "Analytics",
       },
+    ],
+  },
+  {
+    key: "account",
+    title: "Account",
+    items: [
       {
-        key: "merchandise",
-        href: "/merchandise",
-        icon: "solar:settings-outline",
-        title: "Merch",
+        key: "wallet",
+        href: "/wallet",
+        icon: "solar:wallet-bold",
+        title: "Wallet",
         endContent: (
-          <Chip size="sm" variant="flat">
-            New
+          <Chip size="sm" variant="flat" color="success">
+            $
           </Chip>
         ),
       },
       {
-        key: "files",
-        href: "#",
-        icon: "solar:chart-outline",
-        title: "Files & Sharing",
-      },
-      {
-        key: "pending-requests",
-        href: "/perks",
-        icon: "solar:gift-linear",
-        title: "Pending Requests",
+        key: "subscription",
+        href: "/checkout",
+        icon: "solar:crown-bold",
+        title: "Subscription",
         endContent: (
-          <Chip size="sm" variant="flat">
-            3
+          <Chip size="sm" variant="flat" color="warning">
+            Pro
           </Chip>
         ),
       },
       {
-        key: "server",
-        href: "#",
-        icon: "solar:bill-list-outline",
-        title: "Server",
-        endContent: (
-          <div>
-          <Chip size="sm" variant="bordered" color="success">
-            UP
-          </Chip>
-          <Chip size="sm" variant="dot" color="danger">
-            <div>
-              <p>
-                Recording...
-            </p>
-            </div>
-          </Chip>
-          </div>
-        ),
+        key: "billing",
+        href: "/settings?tab=billing",
+        icon: "solar:card-bold",
+        title: "Billing",
+      },
+      {
+        key: "privacy",
+        href: "/settings?tab=privacy",
+        icon: "solar:shield-check-bold",
+        title: "Privacy & Data",
+      },
+      {
+        key: "security",
+        href: "/settings?tab=security",
+        icon: "solar:lock-bold",
+        title: "Security & MFA",
       },
       {
         key: "settings",
         href: "/settings",
-        icon: "solar:settings-outline",
+        icon: "solar:settings-bold",
         title: "Settings",
+      },
+      {
+        key: "help",
+        href: "/help",
+        icon: "solar:question-circle-bold",
+        title: "Help & Support",
       },
     ],
   },
@@ -220,22 +235,16 @@ export const sectionItemsWithTeams: SidebarItem[] = [
     title: "Your Teams",
     items: [
       {
-        key: "Eternity",
-        href: "#",
-        title: "Eternity",
-        startContent: <TeamAvatar name="Eternity" />,
+        key: "create-team",
+        href: "/teams/create",
+        title: "Create Team",
+        icon: "solar:add-circle-bold",
       },
       {
-        key: "label-team",
-        href: "#",
-        title: "Hyper Games PRO",
-        startContent: <TeamAvatar name="Hyper Games" />,
-      },
-      {
-        key: "match-making-sae-1",
-        href: "#",
-        title: "Match Making - SP #1",
-        startContent: <TeamAvatar name="S P" />,
+        key: "my-teams",
+        href: "/teams/my",
+        title: "My Teams",
+        startContent: <TeamAvatar name="My Teams" />,
       },
     ],
   },
@@ -248,100 +257,62 @@ export const brandItems: SidebarItem[] = [
     items: [
       {
         key: "home",
-        href: "#",
+        href: "/",
         icon: "solar:home-2-linear",
         title: "Home",
       },
       {
-        key: "projects",
-        href: "#",
-        icon: "solar:widget-2-outline",
-        title: "Projects",
-        endContent: (
-          <Icon
-            className="text-primary-foreground/60"
-            icon="solar:add-circle-line-duotone"
-            width={24}
-          />
-        ),
-      },
-      {
-        key: "tasks",
-        href: "#",
-        icon: "solar:checklist-minimalistic-outline",
-        title: "Tasks",
-        endContent: (
-          <Icon
-            className="text-primary-foreground/60"
-            icon="solar:add-circle-line-duotone"
-            width={24}
-          />
-        ),
-      },
-      {
-        key: "team",
-        href: "#",
-        icon: "solar:users-group-two-rounded-outline",
-        title: "Team",
-      },
-      {
-        key: "tracker",
-        href: "#",
-        icon: "solar:sort-by-time-linear",
-        title: "Tracker",
+        key: "match-making",
+        href: "/match-making",
+        icon: "solar:gamepad-bold",
+        title: "Play Now",
         endContent: (
           <Chip className="bg-primary-foreground font-medium text-primary" size="sm" variant="flat">
-            New
+            Live
           </Chip>
         ),
+      },
+      {
+        key: "tournaments",
+        href: "/tournaments",
+        icon: "solar:cup-star-bold",
+        title: "Tournaments",
+      },
+      {
+        key: "teams",
+        href: "/teams",
+        icon: "solar:users-group-two-rounded-outline",
+        title: "Teams",
+      },
+      {
+        key: "leaderboards",
+        href: "/leaderboards",
+        icon: "solar:ranking-bold",
+        title: "Leaderboards",
       },
     ],
   },
   {
-    key: "your-teams",
-    title: "Your Teams",
+    key: "your-account",
+    title: "Your Account",
     items: [
       {
-        key: "nextui",
-        href: "#",
-        title: "NextUI",
-        startContent: (
-          <TeamAvatar
-            classNames={{
-              base: "border-1 border-primary-foreground/20",
-              name: "text-primary-foreground/80",
-            }}
-            name="Next UI"
-          />
-        ),
+        key: "wallet",
+        href: "/wallet",
+        title: "Wallet",
+        icon: "solar:wallet-bold",
       },
       {
-        key: "tailwind-variants",
-        href: "#",
-        title: "Tailwind Variants",
-        startContent: (
-          <TeamAvatar
-            classNames={{
-              base: "border-1 border-primary-foreground/20",
-              name: "text-primary-foreground/80",
-            }}
-            name="Tailwind Variants"
-          />
-        ),
+        key: "settings",
+        href: "/settings",
+        title: "Settings",
+        icon: "solar:settings-bold",
       },
       {
-        key: "nextui-pro",
-        href: "#",
-        title: "NextUI Pro",
-        startContent: (
-          <TeamAvatar
-            classNames={{
-              base: "border-1 border-primary-foreground/20",
-              name: "text-primary-foreground/80",
-            }}
-            name="NextUI Pro"
-          />
-        ),
+        key: "help",
+        href: "/help",
+        title: "Help & Support",
+        icon: "solar:question-circle-bold",
       },
     ],
   },
@@ -354,58 +325,28 @@ export const sectionLongList: SidebarItem[] = [
     title: "Payments",
     items: [
       {
-        key: "payroll",
-        href: "#",
-        title: "Payroll",
-        icon: "solar:dollar-minimalistic-linear",
+        key: "wallet",
+        href: "/wallet",
+        title: "Wallet",
+        icon: "solar:wallet-bold",
       },
       {
-        key: "invoices",
-        href: "#",
-        title: "Invoices",
+        key: "transactions",
+        href: "/wallet?tab=transactions",
+        title: "Transactions",
         icon: "solar:file-text-linear",
       },
       {
         key: "billing",
-        href: "#",
+        href: "/settings?tab=billing",
         title: "Billing",
         icon: "solar:card-outline",
       },
       {
-        key: "payment-methods",
-        href: "#",
-        title: "Payment Methods",
-        icon: "solar:wallet-money-outline",
-      },
-      {
-        key: "payouts",
-        href: "#",
-        title: "Payouts",
-        icon: "solar:card-transfer-outline",
-      },
-    ],
-  },
-  {
-    key: "your-teams",
-    title: "Your Teams",
-    items: [
-      {
-        key: "nextui",
-        href: "#",
-        title: "NextUI",
-        startContent: <TeamAvatar name="Next UI" />,
-      },
-      {
-        key: "tailwind-variants",
-        href: "#",
-        title: "Tailwind Variants",
-        startContent: <TeamAvatar name="Tailwind Variants" />,
-      },
-      {
-        key: "nextui-pro",
-        href: "#",
-        title: "NextUI Pro",
-        startContent: <TeamAvatar name="NextUI Pro" />,
+        key: "subscription",
+        href: "/checkout",
+        title: "Subscription",
+        icon: "solar:crown-bold",
       },
     ],
   },
@@ -414,92 +355,87 @@ export const sectionLongList: SidebarItem[] = [
 export const sectionNestedItems: SidebarItem[] = [
   {
     key: "home",
-    href: "#",
+    href: "/",
     icon: "solar:home-2-linear",
     title: "Home",
   },
   {
-    key: "projects",
-    href: "#",
-    icon: "solar:widget-2-outline",
-    title: "Projects",
+    key: "match-making",
+    href: "/match-making",
+    icon: "solar:gamepad-bold",
+    title: "Play Now",
     endContent: (
-      <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-    ),
-  },
-  {
-    key: "tasks",
-    href: "#",
-    icon: "solar:checklist-minimalistic-outline",
-    title: "Tasks",
-    endContent: (
-      <Icon className="text-default-400" icon="solar:add-circle-line-duotone" width={24} />
-    ),
-  },
-  {
-    key: "team",
-    href: "#",
-    icon: "solar:users-group-two-rounded-outline",
-    title: "Team",
-  },
-  {
-    key: "tracker",
-    href: "#",
-    icon: "solar:sort-by-time-linear",
-    title: "Tracker",
-    endContent: (
-      <Chip size="sm" variant="flat">
-        New
+      <Chip size="sm" variant="flat" color="success">
+        Live
       </Chip>
     ),
   },
   {
+    key: "tournaments",
+    href: "/tournaments",
+    icon: "solar:cup-star-bold",
+    title: "Tournaments",
+  },
+  {
+    key: "teams",
+    href: "/teams",
+    icon: "solar:users-group-two-rounded-outline",
+    title: "Teams",
+  },
+  {
+    key: "leaderboards",
+    href: "/leaderboards",
+    icon: "solar:ranking-bold",
+    title: "Leaderboards",
+  },
+  {
     key: "analytics",
-    href: "#",
+    href: "/analytics",
     icon: "solar:chart-outline",
     title: "Analytics",
   },
   {
-    key: "perks",
-    href: "#",
-    icon: "solar:gift-linear",
-    title: "Perks",
-    endContent: (
-      <Chip size="sm" variant="flat">
-        3
-      </Chip>
-    ),
-  },
-  {
-    key: "cap_table",
-    title: "Cap Table",
-    icon: "solar:pie-chart-2-outline",
+    key: "storage",
+    title: "Cloud Storage",
+    icon: "solar:cloud-bold",
     type: SidebarItemType.Nest,
     items: [
       {
-        key: "shareholders",
-        icon: "solar:users-group-rounded-linear",
-        href: "#",
-        title: "Shareholders",
+        key: "cloud",
+        icon: "solar:cloud-bold",
+        href: "/cloud",
+        title: "Dashboard",
       },
       {
-        key: "note_holders",
-        icon: "solar:notes-outline",
-        href: "#",
-        title: "Note Holders",
+        key: "replays",
+        icon: "solar:videocamera-record-bold",
+        href: "/replays",
+        title: "My Replays",
       },
       {
-        key: "transactions_log",
-        icon: "solar:clipboard-list-linear",
-        href: "#",
-        title: "Transactions Log",
+        key: "upload",
+        icon: "solar:cloud-upload-bold",
+        href: "/upload",
+        title: "Upload",
       },
     ],
   },
   {
-    key: "expenses",
-    href: "#",
-    icon: "solar:bill-list-outline",
-    title: "Expenses",
+    key: "wallet",
+    href: "/wallet",
+    icon: "solar:wallet-bold",
+    title: "Wallet",
+  },
+  {
+    key: "settings",
+    href: "/settings",
+    icon: "solar:settings-bold",
+    title: "Settings",
+  },
+  {
+    key: "help",
+    href: "/help",
+    icon: "solar:question-circle-bold",
+    title: "Help",
   },
 ];
