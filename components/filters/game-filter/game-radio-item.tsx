@@ -1,16 +1,18 @@
 "use client";
 
-import type {RadioProps} from "@nextui-org/react";
-
 import React from "react";
 import {Tooltip, VisuallyHidden, useRadio} from "@nextui-org/react";
 import {cn} from "@nextui-org/react";
 
-export type GameRadioItemProps = Omit<RadioProps, "color"> & {color?: string; tooltip?: string};
+export interface GameRadioItemProps {
+  value: string;
+  color?: string;
+  tooltip?: string;
+}
 
 const GameRadioItem = React.forwardRef<HTMLInputElement, GameRadioItemProps>(
-  ({color, tooltip, ...props}, ref) => {
-    const {Component, isSelected, isFocusVisible, getBaseProps, getInputProps} = useRadio(props);
+  ({color, tooltip, value}, ref) => {
+    const {Component, isSelected, isFocusVisible, getBaseProps, getInputProps} = useRadio({value});
 
     return (
       <Tooltip content={tooltip} delay={1000} isDisabled={!tooltip} offset={0} placement="top">

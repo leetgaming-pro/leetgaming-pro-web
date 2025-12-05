@@ -8,16 +8,18 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
-  type CardProps,
 } from "@nextui-org/react";
 
 import {AcmeLogo} from "./acme";
 
-export default function Component(props: CardProps) {
+interface ComponentProps {
+  className?: string;
+}
+
+export default function Component({className}: ComponentProps) {
   return (
     <Card
-      className="overflow-none relative w-[420px] border-small border-foreground/10 bg-[url('https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/abstract-dark-bg4.jpg')] bg-right-bottom"
-      {...props}
+      className={`overflow-none relative w-[420px] border-small border-foreground/10 bg-[url('https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/abstract-dark-bg4.jpg')] bg-right-bottom ${className || ''}`}
     >
       <CardHeader>
         <div className="flex items-center gap-3">

@@ -12,6 +12,7 @@ import companyIndustries from "./company-industries";
 import { title } from "../primitives";
 
 import { useTheme } from "next-themes";
+import { useWizard } from "./wizard-context";
 
 import { DateRangePicker } from "@nextui-org/react";
 import { parseAbsoluteToLocal, Time, ZonedDateTime } from "@internationalized/date";
@@ -50,6 +51,7 @@ const defaultContent =
 function formatDateToTimezone(date: Date, timeZone: string): string { const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', timeZone, timeZoneName: 'short', }; return new Intl.DateTimeFormat('en-US', options).format(date); }
 const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInformationFormProps>(
   ({ className, ...props }, ref) => {
+    const { updateState } = useWizard();
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
       classNames: {
@@ -101,7 +103,17 @@ const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInform
 
                   <div className="w-full h-full  font-bold  flex-col items-center justify-center text-center">
                     <I18nProvider locale="ja-JP">
-                      <DateRangePicker label="Available Time Window" value={date} onChange={setDate} />
+                      <DateRangePicker
+                        label="Available Time Window"
+                        value={date}
+                        onChange={(newDate) => {
+                          setDate(newDate);
+                          updateState({
+                            scheduleStart: newDate.start.toDate(),
+                            scheduleEnd: newDate.end.toDate(),
+                          });
+                        }}
+                      />
                     </I18nProvider>
 
                     <Spacer y={2} />
@@ -156,7 +168,10 @@ const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInform
                     color="warning"
                     label="Select Weekdays"
                     value={selected}
-                    onValueChange={setSelected}
+                    onValueChange={(newSelected) => {
+                      setSelected(newSelected);
+                      updateState({ weeklyRoutine: newSelected });
+                    }}
                   >
                     <Checkbox value="sunday">Sunday</Checkbox>
                     <Checkbox value="monday">Monday</Checkbox>

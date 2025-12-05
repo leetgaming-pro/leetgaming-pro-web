@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import {AvatarGroup, Avatar, Button} from "@nextui-org/react";
+import {Button} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import {cn} from "@nextui-org/react";
 
@@ -17,28 +17,15 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
         className,
       )}
     >
-      <AvatarGroup isBordered size="sm">
-        <Avatar
-          classNames={{
-            base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
-          }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/d958cf406bb83c3c0a93e2f03fcb0bef.jpg"
+      <div className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-gradient-to-br from-cyan-500 to-purple-600">
+        <Icon
+          className="text-white"
+          icon="solar:headphones-round-bold"
+          width={18}
         />
-        <Avatar
-          classNames={{
-            base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
-          }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/3a906b3de8eaa53e14582edf5c918b5d.jpg"
-        />
-        <Avatar
-          classNames={{
-            base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
-          }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/f4d075c1fa8155478e5bb26aaae69fc1.jpg"
-        />
-      </AvatarGroup>
+      </div>
       <div className="line-clamp-2 text-left text-tiny font-medium text-default-700">
-        We’re here to answer your questions.
+        Need help? Our support team is ready.
       </div>
       <Button
         isIconOnly

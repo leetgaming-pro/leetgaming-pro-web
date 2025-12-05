@@ -1,7 +1,5 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {Card, CardBody, CardHeader, Listbox, ListboxItem, Progress} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
@@ -51,9 +49,13 @@ const items = [
   },
 ];
 
-export default function Component(props: CardProps) {
+interface OnboardingCardProps {
+  className?: string;
+}
+
+export default function Component({className}: OnboardingCardProps) {
   return (
-    <Card {...props} className="max-w-[520px] py-1 md:py-4">
+    <Card className={`max-w-[520px] py-1 md:py-4 ${className || ''}`}>
       <CardHeader className="flex items-center gap-3 px-4 pb-0 pt-3 md:px-10 md:pt-5">
         <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-gradient-to-br from-secondary-300 to-primary-500">
           <Icon className="text-white" icon="solar:skateboarding-line-duotone" width={30} />
@@ -75,7 +77,7 @@ export default function Component(props: CardProps) {
           aria-label="Onboarding checklist"
           items={items}
           variant="flat"
-          onAction={(selectedKey) => alert(selectedKey)}
+          onAction={() => {}}
         >
           {(item) => (
             <ListboxItem

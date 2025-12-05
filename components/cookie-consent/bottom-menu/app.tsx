@@ -2,49 +2,33 @@ import React from "react";
 import { Button, Link } from "@nextui-org/react";
 import CookieSettingsModal from "./CookieSettingsModal";
 
-const COOKIE_CONSENT_KEY = "leetgaming_cookie_consent";
-const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 1 year in seconds
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()?.split(";").shift() || null;
-  }
-  return null;
-}
-
-function setCookie(name: string, value: string, maxAge: number): void {
-  if (typeof document === "undefined") return;
-  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
-}
-
 export default function CookieBottomMenu() {
   const [showCookieSettings, setShowCookieSettings] = React.useState(false);
-  const [showCookieMenu, setShowCookieMenu] = React.useState(false);
+  const [showCookieMenu, setShowCookieMenu] = React.useState(true);
 
   const handleRejectAll = () => {
-    setCookie(COOKIE_CONSENT_KEY, "rejected", COOKIE_MAX_AGE);
+    sessionStorage.setItem("cookieConsent", "rejected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptAll = () => {
-    setCookie(COOKIE_CONSENT_KEY, "accepted", COOKIE_MAX_AGE);
+    sessionStorage.setItem("cookieConsent", "accepted");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptSelected = () => {
-    setCookie(COOKIE_CONSENT_KEY, "selected", COOKIE_MAX_AGE);
+    sessionStorage.setItem("cookieConsent", "selected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   React.useEffect(() => {
-    const cookieConsent = getCookie(COOKIE_CONSENT_KEY);
-    setShowCookieMenu(!cookieConsent);
+    const cookieConsent = sessionStorage.getItem("cookieConsent");
+    if (cookieConsent) {
+      setShowCookieMenu(false);
+    }
   }, []);
 
   if (!showCookieMenu) {

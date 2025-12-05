@@ -2,15 +2,19 @@ import { Fira_Code as FontMono, Inter as FontSans, Press_Start_2P, Kode_Mono, Qu
 
 export const fontSans = FontSans({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-sans",
+  display: "swap",
 })
 
 export const fontMono = FontMono({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-mono",
+  display: "swap",
 })
 
-fontSans.className = "font-sans"
+fontSans.className = "font-sans antialiased"
 
 export const pressStart2P = fontSans
 

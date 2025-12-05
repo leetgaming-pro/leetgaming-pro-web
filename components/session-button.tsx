@@ -6,99 +6,211 @@ import {
   DropdownSection,
   DropdownTrigger,
 } from '@nextui-org/dropdown';
-import { Button, Link, Spacer, User } from '@nextui-org/react';
-import {
-  DeleteDocumentIcon,
-  LogOutIcon,
-  Logo,
-  PlusIcon,
-  PowerButtonIcon,
-  UserIcon,
-} from './icons';
-import { logo } from './primitives';
-import { button as buttonStyles } from '@nextui-org/theme';
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { VerticalDotsIcon } from '@/components/files/replays-table/VerticalDotsIcon';
-import BattleButton from './filters/ctas/battle-button/battle-button';
-import { useTheme } from 'next-themes';
+import { Avatar, Badge, Button, Link, Chip } from '@nextui-org/react';
+import { useSession, signOut } from 'next-auth/react';
 import { Icon } from '@iconify/react';
+import { useRouter } from 'next/navigation';
 
 export default function SessionButton() {
   const { data: session } = useSession();
-  const { theme } = useTheme();
+  const router = useRouter();
 
-  const proButton = process.env.FEATURE_PRO_BUTTON;
+  const userImage = session?.user?.image || undefined;
+  const userName = session?.user?.name || 'Player';
+  const userEmail = session?.user?.email || '';
+
+  // Get initials for avatar fallback
+  const initials = userName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
-    <div className='flex relative'>
-      <Link
-        href='/home5'
-        style={{
-          borderRadius: '0',
-          borderColor: 'none',
-          borderStyle: 'solid',
-          borderWidth: '0px',
-          fontWeight: 'bold',
-          color: theme === 'dark' ? '#f5f0e1' : '#34445C',
-        }}
+    <div className="flex items-center gap-3">
+      {/* Quick Actions */}
+      <Button
+        as={Link}
+        href="/match-making"
+        size="sm"
+        className="hidden md:flex font-semibold bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 shadow-md hover:shadow-lg transition-shadow"
+        startContent={<Icon icon="solar:gamepad-bold" width={18} />}
       >
-         
-          <BattleButton
-            endContent={
-              <VerticalDotsIcon width={undefined} height={undefined} />
-            }
-            style={{
-              height: '64px',
-              width: '128px',
-              borderRadius: '0',
-              borderColor: 'none',
-              borderStyle: 'solid',
-              borderWidth: '0px',
-              fontWeight: 'bold',
-              color: '#F5F5F5',
-            }}
-          >
-            <strong
-              style={{ fontSize: '18px', letterSpacing: '-3px' }}
-              className={logo({ color: 'battleOrange' })}
+        Play
+      </Button>
+
+      {/* User Dropdown */}
+      <Dropdown placement="bottom-end" backdrop="blur">
+        <DropdownTrigger>
+          <button className="flex items-center gap-2 rounded-full outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-primary/50">
+            <Badge
+              content=""
+              color="success"
+              shape="circle"
+              placement="bottom-right"
+              size="sm"
+              isInvisible={false}
             >
-              <b>
-                <u>
-                  &gt;<strong>_</strong>
-                </u>
-              </b>
-            </strong>
-            <span style={{ color: theme === 'dark' ? '#f5f0e1' : '#34445C' }}>
-              PRO
-            </span>
-          </BattleButton>
-        
-      </Link>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="primary"
+                name={initials}
+                size="sm"
+                src={userImage}
+              />
+            </Badge>
+          </button>
+        </DropdownTrigger>
+        <DropdownMenu
+          aria-label="User menu"
+          variant="faded"
+          onAction={(key) => {
+            if (key === 'logout') {
+              signOut();
+            } else if (key !== 'profile-header') {
+              router.push(key as string);
+            }
+          }}
+        >
+          <DropdownSection showDivider>
+            <DropdownItem
+              key="profile-header"
+              className="h-14 gap-2 opacity-100"
+              isReadOnly
+              textValue={userName}
+            >
+              <div className="flex items-center gap-3">
+                <Avatar
+                  name={initials}
+                  size="sm"
+                  src={userImage}
+                />
+                <div className="flex flex-col">
+                  <p className="text-sm font-semibold">{userName}</p>
+                  <p className="text-xs text-default-500">{userEmail}</p>
+                </div>
+              </div>
+            </DropdownItem>
+          </DropdownSection>
 
-      {/* <Link href="/home5" style={{ borderRadius: "0", borderColor: "none", borderStyle: "solid", borderWidth: "0px", fontWeight: "bold" }}>
-        <BattleButton variant="light" disableRipple endContent={<VerticalDotsIcon width={undefined} height={undefined} />}>PRO</BattleButton>
-      </Link>
-      <Spacer x={4} />
-      <BattleButton variant="light" disableRipple endContent={<PowerButtonIcon />} onClick={() => signOut()}>Logout</BattleButton> */}
+          <DropdownSection title="Quick Actions" showDivider>
+            <DropdownItem
+              key="/match-making"
+              startContent={<Icon icon="solar:gamepad-bold" className="text-success" width={20} />}
+              endContent={<Chip size="sm" color="success" variant="flat">Live</Chip>}
+              description="Find a match now"
+            >
+              Play Now
+            </DropdownItem>
+            <DropdownItem
+              key="/upload"
+              startContent={<Icon icon="solar:cloud-upload-bold" className="text-primary" width={20} />}
+              description="Upload replay files"
+            >
+              Upload Replay
+            </DropdownItem>
+            <DropdownItem
+              key="/cloud"
+              startContent={<Icon icon="solar:cloud-bold" className="text-secondary" width={20} />}
+              description="Access your cloud storage"
+            >
+              Cloud Dashboard
+            </DropdownItem>
+          </DropdownSection>
 
-      {/* <Link style={{ borderRadius: "0", borderColor: "none", borderStyle: "solid", borderWidth: "0px", fontWeight: "bold", color: theme === "dark" ? "#f5f0e1" : "#34445C"}} href="/home5">[ console ]</Link>
-      <Spacer x={4} /> */}
+          <DropdownSection title="Profile" showDivider>
+            <DropdownItem
+              key="/players/me"
+              startContent={<Icon icon="solar:user-bold" width={20} />}
+              description="View your player profile"
+            >
+              My Profile
+            </DropdownItem>
+            <DropdownItem
+              key="/replays"
+              startContent={<Icon icon="solar:videocamera-record-bold" width={20} />}
+              description="View your saved replays"
+            >
+              My Replays
+            </DropdownItem>
+            <DropdownItem
+              key="/analytics"
+              startContent={<Icon icon="solar:chart-2-bold" width={20} />}
+              description="Performance analytics"
+            >
+              Analytics
+            </DropdownItem>
+            <DropdownItem
+              key="/teams"
+              startContent={<Icon icon="solar:users-group-two-rounded-bold" width={20} />}
+              description="Manage your teams"
+            >
+              My Teams
+            </DropdownItem>
+          </DropdownSection>
 
-      <Spacer x={4} />
-      <Link
-        style={{
-          cursor: 'pointer',
-          borderRadius: '0',
-          borderColor: 'none',
-          borderStyle: 'solid',
-          borderWidth: '0px',
-          fontWeight: 'bold',
-          color: theme === 'dark' ? '#f5f0e1' : '#34445C',
-        }}
-        onClick={() => signOut()}
-      >
-        / sign-out
-      </Link>
+          <DropdownSection title="Account" showDivider>
+            <DropdownItem
+              key="/checkout"
+              startContent={<Icon icon="solar:crown-bold" className="text-warning" width={20} />}
+              endContent={<Chip size="sm" color="warning" variant="flat">Pro</Chip>}
+              description="Upgrade your subscription"
+            >
+              Subscription
+            </DropdownItem>
+            <DropdownItem
+              key="/wallet"
+              startContent={<Icon icon="solar:wallet-bold" width={20} />}
+              description="Manage your wallet"
+            >
+              Wallet
+            </DropdownItem>
+            <DropdownItem
+              key="/settings?tab=billing"
+              startContent={<Icon icon="solar:card-bold" width={20} />}
+              description="Payment methods & history"
+            >
+              Billing
+            </DropdownItem>
+          </DropdownSection>
+
+          <DropdownSection title="Settings">
+            <DropdownItem
+              key="/settings"
+              startContent={<Icon icon="solar:settings-bold" width={20} />}
+              description="App preferences"
+            >
+              Settings
+            </DropdownItem>
+            <DropdownItem
+              key="/settings?tab=privacy"
+              startContent={<Icon icon="solar:shield-check-bold" width={20} />}
+              description="Privacy & data controls"
+            >
+              Privacy & Data
+            </DropdownItem>
+            <DropdownItem
+              key="/settings?tab=security"
+              startContent={<Icon icon="solar:lock-bold" width={20} />}
+              description="Security & MFA"
+            >
+              Security
+            </DropdownItem>
+            <DropdownItem
+              key="logout"
+              className="text-danger"
+              color="danger"
+              startContent={<Icon icon="solar:logout-2-bold" width={20} />}
+              description="Sign out of your account"
+            >
+              Log Out
+            </DropdownItem>
+          </DropdownSection>
+        </DropdownMenu>
+      </Dropdown>
     </div>
   );
 }

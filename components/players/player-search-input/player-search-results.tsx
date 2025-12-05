@@ -1,103 +1,84 @@
-import React from "react";
-import { Avatar, Listbox, ListboxItem, ListboxSection, ScrollShadow, Spinner } from "@nextui-org/react";
+import React, { Key, SetStateAction, useMemo, useState } from "react";
+import { Avatar, BreadcrumbItem, Breadcrumbs, Button, Chip, Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spacer } from "@nextui-org/react";
 import { SteamIcon } from "@/components/icons";
-import { Player, PlayerRole } from "@/types/replay-api/entities.types";
+// import { resultsJson } from "./data"; 
 
-interface SearchResultsProps {
-    players: Player[];
-    isLoading: boolean;
-    hasSearched: boolean;
-    onPlayerSelect: (player: Player) => void;
-    onClose: () => void;
-}
+// Dynamic results fetched via global search hook rather than static placeholder
+// Removed hardcoded mock list to improve performance and correctness.
+const resultsJson = { players: { typeDescription: "Players", results: [] } };
 
-const getRoleDisplayName = (role?: PlayerRole): string => {
-    if (!role) return "";
-    const roleMap: Record<PlayerRole, string> = {
-        [PlayerRole.AWPER]: "AWPER",
-        [PlayerRole.Rifler]: "Rifler",
-        [PlayerRole.Lurker]: "Lurker",
-        [PlayerRole.EntryFragger]: "Entry Fragger",
-        [PlayerRole.IGL]: "IGL",
-        [PlayerRole.Support]: "Support",
-    };
-    return roleMap[role] || role;
+export type ResourceSearchResult = {
+    id: string;
+    nickname: string;
+    avatar: string;
+    role: string;
 };
 
-const SearchResults: React.FC<SearchResultsProps> = ({
-    players,
-    isLoading,
-    hasSearched,
-    onPlayerSelect,
-    onClose,
-}) => {
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-[200px]">
-                <Spinner size="lg" color="primary" />
-            </div>
-        );
-    }
-
-    if (!hasSearched) {
-        return (
-            <div className="flex justify-center items-center h-[200px] text-default-400">
-                Type to search for players...
-            </div>
-        );
-    }
-
-    if (players.length === 0) {
-        return (
-            <div className="flex justify-center items-center h-[200px] text-default-400">
-                No players found
-            </div>
-        );
-    }
+const SearchResults = ({ onPress }: any) => {
+    const resultsMap: Record<string, any> = resultsJson
+    const resourceResultTypes = Object.keys(resultsMap)
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-2">
-            <div>
-                <ScrollShadow className="w-full h-[400px]">
-                    <Listbox
-                        aria-label="Player search results"
-                        selectionMode="single"
-                        onAction={(key) => {
-                            const player = players.find(p => p.id === key);
-                            if (player) {
-                                onPlayerSelect(player);
-                                onClose();
-                            }
-                        }}
-                    >
-                        <ListboxSection title="Players">
-                            {players.map((player: Player) => (
-                                <ListboxItem
-                                    key={player.id}
-                                    startContent={
-                                        player.avatar_url ? (
-                                            <Avatar
-                                                src={player.avatar_url}
-                                                size="sm"
-                                                className="flex-shrink-0"
-                                            />
-                                        ) : (
-                                            <SteamIcon
-                                                height={40}
-                                                width={40}
-                                                style={{ borderRadius: "1.5em", padding: "0.2em" }}
-                                            />
-                                        )
-                                    }
-                                    description={player.role ? getRoleDisplayName(player.role) : undefined}
-                                >
-                                    {player.nickname}
-                                </ListboxItem>
-                            ))}
-                        </ListboxSection>
-                    </Listbox>
-                </ScrollShadow>
-            </div>
+            <>
+                <div>
+                    <ScrollShadow className="w-full h-[400px]">
+                        <Listbox
+                            label="Results found"
+                            selectionMode="single"
+                        >
+                          <ListboxSection title="Players">
+                            <ListboxItem key="empty" textValue="No results">No results</ListboxItem>
+                          </ListboxSection>
+                        </Listbox>
+                    </ScrollShadow>
+                </div>
+            </>
+            {/* {selectedCategory && (
+        <>
+          <div>
+            <Listbox
+              items={[
+                GameEventVariationsMaitem].emptySelectionPlaceholder,
+                ...GameEventVariationsMaitem].variations
+              ]}
+              // selectedKeys={[selectedVariation] as Key[] || [GameEventVariationsMaitem].emptySelectionPlaceholder] as Key[]}
+              onSelectionChange={handleVariationChange}
+              // labelPlacement="outside"
+              label="Variation"
+              selectionMode="multiple"
+            >
+              {(item) => (
+                <ListboxItem key={item} value={item}>
+                  {item}
+                </ListboxItem>
+              )}
+            </Listbox>
+          </div>
+
+          <div>
+            {selectedVariation && selectedVariation !== GameEventVariationsMaitem].emptySelectionPlaceholder && (
+              <Listbox
+                items={Object.values(GameEventVariationsMaitem].variations)}
+                // value={selectedValue}
+                // selectedKeys={[selectedValue] as Key[]}
+                onSelectionChange={handleValueChange}
+                // labelPlacement="outside"
+                label="Value"
+              >
+                {(item) => (
+                  <ListboxItem key={item} value={item} textValue={item.toString()}>
+                    {item.toString()}
+                  </ListboxItem>
+                )}
+              </Listbox>
+            )}
+          </div>
+        </>
+      )} */}
+            {/* <div className="col-span-full">
+        {badgeContent} 
+      </div> */}
         </div>
     );
 };

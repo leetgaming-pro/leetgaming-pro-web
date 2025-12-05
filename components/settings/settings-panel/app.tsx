@@ -1,7 +1,5 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {Card, Tabs, Tab} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
@@ -10,9 +8,13 @@ import AccountDetails from "./account-details";
 import NotificationsSettings from "./notification-settings";
 import SecuritySettings from "./security-settings";
 
-export default function Component(props: CardProps) {
+interface SettingsPanelCardProps {
+  className?: string;
+}
+
+export default function Component({className}: SettingsPanelCardProps) {
   return (
-    <Card {...props}>
+    <Card className={className || ''}>
       <Tabs
         classNames={{
           tabList: "mx-4 mt-6 text-medium",

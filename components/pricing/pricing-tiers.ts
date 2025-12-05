@@ -12,7 +12,7 @@ export const tiers: Array<Tier> = [
     key: TiersEnum.Free,
     title: "Free",
     price: "Free",
-    href: "#",
+    href: "/signup",
     featured: false,
     mostPopular: false,
     description: "For starters and casual gamers that want to try out.",
@@ -25,7 +25,7 @@ export const tiers: Array<Tier> = [
     key: TiersEnum.Pro,
     title: "Pro",
     description: "For teams that have less that 10 players.",
-    href: "#",
+    href: "/checkout?plan=pro",
     mostPopular: true,
     price: {
       yearly: "$7",
@@ -45,7 +45,7 @@ export const tiers: Array<Tier> = [
   {
     key: TiersEnum.Team,
     title: "Team",
-    href: "#",
+    href: "/checkout?plan=team",
     featured: true,
     mostPopular: false,
     description: "For large teams that have more than 10 members, requires more storage, API access, and more.",

@@ -1,218 +1,167 @@
-import React, { Key, SetStateAction, useMemo, useState } from "react";
-import { Avatar, BreadcrumbItem, Breadcrumbs, Button, Chip, Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spacer } from "@nextui-org/react";
-import { SteamIcon } from "@/components/icons";
-import TeamAvatar from "@/components/console-layout/team-avatar";
-import ViewPlayerInfoCard from "@/components/replay/game-events/playercard/view-player-info-card";
-// import { resultsJson } from "./data"; 
+/**
+ * Search Results Component
+ * Displays search results from global search with proper entity grouping
+ */
 
-const resultsJson = {
-    "GameEvent": {
-        typeDescription: "Highlights",
-        results: [
-            {
-                href: "/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won&player=sound",
-                breadcrumb: () => (
-                    <Breadcrumbs
-                        itemClasses={{
-                            item: "px-0",
-                            separator: "px-0",
-                        }}
-                    >
-                        <BreadcrumbItem href="/match/73098213018002179"><Chip variant="dot" color="danger">730...2179</Chip> Match</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5"><Chip variant="faded">#5</Chip> Round <TeamAvatar
-                            classNames={{
-                                base: "border-1 border-primary-foreground/20",
-                                name: "text-primary-foreground/80",
-                            }}
-                            name="C T" /></BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]"><Chip variant="faded">1v5</Chip> Clutch Situation</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won">Status: <code>clutch_won</code></BreadcrumbItem>
-                        <BreadcrumbItem
-                            classNames={{
-                                item: "px-0",
-                            }}
-                        >
-                            <Avatar size="sm"></Avatar>
-                        </BreadcrumbItem>
-                    </Breadcrumbs>
-                ),
-            },
-            {
-                href: "/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won&player=sound",
-                breadcrumb: () => (
-                    <Breadcrumbs
-                        itemClasses={{
-                            item: "px-0",
-                            separator: "px-0",
-                        }}
-                    >
-                        <BreadcrumbItem href="/match/73098213018002179"><Chip variant="dot" color="danger">730...2179</Chip> Match</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5"><Chip variant="faded">#5</Chip> Round <TeamAvatar
-                            classNames={{
-                                base: "border-1 border-primary-foreground/20",
-                                name: "text-primary-foreground/80",
-                            }}
-                            name="C T" /></BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]"><Chip variant="faded">1v5</Chip> Clutch Situation</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won">Status: <code>clutch_won</code></BreadcrumbItem>
-                        <BreadcrumbItem
-                            classNames={{
-                                item: "px-0",
-                            }}
-                        >
-                            <Avatar size="sm"></Avatar>
-                        </BreadcrumbItem>
-                    </Breadcrumbs>
-                ),
-            },
-        ],
+import React from "react";
+import {
+  Avatar,
+  Chip,
+  Listbox,
+  ListboxItem,
+  ListboxSection,
+  ScrollShadow,
+  Spinner,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { GlobalSearchResult } from "@/hooks/useGlobalSearch";
+import Link from "next/link";
+
+interface SearchResultsProps {
+  results: GlobalSearchResult[];
+  loading: boolean;
+  error: string | null;
+  query: string;
+  onPress?: () => void;
+}
+
+const SearchResults: React.FC<SearchResultsProps> = ({
+  results,
+  loading,
+  error,
+  query,
+  onPress,
+}) => {
+  // Group results by type
+  const groupedResults = results.reduce((acc, result) => {
+    if (!acc[result.type]) {
+      acc[result.type] = [];
+    }
+    acc[result.type].push(result);
+    return acc;
+  }, {} as Record<string, GlobalSearchResult[]>);
+
+  // Type labels and icons
+  const typeConfig = {
+    replay: {
+      label: "Replays",
+      icon: "mdi:video-box",
+      color: "danger" as const,
     },
-    "Match": {
-        typeDescription: "Match",
-        results: [
-            {
-                href: "/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won&player=sound",
-                breadcrumb: () => (
-                    <Breadcrumbs
-                        itemClasses={{
-                            item: "px-0",
-                            separator: "px-0",
-                        }}
-                    >
-                        <BreadcrumbItem href="/match/73098213018002179"><Chip variant="dot" color="danger">730...2179</Chip> Match</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5"><Chip variant="faded">#5</Chip> Round <TeamAvatar
-                            classNames={{
-                                base: "border-1 border-primary-foreground/20",
-                                name: "text-primary-foreground/80",
-                            }}
-                            name="C T" /></BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]"><Chip variant="faded">1v5</Chip> Clutch Situation</BreadcrumbItem>
-                        <BreadcrumbItem href="/match/73098213018002179/round/5/highlights/ClutchSituation?types=[1v5]&status=clutch_won">Status: <Chip variant="faded" color="success"><code>clutch_won</code></Chip></BreadcrumbItem>
-                        <BreadcrumbItem
-                            classNames={{
-                                item: "px-0",
-                            }}
-                        >
-                            Player: <code>sound</code>
-                        </BreadcrumbItem>
-                    </Breadcrumbs>
-                ),
-            },
-            {
-                href: "/match/73098213018002179&player=sound",
-                breadcrumb: () => (
-                    <Breadcrumbs
-                        itemClasses={{
-                            item: "px-0",
-                            separator: "px-0",
-                        }}
-                    >
-                        <BreadcrumbItem href="/match/73098213018002179"><Chip variant="dot" color="danger">730...2179</Chip> Match</BreadcrumbItem>
-                        <BreadcrumbItem
-                            classNames={{
-                                item: "px-0",
-                            }}
-                        >
-
-                            <Popover showArrow placement="bottom">
-                                <PopoverTrigger>
-                                    <span className="text-primary ml-1">Player: <code>@sound</code></span>
-                                </PopoverTrigger>
-                                <PopoverContent className="p-1">
-                                    <ViewPlayerInfoCard />
-                                </PopoverContent>
-                            </Popover>
-
-                            
-                        </BreadcrumbItem>
-                    </Breadcrumbs>
-                ),
-            },
-        ],
+    player: {
+      label: "Players",
+      icon: "mdi:account",
+      color: "primary" as const,
     },
-};
+    team: {
+      label: "Teams",
+      icon: "mdi:account-group",
+      color: "secondary" as const,
+    },
+    match: {
+      label: "Matches",
+      icon: "mdi:trophy",
+      color: "warning" as const,
+    },
+  };
 
-export type ResourceSearchResult = {
-    href: string;
-    breadcrumb: any;
-};
-
-const SearchResults = ({ onPress }: any) => {
-    const resultsMap: Record<string, any> = resultsJson
-    const resourceResultTypes = Object.keys(resultsMap)
-
+  // Empty state
+  if (!query || query.trim().length < 2) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-1 gap-2">
-            <>
-                <div>
-                    <ScrollShadow className="w-full h-[400px]">
-                        <Listbox
-                            label="Results found"
-                            selectionMode="single"
-                        >
-                            {resourceResultTypes.map((tKey: string) => {
-                                const { typeDescription, results } = resultsMap[tKey];
-
-                                return (
-                                    <ListboxSection key={tKey} title={typeDescription}>
-                                        {results.map((resource: ResourceSearchResult) => (
-                                            <ListboxItem startContent={<SteamIcon height={40} width={40} style={{ borderRadius: "1.5em", padding: "0.2em" }} />} onClick={onPress} key={resource.href}>{resource.breadcrumb()}</ListboxItem>
-                                        ))}
-                                    </ListboxSection>
-                                );
-                            })}
-
-                        </Listbox>
-                    </ScrollShadow>
-                </div>
-            </>
-            {/* {selectedCategory && (
-        <>
-          <div>
-            <Listbox
-              items={[
-                GameEventVariationsMaitem].emptySelectionPlaceholder,
-                ...GameEventVariationsMaitem].variations
-              ]}
-              // selectedKeys={[selectedVariation] as Key[] || [GameEventVariationsMaitem].emptySelectionPlaceholder] as Key[]}
-              onSelectionChange={handleVariationChange}
-              // labelPlacement="outside"
-              label="Variation"
-              selectionMode="multiple"
-            >
-              {(item) => (
-                <ListboxItem key={item} value={item}>
-                  {item}
-                </ListboxItem>
-              )}
-            </Listbox>
-          </div>
-
-          <div>
-            {selectedVariation && selectedVariation !== GameEventVariationsMaitem].emptySelectionPlaceholder && (
-              <Listbox
-                items={Object.values(GameEventVariationsMaitem].variations)}
-                // value={selectedValue}
-                // selectedKeys={[selectedValue] as Key[]}
-                onSelectionChange={handleValueChange}
-                // labelPlacement="outside"
-                label="Value"
-              >
-                {(item) => (
-                  <ListboxItem key={item} value={item} textValue={item.toString()}>
-                    {item.toString()}
-                  </ListboxItem>
-                )}
-              </Listbox>
-            )}
-          </div>
-        </>
-      )} */}
-            {/* <div className="col-span-full">
-        {badgeContent} 
-      </div> */}
-        </div>
+      <div className="flex flex-col items-center justify-center h-[400px] text-default-400">
+        <Icon icon="mdi:magnify" width={64} className="mb-4 opacity-50" />
+        <p className="text-lg">Start typing to search...</p>
+        <p className="text-sm mt-2">Search for replays, players, teams, and more</p>
+      </div>
     );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <Spinner size="lg" label="Searching..." />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] text-danger">
+        <Icon icon="mdi:alert-circle" width={64} className="mb-4" />
+        <p className="text-lg">Search failed</p>
+        <p className="text-sm mt-2">{error}</p>
+      </div>
+    );
+  }
+
+  // No results
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] text-default-400">
+        <Icon icon="mdi:magnify-close" width={64} className="mb-4 opacity-50" />
+        <p className="text-lg">No results found</p>
+        <p className="text-sm mt-2">Try searching with different keywords</p>
+      </div>
+    );
+  }
+
+  return (
+    <ScrollShadow className="w-full h-[400px]">
+      <Listbox
+        aria-label="Search results"
+        selectionMode="none"
+        emptyContent="No results found"
+      >
+        {Object.keys(groupedResults).map((type) => {
+          const config = typeConfig[type as keyof typeof typeConfig];
+          const items = groupedResults[type];
+
+          return (
+            <ListboxSection
+              key={type}
+              title={config.label}
+              classNames={{
+                heading: "text-small font-semibold text-default-500 pl-2 uppercase",
+              }}
+            >
+              {items.map((result) => (
+                <ListboxItem
+                  key={result.id}
+                  href={result.href}
+                  className="py-3"
+                  startContent={
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-default-100">
+                      <Icon
+                        icon={config.icon}
+                        width={24}
+                        className={`text-${config.color}`}
+                      />
+                    </div>
+                  }
+                  description={result.description}
+                  onClick={onPress}
+                >
+                  <div className="flex items-center gap-2">
+                    {result.title}
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      color={config.color}
+                      className="capitalize"
+                    >
+                      {type}
+                    </Chip>
+                  </div>
+                </ListboxItem>
+              ))}
+            </ListboxSection>
+          );
+        })}
+      </Listbox>
+    </ScrollShadow>
+  );
 };
 
 export default SearchResults;

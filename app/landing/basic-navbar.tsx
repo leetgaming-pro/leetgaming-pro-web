@@ -1,7 +1,5 @@
 "use client";
 
-import type {NavbarProps} from "@nextui-org/react";
-
 import React from "react";
 import {
   Navbar,
@@ -18,8 +16,17 @@ import {
 } from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 
-// import {AcmeIcon} from "./social";
 import DefaultLogo from "@/components/logo/logo-default";
+
+interface BasicNavbarProps {
+  classNames?: {
+    base?: string;
+    wrapper?: string;
+    item?: string;
+    [key: string]: string | undefined;
+  };
+  className?: string;
+}
 
 const menuItems = [
   "About",
@@ -32,14 +39,14 @@ const menuItems = [
   "Contact Us",
 ];
 
-const BasicNavbar = React.forwardRef<HTMLElement, NavbarProps>(
-  ({classNames = {}, ...props}, ref) => {
+const BasicNavbar = React.forwardRef<HTMLElement, BasicNavbarProps>(
+  ({classNames = {}, className}, ref) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     return (
       <Navbar
         ref={ref}
-        {...props}
+        className={className}
         classNames={{
           base: cn("border-default-100 bg-transparent", {
             "bg-default-200/50 dark:bg-default-100/50": isMenuOpen,

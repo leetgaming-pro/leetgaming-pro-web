@@ -1,20 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { getToken } from 'next-auth/jwt';
 
 const game_id = 'cs2'
-// eslint-disable-next-line import/no-anonymous-default-export
-export const POST = async (req: any, res: any) => {
+export const POST = async (req: NextRequest) => {
   const formData = await req.formData();
 
   const file = formData.get("file");
-  if (!file) {
+  if (!file || typeof file === 'string') {
     return NextResponse.json({ error: "No files received." }, { status: 400 });
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const filename =  file.name.replaceAll(" ", "_");
+  const filename = file.name.replaceAll(" ", "_");
+  console.log(filename);
   try {
     await writeFile(
       path.join(process.cwd(), "public/assets/" + filename),
@@ -22,7 +22,8 @@ export const POST = async (req: any, res: any) => {
     );
     // return NextResponse.json({ Message: "Success", status: 201 });
   } catch (error) {
-    // Silent failure for local file write - remote upload is the primary operation
+    console.log("Error occured ", error);
+   //  return NextResponse.json({ Message: "Failed", status: 500 });
   }
 
   const newFormData = new FormData();

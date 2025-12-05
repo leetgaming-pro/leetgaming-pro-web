@@ -1,7 +1,5 @@
 "use client";
 
-import type {SwitchProps} from "@nextui-org/react";
-
 import React from "react";
 import {extendVariants, Switch} from "@nextui-org/react";
 import { cl } from "@/components/cl";
@@ -19,28 +17,31 @@ const CustomSwitch = extendVariants(Switch, {
   },
 });
 
-export type SwitchCellProps = Omit<SwitchProps, "color"> & {
+export interface SwitchCellProps {
   label: string;
   description: string;
-  color?: SwitchProps["color"] | "foreground";
-  classNames?: SwitchProps["classNames"] & {
+  color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger" | "foreground";
+  classNames?: {
+    base?: string;
+    label?: string;
     description?: string | string[];
   };
-};
+  defaultSelected?: boolean;
+}
 
 const SwitchCell = React.forwardRef<HTMLInputElement, SwitchCellProps>(
-  ({label, description, classNames, ...props}, ref) => (
+  ({label, description, classNames, color, defaultSelected}, ref) => (
     <CustomSwitch
       ref={ref}
+      color={color}
+      defaultSelected={defaultSelected}
       classNames={{
-        ...classNames,
         base: cl(
           "inline-flex bg-content2 flex-row-reverse w-full max-w-full items-center",
           "justify-between cursor-pointer rounded-medium gap-2 p-4",
           classNames?.base,
         ),
       }}
-      {...props}
     >
       <div className="flex flex-col">
         <p className={cl("text-medium", classNames?.label)}>{label}</p>

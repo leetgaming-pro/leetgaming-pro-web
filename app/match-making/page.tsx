@@ -1,21 +1,18 @@
-"use client"
+/**
+ * Match-Making Page - Award-Winning Wizard Experience
+ * Complete 5-step wizard for competitive matchmaking
+ */
 
-import MatchMakingWizard from "@/components/match-making/App";
-import { BreadcrumbItem, Breadcrumbs } from "@nextui-org/react";
+"use client";
 
-const HomePage: React.FC = () => {
+import React from 'react';
+import MatchmakingWizard from '@/components/match-making/App';
+import { PageContainer } from '@/components/layout/page-container';
+
+export default function MatchMakingPage() {
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
-      <nav className="my-4 px-2 py-2">
-        <Breadcrumbs>
-          <BreadcrumbItem>News</BreadcrumbItem>
-          <BreadcrumbItem>Start</BreadcrumbItem>
-          <BreadcrumbItem>Match-Making</BreadcrumbItem>
-        </Breadcrumbs>
-      </nav>
-        <MatchMakingWizard />
-    </div>
+    <PageContainer maxWidth="full" padding="none" className="min-h-screen">
+      <MatchmakingWizard />
+    </PageContainer>
   );
-};
-
-export default HomePage;
+}

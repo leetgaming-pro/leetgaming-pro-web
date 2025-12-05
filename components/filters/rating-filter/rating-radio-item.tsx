@@ -1,13 +1,17 @@
 "use client";
 
-import type {RadioProps} from "@nextui-org/react";
-
 import React from "react";
 import {VisuallyHidden, useRadio, useRadioGroupContext} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import {cn} from "@nextui-org/react";
 
-const RatingRadioItem = React.forwardRef<HTMLInputElement, RadioProps>((props, ref) => {
+interface RatingRadioItemProps {
+  value: string;
+  size?: "sm" | "md" | "lg";
+  color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
+}
+
+const RatingRadioItem = React.forwardRef<HTMLInputElement, RatingRadioItemProps>((props, ref) => {
   const {
     Component,
     isSelected: isSelfSelected,

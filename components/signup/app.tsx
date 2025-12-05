@@ -3,17 +3,80 @@
 import React from "react";
 import {Button, Input, Checkbox, Link, Divider} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { SteamIcon } from '../icons';
 
 import DefaultLogo from '../logo/logo-full';
 
 export default function SignUp() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = React.useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
   const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible);
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validation
+    if (!email || !password || !confirmPassword) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    if (!termsAccepted) {
+      setError('You must accept the Terms and Privacy Policy');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await signIn('email-password', {
+        email,
+        password,
+        action: 'signup',
+        redirect: false,
+      });
+
+      if (result?.error) {
+        if (result.error.includes('already exists')) {
+          setError('An account with this email already exists');
+        } else if (result.error === 'CredentialsSignin') {
+          setError('Failed to create account. Please try again.');
+        } else {
+          setError(result.error);
+        }
+      } else if (result?.ok) {
+        router.push('/match-making');
+        router.refresh();
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
@@ -43,9 +106,17 @@ export default function SignUp() {
       </div>
 
       {/* Sign Up Form */}
-      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
-        <p className="pb-2 text-xl font-medium">Sign Up</p>
-        <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-background/60 px-8 pb-10 pt-6 shadow-2xl backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50 border border-foreground/10">
+        <div className="text-center pb-2">
+          <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
+          <p className="text-sm text-foreground/60 mt-1">Join LeetGaming.PRO today</p>
+        </div>
+        <form className="flex flex-col gap-3" onSubmit={handleEmailSignUp}>
+          {error && (
+            <div className="rounded-md bg-danger-50 dark:bg-danger-900/20 p-3 text-sm text-danger">
+              {error}
+            </div>
+          )}
           <Input
             isRequired
             label="Email Address"
@@ -53,6 +124,9 @@ export default function SignUp() {
             placeholder="Enter your email"
             type="email"
             variant="bordered"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            isDisabled={isLoading}
           />
           <Input
             isRequired
@@ -73,9 +147,12 @@ export default function SignUp() {
             }
             label="Password"
             name="password"
-            placeholder="Enter your password"
+            placeholder="Enter your password (min 8 characters)"
             type={isVisible ? "text" : "password"}
             variant="bordered"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            isDisabled={isLoading}
           />
           <Input
             isRequired
@@ -99,8 +176,18 @@ export default function SignUp() {
             placeholder="Confirm your password"
             type={isConfirmVisible ? "text" : "password"}
             variant="bordered"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            isDisabled={isLoading}
           />
-          <Checkbox isRequired className="py-4" size="sm">
+          <Checkbox
+            isRequired
+            className="py-4"
+            size="sm"
+            isSelected={termsAccepted}
+            onValueChange={setTermsAccepted}
+            isDisabled={isLoading}
+          >
             I agree with the&nbsp;
             <Link href="#" size="sm">
               Terms
@@ -110,8 +197,16 @@ export default function SignUp() {
               Privacy Policy
             </Link>
           </Checkbox>
-          <Button color="primary" type="submit">
-            Sign Up
+          <Button
+            color="primary"
+            type="submit"
+            size="lg"
+            radius="md"
+            className="font-medium"
+            isLoading={isLoading}
+            isDisabled={isLoading || !email || !password || !confirmPassword}
+          >
+            {isLoading ? 'Creating account...' : 'Sign Up'}
           </Button>
         </form>
         <div className="flex items-center gap-4 py-2">
@@ -120,22 +215,32 @@ export default function SignUp() {
           <Divider className="flex-1" />
         </div>
         <div className="flex flex-col gap-2">
-           <Button
+          <Button
             startContent={<SteamIcon />}
             variant="bordered"
+            size="lg"
+            radius="md"
+            onClick={() => {
+              if (typeof window !== 'undefined') import('next-auth/react').then(m => m.signIn('steam', { callbackUrl: '/match-making' }))
+            }}
           >
             Continue with Steam
           </Button>
           <Button
             startContent={<Icon icon="flat-color-icons:google" width={24} />}
             variant="bordered"
+            size="lg"
+            radius="md"
+            onClick={() => {
+              if (typeof window !== 'undefined') import('next-auth/react').then(m => m.signIn('google', { callbackUrl: '/match-making' }))
+            }}
           >
             Continue with Google
           </Button>
         </div>
-        <p className="text-center text-small">
-          Already have an account?&nbsp;
-          <Link href="/signin" size="sm">
+        <p className="text-center text-sm text-foreground/60">
+          Already have an account?{" "}
+          <Link href="/signin" size="sm" className="font-medium">
             Log In
           </Link>
         </p>

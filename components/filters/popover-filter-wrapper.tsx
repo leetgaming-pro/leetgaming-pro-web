@@ -1,7 +1,5 @@
 "use client";
 
-import type {PopoverProps} from "@nextui-org/react";
-
 import React from "react";
 import {
   Button,
@@ -13,17 +11,19 @@ import {
 } from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 
-export type PopoverFilterWrapperProps = Omit<PopoverProps, "children"> & {
+export interface PopoverFilterWrapperProps {
   title?: string;
   children: React.ReactNode;
-};
+  className?: string;
+  placement?: "top" | "bottom" | "left" | "right" | "top-start" | "top-end" | "bottom-start" | "bottom-end" | "left-start" | "left-end" | "right-start" | "right-end";
+}
 
 const PopoverFilterWrapper = React.forwardRef<HTMLDivElement, PopoverFilterWrapperProps>(
-  ({title, children, ...props}, ref) => {
+  ({title, children, className, placement = "bottom"}, ref) => {
     const {isOpen, onClose, onOpenChange} = useDisclosure();
 
     return (
-      <Popover ref={ref} isOpen={isOpen} onOpenChange={onOpenChange} {...props}>
+      <Popover ref={ref} isOpen={isOpen} onOpenChange={onOpenChange} className={className} placement={placement}>
         <PopoverTrigger>
           <Button
             className="border-default-200 text-default-500"

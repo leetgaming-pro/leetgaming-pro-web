@@ -1,33 +1,27 @@
 "use client"
-// import React, { useState } from 'react';
-// import { Map } from './Map'; // Your 3D/2D Map Component
-// import Timeline from './Timeline'; // Timeline component
-// import PlayerStats from './PlayerStats'; // Player stats component
-// import TeamStats from './TeamStats'; // Team stats component
-// import AdvancedStats from './AdvancedStats'; // Advanced stats component
-// import './RoundPage.css'; // Your CSS file
-// import HeatmapLayer from '../../components/HeatmapLayer';
-// import MapRegions from '../../components/MapRegions';
-// import TrajectoryLayer from '../../components/TrajectoryLayer';
-// import RoundTimeline from '../../components/RoundTimeline';
-// import PlayerStats from '../../components/PlayerStats';
-// import StrategyInsights from '../../components/StrategyInsights';
-// import { fetchRoundData } from '../../utils/api';
+
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
 import { Button, ButtonGroup, Switch, Tab, Tabs } from '@nextui-org/react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import MatchTimelineHorizontalFull from '@/components/replay/replay-file-item-timeline/match-h-timeline-full';
 import { CSFilters, MapViewModeType } from '@/types/replay-api/searchable';
 
 export type SizeOption = 'sm' | 'md' | 'lg'
 
-export interface ReplayPageProps {
-  filter: CSFilters
-  size: SizeOption
-}
+export default function RoundPage() {
+  const params = useParams();
+  const matchId = params.matchid as string;
+  const roundNumber = params.roundnumber as string;
 
-const RoundPage: React.FC = (props: any) => {
-  const { filter, size } = props
+  // Derive filter from URL params
+  const filter = useMemo<CSFilters>(() => ({
+    gameIds: 'cs2',
+    matchIds: matchId,
+    roundNumbers: roundNumber,
+  }), [matchId, roundNumber]);
+
+  const size: SizeOption = 'md';
 
   const [mapViewModes, setMapViewModes] = useState<MapViewModeType[]>([MapViewModeType.MapTrajectoriesLayer])
 
@@ -86,8 +80,8 @@ const RoundPage: React.FC = (props: any) => {
                 </Switch>
 
                 <ButtonGroup isDisabled>
-                  {mapViewModes.map((k: any) => {
-                    return (<Button key={k}>{mapViewModes[k]}</Button>)
+                  {mapViewModes.map((mode: MapViewModeType, idx: number) => {
+                    return (<Button key={idx}>{mode}</Button>)
                   })}
                 </ButtonGroup>
               </div>
@@ -191,8 +185,4 @@ const RoundPage: React.FC = (props: any) => {
 
     </div>
   );
-};
-
-
-export default RoundPage;
-
+}

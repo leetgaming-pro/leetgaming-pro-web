@@ -9,16 +9,16 @@ const loggerMock: any = {
 }
 
 describe("RouteBuilder - Complex Scenarios", () => {
-  const mapApi = new RouteBuilder<MapRegionStats>(ReplayApiSettingsMock, loggerMock);
-  const strategyApi = new RouteBuilder<StrategyStats>(ReplayApiSettingsMock, loggerMock);
-  const clutchApi = new RouteBuilder<ClutchSituationStats>(ReplayApiSettingsMock, loggerMock);
-  const highlightApi = new RouteBuilder<HighlightStats>(ReplayApiSettingsMock, loggerMock);
-  const eventApi = new RouteBuilder<EventStats>(ReplayApiSettingsMock, loggerMock);
+  const mapApi = new RouteBuilder(ReplayApiSettingsMock, loggerMock);
+  const strategyApi = new RouteBuilder(ReplayApiSettingsMock, loggerMock);
+  const clutchApi = new RouteBuilder(ReplayApiSettingsMock, loggerMock);
+  const highlightApi = new RouteBuilder(ReplayApiSettingsMock, loggerMock);
+  const eventApi = new RouteBuilder(ReplayApiSettingsMock, loggerMock);
 
   const testCases: {
     description: string;
     filters: [ReplayApiResourceType, { [key: string]: string }?][];
-    endpoint: RouteBuilder<Stats>;
+    endpoint: RouteBuilder;
     resultOptions?: ResultOptions;
     mockStatusCode?: number;
     expectedRoute: string;
@@ -31,7 +31,7 @@ describe("RouteBuilder - Complex Scenarios", () => {
         [ReplayApiResourceType.Game, { gameId: "cs2" }],
         [ReplayApiResourceType.Player, { playerId: "player123" }],
       ],
-      endpoint: new RouteBuilder<EconomyStats>(ReplayApiSettingsMock, loggerMock),
+      endpoint: new RouteBuilder(ReplayApiSettingsMock, loggerMock),
       resource: ReplayApiResourceType.Economy,
       expectedRoute: `/games/cs2/players/player123/economy`,
     },
@@ -86,7 +86,7 @@ describe("RouteBuilder - Complex Scenarios", () => {
         [ReplayApiResourceType.Round, { roundId: "round456" }],
         [ReplayApiResourceType.Player, { playerId: "player123" }],
       ],
-      endpoint: new RouteBuilder<EconomyStats>(ReplayApiSettingsMock, loggerMock),
+      endpoint: new RouteBuilder(ReplayApiSettingsMock, loggerMock),
       resource: ReplayApiResourceType.Economy,
       resultOptions: { offset: "2", sort: "date_desc" },
       expectedRoute: `/games/cs2/matches/match123/rounds/round456/players/player123/economy?offset=2&sort=date_desc`,
@@ -96,7 +96,7 @@ describe("RouteBuilder - Complex Scenarios", () => {
       filters: [
         [ReplayApiResourceType.Game, { gameId: "cs2" }],
       ],
-      endpoint: new RouteBuilder<MatchStats>(ReplayApiSettingsMock, loggerMock),
+      endpoint: new RouteBuilder(ReplayApiSettingsMock, loggerMock),
       resource: ReplayApiResourceType.Match,
       resultOptions: { offset: "2", sort: "date_desc" },
       expectedRoute: `/games/cs2/matches?offset=2&sort=date_desc`,

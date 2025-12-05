@@ -1,110 +1,46 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { Button, Chip, Listbox, ListboxItem, ListboxSection, ScrollShadow } from "@nextui-org/react";
-import { Selection } from "@react-types/shared";
-import { GameEventVariationsMap, GameEventCategoryOption } from "./data";
+import React, { Key, SetStateAction, useMemo, useState } from "react";
+import { Button, Chip, Listbox, ListboxItem, ListboxSection, ScrollShadow, Spacer } from "@nextui-org/react";
+import { GameEventVariationsMap, GameEventCategoryOption } from "./data"; // Import your enums
 
-export interface GameEventFilterValue {
-  category: GameEventCategoryOption;
-  variation: string;
-  value?: string;
-  id: string;
-}
-
-export interface GameEventFilterProps {
-  onFilterChange?: (filters: GameEventFilterValue[]) => void;
-  initialFilters?: GameEventFilterValue[];
-}
-
-const GameEventFilter: React.FC<GameEventFilterProps> = ({ onFilterChange, initialFilters = [] }) => {
+const GameEventFilter: React.FC = () => {
   const categories: string[] = Object.keys(GameEventVariationsMap).map((key) => key.toString());
   const [selectedCategory, setSelectedCategory] = useState<GameEventCategoryOption | null>(null);
   const [selectedVariation, setSelectedVariation] = useState<string | null>(null);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<GameEventFilterValue[]>(initialFilters);
 
-  const handleCategoryChange = (keys: Selection) => {
-    if (keys === "all") {
+  const handleCategoryChange = (value: GameEventCategoryOption | "all" | any) => {
+    if (value === "all") {
       setSelectedCategory(null);
       setSelectedVariation(null);
       setSelectedValue(null);
       return;
     }
 
-    const selectedKey = Array.from(keys)[0];
-    if (selectedKey) {
-      setSelectedCategory(String(selectedKey) as GameEventCategoryOption);
-      setSelectedVariation(null);
-      setSelectedValue(null);
-    }
-  };
-
-  const handleVariationChange = (keys: Selection) => {
-    if (keys === "all") {
-      setSelectedVariation(null);
-      setSelectedValue(null);
-      return;
-    }
-    const selectedKey = Array.from(keys)[0];
-    setSelectedVariation(selectedKey ? String(selectedKey) : null);
-    setSelectedValue(null);
-  };
-
-  const handleValueChange = (keys: Selection) => {
-    if (keys === "all") {
-      setSelectedValue(null);
-      return;
-    }
-    const selectedKey = Array.from(keys)[0];
-    setSelectedValue(selectedKey ? String(selectedKey) : null);
-  };
-
-  const addFilterToQuery = useCallback(() => {
-    if (!selectedCategory || !selectedVariation) return;
-
-    const newFilter: GameEventFilterValue = {
-      category: selectedCategory,
-      variation: selectedVariation,
-      value: selectedValue || undefined,
-      id: `${selectedCategory}-${selectedVariation}-${selectedValue || "any"}-${Date.now()}`,
-    };
-
-    const isDuplicate = activeFilters.some(
-      (f) => f.category === newFilter.category &&
-             f.variation === newFilter.variation &&
-             f.value === newFilter.value
-    );
-
-    if (isDuplicate) return;
-
-    const updatedFilters = [...activeFilters, newFilter];
-    setActiveFilters(updatedFilters);
-    onFilterChange?.(updatedFilters);
-
+    setSelectedCategory(value);
     setSelectedVariation(null);
     setSelectedValue(null);
-  }, [selectedCategory, selectedVariation, selectedValue, activeFilters, onFilterChange]);
+  };
 
-  const removeFilter = useCallback((filterId: string) => {
-    const updatedFilters = activeFilters.filter((f) => f.id !== filterId);
-    setActiveFilters(updatedFilters);
-    onFilterChange?.(updatedFilters);
-  }, [activeFilters, onFilterChange]);
-
-  const clearAllFilters = useCallback(() => {
-    setActiveFilters([]);
-    setSelectedCategory(null);
-    setSelectedVariation(null);
+  const handleVariationChange = (value: string | "all" | any) => {
+    setSelectedVariation(value);
     setSelectedValue(null);
-    onFilterChange?.([]);
-  }, [onFilterChange]);
+  };
 
-  const currentSelectionLabel = useMemo(() => {
-    if (!selectedVariation) return null;
-    return selectedValue ? `${selectedVariation}: ${selectedValue}` : selectedVariation;
+  const handleValueChange = (value: string | "all" | any) => {
+    setSelectedValue(value);
+  };
+
+  const addFilterToQuery = () => {
+    // TODO: Implement filter query logic with selectedCategory, selectedVariation, selectedValue
+  };
+
+  const selectedBadges = useMemo(() => {
+    if (!selectedVariation || !selectedValue) return null;
+    return `${selectedVariation}: ${selectedValue}`;
   }, [selectedVariation, selectedValue]);
 
-  const activeFiltersContent = useMemo(() => {
-    if (activeFilters.length === 0) return null;
+  const badgeContent = useMemo(() => {
+    if (!selectedBadges) return null;
 
     return (
       <ScrollShadow
@@ -112,31 +48,10 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({ onFilterChange, initi
         className="w-full flex py-0.5 px-2 gap-1"
         orientation="horizontal"
       >
-        {activeFilters.map((filter) => (
-          <Chip
-            key={filter.id}
-            onClose={() => removeFilter(filter.id)}
-            variant="flat"
-            color="primary"
-          >
-            {filter.value ? `${filter.variation}: ${filter.value}` : filter.variation}
-          </Chip>
-        ))}
-        {activeFilters.length > 1 && (
-          <Chip
-            variant="flat"
-            color="danger"
-            className="cursor-pointer"
-            onClick={clearAllFilters}
-          >
-            Clear All
-          </Chip>
-        )}
+        <Chip>{selectedBadges}</Chip>
       </ScrollShadow>
     );
-  }, [activeFilters, removeFilter, clearAllFilters]);
-
-  const canAddFilter = selectedCategory && selectedVariation;
+  }, [selectedBadges]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -208,24 +123,15 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({ onFilterChange, initi
           </div>
         </>
       )} */}
-      <div className="flex flex-col items-center gap-2">
-        {currentSelectionLabel && (
-          <Chip variant="bordered" color="secondary">
-            {currentSelectionLabel}
-          </Chip>
-        )}
-        <Button
-          onPress={addFilterToQuery}
-          isDisabled={!canAddFilter}
-          color="primary"
-          variant="flat"
-        >
+      <div className="flex justify-center">
+        <Spacer y={1} />
+        <Button onPress={addFilterToQuery} disabled={!selectedCategory}>
           Add Filter
         </Button>
       </div>
 
       <div className="col-span-full">
-        {activeFiltersContent}
+        {badgeContent}
       </div>
     </div>
   );

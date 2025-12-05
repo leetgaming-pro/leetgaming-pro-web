@@ -2,13 +2,13 @@ services:
   nextjs-app:
     build: .
     ports:
-      - "3000:3000"
+      - "3030:3030"
     environment:
       - NODE_ENV=development
       - STEAM_SECRET=C1D8DF38BA5DFF53E1E20E5F744120FE
       - STEAM_VHASH_SOURCE=82DA0F0D0135FEA0F5DDF6F96528B48A
       - REPLAY_API_URL=http://host.docker.internal:4991
-      - LEET_GAMING_PRO_URL=http://localhost:3000
+      - LEET_GAMING_PRO_URL=http://localhost:3030
     volumes:
       - .:/app
       - /app/node_modules

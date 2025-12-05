@@ -1,16 +1,18 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {Icon} from "@iconify/react";
 import {Card, CardHeader, CardBody, RadioGroup, Badge} from "@nextui-org/react";
 
 import PlanRadio from "./plan-radio";
 
-export default function Component(props: CardProps) {
+interface SelectPlanCardProps {
+  className?: string;
+}
+
+export default function Component({className}: SelectPlanCardProps) {
   return (
-    <Card className="w-[400px]" {...props}>
+    <Card className={`w-[400px] ${className || ''}`}>
       <CardHeader className="flex flex-col items-start px-6 pb-0 pt-5">
         <h4 className="text-large font-medium">Select your plan</h4>
         <p className="text-tiny text-default-400">

@@ -1,7 +1,5 @@
 "use client";
 
-import type {CardProps} from "@nextui-org/react";
-
 import React from "react";
 import {
   Card,
@@ -19,9 +17,9 @@ import {Icon} from "@iconify/react";
 
 import countries from "./countries";
 
-export default function Component(props: CardProps) {
+export default function AccountDetails() {
   return (
-    <Card className="max-w-xl p-2" {...props}>
+    <Card className="max-w-xl p-2">
       <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
         <p className="text-large">Account Details</p>
         <div className="flex gap-4 py-4">
@@ -45,11 +43,11 @@ export default function Component(props: CardProps) {
             placement="bottom-right"
             shape="circle"
           >
-            <Avatar className="h-14 w-14" src="https://i.pravatar.cc/150?u=a04258114e29026708c" />
+            <Avatar className="h-14 w-14" src="/avatars/default-avatar.svg" />
           </Badge>
           <div className="flex flex-col items-start justify-center">
-            <p className="font-medium">Tony Reichert</p>
-            <span className="text-small text-default-500">Professional Designer</span>
+            <p className="font-medium">User Profile</p>
+            <span className="text-small text-default-500">Competitive Gamer</span>
           </div>
         </div>
         <p className="text-small text-default-400">
