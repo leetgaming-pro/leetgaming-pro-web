@@ -45,6 +45,8 @@ function validateCSRFToken(request: NextRequest): boolean {
 /**
  * GET /api/auth/session
  * Retrieve current session status and metadata
+ * Note: Returns 200 with authenticated: false when no session (not 401)
+ * to avoid console errors for normal unauthenticated state
  */
 export async function GET(request: NextRequest) {
   try {
@@ -53,10 +55,12 @@ export async function GET(request: NextRequest) {
     const ridMetadata = cookieStore.get(RID_METADATA_COOKIE)?.value;
 
     if (!ridToken || !ridMetadata) {
-      return NextResponse.json(
-        { authenticated: false, error: 'No active session' },
-        { status: 401 }
-      );
+      // Return 200 with authenticated: false (not 401) for graceful handling
+      return NextResponse.json({
+        authenticated: false,
+        user: null,
+        expires: null,
+      });
     }
 
     const metadata = JSON.parse(ridMetadata);
@@ -64,11 +68,13 @@ export async function GET(request: NextRequest) {
     // Check if token is expired
     const expiresAt = new Date(metadata.expiresAt);
     if (expiresAt <= new Date()) {
-      // Clear expired cookies
-      const response = NextResponse.json(
-        { authenticated: false, error: 'Session expired' },
-        { status: 401 }
-      );
+      // Clear expired cookies - return 200 with authenticated: false
+      const response = NextResponse.json({
+        authenticated: false,
+        user: null,
+        expires: null,
+        message: 'Session expired',
+      });
 
       response.cookies.delete(RID_TOKEN_COOKIE);
       response.cookies.delete(RID_METADATA_COOKIE);
