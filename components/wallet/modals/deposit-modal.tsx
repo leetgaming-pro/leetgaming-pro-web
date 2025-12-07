@@ -527,7 +527,42 @@ function PaymentStep({
 
 // Crypto Payment UI
 function CryptoPayment({ amount }: { amount: number }) {
-  const address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // Example BTC address
+  const [address, setAddress] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchCryptoAddress = async () => {
+      try {
+        const response = await fetch('/api/payments/crypto-address?currency=btc');
+        if (response.ok) {
+          const data = await response.json();
+          setAddress(data.address);
+        }
+      } catch (err) {
+        console.error('Failed to fetch crypto address:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCryptoAddress();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Progress size="sm" isIndeterminate aria-label="Loading crypto address..." className="max-w-md" />
+      </div>
+    );
+  }
+
+  if (!address) {
+    return (
+      <div className="rounded-lg bg-warning/10 p-6 text-center">
+        <Icon icon="solar:danger-triangle-bold" width={48} className="mx-auto mb-4 text-warning" />
+        <p className="text-default-600">Unable to generate deposit address. Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -576,7 +611,7 @@ function CreditCardPayment() {
         <Input label="Expiry Date" placeholder="MM/YY" />
         <Input label="CVV" placeholder="123" type="password" />
       </div>
-      <Input label="Cardholder Name" placeholder="John Doe" />
+      <Input label="Cardholder Name" placeholder="Full name as shown on card" />
     </div>
   );
 }

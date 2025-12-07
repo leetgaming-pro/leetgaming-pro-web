@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import {
   Card,
   CardBody,
-  Button,
   Input,
   Select,
   SelectItem,
@@ -26,6 +25,7 @@ import {
   Divider,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import AvatarUploader from '@/components/avatar/avatar-uploader';
 import { playersSDK, CreatePlayerRequest, GameTitle, PlayerVisibility } from '@/types/replay-api/players.sdk';
 
@@ -252,14 +252,14 @@ export default function PlayerRegistrationPage() {
             <p className="text-default-500 mb-6">
               Please sign in to create your player profile.
             </p>
-            <Button
-              color="primary"
+            <EsportsButton
+              variant="primary"
               size="lg"
               fullWidth
-              onPress={() => router.push('/signin?callbackUrl=/players/register')}
+              onClick={() => router.push('/signin?callbackUrl=/players/register')}
             >
               Sign in to continue
-            </Button>
+            </EsportsButton>
           </CardBody>
         </Card>
       </div>
@@ -633,32 +633,35 @@ export default function PlayerRegistrationPage() {
 
       {/* Navigation Buttons */}
       <div className="flex justify-between">
-        <Button
-          variant="bordered"
-          onPress={step === 1 ? () => router.back() : handleBack}
-          isDisabled={isSubmitting}
-          startContent={<Icon icon="solar:arrow-left-linear" className="w-5 h-5" />}
+        <EsportsButton
+          variant="ghost"
+          size="md"
+          onClick={step === 1 ? () => router.back() : handleBack}
+          disabled={isSubmitting}
         >
+          <Icon icon="solar:arrow-left-linear" className="w-5 h-5" />
           {step === 1 ? 'Cancel' : 'Back'}
-        </Button>
+        </EsportsButton>
 
         {step < totalSteps ? (
-          <Button
-            color="primary"
-            onPress={handleNext}
-            endContent={<Icon icon="solar:arrow-right-linear" className="w-5 h-5" />}
+          <EsportsButton
+            variant="primary"
+            size="md"
+            onClick={handleNext}
           >
             Continue
-          </Button>
+            <Icon icon="solar:arrow-right-linear" className="w-5 h-5" />
+          </EsportsButton>
         ) : (
-          <Button
-            color="success"
-            onPress={handleSubmit}
-            isLoading={isSubmitting}
-            startContent={!isSubmitting && <Icon icon="solar:check-circle-bold" className="w-5 h-5" />}
+          <EsportsButton
+            variant="matchmaking"
+            size="md"
+            onClick={handleSubmit}
+            loading={isSubmitting}
           >
+            {!isSubmitting && <Icon icon="solar:check-circle-bold" className="w-5 h-5" />}
             {isSubmitting ? 'Creating Profile...' : 'Create Profile'}
-          </Button>
+          </EsportsButton>
         )}
       </div>
     </div>

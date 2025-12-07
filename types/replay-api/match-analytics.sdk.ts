@@ -100,6 +100,66 @@ export interface PlayerZoneFrequency {
   dwell_times: Record<string, number>;
 }
 
+/** Kill event from match */
+export interface MatchKillEvent {
+  tick: number;
+  timestamp?: number;
+  round_number?: number;
+  killer_id: string;
+  killer_name?: string;
+  killer_team?: string;
+  victim_id: string;
+  victim_name?: string;
+  victim_team?: string;
+  weapon: string;
+  headshot?: boolean;
+  wallbang?: boolean;
+  through_smoke?: boolean;
+  no_scope?: boolean;
+  flash_assist_id?: string;
+  flash_assist_name?: string;
+}
+
+/** Scoreboard player entry */
+export interface ScoreboardPlayer {
+  player_id: string;
+  player_name: string;
+  team: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+  adr?: number;
+  hs_percent?: number;
+  rating?: number;
+  score?: number;
+  mvps?: number;
+  is_alive?: boolean;
+  money?: number;
+}
+
+/** Match scoreboard response */
+export interface MatchScoreboardResponse {
+  match_id: string;
+  tick?: number;
+  team1_score: number;
+  team2_score: number;
+  team1_name?: string;
+  team2_name?: string;
+  players: ScoreboardPlayer[];
+}
+
+/** Match events response */
+export interface MatchEventsResponse {
+  match_id: string;
+  total_ticks: number;
+  tick_rate?: number;
+  kills: MatchKillEvent[];
+  round_starts?: Array<{ tick: number; round_number: number }>;
+  round_ends?: Array<{ tick: number; round_number: number; winner_team: string; reason: string }>;
+  bomb_plants?: Array<{ tick: number; round_number: number; player_id: string; site: string }>;
+  bomb_defuses?: Array<{ tick: number; round_number: number; player_id: string }>;
+}
+
 /** Player positioning stats */
 export interface PlayerPositioningStats {
   player_id: string;
@@ -258,6 +318,35 @@ export class MatchAnalyticsAPI {
     const url = `/games/${gameId}/matches/${matchId}/positioning-stats${queryString ? `?${queryString}` : ''}`;
 
     const response = await this.client.get<MatchPositioningStatsResponse>(url);
+    return response.data || null;
+  }
+
+  /**
+   * Get all events (kills, rounds, bombs) for a match
+   */
+  async getMatchEvents(
+    gameId: string,
+    matchId: string
+  ): Promise<MatchEventsResponse | null> {
+    const response = await this.client.get<MatchEventsResponse>(
+      `/games/${gameId}/matches/${matchId}/events`
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Get current scoreboard for a match at a specific tick
+   */
+  async getMatchScoreboard(
+    gameId: string,
+    matchId: string,
+    tick?: number
+  ): Promise<MatchScoreboardResponse | null> {
+    const url = tick !== undefined
+      ? `/games/${gameId}/matches/${matchId}/scoreboard?tick=${tick}`
+      : `/games/${gameId}/matches/${matchId}/scoreboard`;
+
+    const response = await this.client.get<MatchScoreboardResponse>(url);
     return response.data || null;
   }
 }

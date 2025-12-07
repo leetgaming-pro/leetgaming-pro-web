@@ -73,12 +73,12 @@ export default function NavBarSection() {
   }, []); 
 
   const menuItems = [
-    { 
+    {
       key: 'guides',
       label: 'Guides',
       description: 'Learn from the best',
       icon: '/guide-icon.png',
-      href: 'https://example.com/guides',
+      href: '/blog',
     },
     // Add more items here
   ];

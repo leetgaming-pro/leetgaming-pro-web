@@ -31,23 +31,23 @@ export default function Component({className}: DiscountCardProps) {
       <Divider className="mb-8 mt-10" />
       <ul className="flex flex-col gap-1">
         <li>
-          <Link className="text-default-400" href="#" size="sm">
+          <Link className="text-default-400" href="/help" size="sm">
             Where do I find my affiliate code?
           </Link>
         </li>
         <li>
-          <Link className="text-default-400" href="#" size="sm">
+          <Link className="text-default-400" href="/help" size="sm">
             How do I become an affiliate?
           </Link>
         </li>
         <li>
-          <Link className="text-default-400" href="#" size="sm">
+          <Link className="text-default-400" href="/help" size="sm">
             What are the benefits of being an affiliate?
           </Link>
         </li>
         <li>
-          <Link className="text-default-400" href="#" size="sm">
-            Contact Acme Support
+          <Link className="text-default-400" href="/help" size="sm">
+            Contact Support
           </Link>
         </li>
       </ul>

@@ -3,12 +3,13 @@
 import type {InputProps} from "@nextui-org/react";
 
 import React from "react";
-import {Button, Input, Checkbox, Link, Divider} from "@nextui-org/react";
+import {Input, Checkbox, Link, Divider} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { SteamIcon } from "../icons";
 import { GoogleIcon } from "./social";
+import { EsportsButton } from "../ui/esports-button";
 
 export default function SignInBlurreds() {
   const router = useRouter();
@@ -50,8 +51,6 @@ export default function SignInBlurreds() {
     inputWrapper:
       "border-transparent bg-default-50/40 dark:bg-default-50/20 group-data-[focus=true]:border-primary data-[hover=true]:border-foreground/20",
   };
-
-  const buttonClasses = "bg-foreground/10 dark:bg-foreground/20";
 
   return (
     <div
@@ -121,20 +120,20 @@ export default function SignInBlurreds() {
             >
               Remember me
             </Checkbox>
-            <Link className="text-foreground/50" href="#" size="sm">
+            <Link className="text-foreground/50" href="/help" size="sm">
               Forgot password?
             </Link>
           </div>
-          <Button
-            className={buttonClasses}
-            type="submit"
+          <EsportsButton
+            variant="primary"
             size="lg"
-            radius="md"
-            isLoading={isLoading}
-            isDisabled={isLoading || !email || !password}
+            fullWidth
+            type="submit"
+            loading={isLoading}
+            disabled={isLoading || !email || !password}
           >
             {isLoading ? 'Signing in...' : 'Log In'}
-          </Button>
+          </EsportsButton>
         </form>
         <div className="flex items-center gap-4 py-2">
           <Divider className="flex-1" />
@@ -142,24 +141,24 @@ export default function SignInBlurreds() {
           <Divider className="flex-1" />
         </div>
         <div className="flex flex-col gap-2">
-          <Button
-            className={buttonClasses}
-            startContent={<SteamIcon />}
+          <EsportsButton
+            variant="action"
+            size="lg"
+            fullWidth
             onClick={() => signIn("steam", { callbackUrl: "/match-making" })}
-            size="lg"
-            radius="md"
           >
+            <SteamIcon />
             Continue with Steam
-          </Button>
-          <Button
-            onClick={() => signIn("google", { callbackUrl: "/match-making" })}
-            className={buttonClasses}
-            startContent={<GoogleIcon width={24} />}
+          </EsportsButton>
+          <EsportsButton
+            variant="ghost"
             size="lg"
-            radius="md"
+            fullWidth
+            onClick={() => signIn("google", { callbackUrl: "/match-making" })}
           >
+            <GoogleIcon width={24} />
             Continue with Google
-          </Button>
+          </EsportsButton>
         </div>
         <p className="text-center text-sm text-foreground/60">
           Need to create an account?{" "}

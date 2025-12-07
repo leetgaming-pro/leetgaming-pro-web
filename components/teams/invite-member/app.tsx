@@ -18,16 +18,37 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Skeleton,
 } from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 
 import UserCell from "./user-cell";
 
-interface InviteMemberCardProps {
-  className?: string;
+export interface TeamMemberData {
+  id: string;
+  avatar: string;
+  name: string;
+  permission: "Owner" | "Can edit" | "Can view";
+  isCurrentUser?: boolean;
 }
 
-export default function Component({className}: InviteMemberCardProps) {
+interface InviteMemberCardProps {
+  className?: string;
+  members?: TeamMemberData[];
+  isLoading?: boolean;
+  onInvite?: (emails: string[], permission: string) => void;
+  onCopyLink?: () => void;
+  onGetEmbedCode?: () => void;
+}
+
+export default function InviteMemberCard({
+  className,
+  members = [],
+  isLoading = false,
+  onInvite,
+  onCopyLink,
+  onGetEmbedCode,
+}: InviteMemberCardProps) {
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set(["can-view"]));
 
   const permissionLabels: Record<string, string> = {
@@ -35,47 +56,63 @@ export default function Component({className}: InviteMemberCardProps) {
     "can-edit": "Can Edit",
   };
 
-  // Memoize the user list to avoid re-rendering when changing the selected keys
-  const userList = React.useMemo(
-    () => (
+  const userList = React.useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className="mt-2 flex flex-col gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <React.Fragment key={i}>
+              <div className="flex items-center gap-3 py-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-24 rounded-lg" />
+                  <Skeleton className="h-3 w-16 rounded-lg" />
+                </div>
+              </div>
+              {i < 2 && <Divider />}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    }
+
+    if (members.length === 0) {
+      return (
+        <div className="mt-2 py-4 text-center text-default-400">
+          No members yet
+        </div>
+      );
+    }
+
+    return (
       <div className="mt-2 flex flex-col gap-2">
-        <UserCell
-          avatar="https://i.pravatar.cc/150?u=a04258114e29026708c"
-          name="Tony Reichert (you)"
-          permission="Owner"
-        />
-        <Divider />
-        <UserCell
-          avatar="https://i.pravatar.cc/150?u=a042581f4e29026024d"
-          name="John Doe"
-          permission="Can edit"
-        />
-        <Divider />
-        <UserCell
-          avatar="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-          name="Jane Doe"
-          permission="Can view"
-        />
-        <Divider />
-        <UserCell
-          avatar="https://i.pravatar.cc/150?u=a04258a2462d826712d"
-          name="John Smith"
-          permission="Can view"
-        />
+        {members.map((member, index) => (
+          <React.Fragment key={member.id}>
+            <UserCell
+              avatar={member.avatar}
+              name={member.isCurrentUser ? `${member.name} (you)` : member.name}
+              permission={member.permission}
+            />
+            {index < members.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
       </div>
-    ),
-    [],
-  );
+    );
+  }, [members, isLoading]);
 
   return (
     <Card className={`w-full max-w-[400px] ${className || ''}`}>
       <CardHeader className="justify-center px-6 pb-0 pt-6">
         <div className="flex flex-col items-center">
-          <AvatarGroup isBordered size="sm">
-            <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
-            <Avatar src="https://i.pravatar.cc/150?u=a04258a2462d826712d" />
-            <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-          </AvatarGroup>
+          {members.length > 0 ? (
+            <AvatarGroup isBordered size="sm" max={3}>
+              {members.map((member) => (
+                <Avatar key={member.id} src={member.avatar} />
+              ))}
+            </AvatarGroup>
+          ) : (
+            <div className="h-8" />
+          )}
           <Spacer y={2} />
           <h4 className="text-large">Invite Member</h4>
           <p className="text-center text-small text-default-500">
@@ -126,10 +163,10 @@ export default function Component({className}: InviteMemberCardProps) {
         {userList}
       </CardBody>
       <CardFooter className="justify-end gap-2">
-        <Button size="sm" variant="flat">
+        <Button size="sm" variant="flat" onPress={onCopyLink}>
           Copy Link
         </Button>
-        <Button size="sm" variant="flat">
+        <Button size="sm" variant="flat" onPress={onGetEmbedCode}>
           Get Embed Code
         </Button>
       </CardFooter>

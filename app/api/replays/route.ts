@@ -113,24 +113,71 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    const body = await request.json();
+    // Get form data with file
+    const formData = await request.formData();
+    const file = formData.get('file') as File | null;
+    const gameId = formData.get('gameId') as string || 'cs2';
+    const visibility = formData.get('visibility') as string || 'private';
     
     // Validate required fields
-    if (!body.gameId || !body.file) {
+    if (!file) {
       return NextResponse.json({
         success: false,
-        error: 'Missing required fields: gameId, file',
+        error: 'Missing required field: file',
       }, {
         status: 400,
       });
     }
     
-    // TODO: Implement replay upload logic
-    // This would typically handle file upload to storage and create replay metadata
+    // Validate file type
+    const validExtensions = ['.dem', '.replay'];
+    const fileName = file.name.toLowerCase();
+    if (!validExtensions.some(ext => fileName.endsWith(ext))) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid file type. Accepted: .dem, .replay',
+      }, {
+        status: 400,
+      });
+    }
+    
+    // Get user ID for upload
+    const userId = getUserIdFromToken();
+    
+    // Proxy to backend API
+    const backendUrl = process.env.REPLAY_API_URL || 'http://replay-api-service:8080';
+    const uploadUrl = `${backendUrl}/games/${gameId}/replays`;
+    
+    // Create new FormData for backend
+    const backendFormData = new FormData();
+    backendFormData.append('file', file);
+    backendFormData.append('visibility', visibility);
+    
+    const backendResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: backendFormData,
+      headers: {
+        'X-Resource-Owner-ID': userId || '',
+      },
+    });
+    
+    if (!backendResponse.ok) {
+      const errorText = await backendResponse.text();
+      logger.error('[API /api/replays] Backend upload failed', { status: backendResponse.status, error: errorText });
+      return NextResponse.json({
+        success: false,
+        error: `Upload failed: ${backendResponse.statusText}`,
+      }, {
+        status: backendResponse.status,
+      });
+    }
+    
+    const result = await backendResponse.json();
     
     return NextResponse.json({
       success: true,
-      message: 'Upload endpoint - to be implemented with file handling',
+      data: result,
+      message: 'Replay uploaded successfully',
     });
     
   } catch (error) {

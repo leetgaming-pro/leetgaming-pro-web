@@ -492,9 +492,281 @@
   border-radius: 0px; 
 }
 
-/* 
+/*
 .match-timeline  {
   background-color: #F5F5F5;
   font-weight: 500;
 } */
+
+
+/* ******* ESPORTS BUTTONS - ANGULAR GAMING AESTHETIC ******** */
+/* Official Colors: Navy #34445C, Lime #DCFF37, Red #FF4654 */
+
+.esports-btn {
+  --cut-size: 12px;
+  position: relative;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  border-radius: 0 !important;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.esports-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.esports-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--cut-size);
+  height: var(--cut-size);
+  background: currentColor;
+  opacity: 0.3;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* Primary variant - Navy/Lime */
+.esports-btn-primary {
+  background: linear-gradient(135deg, #34445C 0%, #2a3749 50%, #34445C 100%);
+  color: #f5f0e1;
+  box-shadow:
+    0 4px 15px rgba(52, 68, 92, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.esports-btn-primary:hover {
+  background: linear-gradient(135deg, #3d5068 0%, #34445C 50%, #3d5068 100%);
+  box-shadow:
+    0 6px 20px rgba(52, 68, 92, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.esports-btn-primary:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 10px rgba(52, 68, 92, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .esports-btn-primary {
+  background: linear-gradient(135deg, #DCFF37 0%, #c4e530 50%, #DCFF37 100%);
+  color: #1a1a1a;
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dark .esports-btn-primary:hover {
+  background: linear-gradient(135deg, #e5ff5a 0%, #DCFF37 50%, #e5ff5a 100%);
+  box-shadow:
+    0 6px 25px rgba(220, 255, 55, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Action variant - Lime accent */
+.esports-btn-action {
+  background: linear-gradient(135deg, #DCFF37 0%, #c4e530 50%, #DCFF37 100%);
+  color: #1a1a1a;
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.esports-btn-action:hover {
+  background: linear-gradient(135deg, #e5ff5a 0%, #DCFF37 50%, #e5ff5a 100%);
+  box-shadow:
+    0 6px 25px rgba(220, 255, 55, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.dark .esports-btn-action {
+  background: linear-gradient(135deg, #34445C 0%, #2a3749 50%, #34445C 100%);
+  color: #DCFF37;
+  box-shadow:
+    0 4px 15px rgba(52, 68, 92, 0.4),
+    inset 0 1px 0 rgba(220, 255, 55, 0.1);
+}
+
+/* Ghost variant - uses CSS mask to create complete angular border including diagonal */
+.esports-btn-ghost {
+  background: transparent;
+  color: #34445C;
+  box-shadow: none;
+}
+
+/* Complete angular border using mask technique */
+.esports-btn-ghost::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #34445C;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut-size)), calc(100% - var(--cut-size)) 100%, 0 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  pointer-events: none;
+}
+
+.esports-btn-ghost:hover {
+  background: rgba(52, 68, 92, 0.1);
+}
+
+.esports-btn-ghost:hover::before {
+  box-shadow: 0 4px 15px rgba(52, 68, 92, 0.2);
+}
+
+.dark .esports-btn-ghost {
+  color: #DCFF37;
+}
+
+.dark .esports-btn-ghost::before {
+  background: #DCFF37;
+}
+
+.dark .esports-btn-ghost:hover {
+  background: rgba(220, 255, 55, 0.1);
+}
+
+.dark .esports-btn-ghost:hover::before {
+  box-shadow: 0 4px 15px rgba(220, 255, 55, 0.2);
+}
+
+/* Danger variant */
+.esports-btn-danger {
+  background: linear-gradient(135deg, #FF4654 0%, #e03d4a 50%, #FF4654 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 20px rgba(255, 70, 84, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.esports-btn-danger:hover {
+  background: linear-gradient(135deg, #ff5c68 0%, #FF4654 50%, #ff5c68 100%);
+  box-shadow:
+    0 6px 25px rgba(255, 70, 84, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Matchmaking variant - special gradient */
+.esports-btn-matchmaking {
+  --cut-size: 16px;
+  background: linear-gradient(135deg, #DCFF37 0%, #34445C 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 25px rgba(220, 255, 55, 0.3),
+    0 4px 25px rgba(52, 68, 92, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.esports-btn-matchmaking:hover {
+  background: linear-gradient(135deg, #e5ff5a 0%, #3d5068 100%);
+  box-shadow:
+    0 6px 30px rgba(220, 255, 55, 0.4),
+    0 6px 30px rgba(52, 68, 92, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Glow effect */
+.esports-btn-glow {
+  animation: esports-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes esports-glow {
+  from {
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+  to {
+    filter: drop-shadow(0 0 15px currentColor);
+  }
+}
+
+/* Angular card style */
+.esports-card {
+  --cut-size: 20px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  border-radius: 0 !important;
+}
+
+/* Angular input style */
+.esports-input {
+  --cut-size: 8px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  border-radius: 0 !important;
+  background: rgba(52, 68, 92, 0.1);
+  border: 1px solid rgba(52, 68, 92, 0.3);
+}
+
+.dark .esports-input {
+  background: rgba(220, 255, 55, 0.05);
+  border: 1px solid rgba(220, 255, 55, 0.2);
+}
+
+.esports-input:focus {
+  border-color: #34445C;
+  box-shadow: 0 0 0 2px rgba(52, 68, 92, 0.2);
+}
+
+.dark .esports-input:focus {
+  border-color: #DCFF37;
+  box-shadow: 0 0 0 2px rgba(220, 255, 55, 0.2);
+}
+
+/* Navigation link styles - angular esports aesthetic */
+.esports-nav-link {
+  --cut-size: 6px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  border-radius: 0 !important;
+}
+
+.esports-nav-link-primary {
+  --cut-size: 8px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  border-radius: 0 !important;
+}
 

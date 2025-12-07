@@ -37,17 +37,22 @@ async function handler(
         clientSecret: process.env.STEAM_SECRET!,
         callbackUrl: `${process.env.LEET_GAMING_PRO_URL}/api/auth/callback/`
       }),
-      GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        authorization: {
-          params: {
-            prompt: "consent",
-            access_type: "offline",
-            response_type: "code"
+      // Only enable Google provider if valid credentials are configured
+      ...(process.env.GOOGLE_CLIENT_ID && 
+          process.env.GOOGLE_CLIENT_SECRET && 
+          !process.env.GOOGLE_CLIENT_ID.includes('placeholder') ? [
+        GoogleProvider({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          authorization: {
+            params: {
+              prompt: "consent",
+              access_type: "offline",
+              response_type: "code"
+            },
           },
-        },
-      }),
+        }),
+      ] : []),
       CredentialsProvider({
         id: 'email-password',
         name: 'Email',

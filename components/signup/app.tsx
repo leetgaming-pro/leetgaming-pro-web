@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import {Button, Input, Checkbox, Link, Divider} from "@nextui-org/react";
+import {Input, Checkbox, Link, Divider} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { SteamIcon } from '../icons';
+import { EsportsButton } from '../ui/esports-button';
 
 import DefaultLogo from '../logo/logo-full';
 
@@ -189,25 +190,24 @@ export default function SignUp() {
             isDisabled={isLoading}
           >
             I agree with the&nbsp;
-            <Link href="#" size="sm">
+            <Link href="/legal/terms" size="sm">
               Terms
             </Link>
             &nbsp; and&nbsp;
-            <Link href="#" size="sm">
+            <Link href="/legal/privacy" size="sm">
               Privacy Policy
             </Link>
           </Checkbox>
-          <Button
-            color="primary"
-            type="submit"
+          <EsportsButton
+            variant="primary"
             size="lg"
-            radius="md"
-            className="font-medium"
-            isLoading={isLoading}
-            isDisabled={isLoading || !email || !password || !confirmPassword}
+            fullWidth
+            type="submit"
+            loading={isLoading}
+            disabled={isLoading || !email || !password || !confirmPassword}
           >
             {isLoading ? 'Creating account...' : 'Sign Up'}
-          </Button>
+          </EsportsButton>
         </form>
         <div className="flex items-center gap-4 py-2">
           <Divider className="flex-1" />
@@ -215,28 +215,28 @@ export default function SignUp() {
           <Divider className="flex-1" />
         </div>
         <div className="flex flex-col gap-2">
-          <Button
-            startContent={<SteamIcon />}
-            variant="bordered"
+          <EsportsButton
+            variant="action"
             size="lg"
-            radius="md"
+            fullWidth
             onClick={() => {
               if (typeof window !== 'undefined') import('next-auth/react').then(m => m.signIn('steam', { callbackUrl: '/match-making' }))
             }}
           >
+            <SteamIcon />
             Continue with Steam
-          </Button>
-          <Button
-            startContent={<Icon icon="flat-color-icons:google" width={24} />}
-            variant="bordered"
+          </EsportsButton>
+          <EsportsButton
+            variant="ghost"
             size="lg"
-            radius="md"
+            fullWidth
             onClick={() => {
               if (typeof window !== 'undefined') import('next-auth/react').then(m => m.signIn('google', { callbackUrl: '/match-making' }))
             }}
           >
+            <Icon icon="flat-color-icons:google" width={24} />
             Continue with Google
-          </Button>
+          </EsportsButton>
         </div>
         <p className="text-center text-sm text-foreground/60">
           Already have an account?{" "}

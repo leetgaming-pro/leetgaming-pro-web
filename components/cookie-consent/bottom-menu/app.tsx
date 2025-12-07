@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Link } from "@nextui-org/react";
+import { Link } from "@nextui-org/react";
+import { EsportsButton } from "@/components/ui/esports-button";
 import CookieSettingsModal from "./CookieSettingsModal";
 
 export default function CookieBottomMenu() {
@@ -7,25 +8,25 @@ export default function CookieBottomMenu() {
   const [showCookieMenu, setShowCookieMenu] = React.useState(true);
 
   const handleRejectAll = () => {
-    sessionStorage.setItem("cookieConsent", "rejected");
+    localStorage.setItem("cookieConsent", "rejected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptAll = () => {
-    sessionStorage.setItem("cookieConsent", "accepted");
+    localStorage.setItem("cookieConsent", "accepted");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptSelected = () => {
-    sessionStorage.setItem("cookieConsent", "selected");
+    localStorage.setItem("cookieConsent", "selected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   React.useEffect(() => {
-    const cookieConsent = sessionStorage.getItem("cookieConsent");
+    const cookieConsent = localStorage.getItem("cookieConsent");
     if (cookieConsent) {
       setShowCookieMenu(false);
     }
@@ -45,46 +46,38 @@ export default function CookieBottomMenu() {
           cookies. However, you may visit&nbsp;
           <span className="font-semibold">&quot;Cookie Settings&quot;</span> to provide a controlled
           consent. For more information, please read our{" "}
-          <Link href="#" size="sm" underline="hover">
+          <Link href="/legal/cookies" size="sm" underline="hover">
             Cookie Policy.
           </Link>
         </p>
         <div className="mt-4 space-y-2">
-          <Button
+          <EsportsButton
             fullWidth
-            className="px-4 font-medium"
-            radius="lg"
-            style={{
-              border: "solid 2px transparent",
-              backgroundImage: `linear-gradient(hsl(var(--nextui-background)), hsl(var(--nextui-background))), linear-gradient(83.87deg, #FF4654, #FFC700)`,
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-            }}
+            variant="action"
+            size="md"
             onClick={() => setShowCookieSettings(true)}
           >
             Cookie Settings
-          </Button>
+          </EsportsButton>
           {showCookieSettings && (
             <CookieSettingsModal onClose={() => setShowCookieSettings(false)} onRejectAll={handleRejectAll} onAcceptAll={handleAcceptAll} onAcceptSelected={handleAcceptSelected} />
           )}
-          <Button
+          <EsportsButton
             fullWidth
-            className="border-default-200 font-medium text-default-foreground"
-            radius="lg"
-            variant="bordered"
+            variant="ghost"
+            size="md"
             onClick={handleRejectAll}
           >
             Reject All
-          </Button>
-          <Button
+          </EsportsButton>
+          <EsportsButton
             fullWidth
-            className="font-medium text-default-foreground"
-            radius="lg"
-            variant="light"
+            variant="primary"
+            size="md"
             onClick={handleAcceptAll}
           >
             Accept All
-          </Button>
+          </EsportsButton>
         </div>
       </div>
     </div>

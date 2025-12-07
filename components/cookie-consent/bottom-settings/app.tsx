@@ -45,7 +45,7 @@ export default function CookieSettingsConsent() {
       <p className="text-small font-normal text-default-700">
         This site uses tracking technologies to improve your experience. You may choose to accept or
         reject these technologies. Check our{" "}
-        <Link href="#" size="sm" underline="always">
+        <Link href="/legal/privacy" size="sm" underline="always">
           Privacy
         </Link>{" "}
         for more information.
@@ -120,7 +120,7 @@ export default function CookieSettingsConsent() {
         cookies. However, you may visit&nbsp;
         <span className="font-semibold">&quot;Cookie Settings&quot;</span> to provide a controlled
         consent. For more information, please read our{" "}
-        <Link href="#" size="sm" underline="hover">
+        <Link href="/legal/cookies" size="sm" underline="hover">
           Cookie Policy.
         </Link>
       </p>

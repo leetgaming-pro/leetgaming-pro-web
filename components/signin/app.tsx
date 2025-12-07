@@ -83,7 +83,7 @@ export default function SignIn() {
               <Checkbox name="remember" size="sm">
                 Remember for 15 days
               </Checkbox>
-              <Link className="text-default-500" href="#" size="sm">
+              <Link className="text-default-500" href="/help" size="sm">
                 Forgot password?
               </Link>
             </div>
@@ -94,7 +94,7 @@ export default function SignIn() {
 
           <p className="text-center text-small">
             Need to create an account?&nbsp;
-            <Link href="#" size="sm">
+            <Link href="/signup" size="sm">
               Sign Up
             </Link>
           </p>
@@ -114,23 +114,22 @@ export default function SignIn() {
         <div className="flex flex-col items-end gap-4">
           <User
             avatarProps={{
-              src: "tlogo.jpeg",
+              src: "/leetgaming-logo.svg",
             }}
             classNames={{
               base: "flex flex-row-reverse",
               name: "w-full text-right text-black",
               description: "text-black/80",
             }}
-            description="Founder & CEO at ACME"
-            name="Teste teste"
+            description="Competitive Gaming Platform"
+            name="LeetGaming.PRO"
           />
           <p className="w-full text-right text-2xl text-black/60">
-            <span className="font-medium">“</span>
+            <span className="font-medium">"</span>
             <span className="font-normal italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eget augue nec massa
-              volutpat aliquet.
+              Level up your competitive gaming experience. Track replays, analyze performance, and climb the ranks.
             </span>
-            <span className="font-medium">”</span>
+            <span className="font-medium">"</span>
           </p>
         </div>
       </div>

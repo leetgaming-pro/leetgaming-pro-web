@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Checkbox, Link, RadioGroup, Radio, Spacer, CardFooter, Button, Chip } from "@nextui-org/react";
+import { Checkbox, Link, RadioGroup, Radio, Spacer, CardFooter, Chip } from "@nextui-org/react";
 import { cn } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
@@ -80,11 +80,11 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
                 <Radio classNames={radioClassNames} value="region11">
                   Brazil East (São Paulo)
                   <Spacer y={1} />
-                  <Link href="#" size="sm" className="text-secondary underline">
+                  <span className="text-secondary text-sm flex items-center">
                     <small> Recommended</small>
                     <Spacer x={1} />
                     <NetworkFavorite size={18} color="foreground" />
-                  </Link>
+                  </span>
                 </Radio>
                 <Spacer y={1} />
                 <Radio classNames={radioClassNames} value="region12">

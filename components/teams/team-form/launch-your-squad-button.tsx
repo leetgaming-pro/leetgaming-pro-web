@@ -8,7 +8,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
   useDisclosure,
   Input,
   Select,
@@ -23,6 +22,7 @@ import {
   CardBody,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import { EsportsButton } from "@/components/ui/esports-button";
 import AvatarUploader from "@/components/avatar/avatar-uploader";
 import PlayerSearchInput from "@/components/players/player-search-input/player-search-modal";
 import { useSession } from "next-auth/react";
@@ -175,14 +175,14 @@ export default function LaunchYourSquadButton() {
 
   return (
     <>
-      <Button
-        onPress={handleOpen}
-        startContent={<Icon icon="solar:users-group-two-rounded-outline" width={18} />}
-        color="primary"
-        variant="ghost"
+      <EsportsButton
+        onClick={handleOpen}
+        variant="action"
+        size="md"
       >
+        <Icon icon="solar:users-group-two-rounded-outline" width={18} />
         Launch Your Squad
-      </Button>
+      </EsportsButton>
       <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange} size="2xl">
         <ModalContent>
           {(onCloseModal) => (
@@ -345,17 +345,18 @@ export default function LaunchYourSquadButton() {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onCloseModal} isDisabled={isSubmitting}>
+                <EsportsButton variant="ghost" size="md" onClick={onCloseModal} disabled={isSubmitting}>
                   Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={handleSubmit}
-                  isLoading={isSubmitting}
-                  startContent={!isSubmitting && <Icon icon="solar:check-circle-bold" width={20} />}
+                </EsportsButton>
+                <EsportsButton
+                  variant="matchmaking"
+                  size="md"
+                  onClick={handleSubmit}
+                  loading={isSubmitting}
                 >
+                  {!isSubmitting && <Icon icon="solar:check-circle-bold" width={20} />}
                   {isSubmitting ? "Creating..." : "Create Squad"}
-                </Button>
+                </EsportsButton>
               </ModalFooter>
             </>
           )}

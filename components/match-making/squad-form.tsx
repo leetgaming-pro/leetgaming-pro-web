@@ -2,20 +2,43 @@
 
 import type { InputProps } from "@nextui-org/react";
 
-import React from "react";
-import { Input, Checkbox, Link, Spacer, Card, Accordion, AccordionItem, Avatar, Tab, CardBody, Tabs, Chip, User } from "@nextui-org/react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Input, Checkbox, Link, Spacer, Card, Accordion, AccordionItem, Avatar, Tab, CardBody, Tabs, Chip, User, Spinner } from "@nextui-org/react";
 import { cn } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { SearchIcon } from "../icons";
 import { title } from "../primitives";
 import { useTheme } from "next-themes";
 import { useWizard } from "./wizard-context";
+import { useSession } from "next-auth/react";
+
+interface TeamMember {
+  nickname: string;
+  avatar: string;
+  type: string;
+  role: string;
+}
+
+interface Team {
+  id: string;
+  displayName: string;
+  tag: string;
+  url: string;
+  avatar: string;
+  members: TeamMember[];
+  description: string;
+}
 
 export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement>;
 
 const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
   ({ className, ...props }, ref) => {
     const { updateState } = useWizard();
+    const { data: session } = useSession();
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
       classNames: {
@@ -30,40 +53,58 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
       theme = "light";
     }
 
-
     const [isSelected, setIsSelected] = React.useState(false);
 
-
+    // Get user info from session
     const user = {
-      name: "Pedro Savelis",
-      avatar: "https://avatars.githubusercontent.com/u/3760203?v=4",
-      username: "sound",
-      url: "https://github.com/psavelis",
-      role: "CTO & Co-Founder",
-      status: "Online now",
+      name: session?.user?.name || "Guest",
+      avatar: session?.user?.image || session?.user?.steam?.avatarmedium || "/default-avatar.png",
+      username: session?.user?.steam?.personaname || session?.user?.email?.split("@")[0] || "player",
+      url: session?.user?.steam?.profileurl || "#",
+      role: "Player",
+      status: session ? "Online" : "Offline",
     };
 
-    const defaultContent =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+    // Fetch user's teams from API
+    const fetchTeams = useCallback(async () => {
+      if (!session?.user) {
+        setTeams([]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/squads');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            const formattedTeams: Team[] = data.data.map((squad: any) => ({
+              id: squad.id,
+              displayName: squad.name || squad.display_name || "Unnamed Team",
+              tag: squad.symbol || squad.tag || "TEAM",
+              url: `/teams/${squad.id}`,
+              avatar: squad.logo_uri || "/team-default.png",
+              members: squad.members?.map((m: any) => ({
+                nickname: m.nickname || m.display_name || "Unknown",
+                avatar: m.avatar_uri || "/default-avatar.png",
+                type: m.role_type || "Member",
+                role: m.game_role || "Player",
+              })) || [],
+              description: squad.description || "",
+            }));
+            setTeams(formattedTeams);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch teams:", error);
+      } finally {
+        setLoading(false);
+      }
+    }, [session]);
 
-
-    const teamMock = {
-      id: "team-mock-1",
-      displayName: "Eth3ernity*",
-      tag: "ETH3",
-      url: "leetgaming.pro/teams/ethernity",
-      avatar: "https://avatars.githubusercontent.com/u/168373520?s=200&v=4",
-      members: [
-        { nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-        { nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-        { nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-        { nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-        { nickname: "sound", avatar: "https://avatars.githubusercontent.com/u/3760203?v=4", type: "Owner", role: "AWPER" }, // Role: ??? AWPER, Lurker etc?
-      ],
-      description: defaultContent
-    }
-
-    const teams = [teamMock]
+    useEffect(() => {
+      fetchTeams();
+    }, [fetchTeams]);
 
 
 
@@ -86,7 +127,6 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
               className={cn("flex grid grid-cols-12 flex-col gap-4 py-8 w-[500px]", className)}
             >
               <Input
-
                 startContent={
                   <div>
                     <Icon className="text-default-500" icon="solar:users-group-two-rounded-outline" width={20} />
@@ -97,9 +137,10 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                   <SearchIcon />
                 }
                 className="col-span-12"
-                // label="Nickname"
-                name="nickname"
-                placeholder="Type to search for your friends or team"
+                name="search"
+                placeholder="Search for players or teams..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 {...inputProps}
               />
 
@@ -112,11 +153,11 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                 size="md"
               >
                 I read and agree with the
-                <Link className="mx-1 text-secondary underline" href="#" size="md">
+                <Link className="mx-1 text-secondary underline" href="/legal/terms" size="md">
                   Terms
                 </Link>
                 <span>and</span>
-                <Link className="ml-1 text-secondary underline" href="#" size="md">
+                <Link className="ml-1 text-secondary underline" href="/legal/privacy" size="md">
                   Privacy Policy
                 </Link>
                 .
@@ -161,7 +202,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
             <Card className="col-span-12 m-0 p-2 text-center">
               <div className="col-span-12 m-0 p-2 text-center">
                 Don&lsquo;t have a team yet?
-                <Link className="ml-2 text-secondary underline" href="#" size="md">
+                <Link className="ml-2 text-secondary underline" href="/teams/create" size="md">
                   Create a new team
                 </Link>
               </div>
@@ -172,48 +213,57 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
           <Tab key="your-teams" title="Your Teams">
             <Card className="w-[580px]">
               <CardBody>
-
-                {teams.map((team) => (
-                  <Accordion
-                    key={team.displayName}
-                    selectionMode="multiple"
-                    onSelectionChange={() => updateState({ squadId: team.id })}
-                  >
-                    <AccordionItem
-                      key="1"
-                      aria-label={team.displayName}
-                      startContent={
-                        <Avatar
-                          isBordered
-                          color="primary"
-                          radius="lg"
-                          src={team.avatar}
-                        />
-                      }
-                      subtitle={`${team.displayName} (${team.members.length} member)`}
-                      title={team.tag}
+                {loading ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Spinner size="lg" label="Loading your teams..." />
+                  </div>
+                ) : teams.length === 0 ? (
+                  <div className="text-center p-8">
+                    <Icon icon="solar:users-group-two-rounded-outline" className="w-16 h-16 mx-auto text-default-300 mb-4" />
+                    <p className="text-default-500 mb-4">You haven&apos;t joined any teams yet.</p>
+                    <Link href="/teams/create" className="text-primary underline">
+                      Create your first team
+                    </Link>
+                  </div>
+                ) : (
+                  teams.map((team) => (
+                    <Accordion
+                      key={team.id}
+                      selectionMode="multiple"
+                      onSelectionChange={() => updateState({ squadId: team.id })}
                     >
-                      {defaultContent}
+                      <AccordionItem
+                        key="1"
+                        aria-label={team.displayName}
+                        startContent={
+                          <Avatar
+                            isBordered
+                            color="primary"
+                            radius="lg"
+                            src={team.avatar}
+                          />
+                        }
+                        subtitle={`${team.displayName} (${team.members.length} member${team.members.length !== 1 ? 's' : ''})`}
+                        title={team.tag}
+                      >
+                        {team.description && <p className="text-sm text-default-500 mb-2">{team.description}</p>}
 
-                      {team.members.map((member) => (
-                        <div key={member.nickname} className="flex items-center gap-2">
-                          <Spacer y={2} />
-                          <Card className="w-1/2 border" style={{ borderRadius: "50px" }}>
-                            <div key={member.nickname} className="flex items-center gap-2">
-                              <Avatar alt={member.nickname.charAt(0).toUpperCase()} src={member.avatar} />
-                              <span>{member.nickname}</span>
-                            </div>
-
-                          </Card>
-                        </div>
-                      ))}
-                    </AccordionItem>
-
-                  </Accordion>
-                ))
-                }
-
-
+                        {team.members.map((member, idx) => (
+                          <div key={`${member.nickname}-${idx}`} className="flex items-center gap-2">
+                            <Spacer y={2} />
+                            <Card className="w-1/2 border" style={{ borderRadius: "50px" }}>
+                              <div className="flex items-center gap-2 p-2">
+                                <Avatar alt={member.nickname.charAt(0).toUpperCase()} src={member.avatar} size="sm" />
+                                <span className="text-sm">{member.nickname}</span>
+                                <Chip size="sm" variant="flat" className="ml-auto">{member.role}</Chip>
+                              </div>
+                            </Card>
+                          </div>
+                        ))}
+                      </AccordionItem>
+                    </Accordion>
+                  ))
+                )}
               </CardBody>
             </Card>
           </Tab>

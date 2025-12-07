@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import {Button} from "@nextui-org/react";
+import { EsportsButton } from "@/components/ui/esports-button";
 import {Icon} from "@iconify/react";
 import {cn} from "@nextui-org/react";
 
@@ -27,18 +27,17 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
       <div className="line-clamp-2 text-left text-tiny font-medium text-default-700">
         Need help? Our support team is ready.
       </div>
-      <Button
-        isIconOnly
-        className="align-center flex h-[32px] w-[31px] justify-center rounded-[12px] bg-default-100 dark:bg-[#27272A]/[.4]"
+      <EsportsButton
+        variant="ghost"
         size="sm"
-        variant="flat"
+        className="h-[32px] w-[32px] min-w-[32px] p-0"
       >
         <Icon
           className="text-default-400 dark:text-foreground [&>g>path:nth-child(1)]:stroke-[3px] [&>g>path:nth-child(2)]:stroke-[2.5px]"
           icon="solar:chat-round-dots-linear"
           width={20}
         />
-      </Button>
+      </EsportsButton>
     </div>
   ),
 );

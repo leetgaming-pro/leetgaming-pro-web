@@ -45,8 +45,6 @@ export const CustomRadio = (props: any) => {
   );
 };
 
-const defaultContent =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
 function formatDateToTimezone(date: Date, timeZone: string): string { const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', timeZone, timeZoneName: 'short', }; return new Intl.DateTimeFormat('en-US', options).format(date); }
 const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInformationFormProps>(

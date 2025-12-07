@@ -24,7 +24,7 @@ export default function CookieConsentBrandColors(params: any) {
           our&nbsp;
           <Link
             className="font-medium text-primary-foreground"
-            href="#"
+            href="/legal/cookies"
             size="sm"
             underline="always"
           >

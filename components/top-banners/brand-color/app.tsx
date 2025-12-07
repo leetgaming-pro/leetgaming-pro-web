@@ -8,7 +8,7 @@ export default function Component() {
   return (
     <div className="flex w-full items-center gap-x-3 border-b-1 border-divider bg-primary px-6 py-2 sm:px-3.5 sm:before:flex-1">
       <p className="text-small text-primary-foreground">
-        <Link className="text-inherit" href="#">
+        <Link className="text-inherit" href="/blog">
           The Winter 2024 Release is here: new editor, analytics API, and so much more.&nbsp;
         </Link>
       </p>
@@ -23,7 +23,7 @@ export default function Component() {
             width={16}
           />
         }
-        href="#"
+        href="/blog"
         radius="full"
       >
         Explore

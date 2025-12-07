@@ -4,22 +4,45 @@ import MatchTimeline from "@/components/replay/replay-file-item-timeline/match-h
 import { electrolize, sixCaps } from "@/config/fonts";
 import { Chip, Divider, Spacer } from "@nextui-org/react";
 
-// Dummy Data (Replace with actual match data)
-const mapName = "Dust II";
-const team1Name = "Team A";
-const team1Logo = "path/to/team1_logo.png";
-const team1Score = 16;
-const team2Name = "Team B";
-const team2Logo = "path/to/team2_logo.png";
-const team2Score = 12;
+export interface RoundData {
+  roundNumber: number;
+  winner: "ct" | "t";
+  keyEvents: string[];
+  current?: boolean;
+  currentTeam?: "ct" | "t";
+}
 
-const MatchHeader = ({ showScores }: any) => {
+export interface MatchHeaderProps {
+  showScores?: boolean;
+  mapName: string;
+  team1Name: string;
+  team1Logo: string;
+  team1Score: number;
+  team2Name: string;
+  team2Logo: string;
+  team2Score: number;
+  rounds: RoundData[];
+  mapBackgroundUrl?: string;
+}
+
+const MatchHeader: React.FC<MatchHeaderProps> = ({
+  showScores = true,
+  mapName,
+  team1Name,
+  team1Logo,
+  team1Score,
+  team2Name,
+  team2Logo,
+  team2Score,
+  rounds,
+  mapBackgroundUrl,
+}) => {
   return (
     <div className={`match-header-container ${electrolize.className}`}>
       {/* Map Background */}
       <div
         className="map-background"
-        style={{ backgroundImage: `url("/cs2/map_bg/de_dust2_bg.jpg")` }}
+        style={{ backgroundImage: `url("${mapBackgroundUrl || '/cs2/map_bg/de_dust2_bg.jpg'}")` }}
       // TODO: Mostrar Logo da Rede (Steam, etc), Mostrar 5v5
       // TODO: ArenaName
       // TODO: AREA background Image (utilizar Area ao inves de img genérica do mapa)
@@ -84,29 +107,7 @@ const MatchHeader = ({ showScores }: any) => {
                     <Spacer x={1} />
                     <Chip variant="faded" color="success"><small className="text-white-50">Full Buy</small></Chip>
                   </div> */}
-        <MatchTimeline className="match-timeline" rounds={[
-          { roundNumber: 1, winner: "ct", keyEvents: ["Pistol round win"] },
-          { roundNumber: 2, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 3, winner: "ct", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 4, winner: "t", keyEvents: [] },
-          { roundNumber: 5, winner: "t", keyEvents: [] },
-          { roundNumber: 6, winner: "ct", keyEvents: [] },
-          { roundNumber: 7, winner: "ct", keyEvents: [] },
-          { roundNumber: 8, winner: "ct", keyEvents: [] },
-          { roundNumber: 9, winner: "t", keyEvents: [] },
-          { roundNumber: 10, winner: "ct", keyEvents: [] },
-          { roundNumber: 11, winner: "t", keyEvents: [] },
-          { roundNumber: 12, winner: "ct", keyEvents: [] },
-          { roundNumber: 13, winner: "t", keyEvents: [] },
-          { roundNumber: 14, winner: "ct", keyEvents: ["Clutch 1v3 by sound"], current: true, currentTeam: "ct" },
-          { roundNumber: 15, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 16, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 17, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 18, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 19, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 20, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-          { roundNumber: 21, winner: "t", keyEvents: ["Clutch 1v3 by sound"] },
-        ]} />
+        <MatchTimeline className="match-timeline" rounds={rounds} />
         {/* Scoreboard Table */}
 
       </div>

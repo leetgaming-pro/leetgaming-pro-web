@@ -11,8 +11,8 @@ import {
   CardBody,
   CardHeader,
   Progress,
-  Button,
 } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useOnboarding } from './onboarding-context';
 import { OnboardingStep } from './types';
@@ -133,15 +133,15 @@ export function OnboardingFlow() {
 
           {/* Back Button */}
           {!isFirstStep && currentStep !== OnboardingStep.COMPLETE && (
-            <Button
-              variant="light"
+            <EsportsButton
+              variant="ghost"
               size="sm"
-              startContent={<Icon icon="solar:arrow-left-linear" width={18} />}
-              onPress={goToPreviousStep}
+              onClick={goToPreviousStep}
               className="self-start"
             >
+              <Icon icon="solar:arrow-left-linear" width={18} />
               Back
-            </Button>
+            </EsportsButton>
           )}
         </CardHeader>
 

@@ -1,0 +1,38 @@
+# Multi-stage Dockerfile that builds inside Docker
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the application
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# Stage 2: Production
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3030
+ENV HOSTNAME="0.0.0.0"
+
+# Copy standalone build output from builder
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Expose port and start
+EXPOSE 3030
+CMD ["node", "server.js"]
+

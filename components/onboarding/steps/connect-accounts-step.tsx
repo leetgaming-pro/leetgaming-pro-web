@@ -6,7 +6,8 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Chip } from '@nextui-org/react';
+import { Chip } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useOnboarding } from '../onboarding-context';
 import { signIn } from 'next-auth/react';
@@ -126,15 +127,14 @@ export function ConnectAccountsStep() {
                     <span className="text-sm font-medium">Connected</span>
                   </div>
                 ) : (
-                  <Button
-                    color="primary"
-                    variant="flat"
+                  <EsportsButton
+                    variant="primary"
                     size="sm"
-                    isLoading={isConnecting}
-                    onPress={() => handleConnect(account.id)}
+                    loading={isConnecting}
+                    onClick={() => handleConnect(account.id)}
                   >
                     Connect
-                  </Button>
+                  </EsportsButton>
                 )}
               </div>
             </div>
@@ -156,21 +156,23 @@ export function ConnectAccountsStep() {
 
       {/* Actions */}
       <div className="flex gap-3 pt-4">
-        <Button
-          variant="flat"
+        <EsportsButton
+          variant="ghost"
+          size="md"
           className="flex-1"
-          onPress={skipStep}
+          onClick={skipStep}
         >
           Skip for Now
-        </Button>
-        <Button
-          color="primary"
+        </EsportsButton>
+        <EsportsButton
+          variant="primary"
+          size="md"
           className="flex-1"
-          endContent={<Icon icon="solar:arrow-right-linear" width={18} />}
-          onPress={goToNextStep}
+          onClick={goToNextStep}
         >
           Continue
-        </Button>
+          <Icon icon="solar:arrow-right-linear" width={18} />
+        </EsportsButton>
       </div>
     </div>
   );

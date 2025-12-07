@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spacer, Switch } from "@nextui-org/react";
+import { EsportsButton } from "@/components/ui/esports-button";
 
 interface CookieSettingsModalProps {
   onClose: () => void;
@@ -31,7 +32,7 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose, onRe
           <p className="text-small font-normal text-default-700">
             This site uses tracking technologies to improve your experience. You may choose to accept or
             reject these technologies. Check our{" "}
-            <a href="#" className="font-medium underline">
+            <a href="/legal/privacy" className="font-medium underline">
               Privacy Policy
             </a>{" "}
             for more information.
@@ -56,13 +57,13 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose, onRe
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button fullWidth radius="lg" onPress={handleAcceptSelected} style={{ border: "solid 2px transparent", backgroundImage: `linear-gradient(hsl(var(--nextui-background)), hsl(var(--nextui-background))), linear-gradient(83.87deg, rgb(6, 182, 212), rgb(34, 197, 94))`, backgroundOrigin: "border-box", backgroundClip: "padding-box, border-box" }}>
+        <ModalFooter className="flex-col gap-2">
+          <EsportsButton fullWidth variant="primary" onClick={handleAcceptSelected}>
             Accept Selected
-          </Button>
-          <Button fullWidth variant="bordered" onPress={handleRejectAll}>
+          </EsportsButton>
+          <EsportsButton fullWidth variant="ghost" onClick={handleRejectAll}>
             Reject All
-          </Button>
+          </EsportsButton>
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -35,17 +35,17 @@ const TeamMemberCard = React.forwardRef<HTMLDivElement, TeamMemberCardProps>(
       <p className="mb-4 mt-2 text-default-600">{bio}</p>
       <div className="flex gap-4">
         {social?.twitter && (
-          <Link isExternal href="#">
+          <Link isExternal href={`https://twitter.com/${social.twitter}`}>
             <Icon className="text-default-400" icon="bi:twitter" width={20} />
           </Link>
         )}
         {social?.linkedin && (
-          <Link isExternal href="#">
+          <Link isExternal href={`https://linkedin.com/in/${social.linkedin}`}>
             <Icon className="text-default-400" icon="bi:linkedin" width={20} />
           </Link>
         )}
         {social?.github && (
-          <Link isExternal href="#">
+          <Link isExternal href={`https://github.com/${social.github}`}>
             <Icon className="text-default-400" icon="bi:github" width={20} />
           </Link>
         )}

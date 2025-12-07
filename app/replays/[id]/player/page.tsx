@@ -4,11 +4,13 @@ import { useParams } from "next/navigation";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
-import { Card, CardBody, Button, Chip, Spinner, Slider, Tabs, Tab } from "@nextui-org/react";
+import { Card, CardBody, Button, Chip, Spinner, Slider, Tabs, Tab, Avatar } from "@nextui-org/react";
+import { MatchKillEvent, ScoreboardPlayer } from "@/types/replay-api/match-analytics.sdk";
 
 interface ReplayMeta {
   id: string;
   gameId: string;
+  matchId?: string;
   status: string;
   createdAt: string;
   size?: number;
@@ -19,6 +21,7 @@ interface KillEvent {
   killer: string;
   victim: string;
   weapon: string;
+  headshot?: boolean;
 }
 
 export default function ReplayPlayerPage() {
@@ -31,8 +34,14 @@ export default function ReplayPlayerPage() {
   const [error, setError] = useState<string | null>(null);
   const [playing, setPlaying] = useState<boolean>(false);
   const [currentTick, setCurrentTick] = useState<number>(0);
-  const [totalTicks, setTotalTicks] = useState<number>(6000); // placeholder until real metadata (e.g. 10 min @ 10 ticks/sec)
+  const [totalTicks, setTotalTicks] = useState<number>(6000);
   const [killfeed, setKillfeed] = useState<KillEvent[]>([]);
+  const [scoreboard, setScoreboard] = useState<ScoreboardPlayer[]>([]);
+  const [team1Score, setTeam1Score] = useState<number>(0);
+  const [team2Score, setTeam2Score] = useState<number>(0);
+  const [eventsLoaded, setEventsLoaded] = useState<boolean>(false);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [totalRounds, setTotalRounds] = useState<number>(0);
   const animationRef = useRef<number>();
 
   // Initialize SDK once
@@ -45,22 +54,88 @@ export default function ReplayPlayerPage() {
     setLoading(true);
     setError(null);
     try {
-      // Placeholder: real endpoint should expose single replay metadata
+      // Fetch replay metadata
       const all = await sdkRef.current!.replayFiles.searchReplayFiles({ id: replayId });
       const found = Array.isArray(all) ? all.find(r => r.id === replayId) : null;
       if (!found) {
         setError("Replay not found");
+        return;
+      }
+
+      const replayMeta: ReplayMeta = {
+        id: found.id,
+        gameId: found.gameId,
+        matchId: found.matchId,
+        status: found.status,
+        createdAt: new Date(found.createdAt).toISOString(),
+        size: found.size,
+      };
+      setMeta(replayMeta);
+
+      // Fetch events, scoreboard, and timeline using replay-specific endpoints
+      if (found.gameId && found.id) {
+        try {
+          // Fetch replay events (kills, rounds, etc.)
+          const eventsData = await sdkRef.current!.replayFiles.getReplayEvents(found.gameId, found.id);
+          if (eventsData && eventsData.events) {
+            // Transform events to local format
+            const kills: KillEvent[] = eventsData.events
+              .filter((e: any) => e.Type === 'kill' || e.type === 'kill')
+              .map((k: any) => ({
+                tick: k.TickID || k.tick || 0,
+                killer: k.killer_name || k.killer || 'Unknown',
+                victim: k.victim_name || k.victim || 'Unknown',
+                weapon: k.weapon || 'Unknown',
+                headshot: k.headshot || false,
+              }));
+            setKillfeed(kills);
+            setTotalTicks(eventsData.total_events || 6000);
+            setEventsLoaded(true);
+          }
+
+          // Fetch replay scoreboard
+          const scoreboardData = await sdkRef.current!.replayFiles.getReplayScoreboard(found.gameId, found.id);
+          if (scoreboardData && scoreboardData.teams) {
+            // Extract players from team scoreboards
+            const allPlayers: ScoreboardPlayer[] = [];
+            scoreboardData.teams.forEach((team: any, teamIdx: number) => {
+              if (team.Players) {
+                team.Players.forEach((p: any) => {
+                  allPlayers.push({
+                    player_id: p.ID || p.id || `player-${teamIdx}`,
+                    player_name: p.Nickname || p.nickname || p.Name || 'Unknown',
+                    team: teamIdx === 0 ? 'CT' : 'T',
+                    kills: p.Kills || p.kills || 0,
+                    deaths: p.Deaths || p.deaths || 0,
+                    assists: p.Assists || p.assists || 0,
+                    adr: p.ADR || p.adr || 0,
+                  });
+                });
+              }
+            });
+            setScoreboard(allPlayers);
+            if (scoreboardData.teams.length >= 2) {
+              setTeam1Score(scoreboardData.teams[0]?.TeamScore || 0);
+              setTeam2Score(scoreboardData.teams[1]?.TeamScore || 0);
+            }
+          }
+
+          // Fetch replay timeline
+          const timelineData = await sdkRef.current!.replayFiles.getReplayTimeline(found.gameId, found.id);
+          if (timelineData && timelineData.timeline) {
+            setTimeline(timelineData.timeline);
+            setTotalRounds(timelineData.total_rounds || 0);
+          }
+        } catch (eventsError) {
+          // Events API may not be available for all replays - this is not a critical error
+          logger.warn("Failed to load replay events", eventsError);
+          setKillfeed([]);
+          setTotalTicks(6000);
+        }
       } else {
-        setMeta({
-          id: found.id,
-          gameId: found.gameId,
-          status: found.status,
-          createdAt: new Date(found.createdAt).toISOString(),
-          size: found.size,
-        });
-        // Events endpoint not yet implemented; keep empty killfeed until backend provides data
+        // No game ID - events not available
         setKillfeed([]);
-        setTotalTicks(0);
+        setTotalTicks(6000);
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "Failed to load replay";
@@ -155,11 +230,56 @@ export default function ReplayPlayerPage() {
                 </div>
               </CardBody>
             </Card>
-            {/* Scoreboard will populate from future stats/events API */}
+            {/* Scoreboard */}
             <Card>
               <CardBody>
-                <h2 className="text-sm font-semibold mb-2">Scoreboard</h2>
-                <p className="text-xs text-default-500">No player stats available.</p>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-semibold">Scoreboard</h2>
+                  {scoreboard.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm font-bold">
+                      <span className="text-blue-400">{team1Score}</span>
+                      <span className="text-default-400">:</span>
+                      <span className="text-orange-400">{team2Score}</span>
+                    </div>
+                  )}
+                </div>
+                {scoreboard.length === 0 ? (
+                  <p className="text-xs text-default-500">
+                    {eventsLoaded ? "No player stats available." : "Loading scoreboard..."}
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-default-400 border-b border-divider">
+                          <th className="text-left py-1 px-1">Player</th>
+                          <th className="text-center px-1">K</th>
+                          <th className="text-center px-1">D</th>
+                          <th className="text-center px-1">A</th>
+                          <th className="text-center px-1">ADR</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scoreboard.map((player, idx) => (
+                          <tr key={player.player_id || idx} className="border-b border-divider/50 last:border-0">
+                            <td className="py-1.5 px-1">
+                              <div className="flex items-center gap-1.5">
+                                <Avatar size="sm" name={player.player_name?.charAt(0) || '?'} className="w-5 h-5 text-tiny" />
+                                <span className={`font-medium ${player.team === 'CT' ? 'text-blue-400' : player.team === 'T' ? 'text-orange-400' : ''}`}>
+                                  {player.player_name || player.player_id}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="text-center px-1 text-success">{player.kills}</td>
+                            <td className="text-center px-1 text-danger">{player.deaths}</td>
+                            <td className="text-center px-1 text-default-400">{player.assists}</td>
+                            <td className="text-center px-1">{player.adr?.toFixed(0) || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardBody>
             </Card>
           </div>
@@ -192,7 +312,26 @@ export default function ReplayPlayerPage() {
                   </div>
                 </Tab>
                 <Tab key="timeline" title="Timeline">
-                  <div className="text-xs text-default-500">Future: rounds, economy, objective events.</div>
+                  <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                    {timeline.length === 0 ? (
+                      <p className="text-xs text-default-500">No timeline data available.</p>
+                    ) : (
+                      <>
+                        <p className="text-xs text-default-400 mb-2">Total Rounds: {totalRounds}</p>
+                        {timeline.map((round, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs bg-default-50 rounded px-2 py-1.5">
+                            <span className="font-medium">Round {round.round}</span>
+                            <span className={`font-medium ${round.team === 0 ? 'text-blue-400' : 'text-orange-400'}`}>
+                              {round.team_name || (round.team === 0 ? 'CT' : 'T')}
+                            </span>
+                            <Chip size="sm" variant="flat" color={round.winner ? 'success' : 'default'}>
+                              {round.type}
+                            </Chip>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
                 </Tab>
               </Tabs>
             </div>

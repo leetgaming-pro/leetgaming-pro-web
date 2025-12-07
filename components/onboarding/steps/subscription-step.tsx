@@ -6,7 +6,8 @@
  */
 
 import React from 'react';
-import { Button, Chip, Divider } from '@nextui-org/react';
+import { Chip, Divider } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useOnboarding } from '../onboarding-context';
 
@@ -186,17 +187,17 @@ export function SubscriptionStep() {
 
       {/* Actions */}
       <div className="pt-4">
-        <Button
-          color="primary"
+        <EsportsButton
+          variant="matchmaking"
           size="lg"
-          className="w-full"
-          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-          onPress={handleContinue}
-          isLoading={isSubmitting}
-          isDisabled={!state.selectedPlan}
+          fullWidth
+          onClick={handleContinue}
+          loading={isSubmitting}
+          disabled={!state.selectedPlan}
         >
           {state.selectedPlan === 'free' ? 'Start Free' : 'Continue to Payment'}
-        </Button>
+          <Icon icon="solar:arrow-right-linear" width={20} />
+        </EsportsButton>
         {state.selectedPlan !== 'free' && (
           <p className="text-center text-xs text-default-400 mt-2">
             You can change your plan at any time

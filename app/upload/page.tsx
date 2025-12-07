@@ -1,7 +1,8 @@
 // pages/submit-replay.tsx
 'use client'
 import React, { useState } from 'react';
-import { Card, Input, Button, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, LinkIcon, Divider } from '@nextui-org/react';
+import { Card, Input, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, LinkIcon, Divider } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { CopyDocumentIcon, SteamIcon } from '@/components/icons';
 import { UploadForm } from '@/components/replay/upload/upload';
 import { logo, subtitle, title } from '@/components/primitives';
@@ -40,9 +41,9 @@ const SubmitReplay: React.FC = () => {
 
             </CardBody>
             <Spacer y={2} />
-            <Button radius="full" className="bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-lg">
+            <EsportsButton variant="primary" size="lg">
               Link
-            </Button>
+            </EsportsButton>
           </Card>
         </Tab>
 

@@ -101,11 +101,11 @@ export default function SignUpBlurred() {
             size="sm"
           >
             I agree with the&nbsp;
-            <Link color="foreground" href="#" size="sm">
+            <Link color="foreground" href="/legal/terms" size="sm">
               Terms
             </Link>
             &nbsp; and&nbsp;
-            <Link color="foreground" href="#" size="sm">
+            <Link color="foreground" href="/legal/privacy" size="sm">
               Privacy Policy
             </Link>
           </Checkbox>
@@ -128,7 +128,7 @@ export default function SignUpBlurred() {
         </div>
         <p className="text-center text-small text-foreground/50">
           Already have an account?&nbsp;
-          <Link color="foreground" href="#" size="sm">
+          <Link color="foreground" href="/signin" size="sm">
             Log In
           </Link>
         </p>

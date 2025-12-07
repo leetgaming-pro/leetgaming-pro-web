@@ -6,7 +6,8 @@ import {
   DropdownSection,
   DropdownTrigger,
 } from '@nextui-org/dropdown';
-import { Avatar, Badge, Button, Link, Chip } from '@nextui-org/react';
+import { Avatar, Badge, Link, Chip } from '@nextui-org/react';
+import { EsportsButton } from './ui/esports-button';
 import { useSession, signOut } from 'next-auth/react';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
@@ -30,15 +31,15 @@ export default function SessionButton() {
   return (
     <div className="flex items-center gap-3">
       {/* Quick Actions */}
-      <Button
-        as={Link}
-        href="/match-making"
-        size="sm"
-        className="hidden md:flex font-semibold bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 shadow-md hover:shadow-lg transition-shadow"
-        startContent={<Icon icon="solar:gamepad-bold" width={18} />}
-      >
-        Play
-      </Button>
+      <Link href="/match-making" className="hidden md:block">
+        <EsportsButton
+          variant="matchmaking"
+          size="nav"
+        >
+          <Icon icon="solar:gamepad-bold" width={18} />
+          Play
+        </EsportsButton>
+      </Link>
 
       {/* User Dropdown */}
       <Dropdown placement="bottom-end" backdrop="blur">

@@ -67,28 +67,28 @@ const BasicNavbar = React.forwardRef<HTMLElement, BasicNavbarProps>(
         {/* Center Content */}
         <NavbarContent justify="center">
           <NavbarItem isActive className="data-[active='true']:font-medium[date-active='true']">
-            <Link aria-current="page" className="text-default-foreground" href="#" size="sm">
+            <Link aria-current="page" className="text-default-foreground" href="/" size="sm">
               Home
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="text-default-500" href="#" size="sm">
-              Features
+            <Link className="text-default-500" href="/match-making" size="sm">
+              Play
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="text-default-500" href="#" size="sm">
-              Customers
+            <Link className="text-default-500" href="/tournaments" size="sm">
+              Tournaments
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="text-default-500" href="#" size="sm">
-              About Us
+            <Link className="text-default-500" href="/leaderboard" size="sm">
+              Leaderboard
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="text-default-500" href="#" size="sm">
-              Integrations
+            <Link className="text-default-500" href="/blog" size="sm">
+              Blog
             </Link>
           </NavbarItem>
         </NavbarContent>
@@ -135,14 +135,26 @@ const BasicNavbar = React.forwardRef<HTMLElement, BasicNavbarProps>(
               Get Started
             </Button>
           </NavbarMenuItem>
-          {menuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link className="mb-2 w-full text-default-500" href="#" size="md">
-                {item}
-              </Link>
-              {index < menuItems.length - 1 && <Divider className="opacity-50" />}
-            </NavbarMenuItem>
-          ))}
+          {menuItems.map((item, index) => {
+            const menuItemHrefs: Record<string, string> = {
+              "About": "/help",
+              "Blog": "/blog",
+              "Customers": "/leaderboard",
+              "Pricing": "/pricing",
+              "Enterprise": "/help",
+              "Changelog": "/blog",
+              "Documentation": "/help",
+              "Contact Us": "/help",
+            };
+            return (
+              <NavbarMenuItem key={`${item}-${index}`}>
+                <Link className="mb-2 w-full text-default-500" href={menuItemHrefs[item] || "/"} size="md">
+                  {item}
+                </Link>
+                {index < menuItems.length - 1 && <Divider className="opacity-50" />}
+              </NavbarMenuItem>
+            );
+          })}
         </NavbarMenu>
       </Navbar>
     );

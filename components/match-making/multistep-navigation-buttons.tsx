@@ -1,9 +1,8 @@
 import * as React from "react";
-import {Button} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import {cn} from "@nextui-org/react";
 
-import {ButtonWithBorderGradient} from "./button-with-border-gradient";
+import { EsportsButton } from "../ui/esports-button";
 
 export interface BackButtonProps {
   className?: string;
@@ -35,27 +34,27 @@ const MultistepNavigationButtons = React.forwardRef<
     )}
     {...props}
   >
-    <Button
-      className={cn(
-        "rounded-lg border-2 border-slate-300 dark:border-slate-600 text-medium font-semibold text-slate-600 dark:text-slate-300 hover:border-purple-400 dark:hover:border-cyan-400 hover:text-purple-500 dark:hover:text-cyan-400 transition-all lg:hidden",
-        backButtonProps?.className
-      )}
-      variant="bordered"
-      isDisabled={backButtonProps?.isDisabled}
-      onPress={onBack}
+    <EsportsButton
+      variant="ghost"
+      size="md"
+      className={cn("lg:hidden", backButtonProps?.className)}
+      disabled={backButtonProps?.isDisabled}
+      onClick={onBack}
     >
       <Icon icon="solar:arrow-left-outline" width={20} />
       Back
-    </Button>
+    </EsportsButton>
 
-    <ButtonWithBorderGradient
-      className={cn("text-medium font-bold px-8", nextButtonProps?.className)}
+    <EsportsButton
+      variant="matchmaking"
+      size="lg"
+      className={cn("px-8", nextButtonProps?.className)}
       type="submit"
-      isDisabled={nextButtonProps?.isDisabled}
-      onPress={onNext}
+      disabled={nextButtonProps?.isDisabled}
+      onClick={onNext}
     >
       {nextButtonProps?.children || "Continue"}
-    </ButtonWithBorderGradient>
+    </EsportsButton>
   </div>
 ));
 

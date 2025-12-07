@@ -1,15 +1,60 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { CheckoutFlow } from '@/components/checkout';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
 
 export default function CheckoutPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const sdkRef = useRef<ReplayAPISDK>();
+  const [walletId, setWalletId] = useState<string | null>(null);
+  const [walletLoading, setWalletLoading] = useState(true);
+  const [walletError, setWalletError] = useState<string | null>(null);
+
+  // Initialize SDK once
+  if (!sdkRef.current) {
+    sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+  }
+
+  // Fetch wallet from API
+  const fetchWallet = useCallback(async () => {
+    if (!session?.user) return;
+
+    setWalletLoading(true);
+    setWalletError(null);
+    try {
+      const balance = await sdkRef.current!.wallet.getBalance();
+      if (balance?.wallet_id) {
+        setWalletId(balance.wallet_id);
+      } else {
+        // Try to get wallet from player profile
+        const profile = await sdkRef.current!.playerProfiles.getMyProfile();
+        if (profile?.wallet_id) {
+          setWalletId(profile.wallet_id);
+        } else {
+          setWalletError('No wallet found. Please set up your wallet first.');
+        }
+      }
+    } catch (error) {
+      logger.error('Failed to fetch wallet', error);
+      setWalletError('Failed to load wallet information. Please try again.');
+    } finally {
+      setWalletLoading(false);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchWallet();
+    }
+  }, [status, fetchWallet]);
 
   // Loading state
   if (status === 'loading') {
@@ -48,16 +93,53 @@ export default function CheckoutPage() {
     );
   }
 
-  // Get wallet ID from session or use placeholder
-  // In production, this would come from the user's profile
-  interface ExtendedUser {
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-    walletId?: string;
+  // Wallet loading state
+  if (walletLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Spinner size="lg" color="primary" label="Loading wallet..." />
+      </div>
+    );
   }
-  const user = session?.user as ExtendedUser | undefined;
-  const walletId = user?.walletId || 'default-wallet';
+
+  // Wallet error state
+  if (walletError || !walletId) {
+    return (
+      <div className="max-w-md mx-auto">
+        <Card className="bg-content2/50 border border-content3">
+          <CardBody className="p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mx-auto mb-4">
+              <Icon icon="solar:wallet-bold" className="text-danger w-8 h-8" />
+            </div>
+            <h2 className="text-xl font-bold mb-2">Wallet not found</h2>
+            <p className="text-default-500 mb-6">
+              {walletError || 'Please set up your wallet to continue with checkout.'}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="flat"
+                size="lg"
+                className="flex-1"
+                onPress={() => fetchWallet()}
+                startContent={<Icon icon="solar:refresh-bold" className="w-5 h-5" />}
+              >
+                Retry
+              </Button>
+              <Button
+                color="primary"
+                size="lg"
+                className="flex-1"
+                onPress={() => router.push('/settings?tab=billing')}
+                startContent={<Icon icon="solar:settings-bold" className="w-5 h-5" />}
+              >
+                Set up wallet
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">

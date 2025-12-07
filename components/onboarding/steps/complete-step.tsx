@@ -6,7 +6,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Button, Divider } from '@nextui-org/react';
+import { Divider } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import { useOnboarding } from '../onboarding-context';
@@ -163,15 +164,15 @@ export function CompleteStep() {
       </div>
 
       {/* Main CTA */}
-      <Button
-        color="primary"
+      <EsportsButton
+        variant="matchmaking"
         size="lg"
-        className="w-full"
-        endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-        onPress={() => router.push('/replays')}
+        fullWidth
+        onClick={() => router.push('/replays')}
       >
         Go to Dashboard
-      </Button>
+        <Icon icon="solar:arrow-right-linear" width={20} />
+      </EsportsButton>
     </div>
   );
 }

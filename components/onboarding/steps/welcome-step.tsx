@@ -6,7 +6,8 @@
  */
 
 import React from 'react';
-import { Button, Divider } from '@nextui-org/react';
+import { Divider } from '@nextui-org/react';
+import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useOnboarding } from '../onboarding-context';
 
@@ -70,15 +71,15 @@ export function WelcomeStep() {
 
       {/* CTA */}
       <div className="space-y-3">
-        <Button
-          color="primary"
+        <EsportsButton
+          variant="matchmaking"
           size="lg"
-          className="w-full"
-          endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
-          onPress={goToNextStep}
+          fullWidth
+          onClick={goToNextStep}
         >
           Get Started
-        </Button>
+          <Icon icon="solar:arrow-right-linear" width={20} />
+        </EsportsButton>
         <p className="text-xs text-default-400">
           Takes about 2 minutes to complete
         </p>

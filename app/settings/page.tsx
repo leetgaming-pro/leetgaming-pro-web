@@ -6,7 +6,7 @@
  * Supports URL-based tab selection via ?tab= query parameter
  */
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import {
   Card,
   CardHeader,
@@ -21,14 +21,18 @@ import {
   Divider,
   Avatar,
   Spinner,
+  Chip,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { PageContainer } from '@/components/layouts/centered-content';
 import { PrivacySettings } from '@/components/account/privacy-settings';
 import { SubscriptionManagement } from '@/components/checkout/subscription-management';
 import { PaymentHistory } from '@/components/checkout/payment-history';
 import { logger } from '@/lib/logger';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 
 /**
  * Settings tab keys - matches URL query params
@@ -44,9 +48,18 @@ enum SettingsTab {
 function SettingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const tabParam = searchParams.get('tab') as SettingsTab | null;
+  const sdkRef = useRef<ReplayAPISDK>();
+
+  // Initialize SDK once
+  if (!sdkRef.current) {
+    sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+  }
 
   const [selectedTab, setSelectedTab] = useState<string>(tabParam || SettingsTab.PROFILE);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   // Sync tab with URL
   useEffect(() => {
@@ -62,11 +75,12 @@ function SettingsContent() {
   };
 
   const [profileData, setProfileData] = useState({
-    nickname: 'ProGamer_2024',
-    email: 'user@example.com',
-    bio: 'Competitive CS2 player',
-    country: 'USA',
-    timezone: 'America/New_York',
+    nickname: '',
+    email: '',
+    bio: '',
+    country: '',
+    timezone: '',
+    avatarUri: '',
   });
 
   const [notifications, setNotifications] = useState({
@@ -79,16 +93,83 @@ function SettingsContent() {
     push_messages: true,
   });
 
-  const handleProfileUpdate = async () => {
+  // Toast notification state
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Fetch user profile from API
+  const fetchProfile = useCallback(async () => {
+    if (!session?.user) return;
+
+    setProfileLoading(true);
     try {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profileData),
+      const profile = await sdkRef.current!.playerProfiles.getMyProfile();
+      if (profile) {
+        setProfileId(profile.id);
+        setProfileData({
+          nickname: profile.nickname || session.user.name || '',
+          email: session.user.email || '',
+          bio: profile.description || '',
+          country: profile.region || '',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          avatarUri: profile.avatar_uri || session.user.image || '',
+        });
+      } else {
+        // Fallback to session data if no profile exists
+        setProfileData({
+          nickname: session.user.name || '',
+          email: session.user.email || '',
+          bio: '',
+          country: '',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          avatarUri: session.user.image || '',
+        });
+      }
+    } catch (error) {
+      logger.error('Failed to fetch profile', error);
+      // Fallback to session data on error
+      setProfileData({
+        nickname: session.user.name || '',
+        email: session.user.email || '',
+        bio: '',
+        country: '',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        avatarUri: session.user.image || '',
       });
-      if (!response.ok) throw new Error('Failed to update profile');
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const [saving, setSaving] = useState(false);
+
+  const handleProfileUpdate = async () => {
+    if (!profileId) {
+      logger.warn('Cannot update profile: no profile ID');
+      return;
+    }
+    setSaving(true);
+    try {
+      await sdkRef.current!.playerProfiles.updatePlayerProfile(profileId, {
+        nickname: profileData.nickname,
+        description: profileData.bio,
+        region: profileData.country,
+        avatar_uri: profileData.avatarUri,
+      });
+      showToast('success', 'Profile updated successfully!');
     } catch (error) {
       logger.error('Failed to update profile', error);
+      showToast('error', 'Could not save your profile. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -107,6 +188,20 @@ function SettingsContent() {
 
   return (
     <PageContainer title="Settings" description="Manage your account and preferences" maxWidth="5xl">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
+          <Chip
+            color={toast.type === 'success' ? 'success' : 'danger'}
+            variant="solid"
+            size="lg"
+            className="px-4 py-2"
+            onClose={() => setToast(null)}
+          >
+            {toast.message}
+          </Chip>
+        </div>
+      )}
       <Tabs
         aria-label="Settings tabs"
         size="lg"
@@ -129,10 +224,17 @@ function SettingsContent() {
             </CardHeader>
             <Divider />
             <CardBody className="space-y-6">
+              {profileLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Spinner size="lg" label="Loading profile..." />
+                </div>
+              ) : (
+              <>
               {/* Avatar Upload */}
               <div className="flex items-center gap-6">
                 <Avatar
-                  src="https://i.pravatar.cc/150?u=user"
+                  src={profileData.avatarUri || undefined}
+                  name={profileData.nickname?.charAt(0) || 'U'}
                   className="w-24 h-24"
                 />
                 <div>
@@ -207,10 +309,12 @@ function SettingsContent() {
 
               <div className="flex justify-end gap-2">
                 <Button variant="flat">Cancel</Button>
-                <Button color="primary" onPress={handleProfileUpdate}>
+                <Button color="primary" onPress={handleProfileUpdate} isLoading={saving}>
                   Save Changes
                 </Button>
               </div>
+              </>
+              )}
             </CardBody>
           </Card>
         </Tab>

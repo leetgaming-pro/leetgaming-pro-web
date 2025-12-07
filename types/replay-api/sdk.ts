@@ -285,6 +285,55 @@ export class ReplayFileAPI {
     const response = await this.client.post<any[]>('/replays/search', filters);
     return response.data || [];
   }
+
+  /**
+   * Get replay events (kills, plants, defuses, etc.)
+   */
+  async getReplayEvents(gameId: string, replayFileId: string, eventType?: string): Promise<{
+    replay_id: string;
+    match_id: string;
+    events: any[];
+    total_events: number;
+  } | null> {
+    const params = eventType ? `?type=${eventType}` : '';
+    const response = await this.client.get<any>(
+      `/games/${gameId}/replays/${replayFileId}/events${params}`
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Get replay scoreboard (player statistics)
+   */
+  async getReplayScoreboard(gameId: string, replayFileId: string): Promise<{
+    replay_id: string;
+    match_id: string;
+    scoreboard: any;
+    teams: any[];
+    mvp: any;
+  } | null> {
+    const response = await this.client.get<any>(
+      `/games/${gameId}/replays/${replayFileId}/scoreboard`
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Get replay timeline (round-by-round data)
+   */
+  async getReplayTimeline(gameId: string, replayFileId: string): Promise<{
+    replay_id: string;
+    match_id: string;
+    timeline: any[];
+    total_rounds: number;
+    final_score: string;
+    scoreboard: any;
+  } | null> {
+    const response = await this.client.get<any>(
+      `/games/${gameId}/replays/${replayFileId}/timeline`
+    );
+    return response.data || null;
+  }
 }
 
 /**

@@ -157,7 +157,7 @@ export default function Component() {
       <div className="flex py-2">
         <p className="text-default-400">
           Are you an open source developer?&nbsp;
-          <Link color="foreground" href="#" underline="always">
+          <Link color="foreground" href="/help" underline="always">
             Get a discount
           </Link>
         </p>
