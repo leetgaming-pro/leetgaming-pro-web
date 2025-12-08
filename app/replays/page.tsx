@@ -115,13 +115,30 @@ export default function Component() {
   };
 
   return (
-    <div className="h-full left-0 right-0 px-2 lg:px-24">
-      <nav className="my-4 px-2 py-2">
-        <Breadcrumbs>
-          <BreadcrumbItem>Home</BreadcrumbItem>
-          <BreadcrumbItem>Replays</BreadcrumbItem>
+    <div className="h-full left-0 right-0 px-2 lg:px-24 py-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <svg className="w-6 h-6 text-[#F5F0E1] dark:text-[#1a1a1a]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Replay Library</h1>
+            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Browse and analyze game replays</p>
+          </div>
+        </div>
+        <Breadcrumbs classNames={{
+          base: "rounded-none",
+          list: "rounded-none",
+          separator: "text-[#FF4654] dark:text-[#DCFF37]",
+        }}>
+          <BreadcrumbItem className="text-[#34445C] dark:text-[#F5F0E1]">Home</BreadcrumbItem>
+          <BreadcrumbItem className="text-[#FF4654] dark:text-[#DCFF37] font-semibold">Replays</BreadcrumbItem>
         </Breadcrumbs>
-      </nav>
+      </div>
       <div className="flex gap-x-6">
         <div className="w-full flex-1 flex-col">
           <header className="relative z-10 flex flex-col gap-2 rounded-none bg-[#F5F0E1]/90 dark:bg-[#1a1a1a]/90 px-4 pb-3 pt-2 md:pt-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
