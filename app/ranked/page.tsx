@@ -169,9 +169,13 @@ export default function RankedPage() {
   return (
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
       {/* Header */}
-      <div className="flex w-full max-w-6xl flex-col items-center text-center gap-2">
-        <h2 className="text-secondary font-medium">Competitive Gaming</h2>
-        <h1 className={title({ size: "lg" })}>Ranked Mode</h1>
+      <div className="flex w-full max-w-6xl flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="solar:ranking-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Competitive Gaming</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Ranked Mode</h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
           Compete against players of similar skill level. Climb the ranks and prove your worth in competitive matches.
         </p>
@@ -198,14 +202,22 @@ export default function RankedPage() {
 
       {/* Not Logged In State */}
       {!loading && !session?.user && (
-        <Card className="w-full max-w-6xl">
+        <Card className="w-full max-w-6xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
-            <Icon icon="mdi:account-lock" className="text-6xl text-default-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Sign In Required</h3>
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="mdi:account-lock" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Sign In Required</h3>
             <p className="text-default-500 mb-4">
               Sign in to view your ranked stats and start climbing the leaderboards.
             </p>
-            <Button color="primary" variant="shadow" as="a" href="/api/auth/signin">
+            <Button 
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              as="a" 
+              href="/api/auth/signin"
+            >
               <Icon icon="mdi:login" width={20} />
               Sign In
             </Button>
