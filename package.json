@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@iconify/react": "^4.1.1",
+    "@sentry/nextjs": "^8.0.0",
     "@nextui-org/accordion": "^2.0.34",
     "@nextui-org/button": "2.0.26",
     "@nextui-org/card": "^2.0.30",
