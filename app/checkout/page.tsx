@@ -69,17 +69,19 @@ export default function CheckoutPage() {
   if (status === 'unauthenticated') {
     return (
       <div className="max-w-md mx-auto">
-        <Card className="bg-content2/50 border border-content3">
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="p-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-warning/20 flex items-center justify-center mx-auto mb-4">
-              <Icon icon="solar:lock-bold" className="text-warning w-8 h-8" />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:lock-bold" className="text-[#FF4654] dark:text-[#DCFF37] w-8 h-8" />
             </div>
-            <h2 className="text-xl font-bold mb-2">Sign in required</h2>
+            <h2 className="text-xl font-bold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Sign in required</h2>
             <p className="text-default-500 mb-6">
               Please sign in to your account to continue with checkout.
             </p>
             <Button
-              color="primary"
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
               size="lg"
               fullWidth
               onPress={() => router.push('/signin?callbackUrl=/checkout')}

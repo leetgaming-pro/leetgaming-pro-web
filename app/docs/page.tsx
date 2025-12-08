@@ -23,9 +23,13 @@ export default function DocsPage() {
   return (
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
       {/* Header */}
-      <div className="flex w-full max-w-6xl flex-col items-center text-center gap-2">
-        <h2 className="text-secondary font-medium">Knowledge Base</h2>
-        <h1 className={title({ size: "lg" })}>Documentation</h1>
+      <div className="flex w-full max-w-6xl flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="solar:book-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Knowledge Base</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Documentation</h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
           Everything you need to know about using LeetGaming PRO for competitive gaming and replay
           analysis.
@@ -39,9 +43,9 @@ export default function DocsPage() {
           onSelectionChange={(key) => setSelectedCategory(key as string)}
           variant="underlined"
           classNames={{
-            tabList: "gap-6 w-full flex-wrap",
-            cursor: "bg-primary",
-            tab: "h-12",
+            tabList: "gap-6 w-full flex-wrap border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            cursor: "bg-[#FF4654] dark:bg-[#DCFF37]",
+            tab: "h-12 data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]",
             panel: "pt-6",
           }}
         >
@@ -431,27 +435,27 @@ export default function DocsPage() {
       </div>
 
       {/* Help Card */}
-      <Card className="w-full max-w-6xl bg-gradient-to-r from-primary-50 to-secondary-50">
+      <Card className="w-full max-w-6xl bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-8 text-center">
-          <Icon icon="mdi:help-circle" className="text-4xl mx-auto mb-3 text-primary" />
-          <h3 className="text-xl font-semibold mb-2">Need More Help?</h3>
+          <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <Icon icon="mdi:help-circle" className="text-[#F5F0E1] dark:text-[#34445C]" width={28} />
+          </div>
+          <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Need More Help?</h3>
           <p className="text-default-600 mb-4">
             Can&apos;t find what you&apos;re looking for? Join our Discord community or contact support.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Chip
               startContent={<Icon icon="mdi:discord" />}
-              color="primary"
-              variant="flat"
-              className="cursor-pointer"
+              className="cursor-pointer rounded-none bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C]"
             >
               Join Discord
             </Chip>
             <Chip
               startContent={<Icon icon="mdi:email" />}
-              color="secondary"
-              variant="flat"
-              className="cursor-pointer"
+              className="cursor-pointer rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+              variant="bordered"
             >
               Contact Support
             </Chip>
