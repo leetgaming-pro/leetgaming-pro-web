@@ -8,11 +8,19 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <article className="prose prose-invert max-w-none">
-      <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-      <p className="text-default-500 mb-8">Last updated: December 6, 2024</p>
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+          <span className="text-2xl text-[#F5F0E1] dark:text-[#34445C]">🔒</span>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold mb-0 text-[#34445C] dark:text-[#F5F0E1]">Privacy Policy</h1>
+          <p className="text-[#FF4654] dark:text-[#DCFF37] text-sm">Last updated: December 6, 2024</p>
+        </div>
+      </div>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">1. Introduction</h2>
+      <section className="mb-8 p-6 rounded-none border-l-4 border-[#FF4654] dark:border-[#DCFF37] bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+        <h2 className="text-xl font-semibold mb-4 text-[#34445C] dark:text-[#F5F0E1]">1. Introduction</h2>
         <p className="text-default-600 mb-4">
           LeetGaming.PRO (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy
           explains how we collect, use, disclose, and safeguard your information when you use our competitive

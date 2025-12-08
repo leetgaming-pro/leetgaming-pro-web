@@ -8,11 +8,19 @@ export const metadata: Metadata = {
 export default function CookiePolicyPage() {
   return (
     <article className="prose prose-invert max-w-none">
-      <h1 className="text-3xl font-bold mb-2">Cookie Policy</h1>
-      <p className="text-default-500 mb-8">Last updated: December 6, 2024</p>
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+          <span className="text-2xl text-[#F5F0E1] dark:text-[#34445C]">🍪</span>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold mb-0 text-[#34445C] dark:text-[#F5F0E1]">Cookie Policy</h1>
+          <p className="text-[#FF4654] dark:text-[#DCFF37] text-sm">Last updated: December 6, 2024</p>
+        </div>
+      </div>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">1. What Are Cookies</h2>
+      <section className="mb-8 p-6 rounded-none border-l-4 border-[#FF4654] dark:border-[#DCFF37] bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+        <h2 className="text-xl font-semibold mb-4 text-[#34445C] dark:text-[#F5F0E1]">1. What Are Cookies</h2>
         <p className="text-default-600 mb-4">
           Cookies are small text files that are placed on your computer or mobile device when you visit a website.
           They are widely used to make websites work more efficiently and provide information to website owners.
