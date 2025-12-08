@@ -172,11 +172,25 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
               <li key={stepIdx} className="relative">
                 <Card
                       style={{
-                        background: theme === 'dark' ? 'rgba(220, 255, 55, 0.05)' : 'rgba(52, 68, 92, 0.08)', // LeetGaming brand colors
-                        backdropFilter: 'blur(10px)', // Glossy effect
-                        borderRadius: '0px', // Edgy, no rounded corners
-                        boxShadow: theme === 'dark' ? '0 4px 8px rgba(0, 0, 0, 0.3)' : '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        borderLeft: theme === 'dark' ? '2px solid rgba(220, 255, 55, 0.3)' : '2px solid rgba(255, 107, 53, 0.3)',
+                        // Light mode: white/light bg for visibility on navy sidebar
+                        // Dark mode: subtle lime tint
+                        background: theme === 'dark' 
+                          ? 'rgba(220, 255, 55, 0.05)' 
+                          : status === 'active' 
+                            ? 'rgba(255, 255, 255, 0.95)' 
+                            : 'rgba(255, 255, 255, 0.85)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: '0px',
+                        boxShadow: theme === 'dark' 
+                          ? '0 4px 8px rgba(0, 0, 0, 0.3)' 
+                          : status === 'active'
+                            ? '0 4px 12px rgba(255, 70, 84, 0.3)'
+                            : '0 4px 8px rgba(0, 0, 0, 0.15)',
+                        borderLeft: theme === 'dark' 
+                          ? '2px solid rgba(220, 255, 55, 0.3)' 
+                          : status === 'active'
+                            ? '3px solid #FF4654'
+                            : '2px solid rgba(255, 70, 84, 0.3)',
                       }}
                                    
                 >

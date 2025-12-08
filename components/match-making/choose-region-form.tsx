@@ -70,8 +70,11 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
           className="w-full"
           variant="solid"
           classNames={{
-            tabList: "bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-none gap-1",
-            tab: "text-xs font-medium rounded-none data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
+            // Light mode: white bg with navy tabs, Dark mode: dark bg with lime tabs
+            tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
+            // Unselected tabs: navy text in light mode, white text in dark mode
+            // Selected tabs: white text on navy (light) / dark text on lime (dark)
+            tab: "text-xs font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
             cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
           }}
         >

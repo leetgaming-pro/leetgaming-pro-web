@@ -24,7 +24,7 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
           width={18}
         />
       </div>
-      <div className="line-clamp-2 text-left text-tiny font-medium text-default-700">
+      <div className="line-clamp-2 text-left text-tiny font-medium text-white/90 dark:text-white/70">
         Need help? Our support team is ready.
       </div>
       <EsportsButton
