@@ -29,45 +29,67 @@ export default function SessionButton() {
     .slice(0, 2);
 
   return (
-    <div className="flex items-center gap-3">
-      {/* Quick Actions */}
-      <Link href="/match-making" className="hidden md:block">
+    <div className="flex items-center gap-3 h-full">
+      {/* Quick Actions - Full height buttons */}
+      <Link href="/match-making" className="hidden md:flex items-center h-full">
         <EsportsButton
           variant="matchmaking"
           size="nav"
+          className="h-full"
         >
           <Icon icon="solar:gamepad-bold" width={18} />
           Play
         </EsportsButton>
       </Link>
 
-      {/* User Dropdown */}
-      <Dropdown placement="bottom-end" backdrop="blur">
+      {/* User Dropdown - Edgy borders (no rounded) */}
+      <Dropdown placement="bottom-end" backdrop="blur" classNames={{ content: "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20" }}>
         <DropdownTrigger>
-          <button className="flex items-center gap-2 rounded-full outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-primary/50">
+          <button className="flex items-center gap-2 outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-primary/50">
             <Badge
               content=""
               color="success"
-              shape="circle"
+              shape="rectangle"
               placement="bottom-right"
               size="sm"
               isInvisible={false}
+              classNames={{ badge: "rounded-none" }}
             >
-              <Avatar
-                isBordered
-                as="button"
-                className="transition-transform"
-                color="primary"
-                name={initials}
-                size="sm"
-                src={userImage}
-              />
+              {/* Edgy avatar container - diagonal cut instead of circle */}
+              <div 
+                className="relative w-9 h-9 overflow-hidden border-2 border-[#FF4654] dark:border-[#DCFF37] transition-all hover:border-[#FFC700] dark:hover:border-[#DCFF37]"
+                style={{ 
+                  clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)',
+                }}
+              >
+                <Avatar
+                  as="span"
+                  className="transition-transform w-full h-full rounded-none"
+                  name={initials}
+                  size="sm"
+                  src={userImage}
+                  radius="none"
+                />
+              </div>
             </Badge>
           </button>
         </DropdownTrigger>
         <DropdownMenu
           aria-label="User menu"
           variant="faded"
+          classNames={{
+            base: "rounded-none",
+            list: "gap-1",
+          }}
+          itemClasses={{
+            base: [
+              "rounded-none",
+              "data-[hover=true]:bg-gradient-to-r data-[hover=true]:from-[#FF4654]/10 data-[hover=true]:to-[#FFC700]/5",
+              "dark:data-[hover=true]:from-[#DCFF37]/10 dark:data-[hover=true]:to-transparent",
+              "data-[hover=true]:border-l-2 data-[hover=true]:border-[#FF4654] dark:data-[hover=true]:border-[#DCFF37]",
+              "transition-all duration-200",
+            ].join(" "),
+          }}
           onAction={(key) => {
             if (key === 'logout') {
               signOut();

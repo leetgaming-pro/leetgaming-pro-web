@@ -100,22 +100,45 @@ export default function LaunchYourSquadButton() {
   };
 
   const validateForm = (): boolean => {
+    // Clear previous errors
+    setSubmitError(null);
+    
+    // Validate game selection
     if (!formData.game) {
-      setSubmitError("Please select a game");
+      setSubmitError("🎮 Please select a game to compete in");
       return false;
     }
-    if (!formData.displayName || formData.displayName.length < 3) {
-      setSubmitError("Team name must be at least 3 characters");
+    
+    // Validate team name
+    if (!formData.displayName) {
+      setSubmitError("📝 Team name is required - give your squad an identity!");
       return false;
     }
+    if (formData.displayName.length < 3) {
+      setSubmitError("📝 Team name must be at least 3 characters long");
+      return false;
+    }
+    if (formData.displayName.length > 30) {
+      setSubmitError("📝 Team name must be 30 characters or less");
+      return false;
+    }
+    
+    // Validate slug
     if (!formData.slug) {
-      setSubmitError("URL slug is required");
+      setSubmitError("🔗 URL slug is required for your team's profile page");
       return false;
     }
-    if (!formData.symbol || formData.symbol.length > 5) {
-      setSubmitError("Tag must be 1-5 characters");
+    
+    // Validate tag/symbol
+    if (!formData.symbol) {
+      setSubmitError("🏷️ Team tag is required (e.g., 'TEAM', 'PRO')");
       return false;
     }
+    if (formData.symbol.length > 5) {
+      setSubmitError("🏷️ Team tag must be 5 characters or less");
+      return false;
+    }
+    
     return true;
   };
 
@@ -138,7 +161,7 @@ export default function LaunchYourSquadButton() {
       });
 
       if (!squad) {
-        throw new Error("Failed to create squad");
+        throw new Error("Server did not return squad data. Please try again.");
       }
 
       logger.info("Squad created successfully", {
@@ -161,10 +184,26 @@ export default function LaunchYourSquadButton() {
       onClose();
 
       // Navigate to the new squad
-      router.push(`/teams/${formData.slug}`);
+      router.push(`/teams/${squad.slug_uri || formData.slug}`);
     } catch (error: any) {
       logger.error("Failed to create squad", error);
-      setSubmitError(error.message || "Failed to create squad. Please try again.");
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Failed to create squad. Please try again.";
+      
+      if (error.message?.includes("401") || error.message?.includes("Authentication")) {
+        errorMessage = "🔐 You must be logged in to create a squad. Please sign in and try again.";
+      } else if (error.message?.includes("400") || error.message?.includes("validation")) {
+        errorMessage = "📋 Please check all required fields are filled correctly.";
+      } else if (error.message?.includes("409") || error.message?.includes("already exists")) {
+        errorMessage = "⚠️ A squad with this name or tag already exists. Please choose different values.";
+      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
+        errorMessage = "🌐 Network error. Please check your connection and try again.";
+      } else if (error.message) {
+        errorMessage = `❌ ${error.message}`;
+      }
+      
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

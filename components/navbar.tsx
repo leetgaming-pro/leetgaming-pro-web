@@ -84,13 +84,13 @@ export const Navbar = () => {
           </NextLink>
         </NavbarBrand>
 
-        <ul className="hidden lg:flex items-center gap-2 ml-4">
+        <ul className="hidden lg:flex items-stretch h-full gap-0 ml-4">
           {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
+            <NavbarItem key={item.href} className="h-full flex items-stretch">
               <NextLink
                 className={clsx(
-                  "relative px-4 py-1.5 text-sm font-semibold uppercase tracking-wider transition-all duration-200",
-                  "hover:text-foreground",
+                  "relative px-4 flex items-center text-sm font-semibold uppercase tracking-wider transition-all duration-200",
+                  "hover:text-foreground h-full",
                   electrolize.className,
                   item.href === "/match-making"
                     ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
