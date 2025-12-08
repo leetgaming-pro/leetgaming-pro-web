@@ -1,348 +1,560 @@
-
-// 
-// IF LOGGED-IN
-// large top bar with % of storage used
-//  
-///
-// main page (single-tab): dashboard
-// -- Storage
-// -- Private
-//   -- Breakdown: Encrypted / Unencrypted
-// -- Privately Shared
-//   -- Breakdown: Encrypted / Unencrypted
-//   (.. list namespaces ..) ::settings (edit namespace/vault) ::delete namespaces/item
-// -- Public
-//   (.. list files, configs etc ..) ::delete items/item
-//     -- Breakdown: list Groups/Teams ::settings (edit team/vault)
-// -- (Upgrade to Pro)
-
-
-// side-buttons, new (create group/vault), settings (edit group/vault), delete group/vault
-
-// if not logged in, show product page
-
-
-// const HomePage: React.FC = () => {
-//     return (
-//       <div>
-
-//       </div>
-//     );
-//   };
-
-//   export default HomePage;
-
-
-
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
     Tabs,
     Tab,
     Chip,
-    ScrollShadow,
     CardBody,
     Card,
     CardHeader,
-    CardFooter,
     Progress,
     Spinner,
     Button,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    Table,
+    TableHeader,
+    TableColumn,
+    TableBody,
+    TableRow,
+    TableCell,
+    Input,
+    Tooltip,
+    Avatar,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+    Select,
+    SelectItem,
 } from "@nextui-org/react";
 
-import ReplaysTable from "@/components/files/replays-table/app";
 import { Icon } from "@iconify/react";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
+import { title } from "@/components/primitives";
+import { EsportsButton } from "@/components/ui/esports-button";
+import { useTheme } from "next-themes";
+import Link from "next/link";
 
 const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
-/** Dashboard stats interface */
 interface DashboardStats {
-    totalReplays: number;
-    publicReplays: number;
-    privateReplays: number;
-    sharedReplays: number;
+    totalFiles: number;
+    publicFiles: number;
+    privateFiles: number;
+    sharedFiles: number;
     storageUsed: number;
     storageTotal: number;
 }
 
-/** Replay file from API */
-interface ReplayFile {
+interface CloudFile {
     id: string;
-    settings?: {
-        visibility?: number;
-    };
+    name: string;
+    type: 'replay' | 'config' | 'screenshot' | 'other';
+    size: number;
+    visibility: 'public' | 'private' | 'shared';
+    createdAt: string;
+    updatedAt: string;
+    gameId?: string;
+    sharedWith?: string[];
 }
 
-export default function Component() {
+const VISIBILITY_OPTIONS = [
+    { key: 'private', label: 'Private', icon: 'solar:lock-bold', color: 'default' },
+    { key: 'shared', label: 'Shared', icon: 'solar:share-bold', color: 'warning' },
+    { key: 'public', label: 'Public', icon: 'solar:global-bold', color: 'success' },
+];
+
+export default function CloudPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    
     const [stats, setStats] = useState<DashboardStats>({
-        totalReplays: 0,
-        publicReplays: 0,
-        privateReplays: 0,
-        sharedReplays: 0,
+        totalFiles: 0,
+        publicFiles: 0,
+        privateFiles: 0,
+        sharedFiles: 0,
         storageUsed: 0,
-        storageTotal: 1099511627776, // 1TB in bytes
+        storageTotal: 10737418240, // 10GB free tier
     });
+    const [files, setFiles] = useState<CloudFile[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterVisibility, setFilterVisibility] = useState<string>("all");
+    const [selectedFile, setSelectedFile] = useState<CloudFile | null>(null);
+    
+    const { isOpen: isShareOpen, onOpen: onShareOpen, onClose: onShareClose } = useDisclosure();
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
     useEffect(() => {
-        async function fetchDashboardStats() {
-            if (status === "unauthenticated") {
-                return;
-            }
+        async function fetchData() {
+            if (status === "unauthenticated") return;
 
             try {
                 setLoading(true);
-                
-                // Fetch user's replays to calculate stats
                 const replays = await sdk.replayFiles.searchReplayFiles({ game_id: "cs2" });
                 
-                const publicCount = replays.filter((r: ReplayFile) => r.settings?.visibility === 1).length;
-                const privateCount = replays.filter((r: ReplayFile) => r.settings?.visibility === 4).length;
-                const sharedCount = replays.filter((r: ReplayFile) => r.settings?.visibility === 2).length;
+                // Transform replays to CloudFile format
+                const cloudFiles: CloudFile[] = replays.map((r: any) => ({
+                    id: r.id,
+                    name: r.file_name || `replay_${r.id.slice(0, 8)}.dem`,
+                    type: 'replay' as const,
+                    size: r.file_size || 52428800,
+                    visibility: r.settings?.visibility === 1 ? 'public' : r.settings?.visibility === 2 ? 'shared' : 'private',
+                    createdAt: r.created_at || new Date().toISOString(),
+                    updatedAt: r.updated_at || new Date().toISOString(),
+                    gameId: r.game_id,
+                }));
+
+                setFiles(cloudFiles);
                 
-                // Mock storage calculation (would come from API in real scenario)
-                const storageUsed = replays.length * 52428800; // ~50MB per replay
+                const publicCount = cloudFiles.filter(f => f.visibility === 'public').length;
+                const privateCount = cloudFiles.filter(f => f.visibility === 'private').length;
+                const sharedCount = cloudFiles.filter(f => f.visibility === 'shared').length;
+                const totalSize = cloudFiles.reduce((acc, f) => acc + f.size, 0);
 
                 setStats({
-                    totalReplays: replays.length,
-                    publicReplays: publicCount,
-                    privateReplays: privateCount,
-                    sharedReplays: sharedCount,
-                    storageUsed,
-                    storageTotal: 1099511627776, // 1TB
+                    totalFiles: cloudFiles.length,
+                    publicFiles: publicCount,
+                    privateFiles: privateCount,
+                    sharedFiles: sharedCount,
+                    storageUsed: totalSize,
+                    storageTotal: 10737418240,
                 });
             } catch (err) {
-                logger.error("Failed to fetch dashboard stats", err);
+                logger.error("Failed to fetch cloud data", err);
             } finally {
                 setLoading(false);
             }
         }
 
-        fetchDashboardStats();
+        fetchData();
     }, [status]);
 
-    // Redirect to sign in if not authenticated
+    const filteredFiles = useMemo(() => {
+        return files.filter(file => {
+            const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesVisibility = filterVisibility === 'all' || file.visibility === filterVisibility;
+            return matchesSearch && matchesVisibility;
+        });
+    }, [files, searchQuery, filterVisibility]);
+
+    const formatBytes = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    const getFileIcon = (type: string) => {
+        switch (type) {
+            case 'replay': return 'solar:videocamera-record-bold';
+            case 'config': return 'solar:settings-bold';
+            case 'screenshot': return 'solar:gallery-bold';
+            default: return 'solar:file-bold';
+        }
+    };
+
+    const storagePercentage = (stats.storageUsed / stats.storageTotal) * 100;
+
+    // Unauthenticated - Show public files browser
     if (status === "unauthenticated") {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen">
-                <Card className="max-w-md">
-                    <CardBody className="text-center py-8">
-                        <Icon icon="mdi:lock" className="text-6xl text-primary mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold mb-2">Sign in required</h2>
-                        <p className="text-default-500 mb-6">
-                            Please sign in to access your cloud storage and manage your replays
-                        </p>
-                        <Button
-                            color="primary"
-                            size="lg"
-                            onPress={() => router.push("/signin")}
-                            startContent={<Icon icon="mdi:login" width={20} />}
-                        >
-                            Sign In
-                        </Button>
+            <div className="w-full max-w-7xl mx-auto px-4 py-8">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                            <Icon icon="solar:cloud-bold" className="text-white dark:text-[#1a1a1a]" width={32} />
+                        </div>
+                    </div>
+                    <h1 className={title({ color: isDark ? "battleLime" : "battleNavy" })}>Cloud Storage</h1>
+                    <p className="text-default-500 mt-2 max-w-lg mx-auto">
+                        Browse public replays, configs, and files shared by the community
+                    </p>
+                </div>
+
+                {/* Public Files Browser */}
+                <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                    <CardHeader className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <Icon icon="solar:global-bold" className="text-success" width={20} />
+                            <span className="font-semibold">Public Files</span>
+                        </div>
+                        <EsportsButton variant="primary" size="sm" onClick={() => router.push('/signin')}>
+                            <Icon icon="solar:login-bold" width={16} />
+                            Sign in to Upload
+                        </EsportsButton>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="text-center py-12">
+                            <Icon icon="solar:cloud-bolt-bold-duotone" className="text-default-300 mx-auto mb-4" width={64} />
+                            <p className="text-default-500 mb-4">Sign in to upload and manage your files</p>
+                            <EsportsButton variant="ghost" onClick={() => router.push('/signin')}>
+                                Get Started
+                            </EsportsButton>
+                        </div>
                     </CardBody>
                 </Card>
             </div>
         );
     }
 
-    const storagePercentage = (stats.storageUsed / stats.storageTotal) * 100;
-    const formatBytes = (bytes: number) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-    };
-
     return (
-        <div className="w-full">
-            <main className="flex w-full justify-center">
-                <ScrollShadow
-                    hideScrollBar
-                    className="flex w-full  justify-between gap-8 border-b border-divider px-4 sm:px-8"
-                    orientation="horizontal"
-                >
-                    <Tabs
-                        aria-label="Navigation Tabs"
-                        classNames={{
-                            tabList: "w-full max-w-[44%] absolute rounded-none p-0 gap-4 lg:gap-6",
-                            tab: "w-full px-0 h-12",
-                            cursor: "w-full",
-                            tabContent: "text-default-400",
-                        }}
-                        radius="full"
-                        variant="underlined"
-                    >
-                        <Tab
-                            key="uploads"
-                            title={
-                                <div className="flex items-center gap-2">
-                                    <p>Uploads</p>
-                                    <Chip size="sm" variant="flat">{stats.totalReplays}</Chip>
+        <div className="w-full max-w-7xl mx-auto px-4 py-8">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                        style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+                        <Icon icon="solar:cloud-bold" className="text-white dark:text-[#1a1a1a]" width={28} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-[#34445C] dark:text-white">Cloud Storage</h1>
+                        <p className="text-sm text-default-500">Manage your replays, configs, and files</p>
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <Link href="/upload">
+                        <EsportsButton variant="action" size="md">
+                            <Icon icon="solar:cloud-upload-bold" width={18} />
+                            Upload
+                        </EsportsButton>
+                    </Link>
+                </div>
+            </div>
+
+            {/* Storage Bar */}
+            <Card className="mb-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-gradient-to-r from-[#34445C]/5 to-transparent dark:from-[#DCFF37]/5">
+                <CardBody className="p-4">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <Icon icon="solar:server-bold-duotone" className="text-[#FF4654] dark:text-[#DCFF37]" width={32} />
+                            <div className="flex-1">
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-sm font-medium">Storage Used</span>
+                                    <span className="text-sm text-default-500">{formatBytes(stats.storageUsed)} / {formatBytes(stats.storageTotal)}</span>
                                 </div>
-                            }
-                        >
-                            <div className="pt-14">
-                                <ReplaysTable />
+                                <Progress
+                                    value={storagePercentage}
+                                    size="sm"
+                                    classNames={{
+                                        track: "bg-default-200 dark:bg-[#1a1a1a] rounded-none",
+                                        indicator: `rounded-none ${storagePercentage > 80 ? 'bg-danger' : storagePercentage > 50 ? 'bg-warning' : 'bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]'}`,
+                                    }}
+                                />
                             </div>
-                        </Tab>
-                        
-                        <Tab key="dashboard" title="Dashboard">
-                            {loading ? (
-                                <div className="pt-14 flex justify-center">
-                                    <Spinner size="lg" label="Loading dashboard..." />
+                        </div>
+                        <div className="flex gap-6">
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]">{stats.totalFiles}</p>
+                                <p className="text-xs text-default-500">Total Files</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-success">{stats.publicFiles}</p>
+                                <p className="text-xs text-default-500">Public</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-warning">{stats.sharedFiles}</p>
+                                <p className="text-xs text-default-500">Shared</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-2xl font-bold text-default-500">{stats.privateFiles}</p>
+                                <p className="text-xs text-default-500">Private</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardBody>
+            </Card>
+
+            {/* Tabs */}
+            <Tabs
+                aria-label="Cloud tabs"
+                variant="solid"
+                classNames={{
+                    tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
+                    tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
+                    cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+                    panel: "pt-4",
+                }}
+            >
+                <Tab 
+                    key="files" 
+                    title={
+                        <div className="flex items-center gap-2">
+                            <Icon icon="solar:folder-bold" width={18} />
+                            <span>My Files</span>
+                            <Chip size="sm" variant="flat" className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37]">{stats.totalFiles}</Chip>
+                        </div>
+                    }
+                >
+                    {/* Search and Filter */}
+                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                        <Input
+                            placeholder="Search files..."
+                            value={searchQuery}
+                            onValueChange={setSearchQuery}
+                            startContent={<Icon icon="solar:magnifer-bold" className="text-default-400" width={18} />}
+                            classNames={{
+                                inputWrapper: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30",
+                            }}
+                            className="max-w-xs"
+                        />
+                        <Select
+                            placeholder="Filter by visibility"
+                            selectedKeys={[filterVisibility]}
+                            onChange={(e) => setFilterVisibility(e.target.value)}
+                            classNames={{
+                                trigger: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30",
+                            }}
+                            className="max-w-xs"
+                        >
+                            <SelectItem key="all">All Files</SelectItem>
+                            <SelectItem key="public">Public</SelectItem>
+                            <SelectItem key="shared">Shared</SelectItem>
+                            <SelectItem key="private">Private</SelectItem>
+                        </Select>
+                    </div>
+
+                    {/* Files Table */}
+                    {loading ? (
+                        <div className="flex justify-center py-12">
+                            <Spinner size="lg" label="Loading files..." />
+                        </div>
+                    ) : filteredFiles.length === 0 ? (
+                        <Card className="rounded-none border border-dashed border-[#34445C]/30 dark:border-[#DCFF37]/30">
+                            <CardBody className="text-center py-12">
+                                <Icon icon="solar:cloud-bold-duotone" className="text-default-300 mx-auto mb-4" width={64} />
+                                <p className="text-lg font-semibold mb-2">No files found</p>
+                                <p className="text-default-500 mb-4">
+                                    {files.length === 0 ? "Upload your first replay to get started" : "No files match your search"}
+                                </p>
+                                <Link href="/upload">
+                                    <EsportsButton variant="primary">
+                                        <Icon icon="solar:cloud-upload-bold" width={18} />
+                                        Upload Now
+                                    </EsportsButton>
+                                </Link>
+                            </CardBody>
+                        </Card>
+                    ) : (
+                        <Table
+                            aria-label="Files table"
+                            classNames={{
+                                wrapper: "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+                                th: "bg-[#34445C]/5 dark:bg-[#DCFF37]/5 text-[#34445C] dark:text-[#DCFF37] rounded-none first:rounded-none last:rounded-none",
+                                td: "rounded-none",
+                            }}
+                        >
+                            <TableHeader>
+                                <TableColumn>NAME</TableColumn>
+                                <TableColumn>TYPE</TableColumn>
+                                <TableColumn>SIZE</TableColumn>
+                                <TableColumn>VISIBILITY</TableColumn>
+                                <TableColumn>UPLOADED</TableColumn>
+                                <TableColumn>ACTIONS</TableColumn>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredFiles.map((file) => (
+                                    <TableRow key={file.id} className="hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5">
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10 rounded-none">
+                                                    <Icon icon={getFileIcon(file.type)} className="text-[#FF4654] dark:text-[#DCFF37]" width={18} />
+                                                </div>
+                                                <span className="font-medium truncate max-w-[200px]">{file.name}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Chip size="sm" variant="flat" className="capitalize">{file.type}</Chip>
+                                        </TableCell>
+                                        <TableCell>{formatBytes(file.size)}</TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                size="sm"
+                                                variant="flat"
+                                                color={file.visibility === 'public' ? 'success' : file.visibility === 'shared' ? 'warning' : 'default'}
+                                                startContent={<Icon icon={VISIBILITY_OPTIONS.find(v => v.key === file.visibility)?.icon || ''} width={14} />}
+                                            >
+                                                {file.visibility}
+                                            </Chip>
+                                        </TableCell>
+                                        <TableCell className="text-default-500">{formatDate(file.createdAt)}</TableCell>
+                                        <TableCell>
+                                            <div className="flex gap-1">
+                                                <Tooltip content="View">
+                                                    <Button isIconOnly size="sm" variant="light" className="rounded-none">
+                                                        <Icon icon="solar:eye-bold" width={16} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content="Share">
+                                                    <Button 
+                                                        isIconOnly 
+                                                        size="sm" 
+                                                        variant="light" 
+                                                        className="rounded-none"
+                                                        onPress={() => { setSelectedFile(file); onShareOpen(); }}
+                                                    >
+                                                        <Icon icon="solar:share-bold" width={16} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content="Download">
+                                                    <Button isIconOnly size="sm" variant="light" className="rounded-none">
+                                                        <Icon icon="solar:download-bold" width={16} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content="Delete">
+                                                    <Button 
+                                                        isIconOnly 
+                                                        size="sm" 
+                                                        variant="light" 
+                                                        color="danger"
+                                                        className="rounded-none"
+                                                        onPress={() => { setSelectedFile(file); onDeleteOpen(); }}
+                                                    >
+                                                        <Icon icon="solar:trash-bin-trash-bold" width={16} />
+                                                    </Button>
+                                                </Tooltip>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </Tab>
+
+                <Tab 
+                    key="shared" 
+                    title={
+                        <div className="flex items-center gap-2">
+                            <Icon icon="solar:share-bold" width={18} />
+                            <span>Shared with Me</span>
+                        </div>
+                    }
+                >
+                    <Card className="rounded-none border border-dashed border-[#34445C]/30 dark:border-[#DCFF37]/30">
+                        <CardBody className="text-center py-12">
+                            <Icon icon="solar:share-bold-duotone" className="text-default-300 mx-auto mb-4" width={64} />
+                            <p className="text-lg font-semibold mb-2">No shared files yet</p>
+                            <p className="text-default-500">Files shared with you will appear here</p>
+                        </CardBody>
+                    </Card>
+                </Tab>
+
+                <Tab 
+                    key="public" 
+                    title={
+                        <div className="flex items-center gap-2">
+                            <Icon icon="solar:global-bold" width={18} />
+                            <span>Public</span>
+                            <Chip size="sm" variant="flat" color="success">{stats.publicFiles}</Chip>
+                        </div>
+                    }
+                >
+                    <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                        <CardBody className="p-4">
+                            <p className="text-default-500 mb-4">Browse files you&apos;ve made public</p>
+                            {filteredFiles.filter(f => f.visibility === 'public').length === 0 ? (
+                                <div className="text-center py-8">
+                                    <Icon icon="solar:global-bold-duotone" className="text-default-300 mx-auto mb-4" width={48} />
+                                    <p className="text-sm text-default-500">No public files yet</p>
                                 </div>
                             ) : (
-                                <>
-                                    <div className="pt-14 flex flex-col md:flex-row md:space-x-4 gap-4">
-                                        <Card className="flex-1 border-primary/20 dark:border-primary/40">
-                                            <CardHeader className="flex items-center gap-2">
-                                                <Icon icon="mdi:video-box" className="text-primary" width={24} />
-                                                <span className="font-semibold">Replays</span>
-                                            </CardHeader>
-                                            <CardBody>
-                                                <div className="flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <p className="text-4xl font-bold text-primary">{stats.totalReplays}</p>
-                                                        <p className="text-sm text-default-500 mt-1">Total Replays</p>
-                                                    </div>
-                                                </div>
-                                                <div className="grid grid-cols-3 gap-2 mt-4">
-                                                    <div className="text-center">
-                                                        <Chip size="sm" variant="flat" color="success">{stats.publicReplays}</Chip>
-                                                        <p className="text-xs text-default-400 mt-1">Public</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <Chip size="sm" variant="flat" color="warning">{stats.sharedReplays}</Chip>
-                                                        <p className="text-xs text-default-400 mt-1">Shared</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <Chip size="sm" variant="flat">{stats.privateReplays}</Chip>
-                                                        <p className="text-xs text-default-400 mt-1">Private</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {filteredFiles.filter(f => f.visibility === 'public').map((file) => (
+                                        <Card key={file.id} className="rounded-none border border-success/20 hover:border-success/50 transition-colors">
+                                            <CardBody className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <Icon icon={getFileIcon(file.type)} className="text-success" width={24} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-medium truncate">{file.name}</p>
+                                                        <p className="text-xs text-default-500">{formatBytes(file.size)}</p>
                                                     </div>
                                                 </div>
                                             </CardBody>
                                         </Card>
-
-                                        <Card className="flex-1 border-secondary/20 dark:border-secondary/40">
-                                            <CardHeader className="flex items-center gap-2">
-                                                <Icon icon="mdi:harddisk" className="text-secondary" width={24} />
-                                                <span className="font-semibold">Storage</span>
-                                            </CardHeader>
-                                            <CardBody>
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <div className="flex justify-between mb-2">
-                                                            <span className="text-sm text-default-500">Used</span>
-                                                            <span className="text-sm font-semibold">{storagePercentage.toFixed(1)}%</span>
-                                                        </div>
-                                                        <Progress
-                                                            value={storagePercentage}
-                                                            color={storagePercentage > 80 ? "danger" : storagePercentage > 50 ? "warning" : "success"}
-                                                            className="max-w-full"
-                                                        />
-                                                    </div>
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-default-500">Usage</span>
-                                                        <span className="font-semibold">{formatBytes(stats.storageUsed)} / {formatBytes(stats.storageTotal)}</span>
-                                                    </div>
-                                                </div>
-                                            </CardBody>
-                                        </Card>
-                                    </div>
-
-                                    <div className="pt-4">
-                                        <Card className="border-l-4 border-l-primary dark:border-l-secondary">
-                                            <CardHeader>
-                                                <div className="flex items-center gap-2">
-                                                    <Icon icon="mdi:chart-line" width={24} />
-                                                    <span className="font-semibold">Quick Stats</span>
-                                                </div>
-                                            </CardHeader>
-                                            <CardBody>
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                    <div className="text-center p-4 bg-default-100 rounded-lg">
-                                                        <p className="text-2xl font-bold text-primary">{stats.totalReplays}</p>
-                                                        <p className="text-xs text-default-500 mt-1">Total Files</p>
-                                                    </div>
-                                                    <div className="text-center p-4 bg-default-100 rounded-lg">
-                                                        <p className="text-2xl font-bold text-success">0</p>
-                                                        <p className="text-xs text-default-500 mt-1">Processed Today</p>
-                                                    </div>
-                                                    <div className="text-center p-4 bg-default-100 rounded-lg">
-                                                        <p className="text-2xl font-bold text-warning">{stats.sharedReplays}</p>
-                                                        <p className="text-xs text-default-500 mt-1">Shared</p>
-                                                    </div>
-                                                    <div className="text-center p-4 bg-default-100 rounded-lg">
-                                                        <p className="text-2xl font-bold text-secondary">0</p>
-                                                        <p className="text-xs text-default-500 mt-1">Views</p>
-                                                    </div>
-                                                </div>
-                                            </CardBody>
-                                        </Card>
-                                    </div>
-
-                                    <div className="pt-4">
-                                        <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20">
-                                            <CardHeader>
-                                                <div className="flex items-center gap-2">
-                                                    <Icon icon="mdi:crown" className="text-warning" width={24} />
-                                                    <span className="font-semibold">Upgrade to Pro</span>
-                                                </div>
-                                            </CardHeader>
-                                            <CardBody>
-                                                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                                                    <div>
-                                                        <p className="text-lg font-semibold mb-2">Unlock premium features</p>
-                                                        <ul className="text-sm text-default-600 space-y-1">
-                                                            <li>✓ Unlimited storage</li>
-                                                            <li>✓ Advanced analytics</li>
-                                                            <li>✓ Priority processing</li>
-                                                            <li>✓ Team collaboration</li>
-                                                        </ul>
-                                                    </div>
-                                                    <Button
-                                                        color="primary"
-                                                        variant="shadow"
-                                                        size="lg"
-                                                        endContent={<Icon icon="mdi:arrow-right" width={20} />}
-                                                    >
-                                                        Upgrade Now
-                                                    </Button>
-                                                </div>
-                                            </CardBody>
-                                        </Card>
-                                    </div>
-                                </>
+                                    ))}
+                                </div>
                             )}
-                        </Tab>
+                        </CardBody>
+                    </Card>
+                </Tab>
+            </Tabs>
 
-                        <Tab key="analytics" title="Analytics" />
-                        <Tab key="shared" title="Shared" />
-                        
-                        <Tab key="settings" title="Settings" />
-
-                        <Tab key="upgrade-to-pro" title={
-                            <div className="flex items-center gap-2">
-                                <Icon className="text-default-500" icon="solar:users-group-two-rounded-outline" width={18} />
-                                {/* <span className={`${logo({color: "battleOrange"})}`}>Team</span> */}
-                                Team
-                                <Chip size="sm">PRO</Chip>
+            {/* Share Modal */}
+            <Modal isOpen={isShareOpen} onClose={onShareClose} classNames={{ base: "rounded-none" }}>
+                <ModalContent>
+                    <ModalHeader>Share File</ModalHeader>
+                    <ModalBody>
+                        {selectedFile && (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 p-3 bg-default-100 dark:bg-[#111111] rounded-none">
+                                    <Icon icon={getFileIcon(selectedFile.type)} width={24} />
+                                    <span className="font-medium">{selectedFile.name}</span>
+                                </div>
+                                <Select
+                                    label="Visibility"
+                                    defaultSelectedKeys={[selectedFile.visibility]}
+                                    classNames={{ trigger: "rounded-none" }}
+                                >
+                                    {VISIBILITY_OPTIONS.map((opt) => (
+                                        <SelectItem key={opt.key} startContent={<Icon icon={opt.icon} width={16} />}>
+                                            {opt.label}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                                <Input
+                                    label="Share with users (email or username)"
+                                    placeholder="Enter email or username..."
+                                    classNames={{ inputWrapper: "rounded-none" }}
+                                />
                             </div>
-                        } />
-                    </Tabs>
+                        )}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="light" onPress={onShareClose} className="rounded-none">Cancel</Button>
+                        <EsportsButton variant="primary" onClick={onShareClose}>Save Changes</EsportsButton>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
 
-                </ScrollShadow>
-            </main>
+            {/* Delete Modal */}
+            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} classNames={{ base: "rounded-none" }}>
+                <ModalContent>
+                    <ModalHeader className="text-danger">Delete File</ModalHeader>
+                    <ModalBody>
+                        {selectedFile && (
+                            <p>Are you sure you want to delete <strong>{selectedFile.name}</strong>? This action cannot be undone.</p>
+                        )}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="light" onPress={onDeleteClose} className="rounded-none">Cancel</Button>
+                        <EsportsButton variant="danger" onClick={onDeleteClose}>Delete</EsportsButton>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     );
 }
