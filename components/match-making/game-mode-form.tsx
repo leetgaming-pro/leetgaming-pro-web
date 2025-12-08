@@ -48,9 +48,9 @@ export const CustomRadio = (props: any) => {
       className={cn(
         "group inline-flex items-center hover:scale-[1.02] active:scale-[0.98] justify-between flex-row-reverse tap-highlight-transparent transition-all duration-200",
         "w-full max-w-[420px] cursor-pointer border-2 border-default-200 dark:border-[#DCFF37]/20 rounded-none gap-4 p-5",
-        "hover:border-[#FF6B35]/50 hover:bg-[#FF6B35]/5 dark:hover:border-[#DCFF37]/50 dark:hover:bg-[#DCFF37]/5",
-        "data-[selected=true]:border-[#FF6B35] dark:data-[selected=true]:border-[#DCFF37] data-[selected=true]:bg-[#FF6B35]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
-        "data-[selected=true]:shadow-lg data-[selected=true]:shadow-[#FF6B35]/20 dark:data-[selected=true]:shadow-[#DCFF37]/20",
+        "hover:border-[#FF4654]/50 hover:bg-[#FF4654]/5 dark:hover:border-[#DCFF37]/50 dark:hover:bg-[#DCFF37]/5",
+        "data-[selected=true]:border-[#FF4654] dark:data-[selected=true]:border-[#DCFF37] data-[selected=true]:bg-[#FF4654]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
+        "data-[selected=true]:shadow-lg data-[selected=true]:shadow-[#FF4654]/20 dark:data-[selected=true]:shadow-[#DCFF37]/20",
       )}
     >
       <VisuallyHidden>
@@ -85,7 +85,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
       <>
         <div className="text-center mb-2">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Icon icon="solar:gameboy-bold-duotone" className="text-[#FF6B35] dark:text-[#DCFF37]" width={32} />
+            <Icon icon="solar:gameboy-bold-duotone" className="text-[#FF4654] dark:text-[#DCFF37]" width={32} />
             <h1 className={title({color: theme === "dark" ? "battleLime" : "battleNavy"})}>Game Mode</h1>
           </div>
           <div className="text-base leading-5 text-default-500">
@@ -119,7 +119,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
 
         <CustomRadio value="single">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#FF6B35]/10 dark:bg-[#FF6B35]/20">
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-gradient-to-r from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#FF4654]/20 dark:to-[#FFC700]/20">
               <SingleEliminationMatchIcon size={28} className="text-orange-600 dark:text-orange-400" />
             </div>
             <div className="flex-1">

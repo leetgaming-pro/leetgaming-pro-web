@@ -17,7 +17,7 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
         className,
       )}
     >
-      <div className="flex items-center justify-center w-[32px] h-[32px] rounded-none bg-gradient-to-br from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C]">
+      <div className="flex items-center justify-center w-[32px] h-[32px] rounded-none bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]">
         <Icon
           className="text-white"
           icon="solar:headphones-round-bold"

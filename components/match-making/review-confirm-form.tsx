@@ -73,15 +73,15 @@ export default function ReviewConfirmForm() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="inline-block"
         >
-          <div className="rounded-none bg-gradient-to-br from-[#FF6B35]/20 to-[#34445C]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/30 p-4 mb-3 border border-[#FF6B35]/30 dark:border-[#DCFF37]/30">
+          <div className="rounded-none bg-gradient-to-br from-[#FF4654]/20 via-[#FFC700]/10 to-[#34445C]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/30 p-4 mb-3 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
             <Icon
               icon="solar:shield-check-bold-duotone"
               width={48}
-              className="text-[#FF6B35] dark:text-[#DCFF37]"
+              className="text-[#FF4654] dark:text-[#DCFF37]"
             />
           </div>
         </motion.div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
+        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
           Ready to Compete
         </h3>
         <p className="text-default-500">
@@ -97,7 +97,7 @@ export default function ReviewConfirmForm() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-[#111111] border border-default-200 dark:border-[#DCFF37]/20 hover:border-[#FF6B35]/30 dark:hover:border-[#DCFF37]/30 rounded-none">
+            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-[#111111] border border-default-200 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30 rounded-none">
               <CardBody className="p-4">
                 <div className="flex items-start gap-3">
                   <div
@@ -192,20 +192,20 @@ export default function ReviewConfirmForm() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="flex items-center justify-center gap-3 p-4 rounded-none bg-gradient-to-r from-[#FF6B35]/10 to-[#34445C]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/20 border border-[#FF6B35]/30 dark:border-[#DCFF37]/30"
+        className="flex items-center justify-center gap-3 p-4 rounded-none bg-gradient-to-r from-[#FF4654]/10 via-[#FFC700]/5 to-[#34445C]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/20 border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
       >
         <div className="relative">
           <Icon
             icon="solar:play-circle-bold"
             width={28}
-            className="text-[#FF6B35] dark:text-[#DCFF37]"
+            className="text-[#FF4654] dark:text-[#DCFF37]"
           />
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DCFF37] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DCFF37]"></span>
           </span>
         </div>
-        <span className="font-bold text-[#FF6B35] dark:text-[#DCFF37] uppercase tracking-wide text-sm">
+        <span className="font-bold text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wide text-sm">
           Ready to Queue
         </span>
       </motion.div>
@@ -217,18 +217,18 @@ export default function ReviewConfirmForm() {
           animate={{ opacity: 1, scale: 1 }}
           className="mt-4"
         >
-          <Card className="bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a] border-2 border-[#FF6B35]/30 dark:border-[#DCFF37]/30 overflow-hidden relative rounded-none">
+          <Card className="bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a] border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30 overflow-hidden relative rounded-none">
             {/* Animated background effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B35]/5 via-[#DCFF37]/5 to-[#FF6B35]/5 animate-pulse" />
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B35] via-[#DCFF37] to-[#FF6B35]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF4654]/5 via-[#FFC700]/5 to-[#FF4654]/5 animate-pulse" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654]" />
 
             <CardBody className="p-6 text-center space-y-4 relative z-10">
               <div className="flex justify-center">
                 <div className="relative">
                   {/* Outer glow ring */}
-                  <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-r from-[#FF6B35]/20 to-[#DCFF37]/20 animate-pulse" />
+                  <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-r from-[#FF4654]/20 via-[#FFC700]/20 to-[#DCFF37]/20 animate-pulse" />
                   {/* Spinning ring */}
-                  <div className="w-20 h-20 border-4 border-slate-700 border-t-[#DCFF37] border-r-[#FF6B35] rounded-full animate-spin" />
+                  <div className="w-20 h-20 border-4 border-slate-700 border-t-[#DCFF37] border-r-[#FF4654] rounded-full animate-spin" />
                   {/* Center icon */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Icon
@@ -240,7 +240,7 @@ export default function ReviewConfirmForm() {
                 </div>
               </div>
               <div>
-                <h4 className="text-xl font-bold bg-gradient-to-r from-[#FF6B35] to-[#DCFF37] bg-clip-text text-transparent mb-3">
+                <h4 className="text-xl font-bold bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37] bg-clip-text text-transparent mb-3">
                   SEARCHING FOR OPPONENTS
                 </h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
@@ -248,7 +248,7 @@ export default function ReviewConfirmForm() {
                     <Icon
                       icon="solar:users-group-rounded-bold"
                       width={20}
-                      className="text-[#FF6B35] mb-1"
+                      className="text-[#FF4654] mb-1"
                     />
                     <span className="text-slate-400 text-xs">Queue</span>
                     <span className="font-bold text-white">
@@ -274,7 +274,7 @@ export default function ReviewConfirmForm() {
                     <Icon
                       icon="solar:hourglass-bold"
                       width={20}
-                      className="text-[#FF6B35] mb-1"
+                      className="text-[#FFC700] mb-1"
                     />
                     <span className="text-slate-400 text-xs">Elapsed</span>
                     <span className="font-bold text-white">

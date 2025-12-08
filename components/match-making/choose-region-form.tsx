@@ -17,18 +17,18 @@ export type ChooseRegionFormProps = React.HTMLAttributes<HTMLFormElement>;
 const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps>(
   ({ className, ...props }, ref) => {
     const { updateState } = useWizard();
-    // LeetGaming brand colors: lime (#DCFF37), orange (#FF6B35), navy (#34445C)
+    // LeetGaming brand colors: lime (#DCFF37), battleOrange (#FF4654 to #FFC700), navy (#34445C)
     const radioClassNames = {
       base: cn(
         "inline-flex m-0 bg-default-50 dark:bg-[#111111] items-center justify-between",
         "flex-row-reverse w-full max-w-full cursor-pointer rounded-none p-4 border-2 border-transparent",
-        "hover:border-[#FF6B35]/30 dark:hover:border-[#DCFF37]/30 hover:bg-[#FF6B35]/5 dark:hover:bg-[#DCFF37]/5",
-        "data-[selected=true]:border-[#FF6B35] dark:data-[selected=true]:border-[#DCFF37]",
-        "data-[selected=true]:bg-[#FF6B35]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
+        "hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30 hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5",
+        "data-[selected=true]:border-[#FF4654] dark:data-[selected=true]:border-[#DCFF37]",
+        "data-[selected=true]:bg-[#FF4654]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
         "transition-all duration-200",
       ),
-      control: "bg-[#FF6B35] dark:bg-[#DCFF37] text-white dark:text-[#1a1a1a]",
-      wrapper: "group-data-[selected=true]:border-[#FF6B35] dark:group-data-[selected=true]:border-[#DCFF37]",
+      control: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:bg-[#DCFF37] text-white dark:text-[#1a1a1a]",
+      wrapper: "group-data-[selected=true]:border-[#FF4654] dark:group-data-[selected=true]:border-[#DCFF37]",
       label: "text-small text-default-600 dark:text-slate-300 font-medium",
       labelWrapper: "m-0",
     };
@@ -43,7 +43,7 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
       <>
         <div className="text-center mb-2">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Icon icon="solar:global-bold-duotone" className="text-[#FF6B35] dark:text-[#DCFF37]" width={32} />
+            <Icon icon="solar:global-bold-duotone" className="text-[#FF4654] dark:text-[#DCFF37]" width={32} />
             <h1 className={title({color: theme === "dark" ? "battleLime" : "battleNavy"})}>Select Region</h1>
           </div>
           <div className="text-base leading-5 text-default-500">
@@ -245,7 +245,7 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
 
           <div className="col-span-12 mt-4">
             <BattleButton
-              className="w-full max-w-md mx-auto bg-gradient-to-r from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C] hover:opacity-90 transition-opacity rounded-none"
+              className="w-full max-w-md mx-auto bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] hover:opacity-90 transition-opacity rounded-none"
               color="primary"
               name="auto-choose-region"
               size="md"
