@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@iconify/react": "^4.1.1",
-    "@sentry/nextjs": "^8.0.0",
     "@nextui-org/accordion": "^2.0.34",
     "@nextui-org/button": "2.0.26",
     "@nextui-org/card": "^2.0.30",
@@ -42,6 +41,7 @@
     "@react-stately/data": "^3.12.0",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
+    "@sentry/nextjs": "^8.55.0",
     "@stitches/react": "^1.2.8",
     "@stripe/react-stripe-js": "^2.9.0",
     "@stripe/stripe-js": "^2.4.0",
