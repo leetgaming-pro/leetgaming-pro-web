@@ -73,15 +73,15 @@ export default function ReviewConfirmForm() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="inline-block"
         >
-          <div className="rounded-full bg-gradient-to-br from-purple-500/20 to-cyan-500/20 dark:from-purple-500/30 dark:to-cyan-500/30 p-4 mb-3 border border-purple-500/30 dark:border-cyan-500/30">
+          <div className="rounded-none bg-gradient-to-br from-[#FF6B35]/20 to-[#34445C]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/30 p-4 mb-3 border border-[#FF6B35]/30 dark:border-[#DCFF37]/30">
             <Icon
               icon="solar:shield-check-bold-duotone"
               width={48}
-              className="text-purple-500 dark:text-cyan-400"
+              className="text-[#FF6B35] dark:text-[#DCFF37]"
             />
           </div>
         </motion.div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 dark:from-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
+        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
           Ready to Compete
         </h3>
         <p className="text-default-500">
@@ -97,7 +97,7 @@ export default function ReviewConfirmForm() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-slate-800/50 border border-default-200 dark:border-slate-700 hover:border-purple-400/30 dark:hover:border-cyan-400/30">
+            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-[#111111] border border-default-200 dark:border-[#DCFF37]/20 hover:border-[#FF6B35]/30 dark:hover:border-[#DCFF37]/30 rounded-none">
               <CardBody className="p-4">
                 <div className="flex items-start gap-3">
                   <div
@@ -164,7 +164,7 @@ export default function ReviewConfirmForm() {
               <Chip
                 size="sm"
                 variant="flat"
-                className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                className="bg-[#34445C]/10 dark:bg-[#34445C]/30 text-[#34445C] dark:text-[#DCFF37]"
               >
                 {state.tier
                   ? state.tier.charAt(0).toUpperCase() + state.tier.slice(1)
@@ -178,7 +178,7 @@ export default function ReviewConfirmForm() {
               <Chip
                 size="sm"
                 variant="flat"
-                className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400"
+                className="bg-[#DCFF37]/10 dark:bg-[#DCFF37]/20 text-[#34445C] dark:text-[#DCFF37]"
               >
                 {state.region || "Auto-Select"}
               </Chip>
@@ -192,20 +192,20 @@ export default function ReviewConfirmForm() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="flex items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-cyan-500/10 dark:from-purple-500/20 dark:to-cyan-500/20 border border-purple-500/30 dark:border-cyan-500/30"
+        className="flex items-center justify-center gap-3 p-4 rounded-none bg-gradient-to-r from-[#FF6B35]/10 to-[#34445C]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/20 border border-[#FF6B35]/30 dark:border-[#DCFF37]/30"
       >
         <div className="relative">
           <Icon
             icon="solar:play-circle-bold"
             width={28}
-            className="text-purple-500 dark:text-cyan-400"
+            className="text-[#FF6B35] dark:text-[#DCFF37]"
           />
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DCFF37] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DCFF37]"></span>
           </span>
         </div>
-        <span className="font-bold text-purple-600 dark:text-cyan-400 uppercase tracking-wide text-sm">
+        <span className="font-bold text-[#FF6B35] dark:text-[#DCFF37] uppercase tracking-wide text-sm">
           Ready to Queue
         </span>
       </motion.div>
@@ -217,49 +217,49 @@ export default function ReviewConfirmForm() {
           animate={{ opacity: 1, scale: 1 }}
           className="mt-4"
         >
-          <Card className="bg-gradient-to-br from-slate-900 via-purple-950/50 to-slate-900 border-2 border-purple-500/30 dark:border-cyan-500/30 overflow-hidden relative">
+          <Card className="bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a] border-2 border-[#FF6B35]/30 dark:border-[#DCFF37]/30 overflow-hidden relative rounded-none">
             {/* Animated background effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-cyan-500/5 to-purple-500/5 animate-pulse" />
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-cyan-400 to-purple-500" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B35]/5 via-[#DCFF37]/5 to-[#FF6B35]/5 animate-pulse" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B35] via-[#DCFF37] to-[#FF6B35]" />
 
             <CardBody className="p-6 text-center space-y-4 relative z-10">
               <div className="flex justify-center">
                 <div className="relative">
                   {/* Outer glow ring */}
-                  <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 animate-pulse" />
+                  <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-r from-[#FF6B35]/20 to-[#DCFF37]/20 animate-pulse" />
                   {/* Spinning ring */}
-                  <div className="w-20 h-20 border-4 border-slate-700 border-t-cyan-400 border-r-purple-500 rounded-full animate-spin" />
+                  <div className="w-20 h-20 border-4 border-slate-700 border-t-[#DCFF37] border-r-[#FF6B35] rounded-full animate-spin" />
                   {/* Center icon */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Icon
                       icon="solar:gamepad-bold"
                       width={28}
-                      className="text-cyan-400"
+                      className="text-[#DCFF37]"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <h4 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-3">
+                <h4 className="text-xl font-bold bg-gradient-to-r from-[#FF6B35] to-[#DCFF37] bg-clip-text text-transparent mb-3">
                   SEARCHING FOR OPPONENTS
                 </h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div className="flex flex-col items-center p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
                     <Icon
                       icon="solar:users-group-rounded-bold"
                       width={20}
-                      className="text-purple-400 mb-1"
+                      className="text-[#FF6B35] mb-1"
                     />
                     <span className="text-slate-400 text-xs">Queue</span>
                     <span className="font-bold text-white">
                       #{state.matchmaking.queuePosition}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
                     <Icon
                       icon="solar:clock-circle-bold"
                       width={20}
-                      className="text-cyan-400 mb-1"
+                      className="text-[#DCFF37] mb-1"
                     />
                     <span className="text-slate-400 text-xs">Est. Wait</span>
                     <span className="font-bold text-white">
@@ -270,11 +270,11 @@ export default function ReviewConfirmForm() {
                       )}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
                     <Icon
                       icon="solar:hourglass-bold"
                       width={20}
-                      className="text-amber-400 mb-1"
+                      className="text-[#FF6B35] mb-1"
                     />
                     <span className="text-slate-400 text-xs">Elapsed</span>
                     <span className="font-bold text-white">

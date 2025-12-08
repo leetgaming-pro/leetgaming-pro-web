@@ -135,7 +135,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
         <CustomRadio value="bo3">
           <div className="flex items-center gap-3 w-full">
             <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#34445C]/10 dark:bg-[#34445C]/30">
-              <BestOfThreeMatchIcon size={28} className="text-purple-600 dark:text-purple-400" />
+              <BestOfThreeMatchIcon size={28} className="text-[#34445C] dark:text-[#DCFF37]" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
         <CustomRadio value="bo5">
           <div className="flex items-center gap-3 w-full">
             <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#DCFF37]/10 dark:bg-[#DCFF37]/20">
-              <BestOfFiveMatchIcon size={28} className="text-cyan-600 dark:text-cyan-400" />
+              <BestOfFiveMatchIcon size={28} className="text-[#DCFF37] dark:text-[#DCFF37]" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
