@@ -183,11 +183,18 @@ export default function PlayerDetailPage() {
   if (error || !player) {
     return (
       <PageContainer maxWidth="7xl">
-        <Card>
+        <Card className="rounded-none border border-danger/30">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:ghost-linear" width={64} className="mx-auto mb-4 text-danger" />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:ghost-linear" width={32} className="text-danger" />
+            </div>
             <p className="text-lg text-danger">{error || 'Player not found'}</p>
-            <Button className="mt-4" color="primary" onClick={() => (window.location.href = '/players')}>
+            <Button 
+              className="mt-4 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onClick={() => (window.location.href = '/players')}
+            >
               Back to Players
             </Button>
           </CardBody>
@@ -202,15 +209,25 @@ export default function PlayerDetailPage() {
   return (
     <PageContainer maxWidth="7xl">
       {/* Header Card */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-            <Avatar src={player.avatar} className="w-32 h-32" />
+            <div className="relative">
+              <Avatar 
+                src={player.avatar} 
+                className="w-32 h-32 ring-4 ring-[#FF4654]/30 dark:ring-[#DCFF37]/30"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)' }}
+              />
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
+                <Icon icon="solar:verified-check-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+              </div>
+            </div>
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">{player.nickname}</h1>
+                <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">{player.nickname}</h1>
                 {player.country && (
-                  <Chip size="sm" variant="flat" startContent={<span className="text-lg">🇺🇸</span>}>
+                  <Chip size="sm" variant="flat" className="rounded-none" startContent={<span className="text-lg">🇺🇸</span>}>
                     {player.country}
                   </Chip>
                 )}
@@ -218,7 +235,7 @@ export default function PlayerDetailPage() {
               <p className="text-default-600 mb-4">{player.description}</p>
               <div className="flex flex-wrap gap-2 mb-4">
                 {player.roles.map((role) => (
-                  <Chip key={role} color="primary" variant="flat">
+                  <Chip key={role} className="bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C] rounded-none">
                     {role}
                   </Chip>
                 ))}
@@ -243,10 +260,17 @@ export default function PlayerDetailPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button color="primary" startContent={<Icon icon="solar:user-plus-bold" width={20} />}>
+              <Button 
+                className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                startContent={<Icon icon="solar:user-plus-bold" width={20} />}
+              >
                 Add Friend
               </Button>
-              <Button variant="bordered" startContent={<Icon icon="solar:chat-round-bold" width={20} />}>
+              <Button 
+                variant="bordered" 
+                className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1]"
+                startContent={<Icon icon="solar:chat-round-bold" width={20} />}>
                 Message
               </Button>
               <ShareButton
