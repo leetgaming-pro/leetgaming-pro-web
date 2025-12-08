@@ -1,136 +1,266 @@
-// pages/submit-replay.tsx
 'use client'
 import React, { useState } from 'react';
-import { Card, Input, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, LinkIcon, Divider } from '@nextui-org/react';
+import { Card, Input, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, Divider } from '@nextui-org/react';
+import { Icon } from '@iconify/react';
 import { EsportsButton } from '@/components/ui/esports-button';
 import { CopyDocumentIcon, SteamIcon } from '@/components/icons';
 import { UploadForm } from '@/components/replay/upload/upload';
-import { logo, subtitle, title } from '@/components/primitives';
+import { title } from '@/components/primitives';
+import { useTheme } from 'next-themes';
 
 const SubmitReplay: React.FC = () => {
   const [replayUrl, setReplayUrl] = useState('');
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission (e.g., send the URL to the server)
+    // Handle form submission
   };
 
   return (
-    <div className="flex w-full flex-col align-center justify-center gap-12">
-      <Tabs aria-label="Options" isVertical={false} className="lg">
-        
-        <Tab key="url" title="URL" className="lg">
-          <Card className="w-full max-w-md p-12">
-            <CardHeader>
-              <h1><span className={title({ color: "blue" })}>URL</span></h1>
-            </CardHeader>
-            <Spacer y={1} />
-            <Divider />
-            <Spacer y={4} />
-            <CardBody>
-              <Input
-                type="text"
-                // label="Enter match replay URL"
-                placeholder="steam://rungame/730/76561202255233023/+csgo_download_match%20CSGO-..."
-                labelPlacement="outside"
-                description="Enter the URL of the match replay you want to submit."
-                endContent={<CopyDocumentIcon />}
-                startContent={<SteamIcon width={36} />}
-              />
-              <Spacer y={2} />
+    <div className="w-full max-w-4xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 mb-4">
+          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <Icon icon="solar:cloud-upload-bold" className="text-white dark:text-[#1a1a1a]" width={28} />
+          </div>
+        </div>
+        <h1 className={title({ color: isDark ? "battleLime" : "battleNavy" })}>Upload Replay</h1>
+        <p className="text-default-500 mt-2 max-w-md mx-auto">
+          Submit your match replays for analysis, highlights, and statistics
+        </p>
+      </div>
 
-            </CardBody>
-            <Spacer y={2} />
-            <EsportsButton variant="primary" size="lg">
-              Link
-            </EsportsButton>
-          </Card>
-        </Tab>
-
-        <Tab key="upload" title="Upload">
-          <Card className="w-full max-w-md p-12">
-          <CardHeader>
-              <h1><span className={title({ color: "blue" })}>Upload</span></h1>
-            </CardHeader>
-            <Spacer y={1} />
-            <Divider />
-            <Spacer y={4} />
-            <CardBody>
+      {/* Tabs */}
+      <Tabs 
+        aria-label="Upload Options" 
+        variant="solid"
+        classNames={{
+          tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm w-full justify-center",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a] px-6",
+          cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+          panel: "pt-6",
+        }}
+      >
+        <Tab 
+          key="upload" 
+          title={
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:cloud-upload-bold" width={18} />
+              <span>Upload File</span>
+            </div>
+          }
+        >
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-sm">
+            <CardBody className="p-6 md:p-8">
               <UploadForm />
             </CardBody>
           </Card>
         </Tab>
 
-        <Tab key="cli" title="CLI">
-        <Card className="w-full max-w-md p-12">
-          <CardHeader>
-          <p><h1><span className={title({ color: "blue" })}>CLI</span></h1></p>
-          <Spacer y={2}/>
-          <br />
-          <p>
-             <h1><span className={subtitle()}>Using  <Chip
-        // startContent={<SteamIcon size={18} />}
-        variant="dot"
-        color="danger"
-        endContent={<LinkIcon />}
-        
-      >
-         <span className={logo({color: "pink"})}>Replay<strong>API</strong></span>
-      </Chip> command line interface
-             {/*<Chip
-              variant="shadow"
-              classNames={{
-                base: "bg-gradient-to-br from-red-500 to-violet-500 border-small border-white/50 shadow-red-500/30",
-                content: "drop-shadow shadow-black text-white",
-              }}
+        <Tab 
+          key="url" 
+          title={
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:link-bold" width={18} />
+              <span>Steam URL</span>
+            </div>
+          }
+        >
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-sm">
+            <CardBody className="p-6 md:p-8">
+              <div className="max-w-lg mx-auto">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#171a21] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                    <SteamIcon width={28} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#34445C] dark:text-white">Steam Match Share Code</h3>
+                    <p className="text-sm text-default-500">Paste the share URL from CS2</p>
+                  </div>
+                </div>
 
-              style={{ fontSize: "0.6rem", margin: "0.0rem 0.2rem", height: "0.9rem", maxWidth: "0.2rem"}}
-            >
-             <strong>Official ReplayAPI SDK <span className={logo({color: "pink"})}> beta</span></strong>
-              
-            </Chip>
-            */}
-            </span>       </h1> 
-            </p>
-          </CardHeader>
-          <CardBody>
-            <div>
-            <Divider />
-            <Spacer y={4} />
-                  NPM:
-                 <Snippet size="sm" color="primary">npm install -g @replay-api/replay-api</Snippet>
-                 <Spacer y={6} />
-                 Brew (Mac/OS):
-                 <Snippet size="sm" color="primary">npm install -g @replay-api/replay-api</Snippet>
-                 </div>
-          </CardBody>
-        </Card>
+                <form onSubmit={handleSubmit}>
+                  <Input
+                    type="text"
+                    placeholder="steam://rungame/730/76561202255233023/+csgo_download_match%20CSGO-..."
+                    value={replayUrl}
+                    onChange={(e) => setReplayUrl(e.target.value)}
+                    classNames={{
+                      inputWrapper: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30 bg-default-100 dark:bg-[#111111]",
+                    }}
+                    startContent={<Icon icon="solar:link-bold" className="text-default-400" width={20} />}
+                    endContent={
+                      <button type="button" className="hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors">
+                        <CopyDocumentIcon />
+                      </button>
+                    }
+                  />
+                  <Spacer y={4} />
+                  <EsportsButton variant="primary" size="lg" className="w-full" type="submit">
+                    <Icon icon="solar:link-bold" width={20} />
+                    Link Match
+                  </EsportsButton>
+                </form>
 
+                <div className="mt-6 p-4 bg-[#34445C]/5 dark:bg-[#DCFF37]/5 rounded-none border-l-2 border-[#FF4654] dark:border-[#DCFF37]">
+                  <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">
+                    How to get the Share URL
+                  </p>
+                  <ol className="text-xs text-default-500 space-y-1 list-decimal list-inside">
+                    <li>Open CS2 and go to your Match History</li>
+                    <li>Click on the match you want to share</li>
+                    <li>Click "Copy Share Link"</li>
+                    <li>Paste the link above</li>
+                  </ol>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
         </Tab>
-        <Tab key="docker" title="Docker">
-          <Card className="w-full max-w-md p-12">
-            <CardHeader>
-            <p><h1><span className={title({ color: "blue" })}>Docker</span></h1></p>
-            <Spacer y={2}/>
-            <br />
-            <p>
-              <h1><span className={subtitle()}>
-              </span>       </h1> 
-              </p>
-            </CardHeader>
-            <CardBody>
-            <Divider />
-            <Spacer y={4} />
-            <Spacer y={2} />
-            <Snippet size="sm" color="primary" variant="bordered">{`export STEAM_DIR="C:\..."`}</Snippet>
-            <Spacer y={10} />
-            <Snippet size="sm" color="primary" variant="solid">docker run -v $STEAM_DIR:/dem_files</Snippet>
+
+        <Tab 
+          key="cli" 
+          title={
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:command-bold" width={18} />
+              <span>CLI</span>
+            </div>
+          }
+        >
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-sm">
+            <CardBody className="p-6 md:p-8">
+              <div className="max-w-lg mx-auto">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                    <Icon icon="solar:command-bold" className="text-white dark:text-[#1a1a1a]" width={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#34445C] dark:text-white">ReplayAPI CLI</h3>
+                    <p className="text-sm text-default-500">Upload directly from your terminal</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Install via NPM</p>
+                    <Snippet 
+                      size="sm" 
+                      symbol="$"
+                      classNames={{
+                        base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                        pre: "text-[#DCFF37]",
+                      }}
+                    >
+                      npm install -g @replay-api/cli
+                    </Snippet>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Install via Homebrew (macOS)</p>
+                    <Snippet 
+                      size="sm" 
+                      symbol="$"
+                      classNames={{
+                        base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                        pre: "text-[#DCFF37]",
+                      }}
+                    >
+                      brew install replay-api/tap/replayapi
+                    </Snippet>
+                  </div>
+
+                  <Divider className="my-4" />
+
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Upload Command</p>
+                    <Snippet 
+                      size="sm" 
+                      symbol="$"
+                      classNames={{
+                        base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                        pre: "text-[#DCFF37]",
+                      }}
+                    >
+                      replayapi upload ./match.dem
+                    </Snippet>
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </Tab>
+
+        <Tab 
+          key="docker" 
+          title={
+            <div className="flex items-center gap-2">
+              <Icon icon="simple-icons:docker" width={18} />
+              <span>Docker</span>
+            </div>
+          }
+        >
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-sm">
+            <CardBody className="p-6 md:p-8">
+              <div className="max-w-lg mx-auto">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#2496ED] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                    <Icon icon="simple-icons:docker" className="text-white" width={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#34445C] dark:text-white">Docker Container</h3>
+                    <p className="text-sm text-default-500">Auto-upload from your demos folder</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Set your Steam directory</p>
+                    <Snippet 
+                      size="sm" 
+                      symbol="$"
+                      classNames={{
+                        base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                        pre: "text-[#DCFF37] whitespace-pre-wrap",
+                      }}
+                    >
+                      {`export STEAM_DIR="/path/to/steamapps/common/Counter-Strike Global Offensive/game/csgo"`}
+                    </Snippet>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Run the watcher container</p>
+                    <Snippet 
+                      size="sm" 
+                      symbol="$"
+                      classNames={{
+                        base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                        pre: "text-[#DCFF37] whitespace-pre-wrap",
+                      }}
+                    >
+                      {`docker run -d -v "$STEAM_DIR:/demos" replayapi/watcher`}
+                    </Snippet>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-[#2496ED]/10 rounded-none border-l-2 border-[#2496ED]">
+                  <p className="text-sm text-default-600">
+                    <Icon icon="solar:info-circle-bold" className="inline mr-1" width={16} />
+                    The watcher will automatically detect and upload new demo files as they appear.
+                  </p>
+                </div>
+              </div>
             </CardBody>
           </Card>
         </Tab>
       </Tabs>
     </div>
-
   );
 };
 
