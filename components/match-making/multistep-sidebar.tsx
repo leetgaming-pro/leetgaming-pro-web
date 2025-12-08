@@ -18,20 +18,20 @@ export type MultiStepSidebarProps = React.HTMLAttributes<HTMLDivElement> & {
   onChangePage: (page: number) => void;
 };
 
-// E-sports inspired color scheme - dark with neon accents
+// LeetGaming brand color scheme - lime green (#DCFF37), orange (#FF6B35), navy (#34445C)
 const stepperClasses = cn(
-  // light mode - competitive gaming colors
-  "[--step-color:hsl(var(--nextui-primary-500))]",
-  "[--active-color:hsl(var(--nextui-primary-600))]",
-  "[--inactive-border-color:rgba(139,92,246,0.3)]",
-  "[--inactive-bar-color:rgba(139,92,246,0.2)]",
-  "[--inactive-color:rgba(255,255,255,0.5)]",
-  // dark mode - neon gamer aesthetic
-  "dark:[--step-color:hsl(var(--nextui-secondary-400))]",
-  "dark:[--active-color:hsl(var(--nextui-secondary-500))]",
-  "dark:[--active-border-color:rgba(34,211,238,0.8)]",
-  "dark:[--inactive-border-color:rgba(139,92,246,0.4)]",
-  "dark:[--inactive-bar-color:rgba(139,92,246,0.3)]",
+  // light mode - professional esports colors (navy base with orange accents)
+  "[--step-color:#34445C]",
+  "[--active-color:#FF6B35]",
+  "[--inactive-border-color:rgba(52,68,92,0.3)]",
+  "[--inactive-bar-color:rgba(52,68,92,0.2)]",
+  "[--inactive-color:rgba(52,68,92,0.5)]",
+  // dark mode - lime green (#DCFF37) signature with navy accents
+  "dark:[--step-color:#DCFF37]",
+  "dark:[--active-color:#DCFF37]",
+  "dark:[--active-border-color:rgba(220,255,55,0.8)]",
+  "dark:[--inactive-border-color:rgba(220,255,55,0.3)]",
+  "dark:[--inactive-bar-color:rgba(220,255,55,0.2)]",
   "dark:[--inactive-color:rgba(255,255,255,0.4)]",
 );
 
@@ -43,16 +43,15 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
         className={cn("flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden", className)}
         {...props}
       >
-        {/* Sidebar - E-sports dark gradient with neon accent */}
-        <div className="flex hidden h-full w-[380px] flex-shrink-0 flex-col items-start gap-y-6 rounded-large bg-gradient-to-b from-slate-900 via-purple-950/80 to-slate-900 px-6 py-6 shadow-2xl lg:flex border border-purple-500/20 relative overflow-hidden">
-          {/* Animated background glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 via-transparent to-purple-500/10 pointer-events-none" />
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" />
+        {/* Sidebar - LeetGaming brand: navy base with lime accent in dark, navy base with orange in light */}
+        <div className="flex hidden h-full w-[380px] flex-shrink-0 flex-col items-start gap-y-6 rounded-none px-6 py-6 shadow-2xl lg:flex relative overflow-hidden bg-gradient-to-b from-[#34445C] via-[#2a3749] to-[#1e2a38] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] border-r border-[#34445C]/30 dark:border-[#DCFF37]/20">
+          {/* Diagonal corner accent - LeetGaming signature */}
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FF6B35]/20 to-transparent dark:from-[#DCFF37]/10 dark:to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B35] via-[#34445C] to-[#FF6B35] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
 
           <Button
-            className="bg-slate-800/80 text-small font-medium text-cyan-400 shadow-lg border border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all z-10"
+            className="bg-[#34445C]/80 text-small font-medium text-white shadow-lg border border-[#FF6B35]/30 hover:bg-[#FF6B35]/20 hover:border-[#FF6B35]/50 dark:bg-[#1a1a1a] dark:text-[#DCFF37] dark:border-[#DCFF37]/30 dark:hover:bg-[#DCFF37]/10 dark:hover:border-[#DCFF37]/50 transition-all z-10 rounded-none"
             isDisabled={currentPage === 0}
-            radius="full"
             variant="flat"
             onPress={onBack}
           >
@@ -62,12 +61,12 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
 
           <div className="z-10">
             <div className="flex items-center gap-2">
-              <Icon icon="solar:gamepad-bold" className="text-cyan-400" width={28} />
-              <div className="text-xl font-bold leading-7 text-white tracking-tight">
-                MATCHMAKER
+              <Icon icon="solar:gamepad-bold" className="text-[#FF6B35] dark:text-[#DCFF37]" width={28} />
+              <div className="text-xl font-bold leading-7 text-white tracking-tight uppercase">
+                Matchmaker
               </div>
             </div>
-            <div className="mt-2 text-sm font-medium leading-6 text-purple-200/80">
+            <div className="mt-2 text-sm font-medium leading-6 text-white/70 dark:text-[#DCFF37]/70">
               Find worthy opponents and dominate the competition
             </div>
           </div>
@@ -105,13 +104,13 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
             ]}
             onStepChange={onChangePage}
           />
-          <SupportCard className="w-full backdrop-blur-lg z-10 bg-slate-800/40 border border-purple-500/20 shadow-none" />
+          <SupportCard className="w-full backdrop-blur-lg z-10 bg-[#1e2a38]/60 dark:bg-[#111111]/60 border border-[#FF6B35]/20 dark:border-[#DCFF37]/20 shadow-none rounded-none" />
         </div>
 
         {/* Main content area */}
         <div className="flex h-full w-full flex-col items-center gap-4 md:p-4">
-          {/* Mobile header - gaming gradient */}
-          <div className="sticky top-0 z-10 w-full rounded-large bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 py-4 shadow-lg md:max-w-xl lg:hidden border border-purple-500/30">
+          {/* Mobile header - LeetGaming brand gradient */}
+          <div className="sticky top-0 z-10 w-full rounded-none bg-gradient-to-r from-[#34445C] via-[#2a3749] to-[#34445C] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] py-4 shadow-lg md:max-w-xl lg:hidden border-b border-[#FF6B35]/30 dark:border-[#DCFF37]/30">
             <div className="flex justify-center">
               {/* Mobile Steps */}
               <RowSteps

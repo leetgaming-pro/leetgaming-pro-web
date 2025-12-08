@@ -13,11 +13,11 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
       {...props}
       ref={ref}
       className={cn(
-        "align-center my-2 flex shrink-0 items-center justify-center gap-3 self-stretch rounded-large bg-content1 px-3 py-3 shadow-small",
+        "align-center my-2 flex shrink-0 items-center justify-center gap-3 self-stretch rounded-none bg-content1 px-3 py-3 shadow-small",
         className,
       )}
     >
-      <div className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-gradient-to-br from-cyan-500 to-purple-600">
+      <div className="flex items-center justify-center w-[32px] h-[32px] rounded-none bg-gradient-to-br from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C]">
         <Icon
           className="text-white"
           icon="solar:headphones-round-bold"

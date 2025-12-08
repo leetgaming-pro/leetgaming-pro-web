@@ -17,17 +17,18 @@ export type ChooseRegionFormProps = React.HTMLAttributes<HTMLFormElement>;
 const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps>(
   ({ className, ...props }, ref) => {
     const { updateState } = useWizard();
+    // LeetGaming brand colors: lime (#DCFF37), orange (#FF6B35), navy (#34445C)
     const radioClassNames = {
       base: cn(
-        "inline-flex m-0 bg-default-50 dark:bg-slate-800/50 items-center justify-between",
-        "flex-row-reverse w-full max-w-full cursor-pointer rounded-lg p-4 border-2 border-transparent",
-        "hover:border-purple-400/30 dark:hover:border-cyan-400/30 hover:bg-purple-500/5 dark:hover:bg-cyan-500/5",
-        "data-[selected=true]:border-purple-500 dark:data-[selected=true]:border-cyan-400",
-        "data-[selected=true]:bg-purple-500/10 dark:data-[selected=true]:bg-cyan-500/10",
+        "inline-flex m-0 bg-default-50 dark:bg-[#111111] items-center justify-between",
+        "flex-row-reverse w-full max-w-full cursor-pointer rounded-none p-4 border-2 border-transparent",
+        "hover:border-[#FF6B35]/30 dark:hover:border-[#DCFF37]/30 hover:bg-[#FF6B35]/5 dark:hover:bg-[#DCFF37]/5",
+        "data-[selected=true]:border-[#FF6B35] dark:data-[selected=true]:border-[#DCFF37]",
+        "data-[selected=true]:bg-[#FF6B35]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
         "transition-all duration-200",
       ),
-      control: "bg-purple-500 dark:bg-cyan-400 text-white",
-      wrapper: "group-data-[selected=true]:border-purple-500 dark:group-data-[selected=true]:border-cyan-400",
+      control: "bg-[#FF6B35] dark:bg-[#DCFF37] text-white dark:text-[#1a1a1a]",
+      wrapper: "group-data-[selected=true]:border-[#FF6B35] dark:group-data-[selected=true]:border-[#DCFF37]",
       label: "text-small text-default-600 dark:text-slate-300 font-medium",
       labelWrapper: "m-0",
     };
@@ -42,8 +43,8 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
       <>
         <div className="text-center mb-2">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Icon icon="solar:global-bold-duotone" className="text-purple-500 dark:text-cyan-400" width={32} />
-            <h1 className={title({color: theme === "dark" ? "foreground" : "battleNavy"})}>Select Region</h1>
+            <Icon icon="solar:global-bold-duotone" className="text-[#FF6B35] dark:text-[#DCFF37]" width={32} />
+            <h1 className={title({color: theme === "dark" ? "battleLime" : "battleNavy"})}>Select Region</h1>
           </div>
           <div className="text-base leading-5 text-default-500">
             Choose the server closest to you for optimal performance
@@ -69,9 +70,9 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
           className="w-full"
           variant="solid"
           classNames={{
-            tabList: "bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl gap-1",
-            tab: "text-xs font-medium data-[selected=true]:bg-purple-500 dark:data-[selected=true]:bg-cyan-500 data-[selected=true]:text-white",
-            cursor: "bg-purple-500 dark:bg-cyan-500",
+            tabList: "bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-none gap-1",
+            tab: "text-xs font-medium rounded-none data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
+            cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
           }}
         >
           <Tab key="south-america" title="S.America">
@@ -244,13 +245,13 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
 
           <div className="col-span-12 mt-4">
             <BattleButton
-              className="w-full max-w-md mx-auto bg-gradient-to-r from-purple-500 to-cyan-500 dark:from-cyan-500 dark:to-purple-500 hover:opacity-90 transition-opacity"
+              className="w-full max-w-md mx-auto bg-gradient-to-r from-[#FF6B35] to-[#34445C] dark:from-[#DCFF37] dark:to-[#34445C] hover:opacity-90 transition-opacity rounded-none"
               color="primary"
               name="auto-choose-region"
               size="md"
-              startContent={<Icon icon="solar:bolt-bold" className="text-white" width={20} />}
+              startContent={<Icon icon="solar:bolt-bold" className="text-white dark:text-[#1a1a1a]" width={20} />}
             >
-              <span className="text-white font-semibold">Auto-Select Best Server</span>
+              <span className="text-white dark:text-[#1a1a1a] font-semibold">Auto-Select Best Server</span>
             </BattleButton>
             <p className="text-xs text-default-400 mt-2">Ping test to find your optimal region</p>
           </div>

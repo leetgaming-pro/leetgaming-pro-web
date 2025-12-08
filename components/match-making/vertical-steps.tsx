@@ -172,10 +172,11 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
               <li key={stepIdx} className="relative">
                 <Card
                       style={{
-                        background: 'rgba(255, 255, 255, 0.2)', // Semi-transparent background
+                        background: theme === 'dark' ? 'rgba(220, 255, 55, 0.05)' : 'rgba(52, 68, 92, 0.08)', // LeetGaming brand colors
                         backdropFilter: 'blur(10px)', // Glossy effect
-                        borderRadius: '10px',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        borderRadius: '0px', // Edgy, no rounded corners
+                        boxShadow: theme === 'dark' ? '0 4px 8px rgba(0, 0, 0, 0.3)' : '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        borderLeft: theme === 'dark' ? '2px solid rgba(220, 255, 55, 0.3)' : '2px solid rgba(255, 107, 53, 0.3)',
                       }}
                                    
                 >
@@ -185,7 +186,7 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
                     ref={ref}
                     aria-current={status === "active" ? "step" : undefined}
                     className={cn(
-                      "group flex w-full cursor-pointer items-center justify-center gap-4 rounded-large px-3 py-2.5",
+                      "group flex w-full cursor-pointer items-center justify-center gap-4 rounded-none px-3 py-2.5",
                       stepClassName,
                     )}
                     onClick={() => setCurrentStep(stepIdx)}

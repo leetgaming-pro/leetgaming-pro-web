@@ -47,10 +47,10 @@ export const CustomRadio = (props: any) => {
       {...getBaseProps()}
       className={cn(
         "group inline-flex items-center hover:scale-[1.02] active:scale-[0.98] justify-between flex-row-reverse tap-highlight-transparent transition-all duration-200",
-        "w-full max-w-[420px] cursor-pointer border-2 border-default-200 dark:border-slate-700 rounded-xl gap-4 p-5",
-        "hover:border-purple-400/50 hover:bg-purple-500/5 dark:hover:border-cyan-400/50 dark:hover:bg-cyan-500/5",
-        "data-[selected=true]:border-purple-500 dark:data-[selected=true]:border-cyan-400 data-[selected=true]:bg-purple-500/10 dark:data-[selected=true]:bg-cyan-500/10",
-        "data-[selected=true]:shadow-lg data-[selected=true]:shadow-purple-500/20 dark:data-[selected=true]:shadow-cyan-500/20",
+        "w-full max-w-[420px] cursor-pointer border-2 border-default-200 dark:border-[#DCFF37]/20 rounded-none gap-4 p-5",
+        "hover:border-[#FF6B35]/50 hover:bg-[#FF6B35]/5 dark:hover:border-[#DCFF37]/50 dark:hover:bg-[#DCFF37]/5",
+        "data-[selected=true]:border-[#FF6B35] dark:data-[selected=true]:border-[#DCFF37] data-[selected=true]:bg-[#FF6B35]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
+        "data-[selected=true]:shadow-lg data-[selected=true]:shadow-[#FF6B35]/20 dark:data-[selected=true]:shadow-[#DCFF37]/20",
       )}
     >
       <VisuallyHidden>
@@ -85,8 +85,8 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
       <>
         <div className="text-center mb-2">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Icon icon="solar:gameboy-bold-duotone" className="text-purple-500 dark:text-cyan-400" width={32} />
-            <h1 className={title({color: theme === "dark" ? "foreground" : "battleNavy"})}>Game Mode</h1>
+            <Icon icon="solar:gameboy-bold-duotone" className="text-[#FF6B35] dark:text-[#DCFF37]" width={32} />
+            <h1 className={title({color: theme === "dark" ? "battleLime" : "battleNavy"})}>Game Mode</h1>
           </div>
           <div className="text-base leading-5 text-default-500">
             Choose your competitive format
@@ -104,7 +104,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
       >
         <CustomRadio value="free">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800">
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-slate-100 dark:bg-[#1a1a1a]">
               <Icon icon="solar:gamepad-minimalistic-bold-duotone" className="text-slate-500 dark:text-slate-400" width={28} />
             </div>
             <div className="flex-1">
@@ -119,7 +119,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
 
         <CustomRadio value="single">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30">
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#FF6B35]/10 dark:bg-[#FF6B35]/20">
               <SingleEliminationMatchIcon size={28} className="text-orange-600 dark:text-orange-400" />
             </div>
             <div className="flex-1">
@@ -134,7 +134,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
 
         <CustomRadio value="bo3">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#34445C]/10 dark:bg-[#34445C]/30">
               <BestOfThreeMatchIcon size={28} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div className="flex-1">
@@ -149,7 +149,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
 
         <CustomRadio value="bo5">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-cyan-100 dark:bg-cyan-900/30">
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#DCFF37]/10 dark:bg-[#DCFF37]/20">
               <BestOfFiveMatchIcon size={28} className="text-cyan-600 dark:text-cyan-400" />
             </div>
             <div className="flex-1">

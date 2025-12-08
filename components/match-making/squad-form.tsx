@@ -112,7 +112,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
       <>
         <div className="w-full text-3xl font-bold leading-9 text-default-foreground flex items-center justify-center">
 
-          <h1 className={title({ color: theme === "dark" ? "foreground" : "battleNavy" })}>Setup your Squad</h1>
+          <h1 className={title({ color: theme === "dark" ? "battleLime" : "battleNavy" })}>Setup your Squad</h1>
         </div>
         <div className="py-2 text-medium text-default-500">
           Choose a team or pick your friends to play with.
@@ -170,7 +170,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                 base: cn(
                   "inline-flex w-full max-w-md bg-content1",
                   "hover:bg-content2 items-center justify-start",
-                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                  "cursor-pointer rounded-none gap-2 p-4 border-2 border-transparent",
                   "data-[selected=true]:border-primary",
                 ),
                 label: "w-full",
@@ -251,7 +251,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                         {team.members.map((member, idx) => (
                           <div key={`${member.nickname}-${idx}`} className="flex items-center gap-2">
                             <Spacer y={2} />
-                            <Card className="w-1/2 border" style={{ borderRadius: "50px" }}>
+                            <Card className="w-1/2 border border-[#DCFF37]/20 dark:border-[#DCFF37]/30" style={{ borderRadius: "0px" }}>
                               <div className="flex items-center gap-2 p-2">
                                 <Avatar alt={member.nickname.charAt(0).toUpperCase()} src={member.avatar} size="sm" />
                                 <span className="text-sm">{member.nickname}</span>
