@@ -124,19 +124,19 @@ export default function Component() {
       </nav>
       <div className="flex gap-x-6">
         <div className="w-full flex-1 flex-col">
-          <header className="relative z-10 flex flex-col gap-2 rounded-medium bg-default-50 px-4 pb-3 pt-2 md:pt-3">
+          <header className="relative z-10 flex flex-col gap-2 rounded-none bg-[#F5F0E1]/90 dark:bg-[#1a1a1a]/90 px-4 pb-3 pt-2 md:pt-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <div className="flex items-center gap-1 md:hidden md:gap-2">
-              <h2 className="text-large font-medium">Replays</h2>
-              <span className="text-small text-default-400">({state.total})</span>
+              <h2 className="text-large font-medium text-[#34445C] dark:text-[#F5F0E1]">Replays</h2>
+              <span className="text-small text-[#FF4654] dark:text-[#DCFF37]">({state.total})</span>
             </div>
             <div className="flex items-center justify-between gap-2 ">
               <div className="flex flex-row gap-2">
                 <div className="hidden items-center gap-1 md:flex">
-                  <h2 className="text-medium font-medium">Replays</h2>
-                  <span className="text-small text-default-400">({state.total})</span>
+                  <h2 className="text-medium font-medium text-[#34445C] dark:text-[#F5F0E1]">Replays</h2>
+                  <span className="text-small text-[#FF4654] dark:text-[#DCFF37]">({state.total})</span>
                 </div>
                 {!session && (
-                  <Chip color="warning" variant="flat" size="sm">
+                  <Chip color="warning" variant="flat" size="sm" className="rounded-none">
                     Sign in to upload replays
                   </Chip>
                 )}
@@ -267,14 +267,19 @@ export default function Component() {
 
             {/* Empty state */}
             {!state.loading && state.replays.length === 0 && !state.error && (
-              <Card className="mb-4">
+              <Card className="mb-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                 <CardBody className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-2">No replays found</h3>
+                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                    <span className="text-2xl text-[#F5F0E1] dark:text-[#34445C]">📹</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No replays found</h3>
                   <p className="text-default-500 mb-4">
                     Try adjusting your filters or upload your first replay
                   </p>
                   <Button
-                    color="primary"
+                    className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                     as="a"
                     href="/upload"
                   >
@@ -294,12 +299,13 @@ export default function Component() {
                       isPressable
                       as="a"
                       href={`/replays/${replay.id}`}
-                      className="hover:scale-105 transition-transform"
+                      className="hover:scale-[1.02] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
                     >
                       <CardBody className="p-4">
                         <div className="flex justify-between items-start mb-2">
                           <Chip
                             size="sm"
+                            className="rounded-none"
                             color={
                               replay.status === 'Completed' || replay.status === 'Ready'
                                 ? 'success'
@@ -313,11 +319,11 @@ export default function Component() {
                           >
                             {replay.status}
                           </Chip>
-                          <Chip size="sm" variant="flat">
+                          <Chip size="sm" variant="flat" className="rounded-none">
                             {replay.gameId.toUpperCase()}
                           </Chip>
                         </div>
-                        <h4 className="font-semibold text-md mb-1 truncate">
+                        <h4 className="font-semibold text-md mb-1 truncate text-[#34445C] dark:text-[#F5F0E1]">
                           Replay #{replay.id.slice(0, 8)}
                         </h4>
                         <p className="text-xs text-default-500 mb-2">
@@ -336,7 +342,7 @@ export default function Component() {
                           description={`${replay.gameId.toUpperCase()} replay from ${new Date(replay.createdAt).toLocaleDateString()}`}
                           variant="flat"
                           size="sm"
-                          className="w-full"
+                          className="w-full rounded-none"
                         />
                       </CardFooter>
                     </Card>
@@ -347,8 +353,8 @@ export default function Component() {
                 {state.hasMore && (
                   <div className="flex justify-center mt-8 mb-12">
                     <Button
-                      color="primary"
-                      variant="flat"
+                      className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                       onPress={handleLoadMore}
                       isLoading={state.loading}
                       disabled={state.loading}

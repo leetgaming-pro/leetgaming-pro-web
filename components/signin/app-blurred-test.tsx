@@ -49,7 +49,9 @@ export default function SignInBlurreds() {
 
   const inputClasses: InputProps["classNames"] = {
     inputWrapper:
-      "border-transparent bg-default-50/40 dark:bg-default-50/20 group-data-[focus=true]:border-primary data-[hover=true]:border-foreground/20",
+      "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30 bg-[#F5F0E1]/50 dark:bg-[#0a0a0a]/50 group-data-[focus=true]:border-[#FF4654] dark:group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-[#FF4654]/50 dark:data-[hover=true]:border-[#DCFF37]/50",
+    input: "text-[#34445C] dark:text-[#F5F0E1]",
+    label: "text-[#34445C] dark:text-[#F5F0E1]",
   };
 
   return (
@@ -62,10 +64,20 @@ export default function SignInBlurreds() {
       backgroundPosition: "center",
     }}
   >
-      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-background/60 px-8 pb-10 pt-6 shadow-2xl backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50 border border-foreground/10">
+      <div 
+        className="flex w-full max-w-sm flex-col gap-4 rounded-none bg-[#F5F0E1]/90 dark:bg-[#1a1a1a]/90 px-8 pb-10 pt-6 shadow-2xl backdrop-blur-md backdrop-saturate-150 border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)' }}
+      >
+        {/* Brand accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
+        
         <div className="text-center pb-2">
-          <h1 className="text-2xl font-bold tracking-tight">Welcome Back</h1>
-          <p className="text-sm text-foreground/60 mt-1">Sign in to your account</p>
+          <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+            <span className="text-xl text-[#F5F0E1] dark:text-[#34445C]">🎮</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#34445C] dark:text-[#F5F0E1]">Welcome Back</h1>
+          <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">Sign in to your account</p>
         </div>
         <form className="flex flex-col gap-3" onSubmit={handleEmailSignIn}>
           {error && (
@@ -113,14 +125,15 @@ export default function SignInBlurreds() {
           <div className="flex items-center justify-between px-1 py-2">
             <Checkbox
               classNames={{
-                wrapper: "before:border-foreground/50",
+                wrapper: "before:border-[#34445C]/50 dark:before:border-[#DCFF37]/50 rounded-none",
+                icon: "text-[#FF4654] dark:text-[#DCFF37]",
               }}
               name="remember"
               size="sm"
             >
-              Remember me
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Remember me</span>
             </Checkbox>
-            <Link className="text-foreground/50" href="/help" size="sm">
+            <Link className="text-[#FF4654] dark:text-[#DCFF37]" href="/help" size="sm">
               Forgot password?
             </Link>
           </div>
@@ -160,9 +173,9 @@ export default function SignInBlurreds() {
             Continue with Google
           </EsportsButton>
         </div>
-        <p className="text-center text-sm text-foreground/60">
+        <p className="text-center text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">
           Need to create an account?{" "}
-          <Link color="foreground" href="/signup" size="sm" className="font-medium">
+          <Link href="/signup" size="sm" className="font-medium text-[#FF4654] dark:text-[#DCFF37]">
             Sign Up
           </Link>
         </p>

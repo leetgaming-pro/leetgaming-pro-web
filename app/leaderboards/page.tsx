@@ -193,16 +193,20 @@ export default function LeaderboardsPage() {
   return (
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
       {/* Header */}
-      <div className="flex w-full max-w-7xl flex-col items-center text-center gap-2">
-        <h2 className="text-secondary font-medium">Global Rankings</h2>
-        <h1 className={title({ size: "lg" })}>Leaderboards</h1>
+      <div className="flex w-full max-w-7xl flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="solar:cup-star-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Global Rankings</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Leaderboards</h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
           Track the top players and teams across all competitive games. Rankings updated daily.
         </p>
       </div>
 
       {/* Filters */}
-      <Card className="w-full max-w-7xl">
+      <Card className="w-full max-w-7xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
             <Select
@@ -211,6 +215,10 @@ export default function LeaderboardsPage() {
               onSelectionChange={(keys) => setSelectedGame(Array.from(keys)[0] as string)}
               className="w-full md:w-48"
               variant="bordered"
+              classNames={{
+                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                popoverContent: "rounded-none",
+              }}
             >
               <SelectItem key="cs2" value="cs2">CS2</SelectItem>
               <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
@@ -222,6 +230,10 @@ export default function LeaderboardsPage() {
               onSelectionChange={(keys) => setSelectedRegion(Array.from(keys)[0] as string)}
               className="w-full md:w-48"
               variant="bordered"
+              classNames={{
+                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                popoverContent: "rounded-none",
+              }}
             >
               <SelectItem key="global" value="global">Global</SelectItem>
               <SelectItem key="na" value="na">North America</SelectItem>
@@ -263,9 +275,9 @@ export default function LeaderboardsPage() {
           onSelectionChange={(key) => setSelectedTab(key as string)}
           variant="underlined"
           classNames={{
-            tabList: "gap-6 w-full",
-            cursor: "bg-primary",
-            tab: "h-12",
+            tabList: "gap-6 w-full border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            cursor: "bg-[#FF4654] dark:bg-[#DCFF37]",
+            tab: "h-12 data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]",
             panel: "pt-6",
           }}
         >
@@ -278,13 +290,14 @@ export default function LeaderboardsPage() {
               </div>
             }
           >
-            <Card>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
               <CardBody className="p-0">
                 <Table
                   aria-label="Player leaderboard"
                   classNames={{
-                    wrapper: "shadow-none",
-                    th: "bg-default-100",
+                    wrapper: "shadow-none rounded-none",
+                    th: "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 text-[#34445C] dark:text-[#F5F0E1]",
+                    tr: "hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5",
                   }}
                 >
                   <TableHeader>

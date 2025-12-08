@@ -317,8 +317,13 @@ function SettingsContent() {
               <Divider />
 
               <div className="flex justify-end gap-2">
-                <Button variant="flat">Cancel</Button>
-                <Button color="primary" onPress={handleProfileUpdate} isLoading={saving}>
+                <Button variant="flat" className="rounded-none">Cancel</Button>
+                <Button 
+                  className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                  onPress={handleProfileUpdate} 
+                  isLoading={saving}
+                >
                   Save Changes
                 </Button>
               </div>
@@ -337,9 +342,9 @@ function SettingsContent() {
             </div>
           }
         >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-bold">Notification Preferences</h2>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+              <h2 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Notification Preferences</h2>
             </CardHeader>
             <Divider />
             <CardBody className="space-y-6">
@@ -438,8 +443,12 @@ function SettingsContent() {
               <Divider />
 
               <div className="flex justify-end gap-2">
-                <Button variant="flat">Reset to Defaults</Button>
-                <Button color="primary" onPress={handleNotificationUpdate}>
+                <Button variant="flat" className="rounded-none">Reset to Defaults</Button>
+                <Button 
+                  className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                  onPress={handleNotificationUpdate}
+                >
                   Save Preferences
                 </Button>
               </div>
@@ -468,9 +477,9 @@ function SettingsContent() {
             </div>
           }
         >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-bold">Security Settings</h2>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+              <h2 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Security Settings</h2>
             </CardHeader>
             <Divider />
             <CardBody className="space-y-6">
