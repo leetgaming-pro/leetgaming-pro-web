@@ -9,9 +9,13 @@ export default function AboutPage() {
   return (
     <div className="flex w-full flex-col items-center gap-12 px-4 py-8 lg:px-24">
       {/* Header */}
-      <div className="flex w-full max-w-5xl flex-col items-center text-center gap-2">
-        <h2 className="text-secondary font-medium">Our Story</h2>
-        <h1 className={title({ size: "lg" })}>About LeetGaming PRO</h1>
+      <div className="flex w-full max-w-5xl flex-col items-center text-center gap-4">
+        <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)' }}>
+          <Icon icon="solar:info-circle-bold" width={36} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Our Story</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>About LeetGaming PRO</h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
           Empowering competitive gamers with professional-grade tools for replay analysis, team
           coordination, and skill improvement.
@@ -19,14 +23,15 @@ export default function AboutPage() {
       </div>
 
       {/* Mission Section */}
-      <Card className="w-full max-w-5xl bg-gradient-to-br from-primary-50 to-secondary-50">
+      <Card className="w-full max-w-5xl bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <Icon icon="mdi:target" className="text-6xl text-primary" />
+            <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="mdi:target" className="text-[#F5F0E1] dark:text-[#34445C]" width={32} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-3">Our Mission</h2>
+              <h2 className="text-2xl font-bold mb-3 text-[#34445C] dark:text-[#F5F0E1]">Our Mission</h2>
               <p className="text-default-700 leading-relaxed">
                 At LeetGaming PRO, we believe that every competitive gamer deserves access to
                 professional-level tools and analysis. Our platform bridges the gap between casual
@@ -41,12 +46,15 @@ export default function AboutPage() {
 
       {/* Features Grid */}
       <div className="w-full max-w-5xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">What We Offer</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-[#34445C] dark:text-[#F5F0E1]">What We Offer</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:shadow-lg hover:shadow-[#FF4654]/10 dark:hover:shadow-[#DCFF37]/10 transition-all">
             <CardBody className="p-6 text-center">
-              <Icon icon="mdi:file-video" className="text-4xl text-primary mx-auto mb-3" />
-              <h3 className="text-lg font-semibold mb-2">Replay Analysis</h3>
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                <Icon icon="mdi:file-video" className="text-[#F5F0E1] dark:text-[#34445C]" width={24} />
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Replay Analysis</h3>
               <p className="text-sm text-default-600">
                 Upload and analyze your game replays with detailed statistics, heatmaps, and
                 round-by-round breakdowns.
