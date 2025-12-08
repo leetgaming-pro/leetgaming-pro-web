@@ -12,6 +12,7 @@ import {
 import { Link } from "@nextui-org/link";
 import { Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import { usePathname } from "next/navigation";
 
 import { link as linkStyles } from "@nextui-org/theme";
 
@@ -46,6 +47,7 @@ import { NotificationCenter } from '@/components/notifications/notification-cent
 import { LanguageSelector } from '@/components/i18n/language-selector';
 
 export const Navbar = () => {
+  const pathname = usePathname();
 
   let { theme, setTheme } = useTheme();
 
@@ -56,6 +58,12 @@ export const Navbar = () => {
   let SessionArea;
 
   const { data: session } = useSession()
+  
+  // Helper to check if path is active
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
   // console.log('##session##', JSON.stringify(session))
   if (session) {
@@ -86,25 +94,30 @@ export const Navbar = () => {
         </NavbarBrand>
 
         <ul className="hidden lg:flex items-stretch h-full gap-0 ml-4">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href} className="h-full flex items-stretch">
-              <NextLink
-                className={clsx(
-                  "relative px-4 flex items-center text-sm font-semibold uppercase tracking-wider transition-all duration-200",
-                  "hover:text-foreground h-full",
-                  electrolize.className,
-                  item.href === "/match-making"
-                    ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
-                    : item.href === "/cloud"
-                      ? "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600"
-                      : "esports-nav-link hover:bg-default-100/50"
-                )}
-                href={item.href}
-              >
-                {item.label}
-              </NextLink>
-            </NavbarItem>
-          ))}
+          {siteConfig.navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <NavbarItem key={item.href} className="h-full flex items-stretch">
+                <NextLink
+                  className={clsx(
+                    "relative px-4 flex items-center text-sm font-semibold uppercase tracking-wider transition-all duration-200",
+                    "hover:text-foreground h-full",
+                    electrolize.className,
+                    item.href === "/match-making"
+                      ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
+                      : item.href === "/cloud"
+                        ? "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600"
+                        : active
+                          ? "esports-nav-link bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] border-b-2 border-[#FF4654] dark:border-[#DCFF37]"
+                          : "esports-nav-link hover:bg-default-100/50"
+                  )}
+                  href={item.href}
+                >
+                  {item.label}
+                </NextLink>
+              </NavbarItem>
+            );
+          })}
         </ul>
       </NavbarContent>
 
@@ -143,15 +156,18 @@ export const Navbar = () => {
 
             const isHighlight = (item as any).highlight;
             const itemIcon = (item as any).icon;
+            const active = isActive(item.href);
 
             return (
               <NavbarMenuItem key={`${item.label}-${index}`}>
                 <Link
                   className={clsx(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200",
                     isHighlight
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "hover:bg-default-100 text-foreground"
+                      ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold dark:from-[#DCFF37] dark:to-[#34445C] dark:text-[#1a1a1a]"
+                      : active
+                        ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
+                        : "hover:bg-default-100 text-foreground"
                   )}
                   href={item.href}
                   size="lg"
@@ -161,7 +177,7 @@ export const Navbar = () => {
                       icon={itemIcon}
                       className={clsx(
                         "w-5 h-5",
-                        isHighlight ? "text-primary-foreground" : "text-default-500"
+                        isHighlight || active ? "text-current" : "text-default-500"
                       )}
                     />
                   )}

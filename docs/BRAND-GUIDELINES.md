@@ -3,19 +3,46 @@
 ## 🎨 Color Palette
 
 ### Primary Colors
-| Color | Hex | RGB | Usage |
-|-------|-----|-----|-------|
-| **Navy** | `#34445C` | `rgb(52, 68, 92)` | Primary backgrounds, headers, buttons (light mode) |
-| **Dark Navy** | `#1e2a38` | `rgb(30, 42, 56)` | Darker variants, gradients |
-| **Lime** | `#DCFF37` | `rgb(220, 255, 55)` | Signature accent, buttons (dark mode) |
-| **Battle Orange** | `#FF4654` | `rgb(255, 70, 84)` | CTAs, highlights, accents (light mode) |
-| **Gold** | `#FFC700` | `rgb(255, 199, 0)` | Gradient end, premium features |
+| Color | Hex | RGB | CSS Variable | Usage |
+|-------|-----|-----|--------------|-------|
+| **Navy** | `#34445C` | `rgb(52, 68, 92)` | `--leet-navy` | Primary backgrounds, headers, buttons (light mode) |
+| **Dark Navy** | `#1e2a38` | `rgb(30, 42, 56)` | `--leet-navy-dark` | Darker variants, gradients |
+| **Lime** | `#DCFF37` | `rgb(220, 255, 55)` | `--leet-lime` | Signature accent, buttons (dark mode) |
+| **Battle Orange** | `#FF4654` | `rgb(255, 70, 84)` | `--leet-orange` | CTAs, highlights, accents (light mode) |
+| **Gold** | `#FFC700` | `rgb(255, 199, 0)` | `--leet-gold` | Gradient end, premium features |
 
 ### Neutral Colors
-| Color | Hex | Usage |
-|-------|-----|-------|
-| **White** | `#FFFFFF` | Text on dark backgrounds, card backgrounds (light) |
-| **Rich Black** | `#0a0a0a` | Dark mode backgrounds |
+| Color | Hex | CSS Variable | Usage |
+|-------|-----|--------------|-------|
+| **Cream** | `#F5F0E1` | `--leet-cream` | **BRAND WHITE** - Use instead of pure white everywhere |
+| **Rich Black** | `#0a0a0a` | `--leet-black` | Dark mode backgrounds |
+
+### ⚠️ IMPORTANT: Cream Instead of White
+**NEVER use pure white (`#FFFFFF`) in this brand.** Always use **Cream (`#F5F0E1`)** for:
+- Text on dark backgrounds
+- Card backgrounds in light mode
+- Icons on dark backgrounds
+- Any element that would normally be white
+
+```css
+/* ❌ WRONG */
+color: white;
+color: #FFFFFF;
+background: white;
+
+/* ✅ CORRECT */
+color: rgb(var(--leet-cream));
+color: #F5F0E1;
+background: rgb(var(--leet-cream));
+
+/* Tailwind classes */
+className="text-leet-cream bg-leet-cream"
+```
+
+To revert to pure white in the future, change ONE line in `globals.css`:
+```css
+--leet-cream: 255, 255, 255; /* Change from 245, 240, 225 */
+```
 
 ---
 
@@ -23,8 +50,8 @@
 
 ### 1. Navy Background (`#34445C`)
 ```
-✅ DO: Use WHITE text (#FFFFFF)
-✅ DO: Use rgba(255,255,255,0.7) for muted/secondary text
+✅ DO: Use CREAM text (#F5F0E1)
+✅ DO: Use rgba(245,240,225,0.7) for muted/secondary text
 ❌ DON'T: Use black or dark text - UNREADABLE!
 ```
 
@@ -32,12 +59,12 @@
 ```
 ✅ DO: Use NAVY text (#34445C) - excellent contrast
 ✅ DO: Use dark icons
-❌ DON'T: Use white text - POOR CONTRAST!
+❌ DON'T: Use cream/white text - POOR CONTRAST!
 ```
 
 ### 3. Orange/Gold Gradient (`#FF4654 → #FFC700`)
 ```
-✅ DO: Use WHITE text (#FFFFFF)
+✅ DO: Use CREAM text (#F5F0E1)
 ✅ DO: Use for primary CTAs and highlights
 ```
 

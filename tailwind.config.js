@@ -12,7 +12,19 @@ module.exports = {
     extend: {
       backgroundImage: {
         'blur-glow-pry-gh' : "url('./blur-glow-pry-gh.svg')",
-      }
+      },
+      colors: {
+        // LeetGaming Brand Colors - Single source of truth
+        'leet': {
+          'navy': '#34445C',
+          'navy-dark': '#1e2a38',
+          'lime': '#DCFF37',
+          'orange': '#FF4654',
+          'gold': '#FFC700',
+          'cream': '#F5F0E1', // Brand white - use instead of pure white
+          'black': '#0a0a0a',
+        },
+      },
     },
   },
   darkMode: "class",
@@ -21,43 +33,25 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            // background: "#FFFFFF", // or DEFAULT
-            // foreground: "#11181C", // or 50 to 900 DEFAULT
+            background: "#F5F0E1", // Cream background
+            foreground: "#34445C", // Navy text
             secondary: "#FF4654",
-            // primary: "#34445C",
-
-            // primary: "#34445C",
-            // foreground: "#34445C",
-
             primary: {
-              // ... 50 to 900
-              foreground: "#F2F2F2",
+              foreground: "#F5F0E1", // Cream text on primary
               DEFAULT: "#34445C",
             },
-            
-            // foreground: "rgb(33, 62, 105)",
-            // primary: {
-              //... 50 to 900
-              // foreground: "#34445C",
-              // DEFAULT: "#006FEE",
-            // },
-            // ... rest of the colors
           },
         },
         dark: {
           colors: {
-            // background: "#000000", // or DEFAULT
-            // foreground: "#ECEDEE", // or 50 to 900 DEFAULT
-            // secondary: "#FFC700",
+            background: "#0a0a0a", // Rich black
+            foreground: "#F5F0E1", // Cream text
             secondary: "#DCFF37",
-            // primary: "#DCFF37",
             primary: {
-              // ... 50 to 900
-              foreground: "#333",
+              foreground: "#34445C", // Navy text on lime
               DEFAULT: "#DCFF37",
             },
           },
-          // ... rest of the colors
         },
       },
     }),

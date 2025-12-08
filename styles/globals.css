@@ -4,65 +4,68 @@
 
 @layer base {
   /* Import Inter font */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
   /* Root typography settings */
   :root {
     /* LeetGaming Brand Colors */
-    --leet-navy: 52, 68, 92;           /* #34445C - Primary navy */
-    --leet-navy-dark: 30, 42, 56;      /* #1e2a38 - Darker navy */
-    --leet-lime: 220, 255, 55;         /* #DCFF37 - Signature lime */
-    --leet-orange: 255, 70, 84;        /* #FF4654 - Battle orange/red */
-    --leet-gold: 255, 199, 0;          /* #FFC700 - Gold accent */
-    --leet-white: 255, 255, 255;       /* #FFFFFF */
-    --leet-black: 10, 10, 10;          /* #0a0a0a - Rich black */
+    --leet-navy: 52, 68, 92; /* #34445C - Primary navy */
+    --leet-navy-dark: 30, 42, 56; /* #1e2a38 - Darker navy */
+    --leet-lime: 220, 255, 55; /* #DCFF37 - Signature lime */
+    --leet-orange: 255, 70, 84; /* #FF4654 - Battle orange/red */
+    --leet-gold: 255, 199, 0; /* #FFC700 - Gold accent */
+    --leet-cream: 245, 240, 225; /* #F5F0E1 - Warm cream (replaces pure white) */
+    --leet-black: 10, 10, 10; /* #0a0a0a - Rich black */
     
+    /* IMPORTANT: Use --leet-cream instead of white for brand consistency */
+    /* To revert to white, change: --leet-cream: 255, 255, 255; */
+
     /* Typography */
-    --font-display: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-display: "Inter", system-ui, -apple-system, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
     /* Font sizes */
-    --text-xs: 0.75rem;      /* 12px */
-    --text-sm: 0.875rem;     /* 14px */
-    --text-base: 1rem;       /* 16px */
-    --text-lg: 1.125rem;     /* 18px */
-    --text-xl: 1.25rem;      /* 20px */
-    --text-2xl: 1.5rem;      /* 24px */
-    --text-3xl: 1.875rem;    /* 30px */
-    --text-4xl: 2.25rem;     /* 36px */
-    --text-5xl: 3rem;        /* 48px */
-    --text-6xl: 3.75rem;     /* 60px */
-    --text-7xl: 4.5rem;      /* 72px */
+    --text-xs: 0.75rem; /* 12px */
+    --text-sm: 0.875rem; /* 14px */
+    --text-base: 1rem; /* 16px */
+    --text-lg: 1.125rem; /* 18px */
+    --text-xl: 1.25rem; /* 20px */
+    --text-2xl: 1.5rem; /* 24px */
+    --text-3xl: 1.875rem; /* 30px */
+    --text-4xl: 2.25rem; /* 36px */
+    --text-5xl: 3rem; /* 48px */
+    --text-6xl: 3.75rem; /* 60px */
+    --text-7xl: 4.5rem; /* 72px */
 
     /* Spacing scale */
     --spacing-px: 1px;
     --spacing-0: 0;
-    --spacing-0-5: 0.125rem;  /* 2px */
-    --spacing-1: 0.25rem;     /* 4px */
-    --spacing-1-5: 0.375rem;  /* 6px */
-    --spacing-2: 0.5rem;      /* 8px */
-    --spacing-2-5: 0.625rem;  /* 10px */
-    --spacing-3: 0.75rem;     /* 12px */
-    --spacing-3-5: 0.875rem;  /* 14px */
-    --spacing-4: 1rem;        /* 16px */
-    --spacing-5: 1.25rem;     /* 20px */
-    --spacing-6: 1.5rem;      /* 24px */
-    --spacing-8: 2rem;        /* 32px */
-    --spacing-10: 2.5rem;     /* 40px */
-    --spacing-12: 3rem;       /* 48px */
-    --spacing-16: 4rem;       /* 64px */
-    --spacing-20: 5rem;       /* 80px */
-    --spacing-24: 6rem;       /* 96px */
+    --spacing-0-5: 0.125rem; /* 2px */
+    --spacing-1: 0.25rem; /* 4px */
+    --spacing-1-5: 0.375rem; /* 6px */
+    --spacing-2: 0.5rem; /* 8px */
+    --spacing-2-5: 0.625rem; /* 10px */
+    --spacing-3: 0.75rem; /* 12px */
+    --spacing-3-5: 0.875rem; /* 14px */
+    --spacing-4: 1rem; /* 16px */
+    --spacing-5: 1.25rem; /* 20px */
+    --spacing-6: 1.5rem; /* 24px */
+    --spacing-8: 2rem; /* 32px */
+    --spacing-10: 2.5rem; /* 40px */
+    --spacing-12: 3rem; /* 48px */
+    --spacing-16: 4rem; /* 64px */
+    --spacing-20: 5rem; /* 80px */
+    --spacing-24: 6rem; /* 96px */
 
     /* Border radius */
-    --radius-sm: 0.125rem;    /* 2px */
-    --radius-base: 0.25rem;   /* 4px */
-    --radius-md: 0.375rem;    /* 6px */
-    --radius-lg: 0.5rem;      /* 8px */
-    --radius-xl: 0.75rem;     /* 12px */
-    --radius-2xl: 1rem;       /* 16px */
-    --radius-3xl: 1.5rem;     /* 24px */
+    --radius-sm: 0.125rem; /* 2px */
+    --radius-base: 0.25rem; /* 4px */
+    --radius-md: 0.375rem; /* 6px */
+    --radius-lg: 0.5rem; /* 8px */
+    --radius-xl: 0.75rem; /* 12px */
+    --radius-2xl: 1rem; /* 16px */
+    --radius-3xl: 1.5rem; /* 24px */
     --radius-full: 9999px;
 
     /* Transitions */
@@ -88,22 +91,42 @@
   }
 
   /* Headings */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
-  h1 { font-size: var(--text-5xl); }
-  h2 { font-size: var(--text-4xl); }
-  h3 { font-size: var(--text-3xl); }
-  h4 { font-size: var(--text-2xl); }
-  h5 { font-size: var(--text-xl); }
-  h6 { font-size: var(--text-lg); }
+  h1 {
+    font-size: var(--text-5xl);
+  }
+  h2 {
+    font-size: var(--text-4xl);
+  }
+  h3 {
+    font-size: var(--text-3xl);
+  }
+  h4 {
+    font-size: var(--text-2xl);
+  }
+  h5 {
+    font-size: var(--text-xl);
+  }
+  h6 {
+    font-size: var(--text-lg);
+  }
 
   /* Code elements */
-  code, pre, kbd, samp {
+  code,
+  pre,
+  kbd,
+  samp {
     font-family: var(--font-mono);
   }
 
@@ -126,88 +149,118 @@
    🎨 BRAND COLOR RULES (NEVER BREAK THESE):
    
    1. NAVY BACKGROUND (#34445C):
-      ✅ Use WHITE text for primary content
-      ✅ Use rgba(255,255,255,0.7) for muted text
+      ✅ Use CREAM (#F5F0E1) text for primary content
+      ✅ Use rgba(245,240,225,0.7) for muted text
       ❌ NEVER use black or dark text
    
    2. LIME BACKGROUND (#DCFF37):
       ✅ Use NAVY (#34445C) text - high contrast
       ✅ Use dark colors for icons
-      ❌ NEVER use white text - poor contrast!
+      ❌ NEVER use white/cream text - poor contrast!
    
    3. ORANGE/GOLD GRADIENT (#FF4654 → #FFC700):
-      ✅ Use WHITE text
+      ✅ Use CREAM (#F5F0E1) text
       ✅ Used for CTAs, highlights, accents
    
-   4. ICON CONTAINERS:
-      - Light mode: Orange→Gold gradient, white icons
-      - Dark mode: Lime→Navy gradient, NAVY icons (not white!)
+   4. CREAM (#F5F0E1) - Our brand white:
+      ✅ Use instead of pure white (#FFFFFF)
+      ✅ Warmer, more premium feel
+      ✅ Single source: var(--leet-cream)
+   
+   5. ICON CONTAINERS:
+      - Light mode: Orange→Gold gradient, cream icons
+      - Dark mode: Lime→Navy gradient, NAVY icons (not cream!)
       - Use edgy clip-path, NOT rounded-full
    
-   5. CARDS & BORDERS:
+   6. CARDS & BORDERS:
       - Use rounded-none (edgy corners)
       - Border: orange/20 (light), lime/20 (dark)
    
    ============================================= */
 
 @layer components {
-  /* ========== BACKGROUND CONTAINERS ========== */
+  /* ========== CREAM COLOR UTILITY ========== */
+  /* Use these instead of white for brand consistency */
   
-  /* Navy Background - ALWAYS white text */
-  .leet-navy-bg {
-    background-color: rgb(var(--leet-navy));
-    color: white;
+  .text-cream {
+    color: rgb(var(--leet-cream)) !important;
   }
   
+  .bg-cream {
+    background-color: rgb(var(--leet-cream)) !important;
+  }
+  
+  .border-cream {
+    border-color: rgb(var(--leet-cream)) !important;
+  }
+  
+  /* ========== BACKGROUND CONTAINERS ========== */
+
+  /* Navy Background - ALWAYS cream text */
+  .leet-navy-bg {
+    background-color: rgb(var(--leet-navy));
+    color: rgb(var(--leet-cream));
+  }
+
   .leet-navy-bg * {
     color: inherit;
   }
-  
+
   .leet-navy-bg .text-muted,
   .leet-navy-bg .text-default-500,
   .leet-navy-bg .text-default-400 {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(var(--leet-cream), 0.7) !important;
   }
-  
+
   /* Dark Navy Background */
   .leet-navy-dark-bg {
     background-color: rgb(var(--leet-navy-dark));
-    color: white;
+    color: rgb(var(--leet-cream));
   }
-  
+
   /* Lime Background - ALWAYS navy/dark text */
   .leet-lime-bg {
     background-color: rgb(var(--leet-lime));
     color: rgb(var(--leet-navy)) !important;
   }
-  
+
   .leet-lime-bg * {
     color: rgb(var(--leet-navy));
   }
-  
+
   .leet-lime-bg .text-muted {
     color: rgba(var(--leet-navy), 0.7) !important;
   }
   
+  /* Cream Background - for cards in light mode */
+  .leet-cream-bg {
+    background-color: rgb(var(--leet-cream));
+    color: rgb(var(--leet-navy));
+  }
+
   /* Orange Gradient Background - white text */
   .leet-orange-gradient-bg {
-    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange)),
+      rgb(var(--leet-gold))
+    );
     color: white;
   }
-  
+
   /* ========== BRANDED CARDS ========== */
-  
+
   .leet-card {
     background: white;
     border: 1px solid rgba(var(--leet-orange), 0.2);
     border-radius: 0;
   }
-  
+
   .dark .leet-card {
     background: rgb(var(--leet-black));
     border-color: rgba(var(--leet-lime), 0.2);
   }
-  
+
   /* Card on Navy Background */
   .leet-card-on-navy {
     background: rgba(255, 255, 255, 0.95);
@@ -215,78 +268,92 @@
     border: 1px solid rgba(var(--leet-orange), 0.3);
     border-radius: 0;
   }
-  
+
   .dark .leet-card-on-navy {
     background: rgba(var(--leet-black), 0.8);
     color: white;
     border-color: rgba(var(--leet-lime), 0.3);
   }
-  
+
   /* ========== TEXT UTILITIES ========== */
-  
+
   .text-on-navy {
     color: white !important;
   }
-  
+
   .text-on-navy-muted {
     color: rgba(255, 255, 255, 0.7) !important;
   }
-  
+
   .text-on-lime {
     color: rgb(var(--leet-navy)) !important;
   }
-  
+
   .text-on-lime-muted {
     color: rgba(var(--leet-navy), 0.7) !important;
   }
-  
+
   /* Accent colors (adapts to theme) */
   .leet-text-accent {
     color: rgb(var(--leet-orange));
   }
-  
+
   .dark .leet-text-accent {
     color: rgb(var(--leet-lime));
   }
-  
+
   /* ========== ICON CONTAINERS (Standardized) ========== */
-  
+
   /* Standard Icon Box - Edgy corners with branded gradient */
   .leet-icon-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange)),
+      rgb(var(--leet-gold))
+    );
     color: white;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%
+    );
   }
-  
+
   .dark .leet-icon-box {
-    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-lime)),
+      rgb(var(--leet-navy))
+    );
     color: rgb(var(--leet-navy)); /* Navy text on lime - NOT white! */
   }
-  
+
   /* Icon Box Sizes */
   .leet-icon-box-sm {
     width: 2rem;
     height: 2rem;
   }
-  
+
   .leet-icon-box-md {
     width: 3rem;
     height: 3rem;
   }
-  
+
   .leet-icon-box-lg {
     width: 4rem;
     height: 4rem;
   }
-  
+
   .leet-icon-box-xl {
     width: 5rem;
     height: 5rem;
   }
-  
+
   /* Hero Icon Box (centered, for empty states) */
   .leet-hero-icon {
     width: 5rem;
@@ -295,157 +362,207 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange)),
+      rgb(var(--leet-gold))
+    );
     color: white;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 16px),
+      calc(100% - 16px) 100%,
+      0 100%
+    );
   }
-  
+
   .dark .leet-hero-icon {
-    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-lime)),
+      rgb(var(--leet-navy))
+    );
     color: rgb(var(--leet-navy));
   }
-  
+
   /* ========== PAGE HEADER ========== */
-  
+
   .leet-page-header {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-  
+
   .leet-page-header-icon {
     width: 3rem;
     height: 3rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange)),
+      rgb(var(--leet-gold))
+    );
     color: white;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%
+    );
   }
-  
+
   .dark .leet-page-header-icon {
-    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-lime)),
+      rgb(var(--leet-navy))
+    );
     color: rgb(var(--leet-navy));
   }
-  
+
   .leet-page-header h1 {
     color: rgb(var(--leet-navy));
     font-weight: 700;
   }
-  
+
   .dark .leet-page-header h1 {
     color: white;
   }
-  
+
   /* ========== STATS CARD ========== */
-  
+
   .leet-stats-card {
-    background: linear-gradient(135deg, rgba(var(--leet-navy), 0.05), transparent);
+    background: linear-gradient(
+      135deg,
+      rgba(var(--leet-navy), 0.05),
+      transparent
+    );
     border: 1px solid rgba(var(--leet-orange), 0.2);
     border-radius: 0;
     padding: 1rem;
   }
-  
+
   .dark .leet-stats-card {
-    background: linear-gradient(135deg, rgba(var(--leet-lime), 0.05), transparent);
+    background: linear-gradient(
+      135deg,
+      rgba(var(--leet-lime), 0.05),
+      transparent
+    );
     border-color: rgba(var(--leet-lime), 0.2);
   }
-  
+
   /* ========== TABS ========== */
-  
+
   .leet-tabs [data-slot="tabList"] {
     background: rgba(255, 255, 255, 0.9);
     padding: 0.25rem;
     border-radius: 0;
     gap: 0.25rem;
   }
-  
+
   .dark .leet-tabs [data-slot="tabList"] {
     background: rgb(26, 26, 26);
   }
-  
+
   .leet-tabs [data-slot="tab"] {
     border-radius: 0;
     font-weight: 500;
   }
-  
+
   .leet-tabs [data-slot="tab"][data-selected="true"] {
     background: rgb(var(--leet-navy));
     color: white;
   }
-  
+
   .dark .leet-tabs [data-slot="tab"][data-selected="true"] {
     background: rgb(var(--leet-lime));
     color: rgb(var(--leet-navy)); /* Navy on lime! */
   }
-  
+
   /* ========== TABLES ========== */
-  
+
   .leet-table [data-slot="th"] {
     background: rgba(var(--leet-navy), 0.05);
     color: rgb(var(--leet-navy));
     border-radius: 0;
   }
-  
+
   .dark .leet-table [data-slot="th"] {
     background: rgba(var(--leet-lime), 0.05);
     color: rgb(var(--leet-lime));
   }
-  
+
   .leet-table [data-slot="tr"]:hover {
     background: rgba(var(--leet-orange), 0.05);
   }
-  
+
   .dark .leet-table [data-slot="tr"]:hover {
     background: rgba(var(--leet-lime), 0.05);
   }
-  
+
   /* ========== INPUTS ========== */
-  
+
   .leet-input [data-slot="inputWrapper"] {
     border-radius: 0;
     border-color: rgba(var(--leet-navy), 0.3);
   }
-  
+
   .dark .leet-input [data-slot="inputWrapper"] {
     border-color: rgba(var(--leet-lime), 0.3);
   }
-  
+
   /* ========== CHIPS ========== */
-  
+
   .leet-chip-accent {
     background: rgba(var(--leet-orange), 0.1);
     color: rgb(var(--leet-orange));
   }
-  
+
   .dark .leet-chip-accent {
     background: rgba(var(--leet-lime), 0.1);
     color: rgb(var(--leet-lime));
   }
-  
+
   /* ========== BUTTONS ========== */
-  
+
   /* Primary Button - Orange gradient */
   .leet-btn-primary {
-    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange)),
+      rgb(var(--leet-gold))
+    );
     color: white !important;
     border-radius: 0;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 8px),
+      calc(100% - 8px) 100%,
+      0 100%
+    );
   }
-  
+
   .dark .leet-btn-primary {
-    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-lime)),
+      rgb(var(--leet-navy))
+    );
     color: rgb(var(--leet-navy)) !important;
   }
-  
+
   /* Secondary Button - Navy */
   .leet-btn-secondary {
     background: rgb(var(--leet-navy));
     color: white !important;
     border-radius: 0;
   }
-  
+
   .dark .leet-btn-secondary {
     background: rgb(var(--leet-lime));
     color: rgb(var(--leet-navy)) !important;
@@ -456,19 +573,18 @@
     font-size: 15px;
   } */
 
-
 /* ******* CORECORECORE ******** */
 .battle-button {
   border: 1px solid transparent;
   color: "#F2F2F2" !important;
-  box-shadow: 1px 1px 1px #34445C;
+  box-shadow: 1px 1px 1px #34445c;
   font-weight: bold;
   background-color: rgba(52, 68, 92, 1);
 }
 
 .dark .battle-button {
-  background-color: #DCFF37;
-  box-shadow: 1px 1px 1px #DCFF37;
+  background-color: #dcff37;
+  box-shadow: 1px 1px 1px #dcff37;
   color: rgba(52, 68, 92, 1) !important;
 }
 
@@ -513,14 +629,13 @@
 }
 
 .hero-subtitle {
-  background: linear-gradient(to right,
-      transparent,
-      /* Start transparent */
-      rgba(52, 68, 92, 1) 50%,
-      /* 50% is black (adjust opacity if needed) */
-      transparent
+  background: linear-gradient(
+    to right,
+    transparent,
+    /* Start transparent */ rgba(52, 68, 92, 1) 50%,
+    /* 50% is black (adjust opacity if needed) */ transparent
       /* End transparent */
-    );
+  );
   padding: 20px;
   /* Optional padding for better content spacing */
 
@@ -529,13 +644,13 @@
 
 .hero-subtitle::before,
 .hero-subtitle::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 100%;
   height: 1px; /* Thin border */
   background: inherit; /* Inherit the gradient from the parent */
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .hero-subtitle::before {
@@ -555,27 +670,20 @@
   font-size: 4rem;
   /* Adjust the font size as needed */
   margin-bottom: 1rem;
-  text-shadow:
-    0 0 1px #f5f0e1,
-    /* Smaller, brighter inner glow */
-    0 0 8px #f5f0e1,
-    /* Medium glow */
-    0 0 1px #34445C;
+  text-shadow: 0 0 1px #f5f0e1,
+    /* Smaller, brighter inner glow */ 0 0 8px #f5f0e1,
+    /* Medium glow */ 0 0 1px #34445c;
   /* Larger, softer outer glow */
 }
 
 .hero-title b {
   color: #f5f0e1;
   /* Cream color for the text */
-  text-shadow:
-    0 0 5px #F2F2F2,
-    /* Smaller, brighter inner glow */
-    0 0 10px #F2F2F2,
-    /* Medium glow */
-    0 0 20px #34445C;
+  text-shadow: 0 0 5px #f2f2f2,
+    /* Smaller, brighter inner glow */ 0 0 10px #f2f2f2,
+    /* Medium glow */ 0 0 20px #34445c;
   /* Larger, softer outer glow */
 }
-
 
 /* ******* MINI-PROFILE  ******** */
 /* ******* MINI-PROFILE  ******** */
@@ -584,30 +692,28 @@
 /* ******* MINI-PROFILE  ******** */
 /* ******* MINI-PROFILE  ******** */
 .viewProfileHighlightsButton {
-  background-color: #34445C;
-  color: #f5f0e1; 
+  background-color: #34445c;
+  color: #f5f0e1;
 }
 
 .viewProfileHighlightsButtonDark {
-  background-color: #DCFF37;
-  color: #34445C; 
+  background-color: #dcff37;
+  color: #34445c;
 }
 
 .watchProfileButton {
-  background-color: #34445C;
-  color: #f5f0e1; 
+  background-color: #34445c;
+  color: #f5f0e1;
 }
 
-
 .profileBackdropContent {
-  background: linear-gradient(to right,
-      transparent,
-      /* Start transparent for DCFF37*/
-      #f2f2f2 80%,
-      /* 50% is black (adjust opacity if needed) */
-      transparent
+  background: linear-gradient(
+    to right,
+    transparent,
+    /* Start transparent for DCFF37*/ #f2f2f2 80%,
+    /* 50% is black (adjust opacity if needed) */ transparent
       /* End transparent */
-    );
+  );
   padding: 20px;
   /* Optional padding for better content spacing */
 
@@ -616,13 +722,13 @@
 
 .profileBackdropContent::before,
 .profileBackdropContent::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 100%;
   height: 1px; /* Thin border */
   background: inherit; /* Inherit the gradient from the parent */
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .profileBackdropContent::before {
@@ -634,14 +740,13 @@
 }
 
 .profileBackdropContentDark {
-  background: linear-gradient(to right,
-      transparent,
-      /* Start transparent for #DCFF37 */
-      rgba(52, 68, 92, 1) 50%,
-      /* 50% is black (adjust opacity if needed) */
-      transparent
+  background: linear-gradient(
+    to right,
+    transparent,
+    /* Start transparent for #DCFF37 */ rgba(52, 68, 92, 1) 50%,
+    /* 50% is black (adjust opacity if needed) */ transparent
       /* End transparent */
-    );
+  );
   padding: 20px;
   /* Optional padding for better content spacing */
 
@@ -650,13 +755,13 @@
 
 .profileBackdropContentDark::before,
 .profileBackdropContentDark::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 100%;
   height: 1px; /* Thin border */
   background: inherit; /* Inherit the gradient from the parent */
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .profileBackdropContentDark::before {
@@ -669,15 +774,15 @@
 
 .glue-div {
   position: absolute;
-  top: 50%;          /* Position at the vertical midpoint of the container */
+  top: 50%; /* Position at the vertical midpoint of the container */
   left: 0;
-  right: 0;          /* Stretch to fill container width */
+  right: 0; /* Stretch to fill container width */
   transform: translateY(-50%); /* Align top edge with container's midpoint */
-  z-index: 10;        /* Ensure it's on top of div1 and div2 */
+  z-index: 10; /* Ensure it's on top of div1 and div2 */
   /* Add other styles for background, borders, etc. */
 }
 
-.round-log tr{
+.round-log tr {
   min-width: 50px;
   border-left: 7px dashed rgb(33, 62, 105);
   text-align: center;
@@ -686,19 +791,17 @@
 
 .dark .round-log tr {
   min-width: 50px;
-  border-left: 7px dashed #DCFF37;
+  border-left: 7px dashed #dcff37;
   text-align: center;
   line-height: 50px;
 }
 
-
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
 /* ******* PROFILE -- HEADER SUMMARY  ******** */
-
 
 /* Container */
 .match-header-container {
@@ -721,10 +824,7 @@
   margin-bottom: 2px;
   color: #f5f5f5;
   text-shadow: 0 0 1px #333, 0 0 10px #333;
-  background: linear-gradient(to right,
-    rgba(52, 68, 92, 0.5) 1%,
-      transparent
-    );
+  background: linear-gradient(to right, rgba(52, 68, 92, 0.5) 1%, transparent);
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
 }
@@ -738,14 +838,10 @@
   margin-bottom: 2px;
   color: #f5f5f5;
   text-shadow: 0 0 1px #333, 0 0 10px #333;
-  background: linear-gradient(to right,
-      rgba(52, 68, 92, 0.5) 1%,
-      transparent
-    );
+  background: linear-gradient(to right, rgba(52, 68, 92, 0.5) 1%, transparent);
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
 }
-
 
 /* Scoreboard Table */
 .scoreboard-table {
@@ -756,7 +852,6 @@
   border-radius: 0px;
   border: 0px solid #000;
 }
-
 
 .dark .scoreboard-table {
   width: 100%;
@@ -788,7 +883,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-direction: row;  /* Arrange logo and name horizontally */
+  flex-direction: row; /* Arrange logo and name horizontally */
   justify-content: flex-start; /* Align to the left */
 }
 
@@ -799,13 +894,13 @@
 }
 
 .team-name {
-  color: #F5F5F5;
+  color: #f5f5f5;
   font-weight: 500;
 }
 
 /* Score Cell */
 .score-cell {
-  color: #F5F5F5;
+  color: #f5f5f5;
   font-size: 20px;
   font-weight: bold;
 }
@@ -820,7 +915,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 0px;
-  background: linear-gradient(to top, rgba(100, 100, 100, 0.5), rgba(0, 0, 0, 0.5), rgba(70, 70, 70, 0.5));
+  background: linear-gradient(
+    to top,
+    rgba(100, 100, 100, 0.5),
+    rgba(0, 0, 0, 0.5),
+    rgba(70, 70, 70, 0.5)
+  );
   backdrop-filter: blur(1px);
   border-radius: 0px;
 }
@@ -829,9 +929,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 0px;
-  background: linear-gradient(to top, rgba(40, 40, 40, 0.5), rgba(0, 0, 0, 0.5), rgba(52, 68, 92, 0.5));
+  background: linear-gradient(
+    to top,
+    rgba(40, 40, 40, 0.5),
+    rgba(0, 0, 0, 0.5),
+    rgba(52, 68, 92, 0.5)
+  );
   backdrop-filter: blur(1px);
-  border-radius: 0px; 
+  border-radius: 0px;
 }
 
 /*
@@ -839,7 +944,6 @@
   background-color: #F5F5F5;
   font-weight: 500;
 } */
-
 
 /* ******* ESPORTS BUTTONS - ANGULAR GAMING AESTHETIC ******** */
 /* Official Colors: Navy #34445C, Lime #DCFF37, Red #FF4654 */
@@ -862,15 +966,19 @@
 }
 
 .esports-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%
+  );
   pointer-events: none;
 }
 
 .esports-btn::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   right: 0;
@@ -883,85 +991,81 @@
 
 /* Primary variant - Navy/Lime */
 .esports-btn-primary {
-  background: linear-gradient(135deg, #34445C 0%, #2a3749 50%, #34445C 100%);
+  background: linear-gradient(135deg, #34445c 0%, #2a3749 50%, #34445c 100%);
   color: #f5f0e1;
-  box-shadow:
-    0 4px 15px rgba(52, 68, 92, 0.4),
+  box-shadow: 0 4px 15px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .esports-btn-primary:hover {
-  background: linear-gradient(135deg, #3d5068 0%, #34445C 50%, #3d5068 100%);
-  box-shadow:
-    0 6px 20px rgba(52, 68, 92, 0.5),
+  background: linear-gradient(135deg, #3d5068 0%, #34445c 50%, #3d5068 100%);
+  box-shadow: 0 6px 20px rgba(52, 68, 92, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
 }
 
 .esports-btn-primary:active {
   transform: translateY(0);
-  box-shadow:
-    0 2px 10px rgba(52, 68, 92, 0.4),
+  box-shadow: 0 2px 10px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .dark .esports-btn-primary {
-  background: linear-gradient(135deg, #DCFF37 0%, #c4e530 50%, #DCFF37 100%);
+  background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #dcff37 100%);
   color: #1a1a1a;
-  box-shadow:
-    0 4px 20px rgba(220, 255, 55, 0.3),
+  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .dark .esports-btn-primary:hover {
-  background: linear-gradient(135deg, #e5ff5a 0%, #DCFF37 50%, #e5ff5a 100%);
-  box-shadow:
-    0 6px 25px rgba(220, 255, 55, 0.4),
+  background: linear-gradient(135deg, #e5ff5a 0%, #dcff37 50%, #e5ff5a 100%);
+  box-shadow: 0 6px 25px rgba(220, 255, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 /* Action variant - Lime accent */
 .esports-btn-action {
-  background: linear-gradient(135deg, #DCFF37 0%, #c4e530 50%, #DCFF37 100%);
+  background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #dcff37 100%);
   color: #1a1a1a;
-  box-shadow:
-    0 4px 20px rgba(220, 255, 55, 0.3),
+  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .esports-btn-action:hover {
-  background: linear-gradient(135deg, #e5ff5a 0%, #DCFF37 50%, #e5ff5a 100%);
-  box-shadow:
-    0 6px 25px rgba(220, 255, 55, 0.4),
+  background: linear-gradient(135deg, #e5ff5a 0%, #dcff37 50%, #e5ff5a 100%);
+  box-shadow: 0 6px 25px rgba(220, 255, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);
 }
 
 .dark .esports-btn-action {
-  background: linear-gradient(135deg, #34445C 0%, #2a3749 50%, #34445C 100%);
-  color: #DCFF37;
-  box-shadow:
-    0 4px 15px rgba(52, 68, 92, 0.4),
+  background: linear-gradient(135deg, #34445c 0%, #2a3749 50%, #34445c 100%);
+  color: #dcff37;
+  box-shadow: 0 4px 15px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(220, 255, 55, 0.1);
 }
 
 /* Ghost variant - uses CSS mask to create complete angular border including diagonal */
 .esports-btn-ghost {
   background: transparent;
-  color: #34445C;
+  color: #34445c;
   box-shadow: none;
 }
 
 /* Complete angular border using mask technique */
 .esports-btn-ghost::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: #34445C;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut-size)), calc(100% - var(--cut-size)) 100%, 0 100%);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
+  background: #34445c;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   padding: 2px;
@@ -977,11 +1081,11 @@
 }
 
 .dark .esports-btn-ghost {
-  color: #DCFF37;
+  color: #dcff37;
 }
 
 .dark .esports-btn-ghost::before {
-  background: #DCFF37;
+  background: #dcff37;
 }
 
 .dark .esports-btn-ghost:hover {
@@ -994,17 +1098,15 @@
 
 /* Danger variant */
 .esports-btn-danger {
-  background: linear-gradient(135deg, #FF4654 0%, #e03d4a 50%, #FF4654 100%);
+  background: linear-gradient(135deg, #ff4654 0%, #e03d4a 50%, #ff4654 100%);
   color: #ffffff;
-  box-shadow:
-    0 4px 20px rgba(255, 70, 84, 0.3),
+  box-shadow: 0 4px 20px rgba(255, 70, 84, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .esports-btn-danger:hover {
-  background: linear-gradient(135deg, #ff5c68 0%, #FF4654 50%, #ff5c68 100%);
-  box-shadow:
-    0 6px 25px rgba(255, 70, 84, 0.4),
+  background: linear-gradient(135deg, #ff5c68 0%, #ff4654 50%, #ff5c68 100%);
+  box-shadow: 0 6px 25px rgba(255, 70, 84, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
@@ -1012,21 +1114,17 @@
 /* Matchmaking variant - special gradient */
 .esports-btn-matchmaking {
   --cut-size: 16px;
-  background: linear-gradient(135deg, #DCFF37 0%, #34445C 100%);
+  background: linear-gradient(135deg, #dcff37 0%, #34445c 100%);
   color: #ffffff;
-  box-shadow:
-    0 4px 25px rgba(220, 255, 55, 0.3),
-    0 4px 25px rgba(52, 68, 92, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 25px rgba(220, 255, 55, 0.3),
+    0 4px 25px rgba(52, 68, 92, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .esports-btn-matchmaking:hover {
   background: linear-gradient(135deg, #e5ff5a 0%, #3d5068 100%);
-  box-shadow:
-    0 6px 30px rgba(220, 255, 55, 0.4),
-    0 6px 30px rgba(52, 68, 92, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 30px rgba(220, 255, 55, 0.4),
+    0 6px 30px rgba(52, 68, 92, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
@@ -1078,12 +1176,12 @@
 }
 
 .esports-input:focus {
-  border-color: #34445C;
+  border-color: #34445c;
   box-shadow: 0 0 0 2px rgba(52, 68, 92, 0.2);
 }
 
 .dark .esports-input:focus {
-  border-color: #DCFF37;
+  border-color: #dcff37;
   box-shadow: 0 0 0 2px rgba(220, 255, 55, 0.2);
 }
 
@@ -1111,4 +1209,3 @@
   );
   border-radius: 0 !important;
 }
-
