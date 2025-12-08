@@ -18,15 +18,15 @@ export default function Component() {
       <main className="container mx-auto mt-[24px] flex w-full flex-col items-start px-8">
         <section className="z-10 flex flex-col items-start justify-center gap-[18px] sm:gap-6">
           <Button
-            className="h-9 overflow-hidden border-1 border-default-100 bg-default-50 px-[18px] py-2 text-small font-normal leading-5 text-default-500"
+            className="h-9 overflow-hidden border-1 border-[#FF4654]/30 dark:border-[#DCFF37]/30 bg-[#FF4654]/5 dark:bg-[#DCFF37]/5 px-[18px] py-2 text-small font-normal leading-5 text-[#FF4654] dark:text-[#DCFF37] rounded-none"
             endContent={
               <Icon
-                className="flex-none outline-none [&>path]:stroke-[2]"
+                className="flex-none outline-none [&>path]:stroke-[2] text-[#FF4654] dark:text-[#DCFF37]"
                 icon="solar:arrow-right-linear"
                 width={20}
               />
             }
-            radius="full"
+            radius="none"
             variant="bordered"
             onPress={() => router.push('/onboarding')}
           >
@@ -107,20 +107,25 @@ export default function Component() {
                   }}
                 >
                   <Button
-                    className="h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow"
-                    style={{backgroundColor: theme === 'dark' ? "#DCFF37" : "#34445C", color: theme === 'dark' ? "#333" : "#F2F2F2"}}
-                    radius="lg"
+                    className="h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow rounded-none"
+                    style={{
+                      backgroundColor: theme === 'dark' ? "#DCFF37" : "#34445C", 
+                      color: theme === 'dark' ? "#34445C" : "#F5F0E1",
+                      clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)'
+                    }}
+                    radius="none"
                     size="lg"
                     onPress={() => router.push('/onboarding')}
                   >
                     Get Started
                   </Button>
                   <Button
-                    className="h-12 px-8 text-base font-medium border-2"
+                    className="h-12 px-8 text-base font-medium border-2 border-[#FF4654]/50 dark:border-[#DCFF37]/50 rounded-none"
                     endContent={
-                      <span className="pointer-events-none flex h-[22px] w-[22px] items-center justify-center rounded-full bg-default-100">
+                      <span className="pointer-events-none flex h-[22px] w-[22px] items-center justify-center bg-[#FF4654]/10 dark:bg-[#DCFF37]/10"
+                        style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)' }}>
                         <Icon
-                          className="text-default-500 [&>path]:stroke-[1.5]"
+                          className="text-[#FF4654] dark:text-[#DCFF37] [&>path]:stroke-[1.5]"
                           icon="solar:arrow-right-linear"
                           width={16}
                         />
@@ -129,7 +134,7 @@ export default function Component() {
                     onClick={() => {
                       window.location.href = "/pricing"
                      }}
-                    radius="lg"
+                    radius="none"
                     size="lg"
                     variant="bordered"
                   >

@@ -55,39 +55,77 @@ export default function AdvancedSearchPage() {
 
   return (
     <div className="px-4 py-6 max-w-[1200px] mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Advanced Search</h1>
-      <div className="flex flex-wrap gap-4 mb-6 items-end">
-        <Input label="Query" placeholder="Replay ID contains..." value={query} onChange={e => setQuery(e.target.value)} className="max-w-xs" />
-        <CheckboxGroup label="Game" value={gameFilter} onChange={setGameFilter} orientation="horizontal">
-          <Checkbox value="cs2">CS2</Checkbox>
-          <Checkbox value="csgo">CSGO</Checkbox>
-          <Checkbox value="valorant">Valorant</Checkbox>
-        </CheckboxGroup>
-        <RadioGroup label="Visibility" orientation="horizontal" value={visibility} onValueChange={setVisibility}>
-          <Radio value="public">Public</Radio>
-          <Radio value="private">Private</Radio>
-          <Radio value="shared">Shared</Radio>
-          <Radio value="all">All</Radio>
-        </RadioGroup>
-        <Button color="primary" onPress={runSearch} isLoading={loading}>Search</Button>
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+          <span className="text-xl text-[#F5F0E1] dark:text-[#34445C]">🔍</span>
+        </div>
+        <h1 className="text-2xl font-semibold text-[#34445C] dark:text-[#F5F0E1]">Advanced Search</h1>
       </div>
-      {error && <Card className="mb-4"><CardBody className="text-danger text-sm">{error}</CardBody></Card>}
+      <Card className="mb-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardBody>
+          <div className="flex flex-wrap gap-4 items-end">
+            <Input 
+              label="Query" 
+              placeholder="Replay ID contains..." 
+              value={query} 
+              onChange={e => setQuery(e.target.value)} 
+              className="max-w-xs"
+              classNames={{
+                inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+              }}
+            />
+            <CheckboxGroup 
+              label="Game" 
+              value={gameFilter} 
+              onChange={setGameFilter} 
+              orientation="horizontal"
+              classNames={{
+                wrapper: "gap-3",
+              }}
+            >
+              <Checkbox value="cs2" classNames={{ wrapper: "rounded-none" }}>CS2</Checkbox>
+              <Checkbox value="csgo" classNames={{ wrapper: "rounded-none" }}>CSGO</Checkbox>
+              <Checkbox value="valorant" classNames={{ wrapper: "rounded-none" }}>Valorant</Checkbox>
+            </CheckboxGroup>
+            <RadioGroup label="Visibility" orientation="horizontal" value={visibility} onValueChange={setVisibility}>
+              <Radio value="public">Public</Radio>
+              <Radio value="private">Private</Radio>
+              <Radio value="shared">Shared</Radio>
+              <Radio value="all">All</Radio>
+            </RadioGroup>
+            <Button 
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onPress={runSearch} 
+              isLoading={loading}
+            >
+              Search
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+      {error && <Card className="mb-4 rounded-none border border-danger/30"><CardBody className="text-danger text-sm">{error}</CardBody></Card>}
       {loading && results.length === 0 && (
-        <div className="flex items-center gap-2"><Spinner size="sm" /> <span className="text-sm">Searching...</span></div>
+        <div className="flex items-center gap-2"><Spinner size="sm" color="primary" /> <span className="text-sm text-[#34445C] dark:text-[#F5F0E1]">Searching...</span></div>
       )}
       {!loading && results.length === 0 && !error && (
-        <p className="text-sm text-default-500">No results</p>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+          <CardBody className="text-center py-8">
+            <p className="text-sm text-default-500">No results found</p>
+          </CardBody>
+        </Card>
       )}
       {results.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {results.map(r => (
-            <Card key={r.id} isPressable onPress={() => window.location.href = `/replays/${r.id}`}> 
+            <Card key={r.id} isPressable onPress={() => window.location.href = `/replays/${r.id}`} className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:shadow-lg hover:shadow-[#FF4654]/10 dark:hover:shadow-[#DCFF37]/10 transition-all"> 
               <CardBody className="p-3 text-xs">
                 <div className="flex justify-between mb-1">
-                  <Chip size="sm" color="primary" variant="flat">{r.gameId.toUpperCase()}</Chip>
-                  <Chip size="sm" color={r.status === "Completed" || r.status === "Ready" ? "success" : r.status === "Failed" ? "danger" : "warning"}>{r.status}</Chip>
+                  <Chip size="sm" color="primary" variant="flat" className="rounded-none">{r.gameId.toUpperCase()}</Chip>
+                  <Chip size="sm" className="rounded-none" color={r.status === "Completed" || r.status === "Ready" ? "success" : r.status === "Failed" ? "danger" : "warning"}>{r.status}</Chip>
                 </div>
-                <div className="font-semibold truncate">{r.id}</div>
+                <div className="font-semibold truncate text-[#34445C] dark:text-[#F5F0E1]">{r.id}</div>
                 <div className="text-default-400 mt-1">{new Date(r.createdAt).toLocaleString()}</div>
                 {r.size && <div className="text-default-300 mt-1">{(r.size/1024/1024).toFixed(2)} MB</div>}
               </CardBody>

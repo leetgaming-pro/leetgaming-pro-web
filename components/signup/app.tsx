@@ -107,10 +107,20 @@ export default function SignUp() {
       </div>
 
       {/* Sign Up Form */}
-      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-background/60 px-8 pb-10 pt-6 shadow-2xl backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50 border border-foreground/10">
+      <div 
+        className="relative flex w-full max-w-sm flex-col gap-4 rounded-none bg-[#F5F0E1]/90 dark:bg-[#1a1a1a]/90 px-8 pb-10 pt-6 shadow-2xl backdrop-blur-md backdrop-saturate-150 border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)' }}
+      >
+        {/* Brand accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
+        
         <div className="text-center pb-2">
-          <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
-          <p className="text-sm text-foreground/60 mt-1">Join LeetGaming.PRO today</p>
+          <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+            <span className="text-xl text-[#F5F0E1] dark:text-[#34445C]">🎮</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#34445C] dark:text-[#F5F0E1]">Create Account</h1>
+          <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">Join LeetGaming.PRO today</p>
         </div>
         <form className="flex flex-col gap-3" onSubmit={handleEmailSignUp}>
           {error && (
@@ -238,9 +248,9 @@ export default function SignUp() {
             Continue with Google
           </EsportsButton>
         </div>
-        <p className="text-center text-sm text-foreground/60">
+        <p className="text-center text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">
           Already have an account?{" "}
-          <Link href="/signin" size="sm" className="font-medium">
+          <Link href="/signin" size="sm" className="font-medium text-[#FF4654] dark:text-[#DCFF37]">
             Log In
           </Link>
         </p>

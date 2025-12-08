@@ -48,15 +48,19 @@ export default function Component() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col items-center py-24 px-16"
-    // style={{
-    //   backgroundImage: `url('/blur-glow-pry-gh.svg')`,
-    //   backgroundSize: "cover",
-    //   backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.5)" : "",
-    // }}
+      style={{
+        backgroundImage: `url('/blur-glow-pry-gh.svg')`,
+        backgroundSize: "cover",
+        backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.5)" : "",
+      }}
     >
       <div className="flex max-w-xl flex-col text-center">
-        <h2 className="font-medium leading-7 text-primary">Pricing</h2>
-        <h1 className="text-4xl font-medium tracking-tight">Compare plans & features.</h1>
+        <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="solar:tag-price-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="font-medium leading-7 text-[#FF4654] dark:text-[#DCFF37]">Pricing</h2>
+        <h1 className="text-4xl font-medium tracking-tight text-[#34445C] dark:text-[#F5F0E1]">Compare plans & features.</h1>
         <Spacer y={4} />
         <h2 className="text-large text-default-500">
           Discover the ideal plan, beginning at under $2 per week.
@@ -66,9 +70,11 @@ export default function Component() {
 
       <Tabs
         classNames={{
-          tab: "data-[hover-unselected=true]:opacity-90",
+          tab: "data-[hover-unselected=true]:opacity-90 rounded-none",
+          tabList: "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          cursor: "rounded-none bg-[#34445C] dark:bg-[#DCFF37]",
         }}
-        radius="full"
+        radius="none"
         size="lg"
         onSelectionChange={onFrequencyChange}
       >
