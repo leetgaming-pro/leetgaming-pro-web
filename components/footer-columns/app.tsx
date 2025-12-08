@@ -80,11 +80,11 @@ export default function FooterColumns() {
   const renderList = React.useCallback(
     ({title, items}: {title: string; items: {name: any; href: string}[]}) => (
       <div>
-        <h3 className="text-small font-semibold text-default-600">{title}</h3>
+        <h3 className="text-small font-semibold text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wider">{title}</h3>
         <ul className="mt-6 space-y-4">
           {items.map((item) => (
             <li key={item.name}>
-              <Link className="text-default-400" href={item.href} size="sm">
+              <Link className="text-[#34445C]/70 dark:text-[#F5F0E1]/70 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors" href={item.href} size="sm">
                 {item.name}
               </Link>
             </li>
@@ -116,13 +116,13 @@ export default function FooterColumns() {
             <div className="flex items-center justify-start logo-container">
               <LogoGrayscale />
             </div>
-            <p className="font-medium text-small text-default-500">
+            <p className="font-medium text-small text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               Get to clutch in the international stage.
              </p>
 
             <div className="flex space-x-6">
               {footerNavigation.social.map((item) => (
-                <Link key={item.name} isExternal className="text-default-400" href={item.href}>
+                <Link key={item.name} isExternal className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors" href={item.href}>
                   <span className="sr-only">{item.name}</span>
                   <item.icon aria-hidden="true" className="w-6" />
                 </Link>
@@ -144,9 +144,9 @@ export default function FooterColumns() {
             </div>
           </div>
         </div>
-        <Divider className="mt-16 sm:mt-20 lg:mt-24" />
+        <Divider className="mt-16 sm:mt-20 lg:mt-24 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
         <div className="flex flex-wrap justify-between gap-2 pt-8">
-          <p className="text-small text-default-400">&copy; 2024 Leet Gaming Pro Inc. All rights reserved.</p>
+          <p className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/60">&copy; 2024 Leet Gaming Pro Inc. All rights reserved.</p>
           <ThemeSwitch />
         </div>
       </div>
