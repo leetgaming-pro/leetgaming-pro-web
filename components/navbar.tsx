@@ -43,6 +43,7 @@ import { useTheme } from "next-themes";
 import { electrolize } from "@/config/fonts";
 import { Chip, Button } from "@nextui-org/react";
 import { NotificationCenter } from '@/components/notifications/notification-center';
+import { LanguageSelector } from '@/components/i18n/language-selector';
 
 export const Navbar = () => {
 
@@ -113,6 +114,7 @@ export const Navbar = () => {
         </NavbarItem>
 
         <NavbarItem className="hidden sm:flex gap-1.5 items-center">
+          <LanguageSelector showFlag={true} variant="flat" size="sm" />
           <NotificationCenter enableRealtime={true} />
           <ThemeSwitch />
         </NavbarItem>
@@ -122,7 +124,8 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1" justify="end">
+      <NavbarContent className="sm:hidden basis-1 gap-1" justify="end">
+        <LanguageSelector showFlag={true} variant="flat" size="sm" />
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
@@ -178,7 +181,7 @@ export const Navbar = () => {
                   color="danger"
                   variant="light"
                   startContent={<Icon icon="solar:logout-2-bold" className="w-5 h-5" />}
-                  onPress={() => signOut()}
+                  onPress={() => signOut({ callbackUrl: '/' })}
                 >
                   Log Out
                 </Button>

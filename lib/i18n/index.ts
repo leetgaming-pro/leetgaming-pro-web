@@ -64,6 +64,59 @@ export const localeInfo: Record<Locale, LocaleInfo> = {
 };
 
 /**
+ * Map timezone to region for better locale detection
+ */
+const timezoneToRegion: Record<string, Locale> = {
+  // Americas
+  'America/New_York': 'en-US',
+  'America/Los_Angeles': 'en-US',
+  'America/Chicago': 'en-US',
+  'America/Denver': 'en-US',
+  'America/Sao_Paulo': 'pt-BR',
+  'America/Buenos_Aires': 'es-LA',
+  'America/Mexico_City': 'es-LA',
+  'America/Bogota': 'es-LA',
+  'America/Lima': 'es-LA',
+  'America/Santiago': 'es-LA',
+  'America/Toronto': 'en-US',
+  // Europe
+  'Europe/London': 'en-GB',
+  'Europe/Paris': 'fr-FR',
+  'Europe/Berlin': 'de-DE',
+  'Europe/Madrid': 'es-ES',
+  'Europe/Rome': 'en-GB',
+  'Europe/Moscow': 'ru-RU',
+  'Europe/Lisbon': 'pt-BR', // Portuguese speakers may prefer pt-BR
+  // Asia
+  'Asia/Tokyo': 'ja-JP',
+  'Asia/Seoul': 'ko-KR',
+  'Asia/Shanghai': 'zh-CN',
+  'Asia/Hong_Kong': 'zh-TW',
+  'Asia/Taipei': 'zh-TW',
+  'Asia/Singapore': 'en-US',
+  // Middle East
+  'Asia/Dubai': 'ar-SA',
+  'Asia/Riyadh': 'ar-SA',
+  // Oceania
+  'Australia/Sydney': 'en-GB',
+  'Pacific/Auckland': 'en-GB',
+};
+
+/**
+ * Detect locale from user's timezone
+ */
+export function getLocaleFromTimezone(): Locale | null {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return timezoneToRegion[timezone] || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Get browser locale or default
  */
 export function getBrowserLocale(): Locale {
@@ -84,17 +137,42 @@ export function getBrowserLocale(): Locale {
 }
 
 /**
- * Get user's preferred locale from storage or browser
+ * Get best locale based on browser language and timezone
+ */
+export function detectBestLocale(): Locale {
+  if (typeof window === 'undefined') return defaultLocale;
+  
+  // First check browser language
+  const browserLocale = getBrowserLocale();
+  
+  // If browser locale is specific (not just en-US default), use it
+  if (browserLocale !== defaultLocale) {
+    return browserLocale;
+  }
+  
+  // Try timezone detection for better regional accuracy
+  const timezoneLocale = getLocaleFromTimezone();
+  if (timezoneLocale) {
+    return timezoneLocale;
+  }
+  
+  return browserLocale;
+}
+
+/**
+ * Get user's preferred locale from storage or auto-detect
  */
 export function getUserLocale(): Locale {
   if (typeof window === 'undefined') return defaultLocale;
   
+  // First check if user has explicitly set a locale
   const stored = localStorage.getItem('leetgaming-locale');
   if (stored && locales.includes(stored as Locale)) {
     return stored as Locale;
   }
   
-  return getBrowserLocale();
+  // Auto-detect best locale based on browser + timezone
+  return detectBestLocale();
 }
 
 /**

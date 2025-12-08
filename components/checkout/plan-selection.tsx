@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Button,
   Card,
@@ -11,6 +11,7 @@ import {
   Divider,
   Tab,
   Tabs,
+  Spinner,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { cn } from '@nextui-org/react';
@@ -20,12 +21,15 @@ import {
   BillingPeriod,
   BILLING_PERIOD_LABELS,
 } from './types';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
-// Plan Data
+// Plan Data (Fallback if API fails)
 // ============================================================================
 
-export const PRICING_PLANS: PricingPlan[] = [
+export const DEFAULT_PRICING_PLANS: PricingPlan[] = [
   {
     id: 'free',
     key: 'free',
@@ -95,6 +99,9 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
 ];
 
+// Legacy export for backward compatibility
+export const PRICING_PLANS = DEFAULT_PRICING_PLANS;
+
 // ============================================================================
 // Component
 // ============================================================================
@@ -111,6 +118,57 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
     getPriceForPeriod,
     getSavingsPercentage,
   } = useCheckout();
+
+  const sdkRef = useRef<ReplayAPISDK>();
+  const [plans, setPlans] = useState<PricingPlan[]>(DEFAULT_PRICING_PLANS);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize SDK
+  if (!sdkRef.current) {
+    sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+  }
+
+  // Fetch plans from API
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        setLoading(true);
+        // Try to fetch plans from the API
+        const response = await fetch('/api/subscriptions/plans');
+        if (response.ok) {
+          const apiPlans = await response.json();
+          if (apiPlans?.data?.length > 0) {
+            // Transform API plans to match our PricingPlan interface
+            const transformedPlans = apiPlans.data.map((plan: any) => ({
+              id: plan.id,
+              key: plan.key || plan.id,
+              name: plan.name,
+              description: plan.description,
+              price: {
+                monthly: plan.price_monthly || plan.price?.monthly || 0,
+                quarterly: plan.price_quarterly || plan.price?.quarterly || 0,
+                yearly: plan.price_yearly || plan.price?.yearly || 0,
+                currency: plan.currency || 'usd',
+              },
+              features: plan.features || [],
+              highlighted: plan.highlighted || plan.most_popular,
+              badge: plan.badge,
+              stripePriceId: plan.stripe_price_id,
+            }));
+            setPlans(transformedPlans);
+          }
+        }
+      } catch (err) {
+        logger.warn('Failed to fetch plans from API, using defaults', err);
+        setError('Using cached pricing data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPlans();
+  }, []);
 
   const handleSelectPlan = (plan: PricingPlan) => {
     selectPlan(plan);

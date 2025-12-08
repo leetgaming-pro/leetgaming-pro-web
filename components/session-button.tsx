@@ -79,7 +79,7 @@ export default function SessionButton() {
           }}
           onAction={(key) => {
             if (key === 'logout') {
-              signOut();
+              signOut({ callbackUrl: '/' });
             } else if (key !== 'profile-header') {
               router.push(key as string);
             }

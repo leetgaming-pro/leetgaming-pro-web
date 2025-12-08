@@ -26,7 +26,6 @@ import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock, GameIDKey, VisibilityTypeKey } from "@/types/replay-api/settings";
 import { SearchBuilder, SortDirection } from "@/types/replay-api/search-builder";
 import { logger } from "@/lib/logger";
-import { isAuthenticatedSync } from "@/types/replay-api/auth";
 import { ReplayFile } from "@/types/replay-api/replay-file";
 
 interface ReplayListState {
@@ -136,7 +135,7 @@ export default function Component() {
                   <h2 className="text-medium font-medium">Replays</h2>
                   <span className="text-small text-default-400">({state.total})</span>
                 </div>
-                {!isAuthenticatedSync() && (
+                {!session && (
                   <Chip color="warning" variant="flat" size="sm">
                     Sign in to upload replays
                   </Chip>
