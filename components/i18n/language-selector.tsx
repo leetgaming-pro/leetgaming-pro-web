@@ -47,9 +47,17 @@ export function LanguageSelector({
   const handleLocaleChange = (keys: any) => {
     const selected = Array.from(keys)[0] as Locale;
     if (selected && selected !== locale) {
-      changeLocale(selected);
-      // Force a page reload to apply the locale change across all components
-      window.location.reload();
+      // Write to localStorage directly first to ensure it's saved before reload
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('leetgaming-locale', selected);
+        // Update HTML attributes
+        document.documentElement.lang = selected;
+        document.documentElement.dir = localeInfo[selected].direction;
+      }
+      // Small delay to ensure localStorage is written, then reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
     }
   };
 
