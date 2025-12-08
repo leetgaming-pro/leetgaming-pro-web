@@ -209,11 +209,18 @@ export default function TeamDetailPage() {
   if (error || !team) {
     return (
       <PageContainer maxWidth="7xl">
-        <Card>
+        <Card className="rounded-none border border-danger/30">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:ghost-linear" width={64} className="mx-auto mb-4 text-danger" />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:ghost-linear" width={32} className="text-danger" />
+            </div>
             <p className="text-lg text-danger">{error || 'Team not found'}</p>
-            <Button className="mt-4" color="primary" onClick={() => (window.location.href = '/teams')}>
+            <Button 
+              className="mt-4 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onClick={() => (window.location.href = '/teams')}
+            >
               Back to Teams
             </Button>
           </CardBody>
@@ -227,17 +234,23 @@ export default function TeamDetailPage() {
   return (
     <PageContainer maxWidth="7xl">
       {/* Header Card */}
-      <Card className="mb-6 bg-gradient-to-r from-primary-500/20 to-secondary-500/20">
+      <Card className="mb-6 bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-            <Avatar src={team.logo} className="w-32 h-32" />
+            <div className="relative">
+              <Avatar 
+                src={team.logo} 
+                className="w-32 h-32 ring-4 ring-[#FF4654]/30 dark:ring-[#DCFF37]/30" 
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)' }}
+              />
+            </div>
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">
+                <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
                   {team.tag} {team.name}
                 </h1>
                 <Chip
-                  color={team.status === 'recruiting' ? 'success' : team.status === 'full' ? 'warning' : 'default'}
+                  className={`rounded-none ${team.status === 'recruiting' ? 'bg-success text-white' : team.status === 'full' ? 'bg-warning text-black' : 'bg-default'}`}
                   variant="flat"
                 >
                   {team.status === 'recruiting' ? 'Recruiting' : team.status === 'full' ? 'Full Roster' : 'Inactive'}
@@ -265,11 +278,19 @@ export default function TeamDetailPage() {
             </div>
             <div className="flex gap-2">
               {team.status === 'recruiting' && (
-                <Button color="primary" startContent={<Icon icon="solar:user-plus-bold" width={20} />}>
+                <Button 
+                  className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                  startContent={<Icon icon="solar:user-plus-bold" width={20} />}
+                >
                   Apply to Join
                 </Button>
               )}
-              <Button variant="bordered" startContent={<Icon icon="solar:chat-round-bold" width={20} />}>
+              <Button 
+                variant="bordered" 
+                className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1]"
+                startContent={<Icon icon="solar:chat-round-bold" width={20} />}
+              >
                 Contact
               </Button>
               <ShareButton
