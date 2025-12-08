@@ -174,12 +174,19 @@ export default function MatchDetailPage() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Card className="max-w-md">
+        <Card className="max-w-md rounded-none border border-danger/30">
           <CardBody className="text-center">
-            <Icon icon="mdi:alert-circle" className="text-danger mx-auto mb-4" width={48} />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="mdi:alert-circle" className="text-danger" width={32} />
+            </div>
             <p className="text-danger font-semibold mb-2">Error loading match</p>
             <p className="text-default-500 mb-4">{error}</p>
-            <Button color="primary" onPress={() => window.location.reload()}>
+            <Button 
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onPress={() => window.location.reload()}
+            >
               Retry
             </Button>
           </CardBody>
@@ -191,10 +198,13 @@ export default function MatchDetailPage() {
   if (!match) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Card className="max-w-md">
+        <Card className="max-w-md rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center">
-            <Icon icon="mdi:file-question" className="text-default-400 mx-auto mb-4" width={48} />
-            <p className="text-default-500">Match not found</p>
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="mdi:file-question" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+            </div>
+            <p className="text-[#34445C] dark:text-[#F5F0E1]">Match not found</p>
           </CardBody>
         </Card>
       </div>
@@ -208,31 +218,37 @@ export default function MatchDetailPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Match Header */}
-      <Card className="mb-6 bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20">
+      <Card className="mb-6 bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Chip
-                  color={match.status === "completed" ? "success" : "warning"}
-                  variant="flat"
-                  size="sm"
-                >
-                  {match.status || "Completed"}
-                </Chip>
-                <Chip variant="flat" size="sm" startContent={<Icon icon="mdi:gamepad" />}>
-                  {match.game_id?.toUpperCase() || "CS2"}
-                </Chip>
-                <Chip variant="flat" size="sm">
-                  {match.map_name || "de_dust2"}
-                </Chip>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+                <Icon icon="solar:gamepad-bold" className="text-[#F5F0E1] dark:text-[#1a1a1a]" width={28} />
               </div>
-              <h1 className="text-3xl font-bold mb-2">
-                {match.title || `Match #${matchId.slice(0, 8)}`}
-              </h1>
-              <p className="text-default-500">
-                {new Date(match.created_at || Date.now()).toLocaleString()}
-              </p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Chip
+                    className={`rounded-none ${match.status === "completed" ? "bg-success text-white" : "bg-warning text-black"}`}
+                    variant="flat"
+                    size="sm"
+                  >
+                    {match.status || "Completed"}
+                  </Chip>
+                  <Chip variant="flat" size="sm" className="rounded-none" startContent={<Icon icon="mdi:gamepad" />}>
+                    {match.game_id?.toUpperCase() || "CS2"}
+                  </Chip>
+                  <Chip variant="flat" size="sm" className="rounded-none">
+                    {match.map_name || "de_dust2"}
+                  </Chip>
+                </div>
+                <h1 className="text-3xl font-bold mb-2 text-[#34445C] dark:text-[#F5F0E1]">
+                  {match.title || `Match #${matchId.slice(0, 8)}`}
+                </h1>
+                <p className="text-[#34445C]/60 dark:text-[#F5F0E1]/60">
+                  {new Date(match.created_at || Date.now()).toLocaleString()}
+                </p>
+              </div>
             </div>
             
             <div className="flex gap-2">

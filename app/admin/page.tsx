@@ -306,24 +306,31 @@ export default function AdminDashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Icon icon="solar:chart-2-bold-duotone" className="text-primary" width={36} />
-            LeetGaming PRO Dashboard
-          </h1>
-          <p className="text-default-500 mt-1">Professional Esport Platform Management</p>
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="solar:chart-2-bold-duotone" className="text-[#F5F0E1] dark:text-[#1a1a1a]" width={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+              LeetGaming PRO Dashboard
+            </h1>
+            <p className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">Professional Esport Platform Management</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button
             as={Link}
             href="/admin/reports"
-            variant="flat"
+            variant="bordered"
+            className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
             startContent={<Icon icon="solar:document-text-bold" width={18} />}
           >
             Reports
           </Button>
           <Button
-            color="primary"
+            className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
             startContent={<Icon icon="solar:settings-bold" width={18} />}
           >
             Platform Settings
@@ -337,7 +344,11 @@ export default function AdminDashboardPage() {
         onSelectionChange={(key) => setSelectedTab(key as string)}
         variant="underlined"
         aria-label="Dashboard sections"
-        classNames={{ tabList: 'gap-6' }}
+        classNames={{ 
+          tabList: 'gap-6 border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20',
+          cursor: 'bg-[#FF4654] dark:bg-[#DCFF37]',
+          tab: 'data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]',
+        }}
       >
         <Tab
           key="overview"
