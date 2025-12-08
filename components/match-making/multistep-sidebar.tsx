@@ -21,13 +21,16 @@ export type MultiStepSidebarProps = React.HTMLAttributes<HTMLDivElement> & {
 // LeetGaming brand color scheme - lime green (#DCFF37), battleOrange (#FF4654 to #FFC700), navy (#34445C)
 const stepperClasses = cn(
   // light mode - professional esports colors (navy base with battleOrange accents)
-  "[--step-color:#34445C]",
-  "[--active-color:#FF4654]",
+  "[--step-color:#FF4654]", // battleOrange for completed steps
+  "[--step-fg-color:#FFFFFF]", // White checkmark on completed
+  "[--active-color:#FF4654]", // battleOrange active
+  "[--active-border-color:#FF4654]",
   "[--inactive-border-color:rgba(52,68,92,0.3)]",
   "[--inactive-bar-color:rgba(52,68,92,0.2)]",
   "[--inactive-color:rgba(52,68,92,0.5)]",
   // dark mode - lime green (#DCFF37) signature with navy accents
-  "dark:[--step-color:#DCFF37]",
+  "dark:[--step-color:#DCFF37]", // Lime for completed steps
+  "dark:[--step-fg-color:#1a1a1a]", // Dark checkmark on lime
   "dark:[--active-color:#DCFF37]",
   "dark:[--active-border-color:rgba(220,255,55,0.8)]",
   "dark:[--inactive-border-color:rgba(220,255,55,0.3)]",

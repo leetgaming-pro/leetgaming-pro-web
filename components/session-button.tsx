@@ -6,8 +6,7 @@ import {
   DropdownSection,
   DropdownTrigger,
 } from '@nextui-org/dropdown';
-import { Avatar, Badge, Link, Chip } from '@nextui-org/react';
-import { EsportsButton } from './ui/esports-button';
+import { Avatar, Badge, Chip } from '@nextui-org/react';
 import { useSession, signOut } from 'next-auth/react';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
@@ -30,18 +29,6 @@ export default function SessionButton() {
 
   return (
     <div className="flex items-center gap-3 h-full">
-      {/* Quick Actions - Full height buttons */}
-      <Link href="/match-making" className="hidden md:flex items-center h-full">
-        <EsportsButton
-          variant="matchmaking"
-          size="nav"
-          className="h-full"
-        >
-          <Icon icon="solar:gamepad-bold" width={18} />
-          Play
-        </EsportsButton>
-      </Link>
-
       {/* User Dropdown - Edgy borders (no rounded) */}
       <Dropdown placement="bottom-end" backdrop="blur" classNames={{ content: "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20" }}>
         <DropdownTrigger>

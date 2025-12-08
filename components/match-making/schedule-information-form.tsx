@@ -35,8 +35,10 @@ export const CustomRadio = (props: any) => {
       classNames={{
         base: cn(
           "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
-          "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
-          "data-[selected=true]:border-primary",
+          "flex-row-reverse max-w-[300px] cursor-pointer rounded-none gap-4 p-4 border-2 border-transparent",
+          "data-[selected=true]:border-[#FF4654] dark:data-[selected=true]:border-[#DCFF37]",
+          "hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30",
+          "transition-all duration-200",
         ),
       }}
     >
@@ -87,107 +89,151 @@ const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInform
 
     return (
       <>
-        <h1 className={title({ color: theme === "dark" ? "foreground" : "battleNavy" })}>Schedule Preferences</h1>
-        <div className="py-4 text-default-500">
-          Please provide your available time slots and preferred schedule
+        <div className="flex flex-col items-center text-center mb-6">
+          <h1 className={title({ color: theme === "dark" ? "battleLime" : "battleNavy" })}>Schedule Preferences</h1>
+          <div className="py-2 text-default-500 max-w-md">
+            Set your availability to find matches when you&apos;re ready to compete
+          </div>
         </div>
 
-        <Tabs aria-label="Options" className="w-full" variant="underlined">
+        <Tabs 
+          aria-label="Schedule Options" 
+          className="w-full" 
+          variant="solid"
+          classNames={{
+            tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
+            tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
+            cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+          }}
+        >
 
-          <Tab key="time-frames" title="Time Window">
-            <Card>
-              <CardBody>
-                <div className="w-full  h-[200px]  font-bold flex flex-col items-center justify-center text-center">
-
-                  <div className="w-full h-full  font-bold  flex-col items-center justify-center text-center">
-                    <I18nProvider locale="ja-JP">
-                      <DateRangePicker
-                        label="Available Time Window"
-                        value={date}
-                        onChange={(newDate) => {
-                          setDate(newDate);
-                          updateState({
-                            scheduleStart: newDate.start.toDate(),
-                            scheduleEnd: newDate.end.toDate(),
-                          });
-                        }}
-                      />
-                    </I18nProvider>
-
-                    <Spacer y={2} />
-                      <BattleButton
-                                className="col-span-12 mx-0 my-2 px-2 items-center justify-center text-center"
-                                color="primary"
-                                name="add-more-schedule"
-                                size="md"
-                                startContent={<PlusIcon  />}
-                              >
-                               Add more ...
-                              </BattleButton>
-
-                    {/* <Spacer y={2} />
-
-              <I18nProvider locale="ja-JP">
-                <DateRangePicker label="Available Time Window" value={date} onChange={setDate} />
-              </I18nProvider>
-
-              <Spacer y={2} />
-
-              <I18nProvider locale="ja-JP">
-                <DateRangePicker label="Available Time Window" value={date} onChange={setDate} />
-              </I18nProvider> */}
-
-
+          <Tab key="quick-match" title="⚡ Play Now">
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody className="p-6">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                    <span className="text-3xl">⚡</span>
                   </div>
-
-                  {/* </form> */}
+                  <div>
+                    <h3 className="text-xl font-bold text-[#34445C] dark:text-[#DCFF37]">Ready to Play Now</h3>
+                    <p className="text-default-500 mt-1">Jump into a match immediately</p>
+                  </div>
+                  <BattleButton
+                    className="w-full max-w-xs bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#1a1a1a] font-bold rounded-none"
+                    color="primary"
+                    name="play-now"
+                    size="lg"
+                    onPress={() => updateState({ scheduleType: 'now' })}
+                  >
+                    Find Match Now
+                  </BattleButton>
                 </div>
               </CardBody>
             </Card>
           </Tab>
 
-          <Tab key="recurrence" title="Weekly Routine">
-            <Card>
-              <CardHeader className="flex flex-col gap-4">
-                <TimeInput label="Time" value={value} onChange={setValue} />
+          <Tab key="time-frames" title="📅 Time Window">
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody className="p-6">
+                <div className="flex flex-col gap-4">
+                  <I18nProvider locale="en-US">
+                    <DateRangePicker
+                      label="Available Time Window"
+                      value={date}
+                      className="w-full"
+                      classNames={{
+                        base: "rounded-none",
+                        inputWrapper: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30",
+                      }}
+                      onChange={(newDate) => {
+                        setDate(newDate);
+                        updateState({
+                          scheduleType: 'window',
+                          scheduleStart: newDate.start.toDate(),
+                          scheduleEnd: newDate.end.toDate(),
+                        });
+                      }}
+                    />
+                  </I18nProvider>
+
+                  <div className="flex items-center gap-2 p-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5 rounded-none border-l-2 border-[#FF4654] dark:border-[#DCFF37]">
+                    <span className="text-sm text-default-600">
+                      💡 Tip: Set a wider window for faster matchmaking
+                    </span>
+                  </div>
+
+                  <BattleButton
+                    className="w-full bg-[#34445C]/80 dark:bg-[#1a1a1a] text-white dark:text-[#DCFF37] border border-[#FF4654]/30 dark:border-[#DCFF37]/30 rounded-none"
+                    color="primary"
+                    name="add-more-schedule"
+                    size="md"
+                    startContent={<PlusIcon />}
+                  >
+                    Add Another Time Slot
+                  </BattleButton>
+                </div>
+              </CardBody>
+            </Card>
+          </Tab>
+
+          <Tab key="recurrence" title="🔄 Weekly">
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="flex flex-col gap-4 p-6 pb-2">
+                <TimeInput 
+                  label="Preferred Time" 
+                  value={value} 
+                  onChange={setValue}
+                  classNames={{
+                    inputWrapper: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30",
+                  }}
+                />
                 <p className="text-default-500 text-sm">
                   {value instanceof ZonedDateTime
-                    ? formatDateToTimezone(value.toDate(), 'America/Sao_Paulo') ||
-                    "--"
-                    : ""}
+                    ? `Your local time: ${formatDateToTimezone(value.toDate(), Intl.DateTimeFormat().resolvedOptions().timeZone)}`
+                    : "Select your preferred play time"}
                 </p>
-
               </CardHeader>
-              <CardBody>
-
-
-                <div className="flex flex-col gap-3">
-                  <CheckboxGroup
-                    color="warning"
-                    label="Select Weekdays"
-                    value={selected}
-                    onValueChange={(newSelected) => {
-                      setSelected(newSelected);
-                      updateState({ weeklyRoutine: newSelected });
-                    }}
-                  >
-                    <Checkbox value="sunday">Sunday</Checkbox>
-                    <Checkbox value="monday">Monday</Checkbox>
-                    <Checkbox value="tuesday">Tuesday</Checkbox>
-                    <Checkbox value="wednesday">Wednesday</Checkbox>
-                    <Checkbox value="thursday">Thursday</Checkbox>
-                    <Checkbox value="friday">Friday</Checkbox>
-                    <Checkbox value="saturday">Saturday</Checkbox>
-
-                  </CheckboxGroup>
-                  <p className="text-default-500 text-small">Selected: {selected.join(", ")}</p>
-                </div>
-
-                <div className="w-full flex flex-row gap-2">
-                  <div className="w-full flex flex-col gap-y-2">
+              <CardBody className="p-6 pt-2">
+                <CheckboxGroup
+                  label="Select Your Play Days"
+                  value={selected}
+                  classNames={{
+                    label: "text-[#34445C] dark:text-[#DCFF37] font-semibold mb-2",
+                  }}
+                  onValueChange={(newSelected) => {
+                    setSelected(newSelected);
+                    updateState({ scheduleType: 'weekly', weeklyRoutine: newSelected });
+                  }}
+                >
+                  <div className="grid grid-cols-2 gap-2">
+                    {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => (
+                      <Checkbox 
+                        key={day}
+                        value={day}
+                        classNames={{
+                          base: cn(
+                            "rounded-none border border-default-200 dark:border-[#DCFF37]/20 p-3 m-0 w-full max-w-full",
+                            "hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5",
+                            "data-[selected=true]:bg-[#FF4654]/10 dark:data-[selected=true]:bg-[#DCFF37]/10",
+                            "data-[selected=true]:border-[#FF4654] dark:data-[selected=true]:border-[#DCFF37]",
+                          ),
+                          wrapper: "before:border-[#FF4654] dark:before:border-[#DCFF37] after:bg-[#FF4654] dark:after:bg-[#DCFF37]",
+                        }}
+                      >
+                        {day.charAt(0).toUpperCase() + day.slice(1)}
+                      </Checkbox>
+                    ))}
                   </div>
-                </div>
-
+                </CheckboxGroup>
+                
+                {selected.length > 0 && (
+                  <div className="mt-4 p-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5 rounded-none border-l-2 border-[#FF4654] dark:border-[#DCFF37]">
+                    <p className="text-sm text-default-600">
+                      ✓ Available on: <span className="font-semibold text-[#34445C] dark:text-[#DCFF37]">{selected.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(", ")}</span>
+                    </p>
+                  </div>
+                )}
               </CardBody>
             </Card>
           </Tab>
