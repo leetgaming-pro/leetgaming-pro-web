@@ -68,9 +68,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   // Empty state
   if (!query || query.trim().length < 2) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-default-400">
-        <Icon icon="mdi:magnify" width={64} className="mb-4 opacity-50" />
-        <p className="text-lg">Start typing to search...</p>
+      <div className="flex flex-col items-center justify-center h-[400px] text-[#34445C]/60 dark:text-[#F5F0E1]/60">
+        <div className="w-16 h-16 flex items-center justify-center bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 mb-4"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="mdi:magnify" width={32} className="text-[#FF4654] dark:text-[#DCFF37]" />
+        </div>
+        <p className="text-lg text-[#34445C] dark:text-[#F5F0E1]">Start typing to search...</p>
         <p className="text-sm mt-2">Search for replays, players, teams, and more</p>
       </div>
     );
@@ -80,7 +83,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[400px]">
-        <Spinner size="lg" label="Searching..." />
+        <Spinner size="lg" label="Searching..." color="warning" />
       </div>
     );
   }
@@ -89,7 +92,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[400px] text-danger">
-        <Icon icon="mdi:alert-circle" width={64} className="mb-4" />
+        <div className="w-16 h-16 flex items-center justify-center bg-danger/10 mb-4"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="mdi:alert-circle" width={32} />
+        </div>
         <p className="text-lg">Search failed</p>
         <p className="text-sm mt-2">{error}</p>
       </div>
@@ -99,9 +105,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   // No results
   if (results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-default-400">
-        <Icon icon="mdi:magnify-close" width={64} className="mb-4 opacity-50" />
-        <p className="text-lg">No results found</p>
+      <div className="flex flex-col items-center justify-center h-[400px] text-[#34445C]/60 dark:text-[#F5F0E1]/60">
+        <div className="w-16 h-16 flex items-center justify-center bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 mb-4"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="mdi:magnify-close" width={32} className="text-[#FF4654] dark:text-[#DCFF37]" />
+        </div>
+        <p className="text-lg text-[#34445C] dark:text-[#F5F0E1]">No results found</p>
         <p className="text-sm mt-2">Try searching with different keywords</p>
       </div>
     );
@@ -113,6 +122,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         aria-label="Search results"
         selectionMode="none"
         emptyContent="No results found"
+        classNames={{
+          base: "p-0",
+        }}
       >
         {Object.keys(groupedResults).map((type) => {
           const config = typeConfig[type as keyof typeof typeConfig];
@@ -123,33 +135,35 @@ const SearchResults: React.FC<SearchResultsProps> = ({
               key={type}
               title={config.label}
               classNames={{
-                heading: "text-small font-semibold text-default-500 pl-2 uppercase",
+                heading: "text-small font-bold text-[#FF4654] dark:text-[#DCFF37] pl-2 uppercase tracking-wider",
+                group: "mb-2",
               }}
             >
               {items.map((result) => (
                 <ListboxItem
                   key={result.id}
                   href={result.href}
-                  className="py-3"
+                  className="py-3 rounded-none hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 data-[hover=true]:bg-[#FF4654]/10 dark:data-[hover=true]:bg-[#DCFF37]/10"
                   startContent={
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-default-100">
+                    <div className="flex items-center justify-center w-10 h-10 bg-[#FF4654]/10 dark:bg-[#DCFF37]/10"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
                       <Icon
                         icon={config.icon}
                         width={24}
-                        className={`text-${config.color}`}
+                        className="text-[#FF4654] dark:text-[#DCFF37]"
                       />
                     </div>
                   }
-                  description={result.description}
+                  description={<span className="text-[#34445C]/60 dark:text-[#F5F0E1]/60">{result.description}</span>}
                   onClick={onPress}
                 >
                   <div className="flex items-center gap-2">
-                    {result.title}
+                    <span className="text-[#34445C] dark:text-[#F5F0E1]">{result.title}</span>
                     <Chip
                       size="sm"
                       variant="flat"
                       color={config.color}
-                      className="capitalize"
+                      className="capitalize rounded-none"
                     >
                       {type}
                     </Chip>

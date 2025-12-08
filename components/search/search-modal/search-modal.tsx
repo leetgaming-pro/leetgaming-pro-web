@@ -52,22 +52,18 @@ export default function SearchInput() {
             <Input
                 aria-label="Search"
                 classNames={{
-                    inputWrapper: "bg-default-100 h-9",
-                    input: "text-sm text-default-500",
+                    inputWrapper: "bg-[#F5F0E1]/80 dark:bg-[#1a1a1a]/80 h-9 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/40 dark:hover:border-[#DCFF37]/40",
+                    input: "text-sm text-[#34445C] dark:text-[#F5F0E1]",
                 }}
                 size="sm"
                 onClick={onOpen}
-                // onFocus={onOpen}
-                // onInput={onOpen}
-                // onMouseEnter={onOpen}
-                // onMouseDown={onOpen}
                 endContent={
-                    <div>
-                    <Kbd className="hidden lg:inline-block">
+                    <div className="flex items-center gap-1">
+                    <Kbd className="hidden lg:inline-block bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] rounded-none">
                         ⌘
                     </Kbd>
-                    <small> + </small>
-                    <Kbd className="hidden lg:inline-block">
+                    <small className="text-[#34445C]/50 dark:text-[#F5F0E1]/50"> + </small>
+                    <Kbd className="hidden lg:inline-block bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] rounded-none">
                         `
                     </Kbd>
                     </div>
@@ -75,7 +71,7 @@ export default function SearchInput() {
                 labelPlacement="outside"
                 placeholder="Search..."
                 startContent={
-                    <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+                    <SearchIcon className="text-base text-[#FF4654] dark:text-[#DCFF37] pointer-events-none flex-shrink-0" />
                 }
                 type="search"
             />
@@ -85,6 +81,12 @@ export default function SearchInput() {
                 onOpenChange={handleOpenChange}
                 placement="top-center"
                 size="5xl"
+                classNames={{
+                    base: "rounded-none border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                    body: "bg-[#F5F0E1] dark:bg-[#1a1a1a]",
+                    header: "bg-gradient-to-r from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10",
+                    footer: "bg-[#F5F0E1] dark:bg-[#1a1a1a] border-t border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+                }}
             >
                 <ModalContent>
                     {(onClose) => (
@@ -97,20 +99,20 @@ export default function SearchInput() {
                                     onChange={(e) => setQuery(e.target.value)}
                                     onKeyDown={handleKey}
                                     classNames={{
-                                        inputWrapper: "bg-default-100",
-                                        input: "text-xl",
+                                        inputWrapper: "bg-[#F5F0E1]/80 dark:bg-[#1a1a1a]/80 rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                                        input: "text-xl text-[#34445C] dark:text-[#F5F0E1]",
                                     }}
                                     endContent={
                                         loading ? (
-                                            <div className="animate-spin">⏳</div>
+                                            <div className="animate-spin text-[#FF4654] dark:text-[#DCFF37]">⏳</div>
                                         ) : (
-                                            <Kbd keys={["command", "enter"]} title='Search'></Kbd>
+                                            <Kbd keys={["command", "enter"]} title='Search' className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] rounded-none"></Kbd>
                                         )
                                     }
                                     labelPlacement="outside"
                                     placeholder="Type at least 2 characters..."
                                     startContent={
-                                        <SearchIcon className="text-default-300 md" />
+                                        <SearchIcon className="text-[#FF4654] dark:text-[#DCFF37]" />
                                     }
                                     type="search"
                                 />
