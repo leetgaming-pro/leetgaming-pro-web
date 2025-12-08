@@ -235,16 +235,20 @@ export default function SupplyPage() {
   return (
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
       {/* Header */}
-      <div className="flex w-full max-w-7xl flex-col items-center text-center gap-2">
-        <h2 className="text-secondary font-medium">Gaming Marketplace</h2>
-        <h1 className={title({ size: "lg" })}>Supply Market</h1>
+      <div className="flex w-full max-w-7xl flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <Icon icon="solar:cart-large-2-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        </div>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Gaming Marketplace</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Supply Market</h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
           Buy and sell gaming items, skins, services, and more. Trade safely with verified sellers.
         </p>
       </div>
 
       {/* Filters */}
-      <Card className="w-full max-w-7xl">
+      <Card className="w-full max-w-7xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
@@ -324,8 +328,8 @@ export default function SupplyPage() {
             Showing {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}
           </p>
           <Button
-            color="primary"
-            variant="flat"
+            className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
             startContent={<Icon icon="mdi:plus" width={20} />}
             onPress={handleListItem}
           >
@@ -334,10 +338,13 @@ export default function SupplyPage() {
         </div>
 
         {filteredItems.length === 0 ? (
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody className="text-center py-12">
-              <Icon icon="mdi:package-variant-closed" className="text-6xl text-default-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No items found</h3>
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                <Icon icon="mdi:package-variant-closed" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No items found</h3>
               <p className="text-default-500">
                 Try adjusting your filters or search query
               </p>
@@ -346,7 +353,7 @@ export default function SupplyPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredItems.map((item) => (
-              <Card key={item.id} className="hover:scale-105 transition-transform" isPressable>
+              <Card key={item.id} className="hover:scale-[1.02] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20" isPressable>
                 <CardHeader className="p-0">
                   <Image
                     src={item.image}
