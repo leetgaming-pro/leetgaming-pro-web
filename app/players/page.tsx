@@ -157,16 +157,20 @@ export default function PlayersPage() {
     <PageContainer maxWidth="7xl" padding="md">
       <div className="flex w-full flex-col items-center gap-8 py-8">
         {/* Header */}
-        <div className="flex w-full flex-col items-center text-center gap-2">
-          <h2 className="text-secondary font-medium">Competitive Community</h2>
-          <h1 className={title({ size: "lg" })}>Player Profiles</h1>
+        <div className="flex w-full flex-col items-center text-center gap-4">
+          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="solar:user-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+          </div>
+          <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Competitive Community</h2>
+          <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Player Profiles</h1>
           <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
             Discover talented players, find teammates, and connect with the competitive gaming community.
           </p>
         </div>
 
         {/* Filters */}
-        <Card className="w-full max-w-7xl">
+        <Card className="w-full max-w-7xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody>
           <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
             <Select
@@ -175,6 +179,10 @@ export default function PlayersPage() {
               onSelectionChange={(keys) => setSelectedGame(Array.from(keys)[0] as string)}
               className="w-full md:w-48"
               variant="bordered"
+              classNames={{
+                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                popoverContent: "rounded-none",
+              }}
             >
               <SelectItem key="all" value="all">All Games</SelectItem>
               <SelectItem key="cs2" value="cs2">CS2</SelectItem>
@@ -187,6 +195,10 @@ export default function PlayersPage() {
               onSelectionChange={(keys) => setSelectedRole(Array.from(keys)[0] as string)}
               className="w-full md:w-48"
               variant="bordered"
+              classNames={{
+                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                popoverContent: "rounded-none",
+              }}
             >
               <SelectItem key="all" value="all">All Roles</SelectItem>
               <SelectItem key="awper" value="awper">AWPer</SelectItem>
@@ -197,11 +209,13 @@ export default function PlayersPage() {
               <SelectItem key="controller" value="controller">Controller</SelectItem>
             </Select>
             <Button
-              color={showOnlyLFT ? "primary" : "default"}
+              className={showOnlyLFT 
+                ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] rounded-none w-full md:w-auto" 
+                : "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 w-full md:w-auto"}
               variant={showOnlyLFT ? "shadow" : "bordered"}
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
               onPress={() => setShowOnlyLFT(!showOnlyLFT)}
               startContent={<Icon icon="mdi:account-search" width={20} />}
-              className="w-full md:w-auto"
             >
               Looking for Team
             </Button>
@@ -241,10 +255,13 @@ export default function PlayersPage() {
           </div>
 
           {filteredPlayers.length === 0 ? (
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody className="text-center py-12">
-              <Icon icon="mdi:account-off" className="text-6xl text-default-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No players found</h3>
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                <Icon icon="mdi:account-off" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No players found</h3>
               <p className="text-default-500">
                 Try adjusting your filters or search query
               </p>
@@ -254,21 +271,23 @@ export default function PlayersPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedPlayers.map((player) => (
-              <Card key={player.id} className="hover:shadow-lg hover:border-primary/50 transition-all">
+              <Card key={player.id} className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                 <CardHeader className="flex flex-col gap-3 p-6">
                   <div className="flex w-full justify-between items-start">
-                    <Avatar
-                      src={player.avatar}
-                      className="w-20 h-20"
-                      isBordered
-                      color="primary"
-                    />
+                    <div className="w-20 h-20 overflow-hidden border-2 border-[#FF4654] dark:border-[#DCFF37]"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+                      <Avatar
+                        src={player.avatar}
+                        className="w-full h-full"
+                        isBordered={false}
+                      />
+                    </div>
                     <div className="flex flex-col items-end gap-2">
                       {player.isVerified && (
                         <Chip
                           size="sm"
                           variant="flat"
-                          color="primary"
+                          className="rounded-none bg-[#34445C]/10 dark:bg-[#DCFF37]/10 text-[#34445C] dark:text-[#DCFF37]"
                           startContent={<Icon icon="mdi:check-decagram" width={16} />}
                         >
                           Verified
@@ -279,6 +298,7 @@ export default function PlayersPage() {
                           size="sm"
                           variant="flat"
                           color="success"
+                          className="rounded-none"
                           startContent={<Icon icon="mdi:account-search" width={16} />}
                         >
                           LFT
@@ -289,14 +309,14 @@ export default function PlayersPage() {
 
                   <div className="flex flex-col gap-1 w-full">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold">{player.name}</h3>
+                      <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">{player.name}</h3>
                       <span className="text-xs text-default-500">{player.country}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Chip size="sm" variant="flat" color="warning">
+                      <Chip size="sm" variant="flat" className="rounded-none bg-[#FFC700]/20 text-[#FFC700]">
                         {player.rank}
                       </Chip>
-                      <Chip size="sm" variant="flat">
+                      <Chip size="sm" variant="flat" className="rounded-none">
                         {player.rating}
                       </Chip>
                     </div>
@@ -349,17 +369,16 @@ export default function PlayersPage() {
 
                 <CardFooter className="p-4 gap-2">
                   <Button
-                    color="primary"
-                    variant="flat"
-                    className="flex-1"
+                    className="flex-1 bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                     startContent={<Icon icon="mdi:account" width={18} />}
                   >
                     View Profile
                   </Button>
                   <Button
-                    color="default"
                     variant="bordered"
                     isIconOnly
+                    className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
                   >
                     <Icon icon="mdi:message" width={20} />
                   </Button>
@@ -424,14 +443,23 @@ export default function PlayersPage() {
       )}
 
       {/* CTA Card */}
-      <Card className="w-full bg-gradient-to-r from-primary-50 to-secondary-50">
+      <Card className="w-full bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none overflow-hidden relative">
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FFC700]/30 to-transparent dark:from-[#DCFF37]/20 pointer-events-none" />
         <CardBody className="text-center py-8">
-          <Icon icon="mdi:account-plus" className="text-4xl mx-auto mb-2 text-primary" />
-          <h3 className="text-lg font-semibold mb-2">Create Your Player Profile</h3>
-          <p className="text-default-600 mb-4">
+          <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-[#F5F0E1]/20 dark:bg-[#DCFF37]/20"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <Icon icon="mdi:account-plus" width={28} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2 text-[#F5F0E1]">Create Your Player Profile</h3>
+          <p className="text-[#F5F0E1]/80 mb-4">
             Join our community and showcase your skills to teams and players worldwide
           </p>
-          <Button color="primary" variant="shadow" size="lg" onPress={onOpen}>
+          <Button 
+            className="bg-[#F5F0E1] text-[#34445C] font-semibold rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+            size="lg" 
+            onPress={onOpen}
+          >
             Create Profile
           </Button>
         </CardBody>

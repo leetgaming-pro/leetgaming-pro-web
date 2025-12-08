@@ -228,14 +228,15 @@ export default function TournamentsPage() {
       <Card
         key={tournament.id}
         isPressable
-        className="hover:shadow-lg hover:border-primary/50 transition-all"
+        className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
         onPress={() => (window.location.href = `/tournaments/${tournament.id}`)}
       >
-        <CardHeader className="absolute z-10 top-4 flex-col items-start bg-black/60 backdrop-blur-sm m-2 rounded-large">
-          <Chip size="sm" color={statusColor[tournament.status]} variant="flat">
+        <CardHeader className="absolute z-10 top-4 flex-col items-start bg-[#34445C]/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm m-2 rounded-none"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+          <Chip size="sm" color={statusColor[tournament.status]} variant="flat" className="rounded-none">
             {statusLabel[tournament.status]}
           </Chip>
-          <h3 className="text-white font-bold text-xl mt-2">{tournament.name}</h3>
+          <h3 className="text-[#F5F0E1] font-bold text-xl mt-2">{tournament.name}</h3>
         </CardHeader>
         <Image
           removeWrapper
@@ -301,8 +302,8 @@ export default function TournamentsPage() {
           <div className="flex gap-2 w-full">
             {tournament.status === 'registration' && (
               <Button
-                color="primary"
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] font-semibold rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                 startContent={<Icon icon="solar:user-plus-bold" width={20} />}
                 onPress={() => handleRegister(tournament)}
               >
@@ -311,8 +312,8 @@ export default function TournamentsPage() {
             )}
             {tournament.status === 'ongoing' && (
               <Button
-                color="warning"
-                className="flex-1"
+                className="flex-1 bg-[#FFC700] text-[#34445C] font-semibold rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                 startContent={<Icon icon="solar:eye-bold" width={20} />}
                 onPress={() => handleWatchLive(tournament)}
               >
@@ -322,7 +323,7 @@ export default function TournamentsPage() {
             {tournament.status === 'completed' && (
               <Button
                 variant="flat"
-                className="flex-1"
+                className="flex-1 rounded-none"
                 startContent={<Icon icon="solar:chart-bold" width={20} />}
                 onPress={() => handleViewResults(tournament)}
               >
@@ -332,7 +333,7 @@ export default function TournamentsPage() {
             {tournament.status === 'upcoming' && (
               <Button
                 variant="bordered"
-                className="flex-1"
+                className="flex-1 rounded-none border-[#FF4654]/50 dark:border-[#DCFF37]/50"
                 startContent={<Icon icon="solar:bell-bold" width={20} />}
                 onPress={() => handleSetReminder(tournament)}
               >
@@ -342,6 +343,7 @@ export default function TournamentsPage() {
             <Button
               variant="bordered"
               isIconOnly
+              className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
               onPress={() => router.push(`/tournaments/${tournament.id}`)}
             >
               <Icon icon="solar:info-circle-bold" width={20} />
@@ -355,8 +357,14 @@ export default function TournamentsPage() {
   return (
     <PageContainer maxWidth="7xl">
       {/* Page Header */}
-      <div className="mb-8 flex flex-col items-center gap-2 text-center">
-        <h1 className="text-4xl font-bold lg:text-5xl">Tournaments</h1>
+      <div className="mb-8 flex flex-col items-center gap-4 text-center">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="solar:cup-star-bold" width={32} className="text-[#F5F0E1] dark:text-[#34445C]" />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold lg:text-5xl text-[#34445C] dark:text-[#F5F0E1]">Tournaments</h1>
         <p className="text-lg text-default-600 max-w-2xl">
           Compete in competitive tournaments and win prizes
         </p>
@@ -381,35 +389,47 @@ export default function TournamentsPage() {
       {/* Stats Overview */}
       {!loading && (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <Icon icon="solar:cup-star-bold" width={32} className="mx-auto mb-2 text-warning" />
-            <div className="text-2xl font-bold">{tournaments.length}</div>
+            <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+              <Icon icon="solar:cup-star-bold" width={24} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]">{tournaments.length}</div>
             <div className="text-sm text-default-500">Total Tournaments</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <Icon icon="solar:ticket-bold" width={32} className="mx-auto mb-2 text-success" />
-            <div className="text-2xl font-bold">
+            <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+              <Icon icon="solar:ticket-bold" width={24} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-2xl font-bold text-success">
               {tournaments.filter((t) => t.status === 'registration').length}
             </div>
             <div className="text-sm text-default-500">Open Registration</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <Icon icon="solar:play-circle-bold" width={32} className="mx-auto mb-2 text-warning" />
-            <div className="text-2xl font-bold">
+            <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+              <Icon icon="solar:play-circle-bold" width={24} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-2xl font-bold text-warning">
               {tournaments.filter((t) => t.status === 'ongoing').length}
             </div>
             <div className="text-sm text-default-500">In Progress</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <Icon icon="solar:dollar-bold" width={32} className="mx-auto mb-2 text-primary" />
-            <div className="text-2xl font-bold">
+            <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+              <Icon icon="solar:dollar-bold" width={24} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]">
               ${tournaments.reduce((sum, t) => sum + t.prize_pool, 0).toLocaleString()}
             </div>
             <div className="text-sm text-default-500">Total Prize Pool</div>
@@ -425,6 +445,11 @@ export default function TournamentsPage() {
         selectedKey={selectedTab}
         onSelectionChange={(key) => setSelectedTab(key as string)}
         className="mb-6"
+        classNames={{
+          tabList: "bg-[#F5F0E1]/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
+          tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-[#F5F0E1]/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a]",
+          cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+        }}
       >
         <Tab key="all" title="All Tournaments" />
         <Tab key="registration" title="Open Registration" />
@@ -439,17 +464,24 @@ export default function TournamentsPage() {
       </div>
 
       {/* No Results */}
-      {filteredTournaments.length === 0 && (
-        <Card>
+      {filteredTournaments.length === 0 && !loading && (
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:cup-linear" width={64} className="mx-auto mb-4 text-default-400" />
-            <h3 className="text-xl font-semibold mb-2">No tournaments found</h3>
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:cup-linear" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No tournaments found</h3>
             <p className="text-default-600 mb-4">
               {selectedTab === 'all'
                 ? 'No tournaments available at the moment.'
                 : `No ${selectedTab} tournaments available.`}
             </p>
-            <Button color="primary" onClick={() => setSelectedTab('all')}>
+            <Button 
+              className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onClick={() => setSelectedTab('all')}
+            >
               View All Tournaments
             </Button>
           </CardBody>
@@ -457,25 +489,28 @@ export default function TournamentsPage() {
       )}
 
       {/* Create Tournament CTA */}
-      <Card className="mt-8 bg-gradient-to-r from-primary-500 to-secondary-500">
+      <Card className="mt-8 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none overflow-hidden relative">
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FFC700]/30 to-transparent dark:from-[#DCFF37]/20 pointer-events-none" />
         <CardBody className="text-center py-8">
-          <Icon icon="solar:cup-star-bold" width={48} className="mx-auto mb-4 text-white" />
-          <h3 className="text-2xl font-bold text-white mb-2">Want to host your own tournament?</h3>
-          <p className="text-white/80 mb-6">
+          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#F5F0E1]/20 dark:bg-[#DCFF37]/20"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="solar:cup-star-bold" width={32} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
+          </div>
+          <h3 className="text-2xl font-bold text-[#F5F0E1] mb-2">Want to host your own tournament?</h3>
+          <p className="text-[#F5F0E1]/80 mb-6">
             Create and manage tournaments for your community with our easy-to-use tools
           </p>
           <div className="flex gap-3 justify-center">
             <Button
-              color="default"
-              variant="solid"
-              className="bg-white text-primary font-semibold"
+              className="bg-[#F5F0E1] text-[#34445C] font-semibold rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
               onPress={handleCreateTournament}
             >
               Create Tournament
             </Button>
             <Button
               variant="bordered"
-              className="border-white text-white"
+              className="border-[#F5F0E1] text-[#F5F0E1] rounded-none"
               onPress={() => router.push('/docs/tournaments')}
             >
               Learn More

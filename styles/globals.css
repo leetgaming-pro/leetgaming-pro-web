@@ -16,7 +16,7 @@
     --leet-gold: 255, 199, 0; /* #FFC700 - Gold accent */
     --leet-cream: 245, 240, 225; /* #F5F0E1 - Warm cream (replaces pure white) */
     --leet-black: 10, 10, 10; /* #0a0a0a - Rich black */
-    
+
     /* IMPORTANT: Use --leet-cream instead of white for brand consistency */
     /* To revert to white, change: --leet-cream: 255, 255, 255; */
 
@@ -181,19 +181,19 @@
 @layer components {
   /* ========== CREAM COLOR UTILITY ========== */
   /* Use these instead of white for brand consistency */
-  
+
   .text-cream {
     color: rgb(var(--leet-cream)) !important;
   }
-  
+
   .bg-cream {
     background-color: rgb(var(--leet-cream)) !important;
   }
-  
+
   .border-cream {
     border-color: rgb(var(--leet-cream)) !important;
   }
-  
+
   /* ========== BACKGROUND CONTAINERS ========== */
 
   /* Navy Background - ALWAYS cream text */
@@ -231,7 +231,7 @@
   .leet-lime-bg .text-muted {
     color: rgba(var(--leet-navy), 0.7) !important;
   }
-  
+
   /* Cream Background - for cards in light mode */
   .leet-cream-bg {
     background-color: rgb(var(--leet-cream));

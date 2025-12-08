@@ -97,11 +97,17 @@ export default function TeamsPage() {
   return (
     <section className="flex w-full flex-col items-center py-8 px-4">
       <div className="flex max-w-xl flex-col text-center">
-        <Chip color="primary" variant="flat" className="mx-auto mb-2">
+        <Chip color="primary" variant="flat" className="mx-auto mb-2 rounded-none">
           <Icon icon="solar:users-group-two-rounded-bold" className="mr-1" width={16} />
           Community
         </Chip>
-        <h1 className="text-4xl font-bold tracking-tight">
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="solar:users-group-two-rounded-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight text-[#34445C] dark:text-[#F5F0E1]">
           Competitive Teams
         </h1>
         <Spacer y={4} />
@@ -120,6 +126,9 @@ export default function TeamsPage() {
             className="max-w-xs"
             variant="bordered"
             size="lg"
+            classNames={{
+              inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60",
+            }}
           />
           <Select
             placeholder="Select game"
@@ -128,7 +137,11 @@ export default function TeamsPage() {
             className="max-w-xs"
             variant="bordered"
             size="lg"
-            startContent={<Icon icon="solar:gamepad-bold-duotone" width={20} />}
+            startContent={<Icon icon="solar:gamepad-bold-duotone" width={20} className="text-[#FF4654] dark:text-[#DCFF37]" />}
+            classNames={{
+              trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60",
+              popoverContent: "rounded-none",
+            }}
           >
             <SelectItem key="all" value="all">All Games</SelectItem>
             <SelectItem key="cs2" value="cs2">Counter-Strike 2</SelectItem>
@@ -155,14 +168,17 @@ export default function TeamsPage() {
 
       {/* Error State */}
       {error && !loading && (
-        <Card className="max-w-md mx-auto">
+        <Card className="max-w-md mx-auto rounded-none border border-danger/30">
           <CardBody className="text-center py-8">
-            <Icon icon="solar:danger-triangle-bold-duotone" className="text-danger mx-auto mb-4" width={56} />
+            <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-danger/20"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+              <Icon icon="solar:danger-triangle-bold-duotone" className="text-danger" width={28} />
+            </div>
             <h3 className="text-lg font-semibold text-danger mb-2">Unable to load teams</h3>
             <p className="text-default-500 mb-6">{error}</p>
             <Button
-              color="primary"
-              variant="flat"
+              className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
               onPress={() => router.refresh()}
               startContent={<Icon icon="solar:refresh-bold" width={18} />}
             >
@@ -174,10 +190,13 @@ export default function TeamsPage() {
 
       {/* Empty State */}
       {!loading && !error && teamsFromSquads.length === 0 && (
-        <Card className="max-w-lg mx-auto">
+        <Card className="max-w-lg mx-auto rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-default-300 mx-auto mb-6" width={72} />
-            <h3 className="text-xl font-semibold mb-2">No teams found</h3>
+            <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No teams found</h3>
             <p className="text-default-500 mb-6">
               Be the first to create a team and start competing!
             </p>
