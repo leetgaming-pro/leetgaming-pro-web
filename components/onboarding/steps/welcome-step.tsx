@@ -41,8 +41,11 @@ export function WelcomeStep() {
     <div className="text-center">
       {/* Hero Section */}
       <div className="mb-8">
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-          <Icon icon="solar:gamepad-bold" className="w-10 h-10 text-white" />
+        <div 
+          className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)' }}
+        >
+          <Icon icon="solar:gamepad-bold" className="w-10 h-10 text-white dark:text-[#34445C]" />
         </div>
         <h1 className="text-3xl font-bold mb-2">Welcome to LeetGaming</h1>
         <p className="text-default-500 text-lg">

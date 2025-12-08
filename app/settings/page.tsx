@@ -208,6 +208,11 @@ function SettingsContent() {
         className="w-full"
         selectedKey={selectedTab}
         onSelectionChange={handleTabChange}
+        classNames={{
+          tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
+          tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
+          cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+        }}
       >
         <Tab
           key={SettingsTab.PROFILE}
@@ -218,9 +223,9 @@ function SettingsContent() {
             </div>
           }
         >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-bold">Profile Information</h2>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+              <h2 className="text-xl font-bold text-[#34445C] dark:text-white">Profile Information</h2>
             </CardHeader>
             <Divider />
             <CardBody className="space-y-6">
@@ -238,7 +243,11 @@ function SettingsContent() {
                   className="w-24 h-24"
                 />
                 <div>
-                  <Button color="primary" size="sm" startContent={<Icon icon="solar:camera-bold" width={18} />}>
+                  <Button 
+                    className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#34445C] rounded-none" 
+                    size="sm" 
+                    startContent={<Icon icon="solar:camera-bold" width={18} />}
+                  >
                     Change Avatar
                   </Button>
                   <p className="text-xs text-default-500 mt-2">JPG, PNG or GIF. Max size 2MB.</p>

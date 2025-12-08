@@ -8,6 +8,15 @@
 
   /* Root typography settings */
   :root {
+    /* LeetGaming Brand Colors */
+    --leet-navy: 52, 68, 92;           /* #34445C - Primary navy */
+    --leet-navy-dark: 30, 42, 56;      /* #1e2a38 - Darker navy */
+    --leet-lime: 220, 255, 55;         /* #DCFF37 - Signature lime */
+    --leet-orange: 255, 70, 84;        /* #FF4654 - Battle orange/red */
+    --leet-gold: 255, 199, 0;          /* #FFC700 - Gold accent */
+    --leet-white: 255, 255, 255;       /* #FFFFFF */
+    --leet-black: 10, 10, 10;          /* #0a0a0a - Rich black */
+    
     /* Typography */
     --font-display: 'Inter', system-ui, -apple-system, sans-serif;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -107,6 +116,339 @@
   *:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
+  }
+}
+
+/* =============================================
+   LEETGAMING BRAND SYSTEM - Contrast & Colors
+   =============================================
+   
+   🎨 BRAND COLOR RULES (NEVER BREAK THESE):
+   
+   1. NAVY BACKGROUND (#34445C):
+      ✅ Use WHITE text for primary content
+      ✅ Use rgba(255,255,255,0.7) for muted text
+      ❌ NEVER use black or dark text
+   
+   2. LIME BACKGROUND (#DCFF37):
+      ✅ Use NAVY (#34445C) text - high contrast
+      ✅ Use dark colors for icons
+      ❌ NEVER use white text - poor contrast!
+   
+   3. ORANGE/GOLD GRADIENT (#FF4654 → #FFC700):
+      ✅ Use WHITE text
+      ✅ Used for CTAs, highlights, accents
+   
+   4. ICON CONTAINERS:
+      - Light mode: Orange→Gold gradient, white icons
+      - Dark mode: Lime→Navy gradient, NAVY icons (not white!)
+      - Use edgy clip-path, NOT rounded-full
+   
+   5. CARDS & BORDERS:
+      - Use rounded-none (edgy corners)
+      - Border: orange/20 (light), lime/20 (dark)
+   
+   ============================================= */
+
+@layer components {
+  /* ========== BACKGROUND CONTAINERS ========== */
+  
+  /* Navy Background - ALWAYS white text */
+  .leet-navy-bg {
+    background-color: rgb(var(--leet-navy));
+    color: white;
+  }
+  
+  .leet-navy-bg * {
+    color: inherit;
+  }
+  
+  .leet-navy-bg .text-muted,
+  .leet-navy-bg .text-default-500,
+  .leet-navy-bg .text-default-400 {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  /* Dark Navy Background */
+  .leet-navy-dark-bg {
+    background-color: rgb(var(--leet-navy-dark));
+    color: white;
+  }
+  
+  /* Lime Background - ALWAYS navy/dark text */
+  .leet-lime-bg {
+    background-color: rgb(var(--leet-lime));
+    color: rgb(var(--leet-navy)) !important;
+  }
+  
+  .leet-lime-bg * {
+    color: rgb(var(--leet-navy));
+  }
+  
+  .leet-lime-bg .text-muted {
+    color: rgba(var(--leet-navy), 0.7) !important;
+  }
+  
+  /* Orange Gradient Background - white text */
+  .leet-orange-gradient-bg {
+    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    color: white;
+  }
+  
+  /* ========== BRANDED CARDS ========== */
+  
+  .leet-card {
+    background: white;
+    border: 1px solid rgba(var(--leet-orange), 0.2);
+    border-radius: 0;
+  }
+  
+  .dark .leet-card {
+    background: rgb(var(--leet-black));
+    border-color: rgba(var(--leet-lime), 0.2);
+  }
+  
+  /* Card on Navy Background */
+  .leet-card-on-navy {
+    background: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--leet-navy));
+    border: 1px solid rgba(var(--leet-orange), 0.3);
+    border-radius: 0;
+  }
+  
+  .dark .leet-card-on-navy {
+    background: rgba(var(--leet-black), 0.8);
+    color: white;
+    border-color: rgba(var(--leet-lime), 0.3);
+  }
+  
+  /* ========== TEXT UTILITIES ========== */
+  
+  .text-on-navy {
+    color: white !important;
+  }
+  
+  .text-on-navy-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  .text-on-lime {
+    color: rgb(var(--leet-navy)) !important;
+  }
+  
+  .text-on-lime-muted {
+    color: rgba(var(--leet-navy), 0.7) !important;
+  }
+  
+  /* Accent colors (adapts to theme) */
+  .leet-text-accent {
+    color: rgb(var(--leet-orange));
+  }
+  
+  .dark .leet-text-accent {
+    color: rgb(var(--leet-lime));
+  }
+  
+  /* ========== ICON CONTAINERS (Standardized) ========== */
+  
+  /* Standard Icon Box - Edgy corners with branded gradient */
+  .leet-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    color: white;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  }
+  
+  .dark .leet-icon-box {
+    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    color: rgb(var(--leet-navy)); /* Navy text on lime - NOT white! */
+  }
+  
+  /* Icon Box Sizes */
+  .leet-icon-box-sm {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .leet-icon-box-md {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .leet-icon-box-lg {
+    width: 4rem;
+    height: 4rem;
+  }
+  
+  .leet-icon-box-xl {
+    width: 5rem;
+    height: 5rem;
+  }
+  
+  /* Hero Icon Box (centered, for empty states) */
+  .leet-hero-icon {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    color: white;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  }
+  
+  .dark .leet-hero-icon {
+    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    color: rgb(var(--leet-navy));
+  }
+  
+  /* ========== PAGE HEADER ========== */
+  
+  .leet-page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .leet-page-header-icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    color: white;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  }
+  
+  .dark .leet-page-header-icon {
+    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    color: rgb(var(--leet-navy));
+  }
+  
+  .leet-page-header h1 {
+    color: rgb(var(--leet-navy));
+    font-weight: 700;
+  }
+  
+  .dark .leet-page-header h1 {
+    color: white;
+  }
+  
+  /* ========== STATS CARD ========== */
+  
+  .leet-stats-card {
+    background: linear-gradient(135deg, rgba(var(--leet-navy), 0.05), transparent);
+    border: 1px solid rgba(var(--leet-orange), 0.2);
+    border-radius: 0;
+    padding: 1rem;
+  }
+  
+  .dark .leet-stats-card {
+    background: linear-gradient(135deg, rgba(var(--leet-lime), 0.05), transparent);
+    border-color: rgba(var(--leet-lime), 0.2);
+  }
+  
+  /* ========== TABS ========== */
+  
+  .leet-tabs [data-slot="tabList"] {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.25rem;
+    border-radius: 0;
+    gap: 0.25rem;
+  }
+  
+  .dark .leet-tabs [data-slot="tabList"] {
+    background: rgb(26, 26, 26);
+  }
+  
+  .leet-tabs [data-slot="tab"] {
+    border-radius: 0;
+    font-weight: 500;
+  }
+  
+  .leet-tabs [data-slot="tab"][data-selected="true"] {
+    background: rgb(var(--leet-navy));
+    color: white;
+  }
+  
+  .dark .leet-tabs [data-slot="tab"][data-selected="true"] {
+    background: rgb(var(--leet-lime));
+    color: rgb(var(--leet-navy)); /* Navy on lime! */
+  }
+  
+  /* ========== TABLES ========== */
+  
+  .leet-table [data-slot="th"] {
+    background: rgba(var(--leet-navy), 0.05);
+    color: rgb(var(--leet-navy));
+    border-radius: 0;
+  }
+  
+  .dark .leet-table [data-slot="th"] {
+    background: rgba(var(--leet-lime), 0.05);
+    color: rgb(var(--leet-lime));
+  }
+  
+  .leet-table [data-slot="tr"]:hover {
+    background: rgba(var(--leet-orange), 0.05);
+  }
+  
+  .dark .leet-table [data-slot="tr"]:hover {
+    background: rgba(var(--leet-lime), 0.05);
+  }
+  
+  /* ========== INPUTS ========== */
+  
+  .leet-input [data-slot="inputWrapper"] {
+    border-radius: 0;
+    border-color: rgba(var(--leet-navy), 0.3);
+  }
+  
+  .dark .leet-input [data-slot="inputWrapper"] {
+    border-color: rgba(var(--leet-lime), 0.3);
+  }
+  
+  /* ========== CHIPS ========== */
+  
+  .leet-chip-accent {
+    background: rgba(var(--leet-orange), 0.1);
+    color: rgb(var(--leet-orange));
+  }
+  
+  .dark .leet-chip-accent {
+    background: rgba(var(--leet-lime), 0.1);
+    color: rgb(var(--leet-lime));
+  }
+  
+  /* ========== BUTTONS ========== */
+  
+  /* Primary Button - Orange gradient */
+  .leet-btn-primary {
+    background: linear-gradient(135deg, rgb(var(--leet-orange)), rgb(var(--leet-gold)));
+    color: white !important;
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  }
+  
+  .dark .leet-btn-primary {
+    background: linear-gradient(135deg, rgb(var(--leet-lime)), rgb(var(--leet-navy)));
+    color: rgb(var(--leet-navy)) !important;
+  }
+  
+  /* Secondary Button - Navy */
+  .leet-btn-secondary {
+    background: rgb(var(--leet-navy));
+    color: white !important;
+    border-radius: 0;
+  }
+  
+  .dark .leet-btn-secondary {
+    background: rgb(var(--leet-lime));
+    color: rgb(var(--leet-navy)) !important;
   }
 }
 

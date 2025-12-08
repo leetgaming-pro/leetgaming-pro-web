@@ -196,29 +196,34 @@ export default function WalletPage() {
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
+      {/* Header - LeetGaming Brand */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Icon icon="solar:wallet-bold-duotone" className="text-primary" width={32} />
-            My Wallet
-          </h1>
-          <p className="text-default-500 text-sm mt-1">Manage your funds and view transaction history</p>
+        <div className="flex items-center gap-4">
+          <div 
+            className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}
+          >
+            <Icon icon="solar:wallet-bold-duotone" className="text-white dark:text-[#34445C]" width={28} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#34445C] dark:text-white">My Wallet</h1>
+            <p className="text-default-500 text-sm">Manage your funds and view transaction history</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button
-            color="primary"
+            className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#34445C] rounded-none"
             startContent={<Icon icon="solar:download-minimalistic-bold" width={18} />}
             onPress={() => setIsDepositOpen(true)}
           >
             Deposit
           </Button>
           <Button
-            color="default"
+            className="border-[#34445C]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#DCFF37] rounded-none"
             variant="bordered"
             startContent={<Icon icon="solar:upload-minimalistic-bold" width={18} />}
             onPress={() => setIsWithdrawOpen(true)}
@@ -237,12 +242,12 @@ export default function WalletPage() {
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
       >
         {/* Main Balance Card */}
-        <Card className="col-span-1 md:col-span-2 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border-2 border-primary-200 dark:border-primary-800">
+        <Card className="col-span-1 md:col-span-2 bg-gradient-to-br from-[#34445C]/5 to-[#FF4654]/5 dark:from-[#DCFF37]/5 dark:to-[#34445C]/10 border-2 border-[#FF4654]/20 dark:border-[#DCFF37]/30 rounded-none">
           <CardBody className="gap-4 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Icon icon="solar:wallet-bold-duotone" width={24} className="text-primary-600" />
-                <span className="font-semibold">Available Balance</span>
+                <Icon icon="solar:wallet-bold-duotone" width={24} className="text-[#FF4654] dark:text-[#DCFF37]" />
+                <span className="font-semibold text-[#34445C] dark:text-white">Available Balance</span>
               </div>
               <Dropdown>
                 <DropdownTrigger>
@@ -258,7 +263,7 @@ export default function WalletPage() {
               </Dropdown>
             </div>
 
-            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-400 dark:to-secondary-400">
+            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]">
               {currentBalance ? (
                 <AnimatedCounter value={currentBalanceDollars} prefix="$" decimals={2} />
               ) : (
@@ -293,9 +298,9 @@ export default function WalletPage() {
         </Card>
 
         {/* Stats Card */}
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="gap-4 p-6">
-            <h3 className="font-semibold text-default-700">Quick Stats</h3>
+            <h3 className="font-semibold text-[#34445C] dark:text-white">Quick Stats</h3>
             <Divider />
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -338,9 +343,9 @@ export default function WalletPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card>
-          <CardHeader className="flex justify-between items-center px-6 py-4">
-            <h3 className="font-semibold text-lg">Recent Transactions</h3>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+          <CardHeader className="flex justify-between items-center px-6 py-4 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+            <h3 className="font-semibold text-lg text-[#34445C] dark:text-white">Recent Transactions</h3>
             <Button
               size="sm"
               variant="flat"
@@ -358,7 +363,8 @@ export default function WalletPage() {
                   aria-label="Transaction history"
                   removeWrapper
                   classNames={{
-                    th: 'bg-default-100 text-default-600',
+                    th: 'bg-[#34445C]/5 dark:bg-[#DCFF37]/5 text-[#34445C] dark:text-[#DCFF37] rounded-none',
+                    td: 'rounded-none',
                   }}
                 >
                   <TableHeader>

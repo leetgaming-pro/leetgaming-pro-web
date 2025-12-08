@@ -207,7 +207,7 @@ export default function AboutPage() {
       </Card>
 
       {/* Contact CTA */}
-      <Card className="w-full max-w-5xl bg-gradient-to-r from-primary to-secondary">
+      <Card className="w-full max-w-5xl bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none">
         <CardBody className="p-8 text-center text-white">
           <h2 className="text-2xl font-bold mb-3">Get in Touch</h2>
           <p className="mb-4 opacity-90">
