@@ -49,9 +49,16 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
         <div
           ref={ref}
           className={cn(
-            "flex flex-col items-center rounded-large bg-content1 px-4 py-6 text-center shadow-small",
+            "flex flex-col items-center bg-content1 px-4 py-6 text-center shadow-small transition-all duration-200",
+            "border border-default-200 dark:border-[#DCFF37]/20",
+            "hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50",
+            "hover:shadow-lg hover:shadow-[#FF4654]/10 dark:hover:shadow-[#DCFF37]/10",
             className,
           )}
+          style={{
+            clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)',
+            borderRadius: 0,
+          }}
           {...props}
         >
           {!hovered ? (
