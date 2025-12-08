@@ -174,8 +174,11 @@ export default function BlogPage() {
       {/* Featured Posts */}
       {featuredPosts.length > 0 && (
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Icon icon="solar:star-bold" className="text-warning" width={28} />
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-[#34445C] dark:text-[#F5F0E1]">
+            <div className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
+              <Icon icon="solar:star-bold" className="text-[#F5F0E1] dark:text-[#34445C]" width={18} />
+            </div>
             Featured Stories
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -183,14 +186,15 @@ export default function BlogPage() {
               <Card
                 key={post.id}
                 isPressable
-                className="hover:scale-[1.02] transition-transform"
+                className="hover:scale-[1.01] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
                 onPress={() => router.push(`/blog/${post.slug}`)}
               >
-                <CardHeader className="absolute z-10 top-4 flex-col items-start bg-black/60 backdrop-blur-sm m-2 rounded-large">
-                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat">
+                <CardHeader className="absolute z-10 top-4 flex-col items-start bg-[#34445C]/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm m-2 rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat" className="rounded-none">
                     {post.category}
                   </Chip>
-                  <h3 className="text-white/90 font-bold text-xl mt-2">{post.title}</h3>
+                  <h3 className="text-[#F5F0E1] font-bold text-xl mt-2">{post.title}</h3>
                 </CardHeader>
                 <Image
                   removeWrapper
@@ -237,8 +241,9 @@ export default function BlogPage() {
               key={category}
               size="lg"
               variant={selectedCategory === category ? 'solid' : 'bordered'}
-              color={selectedCategory === category ? 'primary' : 'default'}
-              className="cursor-pointer"
+              className={`cursor-pointer rounded-none ${selectedCategory === category 
+                ? 'bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C]' 
+                : 'border-[#34445C]/30 dark:border-[#DCFF37]/30'}`}
               onClick={() => setSelectedCategory(category)}
             >
               {category}
@@ -250,23 +255,28 @@ export default function BlogPage() {
           placeholder="Search posts..."
           value={searchQuery}
           onValueChange={setSearchQuery}
-          startContent={<Icon icon="solar:magnifer-linear" width={20} />}
+          startContent={<Icon icon="solar:magnifer-linear" width={20} className="text-[#FF4654] dark:text-[#DCFF37]" />}
           isClearable
           onClear={() => setSearchQuery('')}
+          classNames={{
+            inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+          }}
         />
       </div>
 
       {/* Recent Posts Grid */}
       <div>
-        <h2 className="text-2xl font-bold mb-6">Recent Posts</h2>
+        <h2 className="text-2xl font-bold mb-6 text-[#34445C] dark:text-[#F5F0E1]">Recent Posts</h2>
         {filteredPosts.length === 0 ? (
           <div className="text-center py-12">
-            <Icon icon="solar:ghost-linear" width={64} className="mx-auto mb-4 text-default-400" />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+              <Icon icon="solar:ghost-linear" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
+            </div>
             <p className="text-default-600">No posts found matching your criteria</p>
             <Button
-              className="mt-4"
+              className="mt-4 rounded-none text-[#FF4654] dark:text-[#DCFF37]"
               variant="light"
-              color="primary"
               onClick={() => {
                 setSelectedCategory('All');
                 setSearchQuery('');
@@ -281,14 +291,14 @@ export default function BlogPage() {
               <Card
                 key={post.id}
                 isPressable
-                className="hover:scale-[1.02] transition-transform"
+                className="hover:scale-[1.01] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
                 onPress={() => router.push(`/blog/${post.slug}`)}
               >
                 <CardHeader className="pb-0 pt-4 px-4 flex-col items-start">
-                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat" className="mb-2">
+                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat" className="mb-2 rounded-none">
                     {post.category}
                   </Chip>
-                  <h4 className="font-bold text-lg line-clamp-2">{post.title}</h4>
+                  <h4 className="font-bold text-lg line-clamp-2 text-[#34445C] dark:text-[#F5F0E1]">{post.title}</h4>
                 </CardHeader>
                 <CardBody className="overflow-visible py-2 px-4">
                   <Image
@@ -325,12 +335,13 @@ export default function BlogPage() {
       </div>
 
       {/* Newsletter Subscription */}
-      <Card className="mt-12 bg-gradient-to-r from-primary-500 to-secondary-500">
+      <Card className="mt-12 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none overflow-hidden relative">
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FFC700]/30 to-transparent dark:from-[#DCFF37]/20 pointer-events-none" />
         <CardBody className="py-8 px-6 lg:px-12">
           <div className="flex flex-col lg:flex-row items-center gap-6">
             <div className="flex-1 text-center lg:text-left">
-              <h3 className="text-2xl font-bold text-white mb-2">Stay Updated</h3>
-              <p className="text-white/80">
+              <h3 className="text-2xl font-bold text-[#F5F0E1] mb-2">Stay Updated</h3>
+              <p className="text-[#F5F0E1]/80">
                 Get the latest news, guides, and updates delivered directly to your inbox.
               </p>
             </div>
@@ -341,7 +352,8 @@ export default function BlogPage() {
                 type="email"
                 variant="bordered"
                 classNames={{
-                  input: 'text-white',
+                  inputWrapper: 'rounded-none border-[#F5F0E1]/30',
+                  input: 'text-[#F5F0E1]',
                   inputWrapper: 'border-white/40 hover:border-white/60',
                 }}
               />
