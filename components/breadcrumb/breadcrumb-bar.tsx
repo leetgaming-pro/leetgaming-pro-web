@@ -7,11 +7,10 @@
  * - Other pages: Gradient accent bar similar to "Host tournament" banner
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
 import { Icon } from '@iconify/react';
-import { useTheme } from 'next-themes';
 import { cn } from '@nextui-org/react';
 import { electrolize } from '@/config/fonts';
 
@@ -107,14 +106,23 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
 
 export function BreadcrumbBar() {
   const pathname = usePathname();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const [mounted, setMounted] = useState(false);
 
-  const breadcrumbs = generateBreadcrumbs(pathname);
-  const isPrimaryPage = primaryPages.some(p => pathname.startsWith(p));
+  // Handle hydration mismatch - must render same on server and client initially
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return null;
+  }
+
+  const breadcrumbs = generateBreadcrumbs(pathname || '/');
+  const isPrimaryPage = primaryPages.some(p => (pathname || '/').startsWith(p));
 
   // Don't show breadcrumb on home page
-  if (pathname === '/') {
+  if (!pathname || pathname === '/') {
     return null;
   }
 
