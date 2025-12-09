@@ -7,7 +7,7 @@
  * - Other pages: Gradient accent bar similar to "Host tournament" banner
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { usePathname } from 'next/navigation';
 import NextLink from 'next/link';
 import { Icon } from '@iconify/react';
@@ -87,9 +87,6 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
       });
     } else {
       // Handle dynamic segments (IDs)
-      const parentPath = `/${segments.slice(0, i).join('/')}`;
-      const parentConfig = routeConfig[parentPath];
-      
       // Check if this looks like an ID (UUID or slug)
       if (segments[i].match(/^[a-f0-9-]{36}$|^[a-z0-9-]+$/i)) {
         items.push({
@@ -104,27 +101,10 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
   return items;
 }
 
-export function BreadcrumbBar() {
-  const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  // Handle hydration mismatch - must render same on server and client initially
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render until mounted to avoid hydration issues
-  if (!mounted) {
-    return null;
-  }
-
-  const breadcrumbs = generateBreadcrumbs(pathname || '/');
-  const isPrimaryPage = primaryPages.some(p => (pathname || '/').startsWith(p));
-
-  // Don't show breadcrumb on home page
-  if (!pathname || pathname === '/') {
-    return null;
-  }
+// Inner component that uses pathname
+function BreadcrumbContent({ pathname }: { pathname: string }) {
+  const breadcrumbs = generateBreadcrumbs(pathname);
+  const isPrimaryPage = primaryPages.some(p => pathname.startsWith(p));
 
   // Determine background and text colors based on page type
   const bgClasses = isPrimaryPage
@@ -169,7 +149,7 @@ export function BreadcrumbBar() {
             const isLast = index === breadcrumbs.length - 1;
 
             return (
-              <React.Fragment key={item.href}>
+              <React.Fragment key={`${item.href}-${index}`}>
                 {index > 0 && (
                   <Icon
                     icon="solar:alt-arrow-right-linear"
@@ -226,5 +206,16 @@ export function BreadcrumbBar() {
   );
 }
 
-export default BreadcrumbBar;
+// Main export - handles SSR safety
+export function BreadcrumbBar() {
+  const pathname = usePathname();
 
+  // Don't show breadcrumb on home page or if pathname is null
+  if (!pathname || pathname === '/') {
+    return null;
+  }
+
+  return <BreadcrumbContent pathname={pathname} />;
+}
+
+export default BreadcrumbBar;
