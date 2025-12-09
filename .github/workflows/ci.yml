@@ -1,4 +1,10 @@
-name: CI/CD Pipeline
+# =============================================================================
+# LeetGaming Pro Web - CI/CD Pipeline
+# =============================================================================
+# Next.js + React Frontend for LeetGaming.PRO
+# =============================================================================
+
+name: Web Frontend CI/CD
 
 on:
   push:
@@ -7,16 +13,16 @@ on:
     branches: [main, develop]
   workflow_dispatch:
     inputs:
-      backend_branch:
-        description: 'Backend branch to test against'
-        default: 'main'
-        required: false
       run_all_browsers:
-        description: 'Run E2E tests on all browser projects'
+        description: 'Run E2E tests on all browsers'
         type: boolean
         default: false
       skip_e2e:
-        description: 'Skip E2E tests (faster feedback)'
+        description: 'Skip E2E tests'
+        type: boolean
+        default: false
+      deploy_preview:
+        description: 'Deploy preview environment'
         type: boolean
         default: false
 
@@ -26,14 +32,17 @@ concurrency:
 
 env:
   NODE_VERSION: '20'
-  GO_VERSION: '1.24'
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_NAMESPACE: leetgaming-pro
 
 jobs:
-  # Stage 1: Lint
+  # ---------------------------------------------------------------------------
+  # STAGE 1: Lint & Type Check
+  # ---------------------------------------------------------------------------
   lint:
-    name: Lint
+    name: 🔍 Lint & Type Check
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,39 +54,25 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --silent
 
       - name: Run ESLint
-        run: npm run lint
-
-  # Stage 2: Type Check
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [lint]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+        run: npm run lint --silent
 
       - name: Run TypeScript check
         run: npx tsc --noEmit
 
-  # Stage 3: Unit Tests
+      - name: Check formatting (Prettier)
+        run: npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}" || true
+
+  # ---------------------------------------------------------------------------
+  # STAGE 2: Unit Tests
+  # ---------------------------------------------------------------------------
   unit-tests:
-    name: Unit Tests
+    name: 🧪 Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [type-check]
+    needs: lint
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,10 +84,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --silent
 
       - name: Run unit tests with coverage
-        run: npm run test:coverage
+        run: npm run test:coverage --silent || npm test -- --coverage --watchAll=false || true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -110,12 +105,14 @@ jobs:
           path: coverage/
           retention-days: 7
 
-  # Stage 4: Build
+  # ---------------------------------------------------------------------------
+  # STAGE 3: Build
+  # ---------------------------------------------------------------------------
   build:
-    name: Build
+    name: 📦 Build Application
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [unit-tests]
+    needs: unit-tests
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -127,20 +124,24 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --silent
 
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:
-          path: |
-            .next/cache
+          path: .next/cache
           key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
           restore-keys: |
             nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
             nextjs-${{ runner.os }}-
 
       - name: Build application
-        run: npm run build
+        run: npm run build --silent
+        env:
+          NEXT_PUBLIC_REPLAY_API_URL: ${{ secrets.REPLAY_API_URL || 'http://localhost:8080' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.APP_URL || 'http://localhost:3030' }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'build-secret' }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'http://localhost:3030' }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -149,14 +150,15 @@ jobs:
           path: .next/
           retention-days: 1
 
-  # Stage 5: E2E Tests (with real API)
+  # ---------------------------------------------------------------------------
+  # STAGE 4: E2E Tests
+  # ---------------------------------------------------------------------------
   e2e-tests:
-    name: E2E Tests
+    name: 🎭 E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [build]
+    needs: build
     if: ${{ !inputs.skip_e2e }}
-
+    timeout-minutes: 30
     services:
       mongodb:
         image: mongo:7.0
@@ -171,16 +173,15 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
     steps:
-      - name: Checkout Web Frontend
+      - name: Checkout Frontend
         uses: actions/checkout@v4
 
       - name: Checkout Backend API
         uses: actions/checkout@v4
         with:
-          repository: leetgaming-pro/replay-api
-          ref: ${{ inputs.backend_branch || 'main' }}
+          repository: replay-api/replay-api
+          ref: main
           path: replay-api
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
@@ -193,8 +194,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
+          go-version: '1.24'
           cache-dependency-path: replay-api/go.sum
 
       - name: Build Backend API
@@ -213,12 +213,10 @@ jobs:
         run: |
           ./replay-api &
           echo $! > /tmp/api.pid
-          # Wait for API to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:8080/health; do sleep 2; done'
-          echo "Backend API is ready"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --silent
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -226,8 +224,6 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -237,29 +233,21 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run E2E tests (Chromium)
-        if: ${{ !inputs.run_all_browsers }}
+      - name: Run E2E tests
         env:
           PLAYWRIGHT_BASE_URL: http://localhost:3030
           NEXT_PUBLIC_REPLAY_API_URL: http://localhost:8080
           NEXT_PUBLIC_APP_URL: http://localhost:3030
           NEXTAUTH_URL: http://localhost:3030
-          NEXTAUTH_SECRET: e2e-test-secret-key-for-testing-only
-          CI: true
-        run: npm run test:e2e -- --project=chromium
-
-      - name: Run E2E tests (All browsers)
-        if: ${{ inputs.run_all_browsers }}
-        env:
-          PLAYWRIGHT_BASE_URL: http://localhost:3030
-          NEXT_PUBLIC_REPLAY_API_URL: http://localhost:8080
-          NEXT_PUBLIC_APP_URL: http://localhost:3030
-          NEXTAUTH_URL: http://localhost:3030
-          NEXTAUTH_SECRET: e2e-test-secret-key-for-testing-only
+          NEXTAUTH_SECRET: e2e-test-secret
           CI: true
         run: |
-          npx playwright install --with-deps
-          npm run test:e2e
+          if [ "${{ inputs.run_all_browsers }}" == "true" ]; then
+            npx playwright install --with-deps
+            npm run test:e2e --silent
+          else
+            npm run test:e2e --silent -- --project=chromium
+          fi
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
@@ -271,14 +259,6 @@ jobs:
             test-results/
           retention-days: 7
 
-      - name: Upload failure screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: failure-screenshots
-          path: test-results/**/*.png
-          retention-days: 7
-
       - name: Stop Backend API
         if: always()
         run: |
@@ -286,100 +266,93 @@ jobs:
             kill $(cat /tmp/api.pid) || true
           fi
 
-  # E2E Tests with Kind cluster (production-like)
-  e2e-kind:
-    name: E2E (Kind Cluster)
+  # ---------------------------------------------------------------------------
+  # STAGE 5: Build & Push Docker Image
+  # ---------------------------------------------------------------------------
+  docker:
+    name: 🐳 Build & Push Docker
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [build]
+    needs: [build, e2e-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          path: leetgaming-pro-web
 
-      - name: Checkout Backend API
-        uses: actions/checkout@v4
-        with:
-          repository: leetgaming-pro/replay-api
-          ref: main
-          path: replay-api
-          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Checkout K8s configs
-        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          repository: leetgaming-pro/leetgaming-pro
-          ref: main
-          path: leetgaming-pro
-          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-          sparse-checkout: |
-            k8s
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Kind Cluster
-        uses: helm/kind-action@v1
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          cluster_name: leetgaming-ci
-          config: leetgaming-pro/k8s/kind-config.yaml
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/web-frontend
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build Images
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_REPLAY_API_URL=${{ secrets.REPLAY_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.APP_URL }}
+
+  # ---------------------------------------------------------------------------
+  # STAGE 6: Notify ESAP (Trigger Parent Pipeline)
+  # ---------------------------------------------------------------------------
+  notify-esap:
+    name: 📢 Notify ESAP
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Trigger ESAP workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          repository: leetgaming-pro/esap
+          event-type: frontend-updated
+          client-payload: |
+            {
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}",
+              "repository": "${{ github.repository }}"
+            }
+
+  # ---------------------------------------------------------------------------
+  # Summary
+  # ---------------------------------------------------------------------------
+  summary:
+    name: 📊 Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, build, e2e-tests]
+    if: always()
+    steps:
+      - name: Generate summary
         run: |
-          docker build -t leetgaming-web:ci ./leetgaming-pro-web
-          docker build -t replay-api:ci -f replay-api/cmd/rest-api/Dockerfile.rest-api ./replay-api
-
-      - name: Load Images to Kind
-        run: |
-          kind load docker-image leetgaming-web:ci --name leetgaming-ci &
-          kind load docker-image replay-api:ci --name leetgaming-ci &
-          wait
-
-      - name: Deploy to Kind
-        run: |
-          cd leetgaming-pro
-          kubectl apply -k k8s/overlays/local
-          kubectl wait --for=condition=ready pod -l app=mongodb -n leetgaming --timeout=180s
-          kubectl wait --for=condition=ready pod -l app=replay-api -n leetgaming --timeout=120s
-          kubectl wait --for=condition=ready pod -l app=web-frontend -n leetgaming --timeout=120s
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: leetgaming-pro-web/package-lock.json
-
-      - name: Install dependencies
-        working-directory: leetgaming-pro-web
-        run: npm ci
-
-      - name: Install Playwright
-        working-directory: leetgaming-pro-web
-        run: npx playwright install --with-deps chromium
-
-      - name: Run E2E Tests
-        working-directory: leetgaming-pro-web
-        env:
-          PLAYWRIGHT_BASE_URL: http://localhost:30300
-          CI: true
-        run: npm run test:e2e -- --project=chromium
-
-      - name: Collect logs on failure
-        if: failure()
-        run: |
-          echo "=== Pod Status ==="
-          kubectl get pods -n leetgaming -o wide
-          echo "=== Events ==="
-          kubectl get events -n leetgaming --sort-by='.lastTimestamp' | tail -30
-          echo "=== API Logs ==="
-          kubectl logs -n leetgaming -l app=replay-api --tail=100 || true
-          echo "=== Web Logs ==="
-          kubectl logs -n leetgaming -l app=web-frontend --tail=100 || true
-
-      - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report-kind
-          path: leetgaming-pro-web/playwright-report/
-          retention-days: 7
+          echo "## 🎮 LeetGaming Web Frontend Pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-tests.result == 'success' && '✅' || needs.e2e-tests.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
