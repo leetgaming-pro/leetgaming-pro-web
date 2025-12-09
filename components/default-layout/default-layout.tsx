@@ -12,6 +12,7 @@ import FooterColumns from '../footer-columns/app';
 import { useEffect, useState } from "react";
 import { GlobalSearchProvider } from '@/components/search/global-search-provider';
 import { ToastProvider } from '@/components/toast/toast-provider';
+import { BreadcrumbBar } from '@/components/breadcrumb/breadcrumb-bar';
 
 export const metadata: Metadata = {
   title: {
@@ -66,7 +67,8 @@ export default function RootLayout({
             <ToastProvider>
             <GlobalSearchProvider>
               <div className="relative flex flex-col h-screen w-full">
-                <Navbar  />
+                <Navbar />
+                <BreadcrumbBar />
                 <main className="flex w-full flex-col items-center flex-grow">
                   <div className="w-full max-w-[1400px] mx-auto px-4 lg:px-6">
                     {children}
