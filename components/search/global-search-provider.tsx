@@ -2,11 +2,12 @@
 
 /**
  * GlobalSearchProvider
- * Provides global search modal accessible via keyboard shortcut (Cmd+K / Ctrl+K)
+ * Provides global search state accessible via keyboard shortcut (Cmd+K / Ctrl+K)
+ * The actual SearchModal is rendered in the Navbar component - this provider
+ * only manages state and keyboard shortcuts
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import SearchModal from './search-modal/search-modal';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { shortcuts } from '@/hooks/useKeyboardShortcut';
 
 interface GlobalSearchContextValue {
@@ -18,10 +19,10 @@ interface GlobalSearchContextValue {
 
 const GlobalSearchContext = createContext<GlobalSearchContextValue | null>(null);
 
-export function useGlobalSearch() {
+export function useGlobalSearchContext() {
   const context = useContext(GlobalSearchContext);
   if (!context) {
-    throw new Error('useGlobalSearch must be used within GlobalSearchProvider');
+    throw new Error('useGlobalSearchContext must be used within GlobalSearchProvider');
   }
   return context;
 }
@@ -38,10 +39,12 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
   const toggleSearch = useCallback(() => setIsOpen((prev) => !prev), []);
 
   // Register keyboard shortcuts
-  shortcuts.search(openSearch);
-  shortcuts.escape(() => {
-    if (isOpen) closeSearch();
-  });
+  useEffect(() => {
+    shortcuts.search(openSearch);
+    shortcuts.escape(() => {
+      if (isOpen) closeSearch();
+    });
+  }, [isOpen, openSearch, closeSearch]);
 
   const value: GlobalSearchContextValue = {
     isOpen,
@@ -53,7 +56,7 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
   return (
     <GlobalSearchContext.Provider value={value}>
       {children}
-      <SearchModal />
+      {/* SearchModal is rendered in Navbar - not here to avoid duplicates */}
     </GlobalSearchContext.Provider>
   );
 }
