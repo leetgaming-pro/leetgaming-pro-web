@@ -12,7 +12,8 @@ import {
 import { Link } from "@nextui-org/link";
 import { Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useCallback } from "react";
 
 import { link as linkStyles } from "@nextui-org/theme";
 
@@ -48,6 +49,14 @@ import { LanguageSelector } from '@/components/i18n/language-selector';
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Handle menu item click - close menu and navigate
+  const handleMenuItemClick = useCallback((href: string) => {
+    setIsMenuOpen(false);
+    router.push(href);
+  }, [router]);
 
   let { theme, setTheme } = useTheme();
 
@@ -81,9 +90,12 @@ export const Navbar = () => {
       position="sticky"
       isBordered={false}
       isBlurred={true}
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
       className="border-b border-divider/30 backdrop-blur-md backdrop-saturate-150"
       classNames={{
-        wrapper: "px-4 lg:px-6 max-w-full",
+        wrapper: "px-4 md:px-6 max-w-full",
+        menuItem: "data-[active=true]:bg-primary/10",
       }}
     >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -93,7 +105,7 @@ export const Navbar = () => {
           </NextLink>
         </NavbarBrand>
 
-        <ul className="hidden lg:flex items-stretch h-full gap-0 ml-4">
+        <ul className="hidden md:flex items-stretch h-full gap-0 ml-4">
           {siteConfig.navItems.map((item, index) => {
             const active = isActive(item.href);
             const isPrimary = item.href === "/match-making";
@@ -131,31 +143,31 @@ export const Navbar = () => {
         </ul>
       </NavbarContent>
 
-      <NavbarContent className="hidden lg:flex gap-3" justify="end">
+      <NavbarContent className="hidden md:flex gap-3" justify="end">
         {/* Separator // */}
-        <NavbarItem className="hidden lg:flex items-center">
+        <NavbarItem className="hidden md:flex items-center">
           <span className="text-[#FF4654]/40 dark:text-[#DCFF37]/40 font-mono text-lg tracking-tighter select-none">//</span>
         </NavbarItem>
         
-        <NavbarItem className="hidden lg:flex w-64 xl:w-80">
+        <NavbarItem className="hidden md:flex w-48 lg:w-64 xl:w-80">
           {searchInput}
         </NavbarItem>
 
-        <NavbarItem className="hidden sm:flex gap-1.5 items-center">
+        <NavbarItem className="hidden md:flex gap-1.5 items-center">
           <LanguageSelector showFlag={true} variant="flat" size="sm" />
           <NotificationCenter enableRealtime={true} />
           <ThemeSwitch />
         </NavbarItem>
 
-        <NavbarItem className="hidden lg:flex">
+        <NavbarItem className="hidden md:flex">
           <SessionArea />
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="lg:hidden basis-1 gap-1" justify="end">
+      <NavbarContent className="md:hidden basis-1 gap-1" justify="end">
         <LanguageSelector showFlag={true} variant="flat" size="sm" />
         <ThemeSwitch />
-        <NavbarMenuToggle />
+        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
       </NavbarContent>
 
       <NavbarMenu className="pt-6 pb-6 gap-2 bg-background/95 backdrop-blur-xl">
@@ -166,7 +178,7 @@ export const Navbar = () => {
           {siteConfig.navMenuItems.map((item, index) => {
             // Handle divider
             if (item.label === 'divider') {
-              return <Divider key={`divider-${index}`} className="my-2" />;
+              return <Divider key={`divider-${index}`} className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />;
             }
 
             const isHighlight = (item as any).highlight;
@@ -175,28 +187,34 @@ export const Navbar = () => {
 
             return (
               <NavbarMenuItem key={`${item.label}-${index}`}>
-                <NextLink
+                <button
+                  onClick={() => handleMenuItemClick(item.href)}
                   className={clsx(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200",
+                    "w-full flex items-center gap-3 px-3 py-2.5 transition-all duration-200 text-left",
+                    // Edgy clip-path for all menu items
                     isHighlight
                       ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold dark:from-[#DCFF37] dark:to-[#34445C] dark:text-[#1a1a1a]"
                       : active
                         ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
-                        : "hover:bg-default-100 text-foreground"
+                        : "hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 text-foreground"
                   )}
-                  href={item.href}
+                  style={{ 
+                    clipPath: isHighlight || active 
+                      ? 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)'
+                      : undefined 
+                  }}
                 >
                   {itemIcon && (
                     <Icon
                       icon={itemIcon}
                       className={clsx(
-                        "w-5 h-5",
+                        "w-5 h-5 flex-shrink-0",
                         isHighlight || active ? "text-current" : "text-default-500"
                       )}
                     />
                   )}
                   <span>{item.label}</span>
-                </NextLink>
+                </button>
               </NavbarMenuItem>
             );
           })}
@@ -207,11 +225,15 @@ export const Navbar = () => {
               <Divider className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
               <NavbarMenuItem>
                 <Button
-                  className="w-full justify-start gap-3 px-3 rounded-none bg-danger/10 hover:bg-danger/20 text-danger font-semibold"
+                  className="w-full justify-start gap-3 px-3 bg-danger/10 hover:bg-danger/20 text-danger font-semibold"
+                  radius="none"
                   variant="flat"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                   startContent={<Icon icon="solar:logout-2-bold" className="w-5 h-5" />}
-                  onPress={() => signOut({ callbackUrl: '/' })}
+                  onPress={() => {
+                    setIsMenuOpen(false);
+                    signOut({ callbackUrl: '/' });
+                  }}
                 >
                   Log Out
                 </Button>
