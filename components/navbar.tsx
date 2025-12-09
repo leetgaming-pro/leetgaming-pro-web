@@ -147,7 +147,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 gap-1" justify="end">
+      <NavbarContent className="lg:hidden basis-1 gap-1" justify="end">
         <LanguageSelector showFlag={true} variant="flat" size="sm" />
         <ThemeSwitch />
         <NavbarMenuToggle />
@@ -170,7 +170,7 @@ export const Navbar = () => {
 
             return (
               <NavbarMenuItem key={`${item.label}-${index}`}>
-                <Link
+                <NextLink
                   className={clsx(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-none transition-all duration-200",
                     isHighlight
@@ -180,7 +180,6 @@ export const Navbar = () => {
                         : "hover:bg-default-100 text-foreground"
                   )}
                   href={item.href}
-                  size="lg"
                 >
                   {itemIcon && (
                     <Icon
@@ -192,7 +191,7 @@ export const Navbar = () => {
                     />
                   )}
                   <span>{item.label}</span>
-                </Link>
+                </NextLink>
               </NavbarMenuItem>
             );
           })}
@@ -200,12 +199,12 @@ export const Navbar = () => {
           {/* Logout button - only show if logged in */}
           {session && (
             <>
-              <Divider className="my-2" />
+              <Divider className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
               <NavbarMenuItem>
                 <Button
-                  className="w-full justify-start gap-3 px-3"
-                  color="danger"
-                  variant="light"
+                  className="w-full justify-start gap-3 px-3 rounded-none bg-danger/10 hover:bg-danger/20 text-danger font-semibold"
+                  variant="flat"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                   startContent={<Icon icon="solar:logout-2-bold" className="w-5 h-5" />}
                   onPress={() => signOut({ callbackUrl: '/' })}
                 >
