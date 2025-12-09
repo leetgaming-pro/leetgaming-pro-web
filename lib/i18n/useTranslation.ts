@@ -6,6 +6,7 @@ import { Locale, defaultLocale, getUserLocale, setUserLocale, localeInfo } from 
 // Import translations
 import enUS from './translations/en-US.json';
 import ptBR from './translations/pt-BR.json';
+import esES from './translations/es-ES.json';
 
 type TranslationDictionary = typeof enUS;
 
@@ -13,8 +14,8 @@ const translations: Record<Locale, TranslationDictionary> = {
   'en-US': enUS,
   'en-GB': enUS, // Fallback to en-US
   'pt-BR': ptBR,
-  'es-ES': enUS, // TODO: Add Spanish translations
-  'es-LA': enUS,
+  'es-ES': esES,
+  'es-LA': esES, // Latin American Spanish uses Spain Spanish as base
   'de-DE': enUS, // TODO: Add German translations
   'fr-FR': enUS, // TODO: Add French translations
   'ja-JP': enUS, // TODO: Add Japanese translations
