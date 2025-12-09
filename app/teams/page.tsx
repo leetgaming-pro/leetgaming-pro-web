@@ -95,68 +95,64 @@ export default function TeamsPage() {
   }));
 
   return (
-    <section className="flex w-full flex-col items-center py-8 px-4">
-      <div className="flex max-w-xl flex-col text-center">
-        <Chip color="primary" variant="flat" className="mx-auto mb-2 rounded-none">
-          <Icon icon="solar:users-group-two-rounded-bold" className="mr-1" width={16} />
-          Community
-        </Chip>
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-            <Icon icon="solar:users-group-two-rounded-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+    <section className="w-full max-w-7xl mx-auto px-4 py-8">
+      {/* Header - Cloud page pattern */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <Icon icon="solar:users-group-two-rounded-bold" width={28} className="text-[#F5F0E1] dark:text-[#1a1a1a]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Competitive Teams</h1>
+            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Discover professional esports teams and find your squad</p>
           </div>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-[#34445C] dark:text-[#F5F0E1]">
-          Competitive Teams
-        </h1>
-        <Spacer y={4} />
-        <p className="text-lg text-default-600">
-          Discover professional esports teams and find your next squad. Join the competitive gaming community.
-        </p>
-        <Spacer y={6} />
-
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row w-full justify-center gap-3 mb-6">
-          <Input
-            placeholder="Search teams..."
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-            startContent={<SearchIcon size={16} />}
-            className="max-w-xs"
-            variant="bordered"
-            size="lg"
-            classNames={{
-              inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60",
-            }}
-          />
-          <Select
-            placeholder="Select game"
-            selectedKeys={[gameFilter]}
-            onChange={(e) => setGameFilter(e.target.value)}
-            className="max-w-xs"
-            variant="bordered"
-            size="lg"
-            startContent={<Icon icon="solar:gamepad-bold-duotone" width={20} className="text-[#FF4654] dark:text-[#DCFF37]" />}
-            classNames={{
-              trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60",
-              popoverContent: "rounded-none",
-            }}
-          >
-            <SelectItem key="all" value="all">All Games</SelectItem>
-            <SelectItem key="cs2" value="cs2">Counter-Strike 2</SelectItem>
-            <SelectItem key="vlrnt" value="vlrnt">Valorant</SelectItem>
-            <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
-          </Select>
-        </div>
-
-        <div className="flex w-full justify-center gap-3">
-          <ApplyNowButton />
+        <div className="flex gap-2">
           <LaunchYourSquadButton />
         </div>
       </div>
 
-      <Spacer y={8} />
+      {/* Search and Filters Card */}
+      <Card className="mb-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-gradient-to-r from-[#34445C]/5 to-transparent dark:from-[#DCFF37]/5">
+        <CardBody className="p-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Input
+                placeholder="Search teams..."
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+                startContent={<SearchIcon size={16} className="text-[#FF4654] dark:text-[#DCFF37]" />}
+                className="w-full sm:w-64"
+                variant="bordered"
+                classNames={{
+                  inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60 h-10",
+                }}
+              />
+              <Select
+                placeholder="Select game"
+                selectedKeys={[gameFilter]}
+                onChange={(e) => setGameFilter(e.target.value)}
+                className="w-full sm:w-48"
+                variant="bordered"
+                startContent={<Icon icon="solar:gamepad-bold-duotone" width={18} className="text-[#FF4654] dark:text-[#DCFF37]" />}
+                classNames={{
+                  trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60 h-10",
+                  popoverContent: "rounded-none",
+                }}
+              >
+                <SelectItem key="all" value="all">All Games</SelectItem>
+                <SelectItem key="cs2" value="cs2">Counter-Strike 2</SelectItem>
+                <SelectItem key="vlrnt" value="vlrnt">Valorant</SelectItem>
+                <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <ApplyNowButton />
+            </div>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Loading State */}
       {loading && (

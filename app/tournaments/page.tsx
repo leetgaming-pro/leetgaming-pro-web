@@ -355,19 +355,29 @@ export default function TournamentsPage() {
   };
 
   return (
-    <PageContainer maxWidth="7xl">
-      {/* Page Header */}
-      <div className="mb-8 flex flex-col items-center gap-4 text-center">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8">
+      {/* Page Header - Cloud page pattern */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-            <Icon icon="solar:cup-star-bold" width={32} className="text-[#F5F0E1] dark:text-[#34445C]" />
+          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
+            <Icon icon="solar:cup-star-bold" width={28} className="text-[#F5F0E1] dark:text-[#1a1a1a]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Tournaments</h1>
+            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Compete in competitive tournaments and win prizes</p>
           </div>
         </div>
-        <h1 className="text-4xl font-bold lg:text-5xl text-[#34445C] dark:text-[#F5F0E1]">Tournaments</h1>
-        <p className="text-lg text-default-600 max-w-2xl">
-          Compete in competitive tournaments and win prizes
-        </p>
+        <div className="flex gap-2">
+          <Button
+            className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#1a1a1a] rounded-none font-semibold"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+            onPress={handleCreateTournament}
+            startContent={<Icon icon="solar:add-circle-bold" width={18} />}
+          >
+            Create Tournament
+          </Button>
+        </div>
       </div>
 
       {/* Loading State */}
@@ -446,9 +456,9 @@ export default function TournamentsPage() {
         onSelectionChange={(key) => setSelectedTab(key as string)}
         className="mb-6"
         classNames={{
-          tabList: "bg-[#F5F0E1]/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
-          tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-[#F5F0E1]/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a]",
-          cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+          tabList: "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
+          cursor: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
         }}
       >
         <Tab key="all" title="All Tournaments" />
@@ -585,6 +595,6 @@ export default function TournamentsPage() {
           )}
         </ModalContent>
       </Modal>
-    </PageContainer>
+    </div>
   );
 }
