@@ -1185,15 +1185,17 @@
   box-shadow: 0 0 0 2px rgba(220, 255, 55, 0.2);
 }
 
-/* Navigation link styles - angular esports aesthetic */
+/* Navigation link styles - trapezoid esports aesthetic */
+/* Trapézio irregular: canto superior esquerdo e inferior direito cortados */
 .esports-nav-link {
   --cut-size: 6px;
   clip-path: polygon(
-    0 0,
-    100% 0,
-    100% calc(100% - var(--cut-size)),
-    calc(100% - var(--cut-size)) 100%,
-    0 100%
+    var(--cut-size) 0,                    /* top-left: cortado */
+    100% 0,                               /* top-right: maior */
+    100% calc(100% - var(--cut-size)),    /* bottom-right: início do corte */
+    calc(100% - var(--cut-size)) 100%,    /* bottom-right: cortado */
+    0 100%,                               /* bottom-left: maior */
+    0 var(--cut-size)                     /* volta ao top-left: cortado */
   );
   border-radius: 0 !important;
 }
@@ -1201,11 +1203,12 @@
 .esports-nav-link-primary {
   --cut-size: 8px;
   clip-path: polygon(
-    0 0,
-    100% 0,
-    100% calc(100% - var(--cut-size)),
-    calc(100% - var(--cut-size)) 100%,
-    0 100%
+    var(--cut-size) 0,                    /* top-left: cortado */
+    100% 0,                               /* top-right: maior */
+    100% calc(100% - var(--cut-size)),    /* bottom-right: início do corte */
+    calc(100% - var(--cut-size)) 100%,    /* bottom-right: cortado */
+    0 100%,                               /* bottom-left: maior */
+    0 var(--cut-size)                     /* volta ao top-left: cortado */
   );
   border-radius: 0 !important;
 }
