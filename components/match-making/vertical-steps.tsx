@@ -172,13 +172,13 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
               <li key={stepIdx} className="relative">
                 <Card
                       style={{
-                        // Light mode: white/light bg for visibility on navy sidebar
+                        // Light mode: cream bg for brand consistency
                         // Dark mode: subtle lime tint
                         background: theme === 'dark' 
                           ? 'rgba(220, 255, 55, 0.05)' 
                           : status === 'active' 
-                            ? 'rgba(255, 255, 255, 0.95)' 
-                            : 'rgba(255, 255, 255, 0.85)',
+                            ? 'rgba(245, 240, 225, 0.98)' 
+                            : 'rgba(245, 240, 225, 0.90)',
                         backdropFilter: 'blur(10px)',
                         borderRadius: '0px',
                         boxShadow: theme === 'dark' 

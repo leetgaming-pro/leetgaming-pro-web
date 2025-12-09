@@ -101,9 +101,17 @@ const ScheduleInformationForm = React.forwardRef<HTMLFormElement, ScheduleInform
           className="w-full" 
           variant="solid"
           classNames={{
-            tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
-            tab: "text-sm font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a]",
-            cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+            tabList: "bg-[#F5F0E1] dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            tab: cn(
+              "text-sm font-semibold rounded-none px-3 py-2",
+              "text-[#34445C] dark:text-[#F5F0E1]/80",
+              "data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37] data-[hover=true]:bg-[#FF4654]/10 dark:data-[hover=true]:bg-[#DCFF37]/10",
+              "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-[#FF4654] data-[selected=true]:to-[#FFC700]",
+              "dark:data-[selected=true]:from-[#DCFF37] dark:data-[selected=true]:to-[#34445C]",
+              "data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a]",
+              "data-[selected=true]:shadow-md"
+            ),
+            cursor: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
           }}
         >
 

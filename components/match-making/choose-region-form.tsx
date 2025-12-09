@@ -70,12 +70,22 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
           className="w-full"
           variant="solid"
           classNames={{
-            // Light mode: white bg with navy tabs, Dark mode: dark bg with lime tabs
-            tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm",
-            // Unselected tabs: navy text in light mode, white text in dark mode
-            // Selected tabs: white text on navy (light) / dark text on lime (dark)
-            tab: "text-xs font-medium rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
-            cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+            // Light mode: cream bg with brand tabs, Dark mode: dark bg with lime tabs
+            tabList: "bg-[#F5F0E1] dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            // Unselected tabs: readable text, Selected tabs: high contrast
+            tab: cn(
+              "text-xs font-semibold rounded-none px-3 py-2",
+              // Unselected state - clear readable text
+              "text-[#34445C] dark:text-[#F5F0E1]/80",
+              // Hover state
+              "data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37] data-[hover=true]:bg-[#FF4654]/10 dark:data-[hover=true]:bg-[#DCFF37]/10",
+              // Selected state - high contrast with gradient background
+              "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-[#FF4654] data-[selected=true]:to-[#FFC700]",
+              "dark:data-[selected=true]:from-[#DCFF37] dark:data-[selected=true]:to-[#34445C]",
+              "data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a]",
+              "data-[selected=true]:shadow-md"
+            ),
+            cursor: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
           }}
         >
           <Tab key="south-america" title="S.America">
