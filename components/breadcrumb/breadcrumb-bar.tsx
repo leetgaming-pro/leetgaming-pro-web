@@ -51,6 +51,9 @@ const routeConfig: Record<string, { label: string; icon: string; parent?: string
 // Special pages that get the "primary" (Play/Match-making) treatment
 const primaryPages = ['/match-making', '/ranked'];
 
+// Cloud pages get their own unique styling (matches Cloud navbar)
+const cloudPages = ['/cloud', '/upload', '/replays', '/highlights'];
+
 function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
   const items: BreadcrumbItem[] = [];
   
@@ -105,36 +108,53 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
 function BreadcrumbContent({ pathname }: { pathname: string }) {
   const breadcrumbs = generateBreadcrumbs(pathname);
   const isPrimaryPage = primaryPages.some(p => pathname.startsWith(p));
+  const isCloudPage = cloudPages.some(p => pathname.startsWith(p));
 
   // Determine background and text colors based on page type
-  const bgClasses = isPrimaryPage
-    ? 'bg-[#34445C] dark:bg-gradient-to-r dark:from-[#DCFF37] dark:to-[#B8D930]'
-    : 'bg-gradient-to-r from-[#FF4654]/10 via-[#FFC700]/10 to-[#FF4654]/10 dark:from-[#DCFF37]/10 dark:via-[#34445C]/20 dark:to-[#DCFF37]/10';
+  // Cloud pages get the same style as the Cloud navbar header
+  // DARK MODE PRIMARY: Gradient inverted to flow from left menu (darker) to right (brighter)
+  const bgClasses = isCloudPage
+    ? 'bg-gradient-to-r from-[#34445C] via-[#34445C] to-[#3d5068] dark:from-[#1a1a1a] dark:via-[#111111] dark:to-[#1a1a1a]'
+    : isPrimaryPage
+      ? 'bg-[#34445C] dark:bg-gradient-to-r dark:from-[#1a1a1a] dark:via-[#2a3a20] dark:to-[#DCFF37]'
+      : 'bg-gradient-to-r from-[#FF4654]/10 via-[#FFC700]/10 to-[#FF4654]/10 dark:from-[#DCFF37]/10 dark:via-[#34445C]/20 dark:to-[#DCFF37]/10';
 
-  const textClasses = isPrimaryPage
-    ? 'text-white dark:text-[#1a1a1a]'
-    : 'text-[#34445C] dark:text-[#F5F0E1]';
+  const textClasses = isCloudPage
+    ? 'text-[#F5F0E1] dark:text-[#F5F0E1]/80'
+    : isPrimaryPage
+      ? 'text-white dark:text-[#DCFF37]'
+      : 'text-[#34445C] dark:text-[#F5F0E1]';
 
-  const separatorClasses = isPrimaryPage
-    ? 'text-white/50 dark:text-[#1a1a1a]/50'
-    : 'text-[#FF4654]/50 dark:text-[#DCFF37]/50';
+  const separatorClasses = isCloudPage
+    ? 'text-[#DCFF37]/50 dark:text-[#DCFF37]/50'
+    : isPrimaryPage
+      ? 'text-white/50 dark:text-[#DCFF37]/50'
+      : 'text-[#FF4654]/50 dark:text-[#DCFF37]/50';
 
-  const hoverClasses = isPrimaryPage
-    ? 'hover:text-white/80 dark:hover:text-[#1a1a1a]/80'
-    : 'hover:text-[#FF4654] dark:hover:text-[#DCFF37]';
+  const hoverClasses = isCloudPage
+    ? 'hover:text-[#DCFF37] dark:hover:text-[#DCFF37]'
+    : isPrimaryPage
+      ? 'hover:text-white/80 dark:hover:text-[#F5F0E1]'
+      : 'hover:text-[#FF4654] dark:hover:text-[#DCFF37]';
 
-  const activeClasses = isPrimaryPage
-    ? 'text-white font-semibold dark:text-[#1a1a1a]'
-    : 'text-[#FF4654] font-semibold dark:text-[#DCFF37]';
+  const activeClasses = isCloudPage
+    ? 'text-[#DCFF37] font-semibold dark:text-[#DCFF37]'
+    : isPrimaryPage
+      ? 'text-white font-semibold dark:text-[#1a1a1a] dark:drop-shadow-[0_0_8px_rgba(220,255,55,0.8)]'
+      : 'text-[#FF4654] font-semibold dark:text-[#DCFF37]';
+
+  const borderClasses = isCloudPage
+    ? 'border-[#DCFF37]/30 dark:border-[#DCFF37]/20'
+    : isPrimaryPage
+      ? 'border-[#34445C]/30 dark:border-[#DCFF37]/30'
+      : 'border-[#FF4654]/20 dark:border-[#DCFF37]/20';
 
   return (
     <div
       className={cn(
         'w-full border-b transition-all duration-200',
         bgClasses,
-        isPrimaryPage
-          ? 'border-[#34445C]/30 dark:border-[#DCFF37]/30'
-          : 'border-[#FF4654]/20 dark:border-[#DCFF37]/20'
+        borderClasses
       )}
     >
       <div className="max-w-[1400px] mx-auto px-4 lg:px-6">
@@ -188,7 +208,7 @@ function BreadcrumbContent({ pathname }: { pathname: string }) {
             );
           })}
 
-          {/* Page action hint - shown for primary pages */}
+          {/* Page action hint - shown for special pages */}
           {isPrimaryPage && (
             <div className="ml-auto flex items-center gap-2">
               <span className={cn('text-xs opacity-70', textClasses)}>
@@ -197,6 +217,17 @@ function BreadcrumbContent({ pathname }: { pathname: string }) {
               <Icon
                 icon="solar:gamepad-bold"
                 className={cn('w-4 h-4 animate-pulse', textClasses)}
+              />
+            </div>
+          )}
+          {isCloudPage && (
+            <div className="ml-auto flex items-center gap-2">
+              <span className={cn('text-xs opacity-70', textClasses)}>
+                Manage your files
+              </span>
+              <Icon
+                icon="solar:cloud-bold"
+                className={cn('w-4 h-4', 'text-[#DCFF37]')}
               />
             </div>
           )}

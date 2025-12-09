@@ -82,13 +82,37 @@ export default function SearchInput() {
                 placement="top-center"
                 size="5xl"
                 classNames={{
-                    base: "rounded-none border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30",
-                    body: "bg-[#F5F0E1] dark:bg-[#1a1a1a]",
-                    header: "bg-gradient-to-r from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10",
-                    footer: "bg-[#F5F0E1] dark:bg-[#1a1a1a] border-t border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+                    base: "leet-modal",
+                    wrapper: "leet-modal-backdrop",
+                    backdrop: "leet-modal-backdrop",
+                    body: "leet-modal-body bg-[#F5F0E1] dark:bg-[#1a1a1a]",
+                    header: "leet-modal-header",
+                    footer: "leet-modal-footer",
+                }}
+                motionProps={{
+                    variants: {
+                        enter: {
+                            y: 0,
+                            opacity: 1,
+                            scale: 1,
+                            transition: {
+                                duration: 0.3,
+                                ease: [0.36, 0.66, 0.4, 1],
+                            },
+                        },
+                        exit: {
+                            y: -20,
+                            opacity: 0,
+                            scale: 0.95,
+                            transition: {
+                                duration: 0.2,
+                                ease: [0.4, 0, 1, 1],
+                            },
+                        },
+                    },
                 }}
             >
-                <ModalContent>
+                <ModalContent className="leet-modal-content">
                     {(onClose) => (
                         <>
                             <ModalHeader className="items-center text-center justify-center">

@@ -1,18 +1,10 @@
 /* eslint-disable @next/next/no-head-element */
-"use client"
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
-import { fontSans, pressStart2P } from "@/config/fonts";
-import { Providers } from "./providers";
-import { Navbar } from "@/components/navbar";
+import { pressStart2P } from "@/config/fonts";
 import clsx from "clsx";
-import Box from './box';
-import FooterColumns from '../footer-columns/app';
-import { useEffect, useState } from "react";
-import { GlobalSearchProvider } from '@/components/search/global-search-provider';
-import { ToastProvider } from '@/components/toast/toast-provider';
-import { BreadcrumbBar } from '@/components/breadcrumb';
+import { ClientLayoutWrapper } from './client-layout-wrapper';
 
 export const metadata: Metadata = {
   title: {
@@ -45,44 +37,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-  const [domLoaded, setDomLoaded] = useState(false);
-
-  useEffect(() => {
-    setDomLoaded(true);
-  }, []);
-
   return (
-    
     <html lang="en" suppressHydrationWarning={true}>
-      
       <head />
       <body
         className={clsx(
           "min-h-screen bg-background bg-scroll blur-glow-pry-gh antialiased w-full overflow-x-hidden",
           pressStart2P.className
         )}
-      >{ domLoaded && <Box>
-          <Providers themeProps={{ attribute: "class", defaultTheme: "dark"}} >
-            <ToastProvider>
-            <GlobalSearchProvider>
-              <div className="relative flex flex-col h-screen w-full">
-                <Navbar />
-                <BreadcrumbBar />
-                <main className="flex w-full flex-col items-center flex-grow">
-                  <div className="w-full max-w-[1400px] mx-auto px-4 lg:px-6">
-                    {children}
-                  </div>
-                </main>
-                <FooterColumns />
-              </div>
-            </GlobalSearchProvider>
-            </ToastProvider>
-          </Providers>
-        </Box>
-}
+      >
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
-    
   );
 }

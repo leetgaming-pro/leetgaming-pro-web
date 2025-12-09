@@ -115,7 +115,16 @@ export class SquadAPI {
     page?: number;
     limit?: number;
   }): Promise<Squad[]> {
-    const response = await this.client.post<Squad[]>('/squads/search', filters);
+    // Use GET with query params - backend doesn't support POST /squads/search
+    const params = new URLSearchParams();
+    if (filters.game_id) params.append('game_id', filters.game_id);
+    if (filters.name) params.append('q', filters.name);
+    if (filters.visibility) params.append('visibility', filters.visibility);
+    if (filters.page) params.append('page', String(filters.page));
+    if (filters.limit) params.append('limit', String(filters.limit));
+
+    const queryString = params.toString();
+    const response = await this.client.get<Squad[]>(`/squads${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 
@@ -136,11 +145,7 @@ export class SquadAPI {
     params.append('limit', String(filters.limit || 20));
     if (filters.offset) params.append('offset', String(filters.offset));
 
-    const response = await this.client.post<Squad[]>('/squads/search', {
-      game_id: filters.game_id,
-      limit: filters.limit || 20,
-      offset: filters.offset || 0,
-    });
+    const response = await this.client.get<Squad[]>(`/squads?${params.toString()}`);
     return response.data || [];
   }
 }
@@ -196,8 +201,18 @@ export class PlayerProfileAPI {
   async searchPlayerProfiles(filters: {
     game_id?: string;
     nickname?: string;
+    limit?: number;
+    offset?: number;
   }): Promise<PlayerProfile[]> {
-    const response = await this.client.post<PlayerProfile[]>('/players/search', filters);
+    // Use GET with query params - backend doesn't support POST /players/search
+    const params = new URLSearchParams();
+    if (filters.game_id) params.append('game_id', filters.game_id);
+    if (filters.nickname) params.append('q', filters.nickname);
+    if (filters.limit) params.append('limit', String(filters.limit));
+    if (filters.offset) params.append('offset', String(filters.offset));
+
+    const queryString = params.toString();
+    const response = await this.client.get<PlayerProfile[]>(`/players${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 
@@ -240,8 +255,26 @@ export class MatchAPI {
   /**
    * Search matches
    */
-  async searchMatches(gameId: string, filters: any): Promise<any[]> {
-    const response = await this.client.post<any[]>(`/games/${gameId}/matches/search`, filters);
+  async searchMatches(gameId: string, filters: {
+    player_id?: string;
+    squad_id?: string;
+    map?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+    [key: string]: any;
+  }): Promise<any[]> {
+    // Use GET with query params - backend doesn't support POST /games/{id}/matches/search
+    const params = new URLSearchParams();
+    if (filters.player_id) params.append('player_id', filters.player_id);
+    if (filters.squad_id) params.append('squad_id', filters.squad_id);
+    if (filters.map) params.append('map', filters.map);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.limit) params.append('limit', String(filters.limit));
+    if (filters.offset) params.append('offset', String(filters.offset));
+
+    const queryString = params.toString();
+    const response = await this.client.get<any[]>(`/games/${gameId}/matches${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 }
@@ -281,8 +314,30 @@ export class ReplayFileAPI {
   /**
    * Search replay files
    */
-  async searchReplayFiles(filters: any): Promise<any[]> {
-    const response = await this.client.post<any[]>('/replays/search', filters);
+  async searchReplayFiles(filters: {
+    game_id?: string;
+    player_id?: string;
+    squad_id?: string;
+    status?: string;
+    visibility?: string;
+    limit?: number;
+    offset?: number;
+    [key: string]: any;
+  }): Promise<any[]> {
+    // Use GET with query params - backend doesn't support POST /replays/search
+    const params = new URLSearchParams();
+    if (filters.game_id) params.append('game_id', filters.game_id);
+    if (filters.player_id) params.append('player_id', filters.player_id);
+    if (filters.squad_id) params.append('squad_id', filters.squad_id);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.visibility) params.append('visibility', filters.visibility);
+    if (filters.limit) params.append('limit', String(filters.limit));
+    if (filters.offset) params.append('offset', String(filters.offset));
+
+    const queryString = params.toString();
+    // Use /games/{game_id}/replays endpoint which exists in backend
+    const gameId = filters.game_id || 'cs2';
+    const response = await this.client.get<any[]>(`/games/${gameId}/replays${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 

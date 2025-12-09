@@ -218,16 +218,35 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
       size="4xl"
       scrollBehavior="inside"
       classNames={{
-        base: "bg-background",
-        backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
+        base: "leet-modal",
+        wrapper: "leet-modal-backdrop",
+        backdrop: "leet-modal-backdrop",
+      }}
+      motionProps={{
+        variants: {
+          enter: {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            transition: { duration: 0.3, ease: [0.36, 0.66, 0.4, 1] },
+          },
+          exit: {
+            y: -20,
+            opacity: 0,
+            scale: 0.95,
+            transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+          },
+        },
       }}
     >
-      <ModalContent>
+      <ModalContent className="leet-modal-content">
         {(onCloseModal) => (
           <>
-            <ModalHeader className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Icon icon="solar:users-group-two-rounded-bold-duotone" width={28} className="text-primary" />
+            <ModalHeader className="leet-modal-header flex flex-col gap-2">
+              <div className="leet-modal-title">
+                <div className="leet-modal-icon">
+                  <Icon icon="solar:users-group-two-rounded-bold-duotone" width={20} />
+                </div>
                 <h2 className="text-2xl font-bold">Launch Your Squad</h2>
               </div>
               <p className="text-sm text-default-500 font-normal">
@@ -235,20 +254,22 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                 {step === 2 && 'Build your team and define your goals'}
                 {step === 3 && 'Review and launch your squad'}
               </p>
-              <Progress value={progress} className="mt-2" color="primary" size="sm" />
-              <div className="flex justify-center gap-2 mt-1">
+              <div className="leet-modal-progress">
+                <div className="leet-modal-progress-bar" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="leet-modal-steps">
                 {Array.from({ length: totalSteps }).map((_, i) => (
                   <div
                     key={i}
-                    className={`h-2 w-2 rounded-full transition-all ${
-                      i + 1 === step ? 'bg-primary w-8' : i + 1 < step ? 'bg-success' : 'bg-default-300'
+                    className={`leet-modal-step ${
+                      i + 1 === step ? 'leet-modal-step-active' : i + 1 < step ? 'leet-modal-step-complete' : ''
                     }`}
                   />
                 ))}
               </div>
             </ModalHeader>
 
-            <ModalBody className="py-6">
+            <ModalBody className="leet-modal-body py-6">
               {/* Step 1: Team Identity */}
               {step === 1 && (
                 <div className="flex flex-col gap-6">
@@ -625,9 +646,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
               )}
             </ModalBody>
 
-            <ModalFooter className="gap-3">
+            <ModalFooter className="leet-modal-footer gap-3">
               <Button
-                variant="flat"
+                className="leet-modal-btn leet-modal-btn-secondary"
                 onPress={step === 1 ? onCloseModal : handleBack}
                 isDisabled={isSubmitting}
               >
@@ -636,7 +657,7 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
               {step < totalSteps ? (
                 <Button
-                  color="primary"
+                  className="leet-modal-btn leet-modal-btn-primary"
                   onPress={handleNext}
                   endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
                 >
@@ -644,7 +665,7 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                 </Button>
               ) : (
                 <Button
-                  color="success"
+                  className="leet-modal-btn leet-modal-btn-success"
                   onPress={handleSubmit}
                   isLoading={isSubmitting}
                   startContent={!isSubmitting && <Icon icon="solar:rocket-2-bold-duotone" width={20} />}

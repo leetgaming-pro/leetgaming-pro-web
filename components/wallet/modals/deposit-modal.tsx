@@ -215,27 +215,48 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         onClose={onClose}
         size="2xl"
         classNames={{
-          base: 'bg-background',
-          backdrop: 'bg-black/50 backdrop-blur-sm',
+          base: 'leet-modal',
+          wrapper: 'leet-modal-backdrop',
+          backdrop: 'leet-modal-backdrop',
         }}
         motionProps={{
-          variants: modalAnimations.center,
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              scale: 1,
+              transition: { duration: 0.3, ease: [0.36, 0.66, 0.4, 1] },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              scale: 0.95,
+              transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+            },
+          },
         }}
         isDismissable={!isProcessing}
         hideCloseButton={isProcessing}
       >
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
+        <ModalContent className="leet-modal-content">
+          <ModalHeader className="leet-modal-header flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Deposit Funds</h2>
-              <Chip color="primary" variant="flat" size="sm">
+              <div className="leet-modal-title">
+                <div className="leet-modal-icon">
+                  <Icon icon="solar:wallet-money-bold" width={20} />
+                </div>
+                <h2 className="text-2xl font-bold">Deposit Funds</h2>
+              </div>
+              <span className="leet-modal-chip px-3 py-1 text-xs">
                 Step {['amount', 'method', 'payment', 'confirmation', 'success'].indexOf(step) + 1} of 5
-              </Chip>
+              </span>
             </div>
-            <Progress value={progress} className="mt-2" color="primary" size="sm" />
+            <div className="leet-modal-progress">
+              <div className="leet-modal-progress-bar" style={{ width: `${progress}%` }} />
+            </div>
           </ModalHeader>
 
-          <ModalBody className="gap-6 py-6">
+          <ModalBody className="leet-modal-body gap-6 py-6">
             <AnimatePresence mode="wait">
               {step === 'amount' && (
                 <AmountStep
@@ -291,9 +312,9 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
           </ModalBody>
 
           {step !== 'success' && (
-            <ModalFooter>
+            <ModalFooter className="leet-modal-footer">
               <Button
-                variant="light"
+                className="leet-modal-btn leet-modal-btn-secondary"
                 onPress={onClose}
                 isDisabled={isProcessing}
               >

@@ -3,6 +3,7 @@
 /**
  * Privacy & Data Management Component
  * GDPR/CCPA/LGPD Compliant Account Management
+ * Branded for LeetGaming.PRO
  */
 
 import React, { useState, useEffect } from 'react';
@@ -282,44 +283,44 @@ export function PrivacySettings() {
   return (
     <div className="space-y-6">
       {/* Privacy Rights Overview */}
-      <Card>
-        <CardHeader className="flex gap-3">
-          <Icon icon="solar:shield-check-bold" className="w-6 h-6 text-primary" />
+      <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardHeader className="flex gap-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+          <Icon icon="solar:shield-check-bold" className="w-6 h-6 text-[#FF4654] dark:text-[#DCFF37]" />
           <div>
-            <h3 className="text-lg font-semibold">Your Privacy Rights</h3>
-            <p className="text-sm text-default-500">
+            <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Your Privacy Rights</h3>
+            <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               We comply with GDPR, CCPA, and LGPD regulations
             </p>
           </div>
         </CardHeader>
-        <Divider />
+        <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 bg-default-50 rounded-lg">
-              <Icon icon="solar:eye-bold" className="w-8 h-8 text-primary mb-2" />
-              <h4 className="font-semibold mb-1">Right to Access</h4>
-              <p className="text-xs text-default-500">
+            <div className="p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
+              <Icon icon="solar:eye-bold" className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37] mb-2" />
+              <h4 className="font-semibold mb-1 text-[#34445C] dark:text-[#F5F0E1]">Right to Access</h4>
+              <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                 Request a copy of all your personal data
               </p>
             </div>
-            <div className="p-4 bg-default-50 rounded-lg">
-              <Icon icon="solar:pen-bold" className="w-8 h-8 text-warning mb-2" />
-              <h4 className="font-semibold mb-1">Right to Rectify</h4>
-              <p className="text-xs text-default-500">
+            <div className="p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
+              <Icon icon="solar:pen-bold" className="w-8 h-8 text-[#FFC700] dark:text-[#FFC700] mb-2" />
+              <h4 className="font-semibold mb-1 text-[#34445C] dark:text-[#F5F0E1]">Right to Rectify</h4>
+              <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                 Update or correct your personal information
               </p>
             </div>
-            <div className="p-4 bg-default-50 rounded-lg">
+            <div className="p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
               <Icon icon="solar:trash-bin-trash-bold" className="w-8 h-8 text-danger mb-2" />
-              <h4 className="font-semibold mb-1">Right to Erasure</h4>
-              <p className="text-xs text-default-500">
+              <h4 className="font-semibold mb-1 text-[#34445C] dark:text-[#F5F0E1]">Right to Erasure</h4>
+              <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                 Request deletion of your account and data
               </p>
             </div>
-            <div className="p-4 bg-default-50 rounded-lg">
+            <div className="p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
               <Icon icon="solar:download-bold" className="w-8 h-8 text-success mb-2" />
-              <h4 className="font-semibold mb-1">Data Portability</h4>
-              <p className="text-xs text-default-500">
+              <h4 className="font-semibold mb-1 text-[#34445C] dark:text-[#F5F0E1]">Data Portability</h4>
+              <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                 Export your data in a portable format
               </p>
             </div>
@@ -328,32 +329,32 @@ export function PrivacySettings() {
       </Card>
 
       {/* Consent Management */}
-      <Card>
-        <CardHeader className="flex justify-between items-start">
+      <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardHeader className="flex justify-between items-start bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
           <div className="flex gap-3">
-            <Icon icon="solar:settings-bold" className="w-6 h-6 text-primary" />
+            <Icon icon="solar:settings-bold" className="w-6 h-6 text-[#FF4654] dark:text-[#DCFF37]" />
             <div>
-              <h3 className="text-lg font-semibold">Consent Preferences</h3>
-              <p className="text-sm text-default-500">
+              <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Consent Preferences</h3>
+              <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                 Control how we use your data
               </p>
             </div>
           </div>
           {isSavingConsent && (
-            <Chip size="sm" variant="flat" color="primary">
+            <Chip size="sm" variant="flat" className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#1a1a1a]">
               Saving...
             </Chip>
           )}
         </CardHeader>
-        <Divider />
+        <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
         <CardBody className="space-y-4">
           {/* Essential - Always On */}
-          <div className="flex items-center justify-between p-4 bg-default-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
             <div className="flex items-center gap-3">
               <Icon icon="solar:lock-bold" className="w-5 h-5 text-success" />
               <div>
-                <p className="font-medium">Essential Cookies & Data</p>
-                <p className="text-xs text-default-500">
+                <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Essential Cookies & Data</p>
+                <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                   Required for the service to function properly
                 </p>
               </div>
@@ -364,12 +365,12 @@ export function PrivacySettings() {
           </div>
 
           {/* Analytics */}
-          <div className="flex items-center justify-between p-4 bg-default-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
             <div className="flex items-center gap-3">
-              <Icon icon="solar:chart-2-bold" className="w-5 h-5 text-primary" />
+              <Icon icon="solar:chart-2-bold" className="w-5 h-5 text-[#FF4654] dark:text-[#DCFF37]" />
               <div>
-                <p className="font-medium">Analytics & Performance</p>
-                <p className="text-xs text-default-500">
+                <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Analytics & Performance</p>
+                <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                   Help us understand how you use the platform
                 </p>
               </div>
@@ -378,16 +379,19 @@ export function PrivacySettings() {
               isSelected={consent.analytics}
               onValueChange={(value) => handleConsentChange('analytics', value)}
               size="sm"
+              classNames={{
+                wrapper: "group-data-[selected=true]:bg-[#FF4654] dark:group-data-[selected=true]:bg-[#DCFF37]",
+              }}
             />
           </div>
 
           {/* Marketing */}
-          <div className="flex items-center justify-between p-4 bg-default-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
             <div className="flex items-center gap-3">
-              <Icon icon="solar:letter-bold" className="w-5 h-5 text-warning" />
+              <Icon icon="solar:letter-bold" className="w-5 h-5 text-[#FFC700]" />
               <div>
-                <p className="font-medium">Marketing Communications</p>
-                <p className="text-xs text-default-500">
+                <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Marketing Communications</p>
+                <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                   Receive news, updates, and promotional offers
                 </p>
               </div>
@@ -396,16 +400,19 @@ export function PrivacySettings() {
               isSelected={consent.marketing}
               onValueChange={(value) => handleConsentChange('marketing', value)}
               size="sm"
+              classNames={{
+                wrapper: "group-data-[selected=true]:bg-[#FF4654] dark:group-data-[selected=true]:bg-[#DCFF37]",
+              }}
             />
           </div>
 
           {/* Personalization */}
-          <div className="flex items-center justify-between p-4 bg-default-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
             <div className="flex items-center gap-3">
-              <Icon icon="solar:magic-stick-bold" className="w-5 h-5 text-secondary" />
+              <Icon icon="solar:magic-stick-bold" className="w-5 h-5 text-[#34445C] dark:text-[#DCFF37]" />
               <div>
-                <p className="font-medium">Personalization</p>
-                <p className="text-xs text-default-500">
+                <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Personalization</p>
+                <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                   Customize your experience based on your activity
                 </p>
               </div>
@@ -414,16 +421,19 @@ export function PrivacySettings() {
               isSelected={consent.personalization}
               onValueChange={(value) => handleConsentChange('personalization', value)}
               size="sm"
+              classNames={{
+                wrapper: "group-data-[selected=true]:bg-[#FF4654] dark:group-data-[selected=true]:bg-[#DCFF37]",
+              }}
             />
           </div>
 
           {/* Third Party */}
-          <div className="flex items-center justify-between p-4 bg-default-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#F5F0E1] dark:bg-[#1a1a1a] border border-[#FF4654]/10 dark:border-[#DCFF37]/10 rounded-none">
             <div className="flex items-center gap-3">
-              <Icon icon="solar:share-bold" className="w-5 h-5 text-default-500" />
+              <Icon icon="solar:share-bold" className="w-5 h-5 text-[#34445C]/70 dark:text-[#F5F0E1]/70" />
               <div>
-                <p className="font-medium">Third-Party Sharing</p>
-                <p className="text-xs text-default-500">
+                <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Third-Party Sharing</p>
+                <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
                   Share data with trusted partners for enhanced services
                 </p>
               </div>
@@ -432,34 +442,39 @@ export function PrivacySettings() {
               isSelected={consent.thirdParty}
               onValueChange={(value) => handleConsentChange('thirdParty', value)}
               size="sm"
+              classNames={{
+                wrapper: "group-data-[selected=true]:bg-[#FF4654] dark:group-data-[selected=true]:bg-[#DCFF37]",
+              }}
             />
           </div>
         </CardBody>
       </Card>
 
       {/* Data Export */}
-      <Card>
-        <CardHeader className="flex gap-3">
+      <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardHeader className="flex gap-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
           <Icon icon="solar:download-bold" className="w-6 h-6 text-success" />
           <div>
-            <h3 className="text-lg font-semibold">Export Your Data</h3>
-            <p className="text-sm text-default-500">
+            <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Export Your Data</h3>
+            <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               Download a copy of all your personal data
             </p>
           </div>
         </CardHeader>
-        <Divider />
+        <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
         <CardBody>
           {dataExportRequest?.status === DataExportStatus.PROCESSING ? (
             <div className="text-center py-6">
               <Progress
                 isIndeterminate
                 size="sm"
-                color="primary"
+                classNames={{
+                  indicator: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]",
+                }}
                 className="max-w-md mx-auto mb-4"
               />
-              <p className="font-medium">Preparing your data export...</p>
-              <p className="text-sm text-default-500 mt-1">
+              <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Preparing your data export...</p>
+              <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-1">
                 This may take a few minutes. We&apos;ll email you when it&apos;s ready.
               </p>
             </div>
@@ -469,12 +484,13 @@ export function PrivacySettings() {
                 icon="solar:check-circle-bold"
                 className="w-12 h-12 text-success mx-auto mb-4"
               />
-              <p className="font-medium">Your data export is ready!</p>
-              <p className="text-sm text-default-500 mt-1 mb-4">
+              <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Your data export is ready!</p>
+              <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-1 mb-4">
                 Available until {dataExportRequest.expiresAt ? new Date(dataExportRequest.expiresAt).toLocaleDateString() : 'N/A'}
               </p>
               <Button
                 color="success"
+                className="rounded-none"
                 startContent={<Icon icon="solar:download-bold" className="w-5 h-5" />}
                 onPress={() => dataExportRequest.downloadUrl && window.open(dataExportRequest.downloadUrl, '_blank')}
               >
@@ -485,16 +501,25 @@ export function PrivacySettings() {
             <div className="text-center py-6">
               <Icon
                 icon="solar:clock-circle-bold"
-                className="w-12 h-12 text-warning mx-auto mb-4"
+                className="w-12 h-12 text-[#FFC700] mx-auto mb-4"
               />
-              <p className="font-medium">Export request pending</p>
-              <p className="text-sm text-default-500 mt-1">
+              <p className="font-medium text-[#34445C] dark:text-[#F5F0E1]">Export request pending</p>
+              <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-1">
                 Your data export request is being processed. We&apos;ll notify you when it&apos;s ready.
               </p>
             </div>
           ) : (
             <>
-              <Accordion variant="bordered" className="mb-4">
+              <Accordion 
+                variant="bordered" 
+                className="mb-4"
+                itemClasses={{
+                  base: "rounded-none border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+                  title: "text-[#34445C] dark:text-[#F5F0E1]",
+                  trigger: "bg-[#F5F0E1] dark:bg-[#1a1a1a]",
+                  content: "bg-[#F5F0E1]/50 dark:bg-[#1a1a1a]/50",
+                }}
+              >
                 <AccordionItem
                   key="data-included"
                   aria-label="Data included"
@@ -503,10 +528,10 @@ export function PrivacySettings() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {DATA_CATEGORIES.map((category) => (
                       <div key={category.id} className="flex items-start gap-2">
-                        <Icon icon={category.icon} className="w-5 h-5 text-primary mt-0.5" />
+                        <Icon icon={category.icon} className="w-5 h-5 text-[#FF4654] dark:text-[#DCFF37] mt-0.5" />
                         <div>
-                          <p className="font-medium text-sm">{category.name}</p>
-                          <p className="text-xs text-default-500">{category.description}</p>
+                          <p className="font-medium text-sm text-[#34445C] dark:text-[#F5F0E1]">{category.name}</p>
+                          <p className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">{category.description}</p>
                         </div>
                       </div>
                     ))}
@@ -515,7 +540,8 @@ export function PrivacySettings() {
               </Accordion>
 
               <Button
-                color="primary"
+                className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#1a1a1a] rounded-none"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
                 startContent={<Icon icon="solar:download-bold" className="w-5 h-5" />}
                 onPress={exportModal.onOpen}
               >
@@ -527,33 +553,31 @@ export function PrivacySettings() {
       </Card>
 
       {/* Account Deletion */}
-      <Card className="border-danger/20">
-        <CardHeader className="flex gap-3">
+      <Card className="rounded-none border-2 border-danger/30">
+        <CardHeader className="flex gap-3 bg-danger/5">
           <Icon icon="solar:trash-bin-trash-bold" className="w-6 h-6 text-danger" />
           <div>
             <h3 className="text-lg font-semibold text-danger">Delete Account</h3>
-            <p className="text-sm text-default-500">
+            <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               Permanently delete your account and all associated data
             </p>
           </div>
         </CardHeader>
-        <Divider />
+        <Divider className="bg-danger/20" />
         <CardBody>
           {deletionRequest?.status === DeletionStatus.SCHEDULED ? (
-            <div className="bg-danger/10 border border-danger/20 rounded-lg p-4">
+            <div className="bg-danger/10 border border-danger/20 rounded-none p-4">
               <div className="flex items-start gap-3">
                 <Icon icon="solar:clock-circle-bold" className="w-6 h-6 text-danger mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-danger">Account deletion scheduled</p>
-                  <p className="text-sm text-default-500 mt-1">
+                  <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-1">
                     Your account will be permanently deleted on{' '}
                     {deletionRequest.scheduledFor ? new Date(deletionRequest.scheduledFor).toLocaleDateString() : 'N/A'}
                   </p>
                   <Button
-                    color="primary"
-                    variant="flat"
+                    className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#1a1a1a] rounded-none mt-3"
                     size="sm"
-                    className="mt-3"
                     onPress={handleCancelDeletion}
                     isLoading={isCanceling}
                   >
@@ -563,19 +587,17 @@ export function PrivacySettings() {
               </div>
             </div>
           ) : deletionRequest?.status === DeletionStatus.PENDING ? (
-            <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
+            <div className="bg-[#FFC700]/10 border border-[#FFC700]/20 rounded-none p-4">
               <div className="flex items-start gap-3">
-                <Icon icon="solar:clock-circle-bold" className="w-6 h-6 text-warning mt-0.5" />
+                <Icon icon="solar:clock-circle-bold" className="w-6 h-6 text-[#FFC700] mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-medium text-warning">Deletion request pending</p>
-                  <p className="text-sm text-default-500 mt-1">
+                  <p className="font-medium text-[#FFC700]">Deletion request pending</p>
+                  <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-1">
                     Your account deletion request is being reviewed.
                   </p>
                   <Button
-                    color="primary"
-                    variant="flat"
+                    className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#1a1a1a] rounded-none mt-3"
                     size="sm"
-                    className="mt-3"
                     onPress={handleCancelDeletion}
                     isLoading={isCanceling}
                   >
@@ -586,12 +608,12 @@ export function PrivacySettings() {
             </div>
           ) : (
             <>
-              <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-4">
+              <div className="bg-danger/10 border border-danger/20 rounded-none p-4 mb-4">
                 <div className="flex items-start gap-3">
                   <Icon icon="solar:danger-triangle-bold" className="w-6 h-6 text-danger mt-0.5" />
                   <div>
                     <p className="font-medium text-danger">Warning: This action is irreversible</p>
-                    <ul className="text-sm text-default-500 mt-2 space-y-1 list-disc list-inside">
+                    <ul className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-2 space-y-1 list-disc list-inside">
                       <li>All your profile data will be permanently deleted</li>
                       <li>Your match history and statistics will be removed</li>
                       <li>Uploaded replays and files will be deleted</li>
@@ -605,6 +627,7 @@ export function PrivacySettings() {
               <Button
                 color="danger"
                 variant="bordered"
+                className="rounded-none"
                 startContent={<Icon icon="solar:trash-bin-trash-bold" className="w-5 h-5" />}
                 onPress={deleteModal.onOpen}
               >
@@ -616,72 +639,72 @@ export function PrivacySettings() {
       </Card>
 
       {/* Data Retention Info */}
-      <Card>
-        <CardHeader className="flex gap-3">
-          <Icon icon="solar:clock-circle-bold" className="w-6 h-6 text-primary" />
+      <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardHeader className="flex gap-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+          <Icon icon="solar:clock-circle-bold" className="w-6 h-6 text-[#FF4654] dark:text-[#DCFF37]" />
           <div>
-            <h3 className="text-lg font-semibold">Data Retention Policy</h3>
-            <p className="text-sm text-default-500">
+            <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Data Retention Policy</h3>
+            <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               How long we keep your data
             </p>
           </div>
         </CardHeader>
-        <Divider />
+        <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
         <CardBody>
           <div className="space-y-3 text-sm">
-            <div className="flex justify-between items-center py-2 border-b border-divider">
-              <span>Profile Information</span>
-              <span className="text-default-500">Until account deletion</span>
+            <div className="flex justify-between items-center py-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Profile Information</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">Until account deletion</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-divider">
-              <span>Gaming Statistics</span>
-              <span className="text-default-500">Until account deletion</span>
+            <div className="flex justify-between items-center py-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Gaming Statistics</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">Until account deletion</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-divider">
-              <span>Replay Files</span>
-              <span className="text-default-500">90 days after upload (free) / indefinite (Pro)</span>
+            <div className="flex justify-between items-center py-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Replay Files</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">90 days after upload (free) / indefinite (Pro)</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-divider">
-              <span>Payment Records</span>
-              <span className="text-default-500">7 years (legal requirement)</span>
+            <div className="flex justify-between items-center py-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Payment Records</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">7 years (legal requirement)</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-divider">
-              <span>Activity Logs</span>
-              <span className="text-default-500">30 days</span>
+            <div className="flex justify-between items-center py-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Activity Logs</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">30 days</span>
             </div>
             <div className="flex justify-between items-center py-2">
-              <span>Marketing Preferences</span>
-              <span className="text-default-500">Until changed or account deletion</span>
+              <span className="text-[#34445C] dark:text-[#F5F0E1]">Marketing Preferences</span>
+              <span className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">Until changed or account deletion</span>
             </div>
           </div>
         </CardBody>
       </Card>
 
       {/* Export Modal */}
-      <Modal isOpen={exportModal.isOpen} onClose={exportModal.onClose}>
+      <Modal isOpen={exportModal.isOpen} onClose={exportModal.onClose} classNames={{ base: "rounded-none" }}>
         <ModalContent>
-          <ModalHeader>Request Data Export</ModalHeader>
+          <ModalHeader className="text-[#34445C] dark:text-[#F5F0E1]">Request Data Export</ModalHeader>
           <ModalBody>
-            <p className="text-default-500">
+            <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">
               We&apos;ll prepare a complete export of your personal data. This includes:
             </p>
-            <ul className="text-sm text-default-500 mt-2 space-y-1 list-disc list-inside">
+            <ul className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-2 space-y-1 list-disc list-inside">
               <li>Profile and account information</li>
               <li>Match history and gaming statistics</li>
               <li>Social connections and team data</li>
               <li>Payment and subscription history</li>
               <li>Uploaded files and media</li>
             </ul>
-            <p className="text-sm text-default-500 mt-4">
+            <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70 mt-4">
               The export will be ready within 24-48 hours and available for download for 7 days.
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={exportModal.onClose}>
+            <Button variant="light" onPress={exportModal.onClose} className="rounded-none">
               Cancel
             </Button>
             <Button
-              color="primary"
+              className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#1a1a1a] rounded-none"
               onPress={handleExportRequest}
               isLoading={isExporting}
             >
@@ -692,11 +715,11 @@ export function PrivacySettings() {
       </Modal>
 
       {/* Delete Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="lg">
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="lg" classNames={{ base: "rounded-none" }}>
         <ModalContent>
           <ModalHeader className="text-danger">Delete Account</ModalHeader>
           <ModalBody>
-            <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-4">
+            <div className="bg-danger/10 border border-danger/20 rounded-none p-4 mb-4">
               <p className="text-danger font-medium">
                 This action cannot be undone. All your data will be permanently deleted.
               </p>
@@ -704,7 +727,7 @@ export function PrivacySettings() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium text-[#34445C] dark:text-[#F5F0E1]">
                   Why are you deleting your account?
                 </label>
                 <div className="mt-2 space-y-2">
@@ -712,10 +735,10 @@ export function PrivacySettings() {
                     <div
                       key={reason}
                       className={`
-                        p-3 rounded-lg cursor-pointer border transition-colors
+                        p-3 rounded-none cursor-pointer border transition-colors
                         ${deleteReason === reason
-                          ? 'border-danger bg-danger/10'
-                          : 'border-default-200 hover:border-default-400'}
+                          ? 'border-danger bg-danger/10 text-[#34445C] dark:text-[#F5F0E1]'
+                          : 'border-[#34445C]/20 dark:border-[#DCFF37]/20 hover:border-[#34445C]/40 dark:hover:border-[#DCFF37]/40 text-[#34445C]/70 dark:text-[#F5F0E1]/70'}
                       `}
                       onClick={() => setDeleteReason(reason)}
                     >
@@ -731,12 +754,18 @@ export function PrivacySettings() {
                 value={deleteConfirmation}
                 onValueChange={setDeleteConfirmation}
                 variant="bordered"
+                classNames={{
+                  inputWrapper: "rounded-none",
+                }}
                 color={deleteConfirmation === 'DELETE' ? 'success' : 'default'}
               />
 
               <Checkbox
                 isSelected={deleteAcknowledged}
                 onValueChange={setDeleteAcknowledged}
+                classNames={{
+                  label: "text-[#34445C] dark:text-[#F5F0E1]",
+                }}
               >
                 <span className="text-sm">
                   I understand that this action is permanent and my data cannot be recovered
@@ -745,11 +774,12 @@ export function PrivacySettings() {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={deleteModal.onClose}>
+            <Button variant="light" onPress={deleteModal.onClose} className="rounded-none">
               Cancel
             </Button>
             <Button
               color="danger"
+              className="rounded-none"
               onPress={handleDeleteRequest}
               isLoading={isDeleting}
               isDisabled={deleteConfirmation !== 'DELETE' || !deleteAcknowledged || !deleteReason}

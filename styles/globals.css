@@ -1264,3 +1264,706 @@
   background: linear-gradient(90deg, #1a1a1a, #34445c);
   opacity: 1;
 }
+
+/* =============================================
+   LEETGAMING GROUNDBREAKING GAMING MODALS
+   ============================================= */
+
+/* Modal Base - Edgy Gaming Aesthetic */
+.leet-modal {
+  --modal-cut: 20px;
+  border-radius: 0 !important;
+  overflow: visible;
+}
+
+/* Modal Wrapper - Add glow effect */
+.leet-modal [data-slot="wrapper"] {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 70, 84, 0.1) 0%,
+    transparent 70%
+  );
+}
+
+.dark .leet-modal [data-slot="wrapper"] {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(220, 255, 55, 0.1) 0%,
+    transparent 70%
+  );
+}
+
+/* Modal Backdrop - Gaming atmosphere */
+.leet-modal-backdrop {
+  background: rgba(10, 10, 10, 0.85) !important;
+  backdrop-filter: blur(8px) saturate(150%) !important;
+}
+
+/* Add animated grid pattern to backdrop */
+.leet-modal-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(52, 68, 92, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52, 68, 92, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-pulse 4s ease-in-out infinite;
+}
+
+.dark .leet-modal-backdrop::before {
+  background-image:
+    linear-gradient(rgba(220, 255, 55, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220, 255, 55, 0.05) 1px, transparent 1px);
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Modal Content - Angular cut design */
+.leet-modal-content {
+  --cut: var(--modal-cut, 20px);
+  border-radius: 0 !important;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%
+  );
+  border: 2px solid rgba(255, 70, 84, 0.3) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 240, 225, 0.98) 0%,
+    rgba(245, 240, 225, 0.95) 100%
+  ) !important;
+  box-shadow:
+    0 0 60px rgba(255, 70, 84, 0.2),
+    0 0 100px rgba(255, 199, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .leet-modal-content {
+  border-color: rgba(220, 255, 55, 0.4) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(26, 26, 26, 0.98) 0%,
+    rgba(20, 20, 20, 0.98) 100%
+  ) !important;
+  box-shadow:
+    0 0 60px rgba(220, 255, 55, 0.15),
+    0 0 100px rgba(52, 68, 92, 0.2),
+    inset 0 1px 0 rgba(220, 255, 55, 0.1);
+}
+
+/* Animated corner accent */
+.leet-modal-content::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--modal-cut, 20px);
+  height: var(--modal-cut, 20px);
+  background: linear-gradient(135deg, #ff4654, #ffc700);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  animation: corner-glow 2s ease-in-out infinite alternate;
+}
+
+.dark .leet-modal-content::before {
+  background: linear-gradient(135deg, #dcff37, #34445c);
+}
+
+@keyframes corner-glow {
+  from { opacity: 0.7; }
+  to { opacity: 1; filter: brightness(1.2); }
+}
+
+/* Scan line effect overlay */
+.leet-modal-content::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.02) 2px,
+    rgba(0, 0, 0, 0.02) 4px
+  );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Modal Header - Gaming style with gradient */
+.leet-modal-header {
+  border-radius: 0 !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 70, 84, 0.08) 0%,
+    rgba(255, 199, 0, 0.05) 50%,
+    transparent 100%
+  ) !important;
+  border-bottom: 1px solid rgba(255, 70, 84, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .leet-modal-header {
+  background: linear-gradient(
+    135deg,
+    rgba(220, 255, 55, 0.1) 0%,
+    rgba(52, 68, 92, 0.1) 50%,
+    transparent 100%
+  ) !important;
+  border-bottom-color: rgba(220, 255, 55, 0.2) !important;
+}
+
+/* Animated line accent in header */
+.leet-modal-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff4654, #ffc700, transparent);
+  animation: header-shine 3s ease-in-out infinite;
+}
+
+.dark .leet-modal-header::before {
+  background: linear-gradient(90deg, transparent, #dcff37, #34445c, transparent);
+}
+
+@keyframes header-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Modal Body */
+.leet-modal-body {
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Modal Footer - Gaming style */
+.leet-modal-footer {
+  border-radius: 0 !important;
+  background: linear-gradient(
+    to top,
+    rgba(52, 68, 92, 0.05) 0%,
+    transparent 100%
+  ) !important;
+  border-top: 1px solid rgba(255, 70, 84, 0.15) !important;
+}
+
+.dark .leet-modal-footer {
+  background: linear-gradient(
+    to top,
+    rgba(220, 255, 55, 0.03) 0%,
+    transparent 100%
+  ) !important;
+  border-top-color: rgba(220, 255, 55, 0.15) !important;
+}
+
+/* ========== MODAL TITLE STYLES ========== */
+
+.leet-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgb(var(--leet-navy));
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.dark .leet-modal-title {
+  color: rgb(var(--leet-cream));
+}
+
+/* Modal title icon container */
+.leet-modal-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff4654, #ffc700);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    0 100%
+  );
+  color: white;
+  flex-shrink: 0;
+}
+
+.dark .leet-modal-icon {
+  background: linear-gradient(135deg, #dcff37, #34445c);
+  color: #1a1a1a;
+}
+
+/* ========== MODAL STEP INDICATOR ========== */
+
+.leet-modal-steps {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.leet-modal-step {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: rgba(52, 68, 92, 0.2);
+  clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+  transition: all 0.3s ease;
+}
+
+.leet-modal-step-active {
+  width: 2rem;
+  background: linear-gradient(90deg, #ff4654, #ffc700);
+}
+
+.leet-modal-step-complete {
+  background: rgb(var(--leet-navy));
+}
+
+.dark .leet-modal-step {
+  background: rgba(220, 255, 55, 0.2);
+}
+
+.dark .leet-modal-step-active {
+  background: linear-gradient(90deg, #dcff37, #b8d930);
+}
+
+.dark .leet-modal-step-complete {
+  background: rgb(var(--leet-lime));
+}
+
+/* ========== MODAL PROGRESS BAR ========== */
+
+.leet-modal-progress {
+  height: 4px;
+  background: rgba(52, 68, 92, 0.1);
+  border-radius: 0;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.dark .leet-modal-progress {
+  background: rgba(220, 255, 55, 0.1);
+}
+
+.leet-modal-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4654, #ffc700);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.dark .leet-modal-progress-bar {
+  background: linear-gradient(90deg, #dcff37, #34445c);
+}
+
+/* Animated shimmer on progress */
+.leet-modal-progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ========== MODAL CARDS (inside modals) ========== */
+
+.leet-modal-card {
+  background: rgba(245, 240, 225, 0.8);
+  border: 1px solid rgba(255, 70, 84, 0.2);
+  border-radius: 0 !important;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%
+  );
+  transition: all 0.2s ease;
+}
+
+.dark .leet-modal-card {
+  background: rgba(26, 26, 26, 0.8);
+  border-color: rgba(220, 255, 55, 0.2);
+}
+
+.leet-modal-card:hover {
+  border-color: rgba(255, 70, 84, 0.4);
+  box-shadow: 0 4px 20px rgba(255, 70, 84, 0.1);
+}
+
+.dark .leet-modal-card:hover {
+  border-color: rgba(220, 255, 55, 0.4);
+  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.1);
+}
+
+/* Selected card state */
+.leet-modal-card-selected {
+  border-color: #ff4654 !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 70, 84, 0.1),
+    rgba(255, 199, 0, 0.05)
+  ) !important;
+  box-shadow:
+    0 0 20px rgba(255, 70, 84, 0.2),
+    inset 0 0 30px rgba(255, 70, 84, 0.05);
+}
+
+.dark .leet-modal-card-selected {
+  border-color: #dcff37 !important;
+  background: linear-gradient(
+    135deg,
+    rgba(220, 255, 55, 0.1),
+    rgba(52, 68, 92, 0.05)
+  ) !important;
+  box-shadow:
+    0 0 20px rgba(220, 255, 55, 0.15),
+    inset 0 0 30px rgba(220, 255, 55, 0.03);
+}
+
+/* ========== MODAL INPUT STYLES ========== */
+
+.leet-modal-input [data-slot="inputWrapper"] {
+  border-radius: 0 !important;
+  border: 1px solid rgba(52, 68, 92, 0.3);
+  background: rgba(245, 240, 225, 0.9);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    0 100%
+  );
+  transition: all 0.2s ease;
+}
+
+.dark .leet-modal-input [data-slot="inputWrapper"] {
+  border-color: rgba(220, 255, 55, 0.3);
+  background: rgba(26, 26, 26, 0.9);
+}
+
+.leet-modal-input [data-slot="inputWrapper"]:focus-within {
+  border-color: #ff4654;
+  box-shadow: 0 0 15px rgba(255, 70, 84, 0.2);
+}
+
+.dark .leet-modal-input [data-slot="inputWrapper"]:focus-within {
+  border-color: #dcff37;
+  box-shadow: 0 0 15px rgba(220, 255, 55, 0.2);
+}
+
+/* ========== MODAL BUTTON STYLES ========== */
+
+.leet-modal-btn {
+  --cut: 10px;
+  border-radius: 0 !important;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%
+  );
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.leet-modal-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* Primary action button */
+.leet-modal-btn-primary {
+  background: linear-gradient(135deg, #ff4654 0%, #e03d4a 50%, #ffc700 100%);
+  color: white !important;
+  box-shadow:
+    0 4px 20px rgba(255, 70, 84, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.leet-modal-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 30px rgba(255, 70, 84, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dark .leet-modal-btn-primary {
+  background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #34445c 100%);
+  color: #1a1a1a !important;
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .leet-modal-btn-primary:hover {
+  box-shadow:
+    0 6px 30px rgba(220, 255, 55, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Secondary/ghost button */
+.leet-modal-btn-secondary {
+  background: transparent;
+  color: rgb(var(--leet-navy));
+  border: 1px solid rgba(52, 68, 92, 0.3);
+}
+
+.leet-modal-btn-secondary:hover {
+  background: rgba(52, 68, 92, 0.1);
+  border-color: rgba(52, 68, 92, 0.5);
+}
+
+.dark .leet-modal-btn-secondary {
+  color: rgb(var(--leet-lime));
+  border-color: rgba(220, 255, 55, 0.3);
+}
+
+.dark .leet-modal-btn-secondary:hover {
+  background: rgba(220, 255, 55, 0.1);
+  border-color: rgba(220, 255, 55, 0.5);
+}
+
+/* Success button */
+.leet-modal-btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.leet-modal-btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(16, 185, 129, 0.4);
+}
+
+/* ========== MODAL CHIP STYLES ========== */
+
+.leet-modal-chip {
+  border-radius: 0 !important;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+  background: rgba(52, 68, 92, 0.1);
+  color: rgb(var(--leet-navy));
+  font-weight: 500;
+}
+
+.dark .leet-modal-chip {
+  background: rgba(220, 255, 55, 0.1);
+  color: rgb(var(--leet-lime));
+}
+
+/* ========== MODAL ALERT/INFO BOX ========== */
+
+.leet-modal-alert {
+  border-radius: 0 !important;
+  border-left: 3px solid;
+  padding: 1rem;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    0 100%
+  );
+}
+
+.leet-modal-alert-info {
+  background: rgba(52, 68, 92, 0.08);
+  border-color: rgb(var(--leet-navy));
+}
+
+.dark .leet-modal-alert-info {
+  background: rgba(220, 255, 55, 0.08);
+  border-color: rgb(var(--leet-lime));
+}
+
+.leet-modal-alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+}
+
+.leet-modal-alert-warning {
+  background: rgba(255, 199, 0, 0.1);
+  border-color: #ffc700;
+}
+
+.leet-modal-alert-danger {
+  background: rgba(255, 70, 84, 0.1);
+  border-color: #ff4654;
+}
+
+/* ========== MODAL SUCCESS STATE ========== */
+
+.leet-modal-success-icon {
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #10b981, #059669);
+  clip-path: polygon(
+    30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%
+  );
+  animation: success-pulse 2s ease-in-out infinite;
+}
+
+@keyframes success-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(16, 185, 129, 0.4); }
+}
+
+/* ========== MODAL LOADING STATE ========== */
+
+.leet-modal-loading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.leet-modal-loading-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: linear-gradient(135deg, #ff4654, #ffc700);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: loading-bounce 1.4s ease-in-out infinite both;
+}
+
+.dark .leet-modal-loading-dot {
+  background: linear-gradient(135deg, #dcff37, #34445c);
+}
+
+.leet-modal-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.leet-modal-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+.leet-modal-loading-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes loading-bounce {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ========== MFA CODE INPUT SPECIAL STYLING ========== */
+
+.leet-mfa-input {
+  width: 3.5rem !important;
+  height: 4rem !important;
+}
+
+.leet-mfa-input [data-slot="inputWrapper"] {
+  border-radius: 0 !important;
+  border: 2px solid rgba(52, 68, 92, 0.3);
+  background: rgba(245, 240, 225, 0.9);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    0 100%
+  );
+  height: 100% !important;
+}
+
+.dark .leet-mfa-input [data-slot="inputWrapper"] {
+  border-color: rgba(220, 255, 55, 0.3);
+  background: rgba(26, 26, 26, 0.9);
+}
+
+.leet-mfa-input [data-slot="inputWrapper"]:focus-within {
+  border-color: #ff4654;
+  box-shadow: 0 0 20px rgba(255, 70, 84, 0.3);
+}
+
+.dark .leet-mfa-input [data-slot="inputWrapper"]:focus-within {
+  border-color: #dcff37;
+  box-shadow: 0 0 20px rgba(220, 255, 55, 0.3);
+}
+
+.leet-mfa-input input {
+  text-align: center;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: rgb(var(--leet-navy)) !important;
+}
+
+.dark .leet-mfa-input input {
+  color: rgb(var(--leet-lime)) !important;
+}
+
+/* ========== MODAL QR CODE BOX ========== */
+
+.leet-modal-qr-box {
+  background: white;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%
+  );
+  box-shadow: inset 0 0 0 2px rgba(52, 68, 92, 0.1);
+}
+
+/* ========== MODAL DIVIDER ========== */
+
+.leet-modal-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(52, 68, 92, 0.2),
+    transparent
+  );
+  margin: 1.5rem 0;
+}
+
+.dark .leet-modal-divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(220, 255, 55, 0.2),
+    transparent
+  );
+}

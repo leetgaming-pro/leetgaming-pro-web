@@ -2,119 +2,171 @@
 // pages/submit-replay.tsx
 'use client'
 import React, { useState } from 'react';
-import { Card, Input, Button, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, LinkIcon, Divider } from '@nextui-org/react';
+import { Card, Input, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, Divider } from '@nextui-org/react';
+import { Icon } from '@iconify/react';
 import { CopyDocumentIcon, SteamIcon } from '@/components/icons';
 import { UploadForm } from '@/components/replay/upload/upload';
-import { logo, subtitle, title } from '@/components/primitives';
-import axios, { AxiosRequestConfig } from 'axios';
+import { logo, title } from '@/components/primitives';
 
 const SubmitReplay: React.FC = () => {
   const [replayUrl, setReplayUrl] = useState('');
 
-  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   // Handle form submission (e.g., send the URL to the server)
-  //   console.log('Submitted URL:', replayUrl);
-  // };
-
   return (
     <div className="flex w-full align-center justify-center">
-      <Tabs aria-label="Options" isVertical={false} className="w-full">
-
-        <Tab key="url" title="URL">
+      <Tabs 
+        aria-label="Options" 
+        isVertical={false} 
+        className="w-full"
+        classNames={{
+          tabList: "bg-[#F5F0E1]/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1]/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a]",
+          cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
+          panel: "pt-4",
+        }}
+      >
+        <Tab key="url" title={
+          <div className="flex items-center gap-2">
+            <Icon icon="solar:link-bold" width={16} />
+            <span>URL</span>
+          </div>
+        }>
           <Spacer y={1} />
-          <Divider />
+          <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
           <Spacer y={4} />
           <Input
             type="text"
-            // label="Enter match replay URL"
             placeholder="steam://rungame/730/76561202255233023/+csgo_download_match%20CSGO-..."
             labelPlacement="outside"
             description="Enter the URL of the match replay you want to submit."
-            endContent={<CopyDocumentIcon />}
-            startContent={<SteamIcon width={36} />}
+            classNames={{
+              inputWrapper: "rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30 bg-[#F5F0E1] dark:bg-[#111111]",
+            }}
+            endContent={<CopyDocumentIcon className="text-[#34445C] dark:text-[#DCFF37]" />}
+            startContent={<SteamIcon width={36} className="text-[#34445C] dark:text-[#F5F0E1]" />}
           />
           <Spacer y={2} />
-
         </Tab>
 
-        <Tab key="upload" title="Upload">
+        <Tab key="upload" title={
+          <div className="flex items-center gap-2">
+            <Icon icon="solar:cloud-upload-bold" width={16} />
+            <span>Upload</span>
+          </div>
+        }>
           <Spacer y={1} />
-          <Divider />
+          <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
           <Spacer y={4} />
           <UploadForm />
         </Tab>
 
-        <Tab key="cli" title="CLI">
-          <Card className="w-full max-w-md p-12">
-            <CardHeader>
-              <p><h1><span className={title({ color: "blue" })}>CLI</span></h1></p>
-              <Spacer y={2} />
-              <br />
-              <p>
-                <h1><span className={subtitle()}>Using  <Chip
-                  // startContent={<SteamIcon size={18} />}
-                  variant="dot"
-                  color="danger"
-                  endContent={<LinkIcon />}
-
+        <Tab key="cli" title={
+          <div className="flex items-center gap-2">
+            <Icon icon="solar:command-bold" width={16} />
+            <span>CLI</span>
+          </div>
+        }>
+          <Card className="w-full max-w-md p-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-[#F5F0E1]/50 dark:bg-[#0a0a0a]/50">
+            <CardHeader className="flex-col items-start gap-2">
+              <div className="flex items-center gap-3">
+                <div className="leet-icon-box leet-icon-box-md">
+                  <Icon icon="solar:command-bold" width={20} />
+                </div>
+                <div>
+                  <h3 className={title({ color: "battleNavy", size: "sm" })}>CLI</h3>
+                </div>
+              </div>
+              <p className="text-sm text-default-500">
+                Using <Chip
+                  variant="flat"
+                  size="sm"
+                  classNames={{
+                    base: "bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 rounded-none",
+                    content: "text-[#FF4654] dark:text-[#DCFF37] font-semibold",
+                  }}
                 >
-                  <span className={logo({ color: "pink" })}>Replay<strong>API</strong></span>
+                  <span className={logo({ color: "battleOrange" })}>Replay<strong>API</strong></span>
                 </Chip> command line interface
-                  {/*<Chip
-              variant="shadow"
-              classNames={{
-                base: "bg-gradient-to-br from-red-500 to-violet-500 border-small border-white/50 shadow-red-500/30",
-                content: "drop-shadow shadow-black text-white",
-              }}
-
-              style={{ fontSize: "0.6rem", margin: "0.0rem 0.2rem", height: "0.9rem", maxWidth: "0.2rem"}}
-            >
-             <strong>Official ReplayAPI SDK <span className={logo({color: "pink"})}> beta</span></strong>
-              
-            </Chip>
-            */}
-                </span>       </h1>
               </p>
             </CardHeader>
             <CardBody>
-              <div>
-                <Divider />
-                <Spacer y={4} />
-                NPM:
-                <Snippet size="sm" color="primary">npm install -g @replay-api/replay-api</Snippet>
-                <Spacer y={6} />
-                Brew (Mac/OS):
-                <Snippet size="sm" color="primary">npm install -g @replay-api/replay-api</Snippet>
-              </div>
+              <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
+              <Spacer y={4} />
+              <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">NPM:</p>
+              <Snippet 
+                size="sm" 
+                symbol="$"
+                classNames={{
+                  base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                  pre: "text-[#DCFF37]",
+                }}
+              >
+                npm install -g @replay-api/replay-api
+              </Snippet>
+              <Spacer y={4} />
+              <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Brew (macOS):</p>
+              <Snippet 
+                size="sm" 
+                symbol="$"
+                classNames={{
+                  base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                  pre: "text-[#DCFF37]",
+                }}
+              >
+                brew install replay-api/tap/replayapi
+              </Snippet>
             </CardBody>
           </Card>
-
         </Tab>
-        <Tab key="docker" title="Docker">
-          <Card className="w-full max-w-md p-12">
-            <CardHeader>
-              <p><h1><span className={title({ color: "blue" })}>Docker</span></h1></p>
-              <Spacer y={2} />
-              <br />
-              <p>
-                <h1><span className={subtitle()}>
-                </span>       </h1>
-              </p>
+
+        <Tab key="docker" title={
+          <div className="flex items-center gap-2">
+            <Icon icon="simple-icons:docker" width={16} />
+            <span>Docker</span>
+          </div>
+        }>
+          <Card className="w-full max-w-md p-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-[#F5F0E1]/50 dark:bg-[#0a0a0a]/50">
+            <CardHeader className="flex-col items-start gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 flex items-center justify-center bg-[#2496ED] rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                  <Icon icon="simple-icons:docker" className="text-white" width={24} />
+                </div>
+                <div>
+                  <h3 className={title({ color: "battleNavy", size: "sm" })}>Docker</h3>
+                </div>
+              </div>
             </CardHeader>
             <CardBody>
-              <Divider />
+              <Divider className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
               <Spacer y={4} />
-              <Spacer y={2} />
-              <Snippet size="sm" color="primary" variant="bordered">export STEAM_DIR="C:\..."</Snippet>
-              <Spacer y={10} />
-              <Snippet size="sm" color="primary" variant="solid">docker run -v $STEAM_DIR:/dem_files</Snippet>
+              <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Set Steam Directory:</p>
+              <Snippet 
+                size="sm" 
+                symbol="$"
+                classNames={{
+                  base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                  pre: "text-[#DCFF37]",
+                }}
+              >
+                export STEAM_DIR="C:\..."
+              </Snippet>
+              <Spacer y={4} />
+              <p className="text-sm font-semibold text-[#34445C] dark:text-[#DCFF37] mb-2">Run Container:</p>
+              <Snippet 
+                size="sm" 
+                symbol="$"
+                classNames={{
+                  base: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30 dark:border-[#DCFF37]/30 w-full",
+                  pre: "text-[#DCFF37]",
+                }}
+              >
+                docker run -v $STEAM_DIR:/dem_files
+              </Snippet>
             </CardBody>
           </Card>
         </Tab>
       </Tabs>
     </div>
-
   );
 };
 

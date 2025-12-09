@@ -12,10 +12,12 @@ export const logo = tv({
 			green: "from-[#6FEE8D] to-[#17c964]",
 			pink: "from-[#FF4654] to-[#FFC700]",
 			foreground: "dark:from-[#FFFFFF] dark:to-[#4B4B4B]",
-			battleNavy: "from-[#34445C] to-[#34445C]",
+			// LeetGaming Brand Colors - STANDARDIZED
+			battleNavy: "from-[#34445C] to-[#2a3749]",
 			battleOrange: "from-[#FF4654] to-[#FFC700]",
 			battleOrangeDark: "from-[#FF4654] via-[#FF4654] to-[#FFC700]",
-			battleLime: "from-[#DCFF37] to-[#00B3FF]",
+			battleLime: "from-[#DCFF37] to-[#b8d930]", // Lime gradient - NO blue!
+			battleCream: "from-[#F5F0E1] to-[#e8e3d4]",
 		},
 		fullWidth: {
 			true: "w-full block",
@@ -35,6 +37,7 @@ export const logo = tv({
 				"battleOrange",
 				"battleOrangeDark",
 				"battleLime",
+				"battleCream",
 			],
 			class: "bg-clip-text text-transparent bg-gradient-to-b",
 		},
@@ -52,10 +55,12 @@ export const title = tv({
 			green: "from-[#6FEE8D] to-[#17c964]",
 			pink: "from-[#FF4654] to-[#FFC700]",
 			foreground: "dark:from-[#FFFFFF] dark:to-[#4B4B4B]",
-			battleNavy: "from-[#34445C] to-[#34445C]",
+			// LeetGaming Brand Colors - STANDARDIZED
+			battleNavy: "from-[#34445C] to-[#2a3749]",
 			battleOrange: "from-[#FF4654] to-[#FFC700]",
 			battleOrangeDark: "from-[#FF4654] via-[#FF4654] to-[#FFC700]",
-			battleLime: "from-[#DCFF37] to-[#00B3FF]",
+			battleLime: "from-[#DCFF37] to-[#b8d930]", // Lime gradient - NO blue!
+			battleCream: "from-[#F5F0E1] to-[#e8e3d4]",
 		},
 		size: {
 			sm: "text-3xl lg:text-4xl",
@@ -83,6 +88,7 @@ export const title = tv({
 				"battleOrange",
 				"battleOrangeDark",
 				"battleLime",
+				"battleCream",
 			],
 			class: "bg-clip-text text-transparent bg-gradient-to-b",
 		},
