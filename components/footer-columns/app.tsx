@@ -18,7 +18,7 @@ const footerNavigation = {
   resources: [
     { name: "Service Status", href: "/service-status" },
     { name: "Cloud Storage", href: "/cloud" },
-    { name: "Upload Files", href: "/cloud/upload" },
+    { name: "Upload Files", href: "/upload" },
     { name: "Pricing Plans", href: "/pricing" },
     { name: "Supply Store", href: "/supply" },
   ],
@@ -28,8 +28,8 @@ const footerNavigation = {
     { name: "Players", href: "/players" },
     { name: "Teams", href: "/teams" },
     { name: "Matches", href: "/matches" },
-    { name: "Replays", href: "/cloud/replays" },
-    { name: "Highlights", href: "/cloud/highlights" },
+    { name: "Replays", href: "/replays" },
+    { name: "Highlights", href: "/highlights" },
   ],
   company: [
     { name: "About Us", href: "/about" },
@@ -39,9 +39,9 @@ const footerNavigation = {
     { name: "Contact", href: "/about#contact" },
   ],
   legal: [
-    { name: "Terms of Service", href: "/terms" },
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Cookie Policy", href: "/cookies" },
+    { name: "Terms of Service", href: "/legal/terms" },
+    { name: "Privacy Policy", href: "/legal/privacy" },
+    { name: "Cookie Policy", href: "/legal/cookies" },
   ],
   social: [
     {
