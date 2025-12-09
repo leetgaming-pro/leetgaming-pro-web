@@ -1185,30 +1185,84 @@
   box-shadow: 0 0 0 2px rgba(220, 255, 55, 0.2);
 }
 
-/* Navigation link styles - trapezoid esports aesthetic */
-/* Trapézio irregular: canto superior esquerdo e inferior direito cortados */
+/* Navigation link styles - parallelogram esports aesthetic */
+/* Paralelogramos inclinados para a direita que se encaixam perfeitamente */
+/* APENAS para o menu de navegação principal - resto do app mantém o estilo anterior */
 .esports-nav-link {
-  --cut-size: 6px;
+  --skew-size: 8px;
+  position: relative;
   clip-path: polygon(
-    var(--cut-size) 0,                    /* top-left: cortado */
-    100% 0,                               /* top-right: maior */
-    100% calc(100% - var(--cut-size)),    /* bottom-right: início do corte */
-    calc(100% - var(--cut-size)) 100%,    /* bottom-right: cortado */
-    0 100%,                               /* bottom-left: maior */
-    0 var(--cut-size)                     /* volta ao top-left: cortado */
+    var(--skew-size) 0,                   /* top-left: cortado */
+    100% 0,                               /* top-right: completo */
+    calc(100% - var(--skew-size)) 100%,   /* bottom-right: cortado */
+    0 100%                                /* bottom-left: completo */
   );
   border-radius: 0 !important;
+  margin-left: calc(var(--skew-size) * -1); /* encaixa no anterior */
 }
 
+.esports-nav-link:first-child {
+  margin-left: 0; /* primeiro item sem margem negativa */
+}
+
+/* Borda inferior com degradê */
+.esports-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--skew-size);
+  right: var(--skew-size);
+  height: 2px;
+  background: linear-gradient(90deg, #FF4654, #FFC700);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.esports-nav-link:hover::after,
+.esports-nav-link-active::after {
+  opacity: 1;
+}
+
+/* Estado ativo com borda degradê visível */
+.esports-nav-link-active {
+  background: rgba(52, 68, 92, 0.8) !important;
+}
+
+.esports-nav-link-active::after {
+  opacity: 1;
+  background: linear-gradient(90deg, #FF4654, #FFC700);
+}
+
+:is(.dark) .esports-nav-link-active {
+  background: rgba(220, 255, 55, 0.15) !important;
+}
+
+:is(.dark) .esports-nav-link::after,
+:is(.dark) .esports-nav-link-active::after {
+  background: linear-gradient(90deg, #DCFF37, #B8D930);
+}
+
+/* Botão primário do menu (Play/Match-Making) */
 .esports-nav-link-primary {
-  --cut-size: 8px;
+  --skew-size: 10px;
+  position: relative;
   clip-path: polygon(
-    var(--cut-size) 0,                    /* top-left: cortado */
-    100% 0,                               /* top-right: maior */
-    100% calc(100% - var(--cut-size)),    /* bottom-right: início do corte */
-    calc(100% - var(--cut-size)) 100%,    /* bottom-right: cortado */
-    0 100%,                               /* bottom-left: maior */
-    0 var(--cut-size)                     /* volta ao top-left: cortado */
+    var(--skew-size) 0,                   /* top-left: cortado */
+    100% 0,                               /* top-right: completo */
+    calc(100% - var(--skew-size)) 100%,   /* bottom-right: cortado */
+    0 100%                                /* bottom-left: completo */
   );
   border-radius: 0 !important;
+  margin-left: calc(var(--skew-size) * -1);
+}
+
+.esports-nav-link-primary::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--skew-size);
+  right: var(--skew-size);
+  height: 3px;
+  background: linear-gradient(90deg, #1a1a1a, #34445C);
+  opacity: 1;
 }

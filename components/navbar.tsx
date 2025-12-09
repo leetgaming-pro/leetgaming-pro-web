@@ -94,22 +94,32 @@ export const Navbar = () => {
         </NavbarBrand>
 
         <ul className="hidden lg:flex items-stretch h-full gap-0 ml-4">
-          {siteConfig.navItems.map((item) => {
+          {siteConfig.navItems.map((item, index) => {
             const active = isActive(item.href);
+            const isPrimary = item.href === "/match-making";
+            const isCloud = item.href === "/cloud";
+            
             return (
               <NavbarItem key={item.href} className="h-full flex items-stretch">
                 <NextLink
                   className={clsx(
-                    "relative px-4 flex items-center text-sm font-semibold uppercase tracking-wider transition-all duration-200",
+                    "relative px-5 flex items-center text-sm font-semibold uppercase tracking-wider transition-all duration-200",
                     "hover:text-foreground h-full",
                     electrolize.className,
-                    item.href === "/match-making"
+                    isPrimary
                       ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
-                      : item.href === "/cloud"
-                        ? "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600"
-                        : active
-                          ? "esports-nav-link bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] border-b-2 border-[#FF4654] dark:border-[#DCFF37]"
-                          : "esports-nav-link hover:bg-default-100/50"
+                      : isCloud
+                        ? clsx(
+                            "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600",
+                            active && "esports-nav-link-active"
+                          )
+                        : clsx(
+                            "esports-nav-link",
+                            active 
+                              ? "esports-nav-link-active text-white dark:text-[#DCFF37]"
+                              : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10"
+                          ),
+                    index === 0 && "!ml-0" /* primeiro item sem margem negativa */
                   )}
                   href={item.href}
                 >
