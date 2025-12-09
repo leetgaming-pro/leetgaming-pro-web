@@ -123,7 +123,7 @@ export const Navbar = () => {
                   )}
                   href={item.href}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
                 </NextLink>
               </NavbarItem>
             );
