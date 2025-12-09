@@ -7,8 +7,8 @@
  * only manages state and keyboard shortcuts
  */
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { shortcuts } from '@/hooks/useKeyboardShortcut';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useSearchShortcut, useEscapeShortcut } from '@/hooks/useKeyboardShortcut';
 
 interface GlobalSearchContextValue {
   isOpen: boolean;
@@ -38,13 +38,9 @@ export function GlobalSearchProvider({ children }: GlobalSearchProviderProps) {
   const closeSearch = useCallback(() => setIsOpen(false), []);
   const toggleSearch = useCallback(() => setIsOpen((prev) => !prev), []);
 
-  // Register keyboard shortcuts
-  useEffect(() => {
-    shortcuts.search(openSearch);
-    shortcuts.escape(() => {
-      if (isOpen) closeSearch();
-    });
-  }, [isOpen, openSearch, closeSearch]);
+  // Register keyboard shortcuts using proper hooks
+  useSearchShortcut(openSearch);
+  useEscapeShortcut(closeSearch, isOpen); // Only active when search is open
 
   const value: GlobalSearchContextValue = {
     isOpen,

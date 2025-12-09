@@ -3,9 +3,9 @@
  * Global keyboard shortcut handler for application-wide hotkeys
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
-type KeyboardShortcutHandler = (event: KeyboardEvent) => void;
+type KeyboardShortcutHandler = () => void;
 
 interface UseKeyboardShortcutOptions {
   key: string;
@@ -14,15 +14,26 @@ interface UseKeyboardShortcutOptions {
   shift?: boolean;
   alt?: boolean;
   preventDefault?: boolean;
+  enabled?: boolean;
 }
 
 export function useKeyboardShortcut(
   options: UseKeyboardShortcutOptions,
   callback: KeyboardShortcutHandler
 ) {
-  const { key, ctrl = false, meta = false, shift = false, alt = false, preventDefault = true } = options;
+  const { 
+    key, 
+    ctrl = false, 
+    meta = false, 
+    shift = false, 
+    alt = false, 
+    preventDefault = true,
+    enabled = true 
+  } = options;
 
   useEffect(() => {
+    if (!enabled) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       const keyMatches = event.key.toLowerCase() === key.toLowerCase();
       const ctrlMatches = ctrl ? event.ctrlKey : !event.ctrlKey;
@@ -34,7 +45,7 @@ export function useKeyboardShortcut(
         if (preventDefault) {
           event.preventDefault();
         }
-        callback(event);
+        callback();
       }
     };
 
@@ -43,27 +54,44 @@ export function useKeyboardShortcut(
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [key, ctrl, meta, shift, alt, preventDefault, callback]);
+  }, [key, ctrl, meta, shift, alt, preventDefault, callback, enabled]);
 }
 
 /**
- * Common shortcut presets
+ * Hook for search shortcut (Cmd+K / Ctrl+K)
  */
+export function useSearchShortcut(callback: KeyboardShortcutHandler, enabled = true) {
+  // Mac: Cmd+K
+  useKeyboardShortcut({ key: 'k', meta: true, enabled }, callback);
+  // Windows/Linux: Ctrl+K
+  useKeyboardShortcut({ key: 'k', ctrl: true, enabled }, callback);
+}
+
+/**
+ * Hook for save shortcut (Cmd+S / Ctrl+S)
+ */
+export function useSaveShortcut(callback: KeyboardShortcutHandler, enabled = true) {
+  useKeyboardShortcut({ key: 's', meta: true, enabled }, callback);
+  useKeyboardShortcut({ key: 's', ctrl: true, enabled }, callback);
+}
+
+/**
+ * Hook for escape shortcut
+ */
+export function useEscapeShortcut(callback: KeyboardShortcutHandler, enabled = true) {
+  useKeyboardShortcut({ key: 'Escape', enabled }, callback);
+}
+
+// Legacy export for backwards compatibility - DO NOT USE in new code
+// These are NOT hooks and will cause React Error #321 if used incorrectly
 export const shortcuts = {
-  // Search: Cmd+K (Mac) or Ctrl+K (Windows/Linux)
-  search: (callback: KeyboardShortcutHandler) => {
-    useKeyboardShortcut({ key: 'k', meta: true }, callback);
-    useKeyboardShortcut({ key: 'k', ctrl: true }, callback);
+  search: () => {
+    console.warn('shortcuts.search() is deprecated. Use useSearchShortcut() hook instead.');
   },
-
-  // Save: Cmd+S or Ctrl+S
-  save: (callback: KeyboardShortcutHandler) => {
-    useKeyboardShortcut({ key: 's', meta: true }, callback);
-    useKeyboardShortcut({ key: 's', ctrl: true }, callback);
+  save: () => {
+    console.warn('shortcuts.save() is deprecated. Use useSaveShortcut() hook instead.');
   },
-
-  // Escape
-  escape: (callback: KeyboardShortcutHandler) => {
-    useKeyboardShortcut({ key: 'Escape' }, callback);
+  escape: () => {
+    console.warn('shortcuts.escape() is deprecated. Use useEscapeShortcut() hook instead.');
   },
 };
