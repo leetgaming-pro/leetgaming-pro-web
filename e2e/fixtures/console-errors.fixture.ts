@@ -1,12 +1,12 @@
 /**
  * Console Errors Fixture for E2E Tests
  * Captures and reports browser console errors during tests
- * 
+ *
  * This fixture ensures that React errors, API errors, and runtime exceptions
  * are caught during E2E tests - the same errors you'd see in the browser console.
  */
 
-import { test as base, Page, ConsoleMessage } from '@playwright/test';
+import { test as base, Page, ConsoleMessage } from "@playwright/test";
 
 // Error patterns to ignore (third-party scripts, expected warnings, etc.)
 const IGNORED_ERROR_PATTERNS = [
@@ -37,7 +37,7 @@ const CRITICAL_ERROR_PATTERNS = [
 ];
 
 export interface ConsoleError {
-  type: 'error' | 'warning' | 'pageerror';
+  type: "error" | "warning" | "pageerror";
   text: string;
   location?: string;
   timestamp: number;
@@ -55,18 +55,20 @@ export interface ConsoleErrorsContext {
 }
 
 function shouldIgnoreError(text: string): boolean {
-  return IGNORED_ERROR_PATTERNS.some(pattern => pattern.test(text));
+  return IGNORED_ERROR_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 function isCriticalError(text: string): boolean {
-  return CRITICAL_ERROR_PATTERNS.some(pattern => pattern.test(text));
+  return CRITICAL_ERROR_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 /**
  * Extended test with console error tracking
  * Use this for all E2E tests to catch runtime errors
  */
-export const testWithConsoleErrors = base.extend<{ consoleErrors: ConsoleErrorsContext }>({
+export const testWithConsoleErrors = base.extend<{
+  consoleErrors: ConsoleErrorsContext;
+}>({
   consoleErrors: async ({ page }, use) => {
     const errors: ConsoleError[] = [];
     const warnings: ConsoleError[] = [];
@@ -75,23 +77,23 @@ export const testWithConsoleErrors = base.extend<{ consoleErrors: ConsoleErrorsC
     const handleConsoleMessage = (msg: ConsoleMessage) => {
       const text = msg.text();
       const type = msg.type();
-      
+
       if (shouldIgnoreError(text)) {
         return;
       }
 
       const error: ConsoleError = {
-        type: type === 'error' ? 'error' : 'warning',
+        type: type === "error" ? "error" : "warning",
         text,
         location: msg.location()?.url,
         timestamp: Date.now(),
         isCritical: isCriticalError(text),
       };
 
-      if (type === 'error') {
+      if (type === "error") {
         errors.push(error);
         console.error(`[E2E Console Error] ${text}`);
-      } else if (type === 'warning' && text.toLowerCase().includes('error')) {
+      } else if (type === "warning" && text.toLowerCase().includes("error")) {
         warnings.push(error);
         console.warn(`[E2E Console Warning] ${text}`);
       }
@@ -100,22 +102,22 @@ export const testWithConsoleErrors = base.extend<{ consoleErrors: ConsoleErrorsC
     // Capture page errors (uncaught exceptions)
     const handlePageError = (error: Error) => {
       const text = error.message;
-      
+
       if (shouldIgnoreError(text)) {
         return;
       }
 
       errors.push({
-        type: 'pageerror',
-        text: `${error.name}: ${error.message}\n${error.stack || ''}`,
+        type: "pageerror",
+        text: `${error.name}: ${error.message}\n${error.stack || ""}`,
         timestamp: Date.now(),
         isCritical: true, // Page errors are always critical
       });
       console.error(`[E2E Page Error] ${error.message}`);
     };
 
-    page.on('console', handleConsoleMessage);
-    page.on('pageerror', handlePageError);
+    page.on("console", handleConsoleMessage);
+    page.on("pageerror", handlePageError);
 
     const context: ConsoleErrorsContext = {
       page,
@@ -123,36 +125,42 @@ export const testWithConsoleErrors = base.extend<{ consoleErrors: ConsoleErrorsC
       warnings,
       getErrorSummary: () => {
         if (errors.length === 0) {
-          return 'No console errors detected';
+          return "No console errors detected";
         }
-        
-        const critical = errors.filter(e => e.isCritical);
-        const nonCritical = errors.filter(e => !e.isCritical);
-        
+
+        const critical = errors.filter((e) => e.isCritical);
+        const nonCritical = errors.filter((e) => !e.isCritical);
+
         let summary = `\n╔══════════════════════════════════════════════════════════════╗\n`;
         summary += `║  CONSOLE ERRORS DETECTED: ${errors.length} total                      ║\n`;
         summary += `╠══════════════════════════════════════════════════════════════╣\n`;
-        
+
         if (critical.length > 0) {
           summary += `║  🚨 CRITICAL ERRORS: ${critical.length}                                  ║\n`;
           critical.forEach((err, i) => {
-            summary += `║  ${i + 1}. ${err.text.substring(0, 55)}...${' '.repeat(Math.max(0, 3))}║\n`;
+            summary += `║  ${i + 1}. ${err.text.substring(
+              0,
+              55
+            )}...${" ".repeat(Math.max(0, 3))}║\n`;
           });
         }
-        
+
         if (nonCritical.length > 0) {
           summary += `║  ⚠️  OTHER ERRORS: ${nonCritical.length}                                    ║\n`;
           nonCritical.forEach((err, i) => {
-            summary += `║  ${i + 1}. ${err.text.substring(0, 55)}...${' '.repeat(Math.max(0, 3))}║\n`;
+            summary += `║  ${i + 1}. ${err.text.substring(
+              0,
+              55
+            )}...${" ".repeat(Math.max(0, 3))}║\n`;
           });
         }
-        
+
         summary += `╚══════════════════════════════════════════════════════════════╝\n`;
-        
+
         return summary;
       },
       hasErrors: () => errors.length > 0,
-      hasCriticalErrors: () => errors.some(e => e.isCritical),
+      hasCriticalErrors: () => errors.some((e) => e.isCritical),
       clearErrors: () => {
         errors.length = 0;
         warnings.length = 0;
@@ -162,18 +170,23 @@ export const testWithConsoleErrors = base.extend<{ consoleErrors: ConsoleErrorsC
     await use(context);
 
     // Cleanup listeners
-    page.off('console', handleConsoleMessage);
-    page.off('pageerror', handlePageError);
+    page.off("console", handleConsoleMessage);
+    page.off("pageerror", handlePageError);
 
     // After test: Report if there were errors
     if (errors.length > 0) {
       console.log(context.getErrorSummary());
-      
+
       // In CI, fail the test if critical errors were found
       if (process.env.CI && context.hasCriticalErrors()) {
         throw new Error(
-          `Test completed but found ${errors.filter(e => e.isCritical).length} critical console errors:\n` +
-          errors.filter(e => e.isCritical).map(e => `  - ${e.text}`).join('\n')
+          `Test completed but found ${
+            errors.filter((e) => e.isCritical).length
+          } critical console errors:\n` +
+            errors
+              .filter((e) => e.isCritical)
+              .map((e) => `  - ${e.text}`)
+              .join("\n")
         );
       }
     }
@@ -188,13 +201,13 @@ export const strictConsoleTest = base.extend<{ strictPage: Page }>({
   strictPage: async ({ page }, use) => {
     const errors: string[] = [];
 
-    page.on('console', msg => {
-      if (msg.type() === 'error' && !shouldIgnoreError(msg.text())) {
+    page.on("console", (msg) => {
+      if (msg.type() === "error" && !shouldIgnoreError(msg.text())) {
         errors.push(msg.text());
       }
     });
 
-    page.on('pageerror', error => {
+    page.on("pageerror", (error) => {
       if (!shouldIgnoreError(error.message)) {
         errors.push(`PageError: ${error.message}`);
       }
@@ -205,7 +218,9 @@ export const strictConsoleTest = base.extend<{ strictPage: Page }>({
     // Fail test if any errors occurred
     if (errors.length > 0) {
       throw new Error(
-        `Console errors detected during test:\n${errors.map(e => `  ❌ ${e}`).join('\n')}`
+        `Console errors detected during test:\n${errors
+          .map((e) => `  ❌ ${e}`)
+          .join("\n")}`
       );
     }
   },

@@ -1,10 +1,10 @@
 "use client";
 
-import type {IconProps} from "@iconify/react";
+import type { IconProps } from "@iconify/react";
 
 import React from "react";
-import {Divider, Link} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import { Divider, Link } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 import NextLink from "next/link";
 
 import ThemeSwitch from "./theme-switch";
@@ -47,35 +47,51 @@ const footerNavigation = {
     {
       name: "Discord",
       href: "https://discord.gg/leetgaming",
-      icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:discord" />,
+      icon: (props: SocialIconProps) => (
+        <Icon {...props} icon="fontisto:discord" />
+      ),
     },
     {
       name: "Twitch",
       href: "https://twitch.tv/leetgamingpro",
-      icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:twitch" />,
+      icon: (props: SocialIconProps) => (
+        <Icon {...props} icon="fontisto:twitch" />
+      ),
     },
     {
       name: "Twitter",
       href: "https://twitter.com/leetgamingpro",
-      icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:twitter" />,
+      icon: (props: SocialIconProps) => (
+        <Icon {...props} icon="fontisto:twitter" />
+      ),
     },
     {
       name: "YouTube",
       href: "https://youtube.com/@leetgamingpro",
-      icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:youtube-play" />,
+      icon: (props: SocialIconProps) => (
+        <Icon {...props} icon="fontisto:youtube-play" />
+      ),
     },
     {
       name: "LinkedIn",
       href: "https://linkedin.com/company/leetgaming",
-      icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:linkedin" />,
+      icon: (props: SocialIconProps) => (
+        <Icon {...props} icon="fontisto:linkedin" />
+      ),
     },
   ],
 };
 
 // FooterLink component that handles both internal and external links
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const isExternal = href.startsWith('http') || href.startsWith('//');
-  
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  const isExternal = href.startsWith("http") || href.startsWith("//");
+
   if (isExternal) {
     return (
       <Link
@@ -87,7 +103,7 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
       </Link>
     );
   }
-  
+
   return (
     <NextLink
       href={href}
@@ -98,24 +114,29 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
   );
 }
 
-
 export default function FooterColumns() {
   const renderList = React.useCallback(
-    ({title, items}: {title: string; items: {name: string; href: string}[]}) => (
+    ({
+      title,
+      items,
+    }: {
+      title: string;
+      items: { name: string; href: string }[];
+    }) => (
       <div>
-        <h3 className="text-small font-semibold text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wider">{title}</h3>
+        <h3 className="text-small font-semibold text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wider">
+          {title}
+        </h3>
         <ul className="mt-6 space-y-4">
           {items.map((item) => (
             <li key={item.name}>
-              <FooterLink href={item.href}>
-                {item.name}
-              </FooterLink>
+              <FooterLink href={item.href}>{item.name}</FooterLink>
             </li>
           ))}
         </ul>
       </div>
     ),
-    [],
+    []
   );
 
   let { theme } = useTheme();
@@ -125,7 +146,8 @@ export default function FooterColumns() {
   }
 
   return (
-    <div className="basis-1/5 sm:basis-full justify-center align-items align-center"
+    <div
+      className="basis-1/5 sm:basis-full justify-center align-items align-center"
       style={{
         backgroundImage: `url('/blur-glow-pry-gh.svg')`,
         backgroundSize: "cover",
@@ -147,10 +169,10 @@ export default function FooterColumns() {
 
               <div className="flex space-x-6">
                 {footerNavigation.social.map((item) => (
-                  <Link 
-                    key={item.name} 
-                    isExternal 
-                    className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors" 
+                  <Link
+                    key={item.name}
+                    isExternal
+                    className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors"
                     href={item.href}
                     aria-label={item.name}
                   >
@@ -162,72 +184,109 @@ export default function FooterColumns() {
             </div>
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
-                <div>{renderList({title: "Resources", items: footerNavigation.resources})}</div>
+                <div>
+                  {renderList({
+                    title: "Resources",
+                    items: footerNavigation.resources,
+                  })}
+                </div>
                 <div className="mt-10 md:mt-0">
-                  {renderList({title: "Community", items: footerNavigation.community})}
+                  {renderList({
+                    title: "Community",
+                    items: footerNavigation.community,
+                  })}
                 </div>
               </div>
               <div className="md:grid md:grid-cols-2 md:gap-8">
-                <div>{renderList({title: "Company", items: footerNavigation.company})}</div>
+                <div>
+                  {renderList({
+                    title: "Company",
+                    items: footerNavigation.company,
+                  })}
+                </div>
                 <div className="mt-10 md:mt-0">
-                  {renderList({title: "Legal", items: footerNavigation.legal})}
+                  {renderList({
+                    title: "Legal",
+                    items: footerNavigation.legal,
+                  })}
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Bottom section with additional links */}
           <Divider className="mt-16 sm:mt-20 lg:mt-24 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
-          
+
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <NextLink 
-              href="/match-making" 
+            <NextLink
+              href="/match-making"
               className="flex flex-col items-center gap-2 p-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
             >
-              <Icon icon="solar:gamepad-bold" className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]" />
-              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">Play Now</span>
+              <Icon
+                icon="solar:gamepad-bold"
+                className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]"
+              />
+              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                Play Now
+              </span>
             </NextLink>
-            
-            <NextLink 
-              href="/tournaments" 
+
+            <NextLink
+              href="/tournaments"
               className="flex flex-col items-center gap-2 p-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
             >
-              <Icon icon="solar:cup-star-bold" className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]" />
-              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">Tournaments</span>
+              <Icon
+                icon="solar:cup-star-bold"
+                className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]"
+              />
+              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                Tournaments
+              </span>
             </NextLink>
-            
-            <NextLink 
-              href="/cloud" 
+
+            <NextLink
+              href="/cloud"
               className="flex flex-col items-center gap-2 p-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
             >
-              <Icon icon="solar:cloud-bold" className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]" />
-              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">Cloud</span>
+              <Icon
+                icon="solar:cloud-bold"
+                className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]"
+              />
+              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                Cloud
+              </span>
             </NextLink>
-            
-            <NextLink 
-              href="/leaderboards" 
+
+            <NextLink
+              href="/leaderboards"
               className="flex flex-col items-center gap-2 p-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
             >
-              <Icon icon="solar:ranking-bold" className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]" />
-              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">Leaderboards</span>
+              <Icon
+                icon="solar:ranking-bold"
+                className="w-8 h-8 text-[#FF4654] dark:text-[#DCFF37]"
+              />
+              <span className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                Leaderboards
+              </span>
             </NextLink>
           </div>
-          
+
           <Divider className="mt-8 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
-          
+
           <div className="flex flex-wrap justify-between gap-2 pt-8">
             <p className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/60">
-              &copy; {new Date().getFullYear()} Leet Gaming Pro Inc. All rights reserved.
+              &copy; {new Date().getFullYear()} Leet Gaming Pro Inc. All rights
+              reserved.
             </p>
             <div className="flex items-center gap-4">
-              <NextLink 
-                href="/signin" 
+              <NextLink
+                href="/signin"
                 className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/60 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors"
               >
                 Sign In
               </NextLink>
-              <NextLink 
-                href="/signup" 
+              <NextLink
+                href="/signup"
                 className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/60 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors"
               >
                 Sign Up

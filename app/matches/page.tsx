@@ -158,13 +158,16 @@ const statusConfig = {
 
 function MatchCard({ match }: { match: Match }) {
   const config = statusConfig[match.status];
-  const winner = match.status === "completed" 
-    ? (match.teams[0].score > match.teams[1].score ? 0 : 1)
-    : null;
+  const winner =
+    match.status === "completed"
+      ? match.teams[0].score > match.teams[1].score
+        ? 0
+        : 1
+      : null;
 
   return (
     <Link href={`/match/${match.id}`}>
-      <Card 
+      <Card
         className="bg-content1/60 backdrop-blur-md border border-white/10 hover:border-primary/50 transition-all cursor-pointer"
         isPressable
       >
@@ -175,7 +178,9 @@ function MatchCard({ match }: { match: Match }) {
               <Icon icon={match.gameIcon} className="w-6 h-6" />
               <div>
                 <p className="font-semibold">{match.game}</p>
-                <p className="text-xs text-default-500">{match.map} • {match.mode}</p>
+                <p className="text-xs text-default-500">
+                  {match.map} • {match.mode}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -197,13 +202,17 @@ function MatchCard({ match }: { match: Match }) {
           {/* Teams */}
           <div className="flex items-center justify-between gap-4">
             {/* Team 1 */}
-            <div className={`flex-1 ${winner === 0 ? 'opacity-100' : winner === 1 ? 'opacity-50' : ''}`}>
+            <div
+              className={`flex-1 ${
+                winner === 0 ? "opacity-100" : winner === 1 ? "opacity-50" : ""
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <AvatarGroup max={3} size="sm">
                   {match.teams[0].players.map((player, i) => (
-                    <Avatar 
-                      key={i} 
-                      name={player.name[0]} 
+                    <Avatar
+                      key={i}
+                      name={player.name[0]}
                       src={player.avatar}
                       size="sm"
                     />
@@ -220,17 +229,29 @@ function MatchCard({ match }: { match: Match }) {
 
             {/* Score */}
             <div className="flex items-center gap-2 px-4">
-              <span className={`text-2xl font-bold ${winner === 0 ? 'text-success' : ''}`}>
+              <span
+                className={`text-2xl font-bold ${
+                  winner === 0 ? "text-success" : ""
+                }`}
+              >
                 {match.teams[0].score}
               </span>
               <span className="text-default-400">-</span>
-              <span className={`text-2xl font-bold ${winner === 1 ? 'text-success' : ''}`}>
+              <span
+                className={`text-2xl font-bold ${
+                  winner === 1 ? "text-success" : ""
+                }`}
+              >
                 {match.teams[1].score}
               </span>
             </div>
 
             {/* Team 2 */}
-            <div className={`flex-1 ${winner === 1 ? 'opacity-100' : winner === 0 ? 'opacity-50' : ''}`}>
+            <div
+              className={`flex-1 ${
+                winner === 1 ? "opacity-100" : winner === 0 ? "opacity-50" : ""
+              }`}
+            >
               <div className="flex items-center gap-3 justify-end">
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-medium truncate">{match.teams[1].name}</p>
@@ -240,9 +261,9 @@ function MatchCard({ match }: { match: Match }) {
                 </div>
                 <AvatarGroup max={3} size="sm">
                   {match.teams[1].players.map((player, i) => (
-                    <Avatar 
-                      key={i} 
-                      name={player.name[0]} 
+                    <Avatar
+                      key={i}
+                      name={player.name[0]}
                       src={player.avatar}
                       size="sm"
                     />
@@ -257,10 +278,9 @@ function MatchCard({ match }: { match: Match }) {
             <div className="flex items-center gap-2">
               <Icon icon="solar:calendar-linear" className="w-4 h-4" />
               <span>
-                {match.status === "upcoming" 
+                {match.status === "upcoming"
                   ? `Starts ${match.timestamp.toLocaleString()}`
-                  : match.timestamp.toLocaleString()
-                }
+                  : match.timestamp.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -273,7 +293,9 @@ function MatchCard({ match }: { match: Match }) {
               {match.tournament && (
                 <div className="flex items-center gap-1">
                   <Icon icon="solar:cup-linear" className="w-4 h-4" />
-                  <span className="truncate max-w-[150px]">{match.tournament}</span>
+                  <span className="truncate max-w-[150px]">
+                    {match.tournament}
+                  </span>
                 </div>
               )}
             </div>
@@ -320,17 +342,21 @@ export default function MatchesPage() {
   const [loading] = useState(false);
 
   const filteredMatches = mockMatches.filter((match) => {
-    const matchesSearch = match.game.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch =
+      match.game.toLowerCase().includes(search.toLowerCase()) ||
       match.map.toLowerCase().includes(search.toLowerCase()) ||
-      match.teams.some(t => t.name.toLowerCase().includes(search.toLowerCase()));
-    
-    const matchesStatus = statusFilter === "all" || match.status === statusFilter;
+      match.teams.some((t) =>
+        t.name.toLowerCase().includes(search.toLowerCase())
+      );
+
+    const matchesStatus =
+      statusFilter === "all" || match.status === statusFilter;
     const matchesGame = gameFilter === "all" || match.game === gameFilter;
-    
+
     return matchesSearch && matchesStatus && matchesGame;
   });
 
-  const games = Array.from(new Set(mockMatches.map(m => m.game)));
+  const games = Array.from(new Set(mockMatches.map((m) => m.game)));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-content1/20">
@@ -349,16 +375,21 @@ export default function MatchesPage() {
             placeholder="Search matches..."
             value={search}
             onValueChange={setSearch}
-            startContent={<Icon icon="solar:magnifer-linear" className="text-default-400" />}
+            startContent={
+              <Icon icon="solar:magnifer-linear" className="text-default-400" />
+            }
             className="flex-1"
             classNames={{
-              inputWrapper: "bg-content1/60 backdrop-blur-md border border-white/10",
+              inputWrapper:
+                "bg-content1/60 backdrop-blur-md border border-white/10",
             }}
           />
           <Select
             placeholder="Status"
             selectedKeys={[statusFilter]}
-            onSelectionChange={(keys) => setStatusFilter(Array.from(keys)[0] as string)}
+            onSelectionChange={(keys) =>
+              setStatusFilter(Array.from(keys)[0] as string)
+            }
             className="w-full sm:w-40"
             classNames={{
               trigger: "bg-content1/60 backdrop-blur-md border border-white/10",
@@ -372,19 +403,24 @@ export default function MatchesPage() {
           <Select
             placeholder="Game"
             selectedKeys={[gameFilter]}
-            onSelectionChange={(keys) => setGameFilter(Array.from(keys)[0] as string)}
+            onSelectionChange={(keys) =>
+              setGameFilter(Array.from(keys)[0] as string)
+            }
             className="w-full sm:w-48"
             classNames={{
               trigger: "bg-content1/60 backdrop-blur-md border border-white/10",
             }}
-            items={[{ key: "all", label: "All Games" }, ...games.map(g => ({ key: g, label: g }))]}
+            items={[
+              { key: "all", label: "All Games" },
+              ...games.map((g) => ({ key: g, label: g })),
+            ]}
           >
             {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
           </Select>
         </div>
 
         {/* Live Matches Highlight */}
-        {filteredMatches.some(m => m.status === "live") && (
+        {filteredMatches.some((m) => m.status === "live") && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <span className="relative flex h-3 w-3">
@@ -395,7 +431,7 @@ export default function MatchesPage() {
             </div>
             <div className="space-y-4">
               {filteredMatches
-                .filter(m => m.status === "live")
+                .filter((m) => m.status === "live")
                 .map((match) => (
                   <MatchCard key={match.id} match={match} />
                 ))}
@@ -406,12 +442,15 @@ export default function MatchesPage() {
         {/* All Matches */}
         <div>
           <h2 className="text-xl font-semibold mb-4">
-            {statusFilter === "live" ? "Live Matches" : 
-             statusFilter === "upcoming" ? "Upcoming Matches" :
-             statusFilter === "completed" ? "Completed Matches" :
-             "All Matches"}
+            {statusFilter === "live"
+              ? "Live Matches"
+              : statusFilter === "upcoming"
+              ? "Upcoming Matches"
+              : statusFilter === "completed"
+              ? "Completed Matches"
+              : "All Matches"}
           </h2>
-          
+
           {loading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -421,14 +460,17 @@ export default function MatchesPage() {
           ) : filteredMatches.length === 0 ? (
             <Card className="bg-content1/60 backdrop-blur-md border border-white/10">
               <CardBody className="py-12 text-center">
-                <Icon icon="solar:gameboy-linear" className="w-16 h-16 mx-auto mb-4 text-default-300" />
+                <Icon
+                  icon="solar:gameboy-linear"
+                  className="w-16 h-16 mx-auto mb-4 text-default-300"
+                />
                 <p className="text-lg font-medium">No matches found</p>
                 <p className="text-default-500 mt-2">
                   Try adjusting your search or filters
                 </p>
-                <Button 
-                  color="primary" 
-                  variant="flat" 
+                <Button
+                  color="primary"
+                  variant="flat"
                   className="mt-4"
                   onPress={() => {
                     setSearch("");
@@ -443,7 +485,9 @@ export default function MatchesPage() {
           ) : (
             <div className="space-y-4">
               {filteredMatches
-                .filter(m => statusFilter === "live" ? true : m.status !== "live")
+                .filter((m) =>
+                  statusFilter === "live" ? true : m.status !== "live"
+                )
                 .map((match) => (
                   <MatchCard key={match.id} match={match} />
                 ))}

@@ -18,7 +18,7 @@ import LaunchYourSquadButton from "@/components/teams/team-form/launch-your-squa
 
 /**
  * Team Creation Page
- * 
+ *
  * Allows users to create a new team/squad with customization options.
  */
 export default function CreateTeamPage() {
@@ -52,7 +52,9 @@ export default function CreateTeamPage() {
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Create Your Team</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Create Your Team
+          </h1>
           <p className="text-gray-400">
             Build your squad and compete in tournaments
           </p>
@@ -64,7 +66,9 @@ export default function CreateTeamPage() {
             <Icon icon="lucide:users" className="text-primary text-2xl" />
             <div>
               <h2 className="text-lg font-semibold text-white">Team Details</h2>
-              <p className="text-sm text-gray-400">Fill in your team information</p>
+              <p className="text-sm text-gray-400">
+                Fill in your team information
+              </p>
             </div>
           </CardHeader>
           <Divider className="bg-gray-700" />
@@ -91,7 +95,9 @@ export default function CreateTeamPage() {
               label="Team Tag"
               placeholder="3-5 character tag (e.g., TSM)"
               value={teamTag}
-              onValueChange={(value) => setTeamTag(value.toUpperCase().slice(0, 5))}
+              onValueChange={(value) =>
+                setTeamTag(value.toUpperCase().slice(0, 5))
+              }
               variant="bordered"
               classNames={{
                 input: "text-white uppercase",
@@ -145,11 +151,16 @@ export default function CreateTeamPage() {
         <Card className="bg-gray-800/30 border border-gray-700/50 mt-6">
           <CardBody className="px-6 py-4">
             <div className="flex items-start gap-3">
-              <Icon icon="lucide:lightbulb" className="text-yellow-500 text-xl mt-0.5" />
+              <Icon
+                icon="lucide:lightbulb"
+                className="text-yellow-500 text-xl mt-0.5"
+              />
               <div>
                 <h3 className="text-white font-medium mb-1">Pro Tips</h3>
                 <ul className="text-gray-400 text-sm space-y-1">
-                  <li>• Choose a memorable team name that represents your squad</li>
+                  <li>
+                    • Choose a memorable team name that represents your squad
+                  </li>
                   <li>• Keep your tag short - it appears in match results</li>
                   <li>• You can invite members after creating the team</li>
                 </ul>

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Redirect from /sign-up to /signup for URL consistency
@@ -10,7 +10,7 @@ export default function SignUpRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/signup');
+    router.replace("/signup");
   }, [router]);
 
   return (

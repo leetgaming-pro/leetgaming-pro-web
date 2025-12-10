@@ -3,6 +3,7 @@
 /**
  * Onboarding Flow Component
  * Multi-step onboarding experience for new users
+ * Award-winning gaming brand experience
  */
 
 import React from 'react';
@@ -12,6 +13,8 @@ import {
   CardHeader,
   Progress,
 } from '@nextui-org/react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
 import { useOnboarding } from './onboarding-context';
@@ -67,88 +70,169 @@ export function OnboardingFlow() {
     }
   };
 
-  const stepConfig = STEP_CONFIG[currentStep];
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
-      <Card className="w-full max-w-3xl">
-        {/* Header with Progress */}
-        <CardHeader className="flex flex-col gap-4 pb-0">
-          {currentStep !== OnboardingStep.COMPLETE && (
-            <>
-              {/* Progress Bar */}
-              <div className="w-full">
-                <Progress
-                  value={progress}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Branded Background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255, 199, 0, 0.1) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 80% 60%, rgba(220, 255, 55, 0.08) 0%, transparent 50%),
+            linear-gradient(180deg, #0a0a0a 0%, #1a1a0a 50%, #0a1a1a 100%)
+          `,
+        }}
+      />
+
+      {/* Grid pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 199, 0, 0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 199, 0, 0.5) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      {/* Animated glow */}
+      <motion.div
+        className="absolute w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(255, 199, 0, 0.15) 0%, transparent 70%)',
+          left: '-200px',
+          top: '20%',
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      {/* Header with Logo */}
+      <header className="relative z-10 p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logo-fox-mini.png"
+            alt="LeetGaming"
+            width={40}
+            height={40}
+            className="drop-shadow-[0_0_10px_rgba(255,199,0,0.5)]"
+          />
+          <span className="text-xl font-bold text-white">
+            LeetGaming<span className="text-[#FFC700]">.PRO</span>
+          </span>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="relative z-10 flex items-center justify-center p-4 pb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card 
+            className="w-full max-w-3xl bg-black/60 backdrop-blur-xl border border-white/10"
+            style={{
+              clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)',
+            }}
+          >
+            {/* Top accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FFC700] via-[#FF4654] to-[#DCFF37]" />
+            
+            {/* Header with Progress */}
+            <CardHeader className="flex flex-col gap-4 pb-0 pt-6">
+              {currentStep !== OnboardingStep.COMPLETE && (
+                <>
+                  {/* Progress Bar */}
+                  <div className="w-full">
+                    <Progress
+                      value={progress}
+                      size="sm"
+                      className="w-full h-1"
+                      classNames={{
+                        indicator: 'bg-gradient-to-r from-[#FFC700] to-[#DCFF37]',
+                        track: 'bg-white/10',
+                      }}
+                    />
+                  </div>
+
+                  {/* Step Indicators */}
+                  <div className="flex items-center justify-between w-full px-2">
+                    {Object.entries(STEP_CONFIG).map(([step, config], index) => {
+                      const stepOrder = Object.keys(STEP_CONFIG);
+                      const currentIndex = stepOrder.indexOf(currentStep);
+                      const thisIndex = index;
+                      const isCompleted = thisIndex < currentIndex;
+                      const isCurrent = step === currentStep;
+
+                      if (step === OnboardingStep.COMPLETE) return null;
+
+                      return (
+                        <div
+                          key={step}
+                          className={`flex flex-col items-center gap-1 transition-colors ${
+                            isCurrent
+                              ? 'text-[#FFC700]'
+                              : isCompleted
+                              ? 'text-[#DCFF37]'
+                              : 'text-white/30'
+                          }`}
+                        >
+                          <div
+                            className={`
+                              w-10 h-10 flex items-center justify-center border-2 transition-all
+                              ${isCurrent 
+                                ? 'bg-[#FFC700]/20 border-[#FFC700]' 
+                                : isCompleted 
+                                ? 'bg-[#DCFF37]/20 border-[#DCFF37]' 
+                                : 'bg-white/5 border-white/10'}
+                            `}
+                            style={{
+                              clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)',
+                            }}
+                          >
+                            {isCompleted ? (
+                              <Icon icon="solar:check-circle-bold" width={24} />
+                            ) : (
+                              <Icon icon={config.icon} width={20} />
+                            )}
+                          </div>
+                          <span className="text-xs font-medium hidden sm:block">{config.title}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* Back Button */}
+              {!isFirstStep && currentStep !== OnboardingStep.COMPLETE && (
+                <EsportsButton
+                  variant="ghost"
                   size="sm"
-                  color="primary"
-                  className="w-full"
-                  classNames={{
-                    indicator: 'bg-gradient-to-r from-primary to-secondary',
-                  }}
-                />
-              </div>
+                  onClick={goToPreviousStep}
+                  className="self-start"
+                >
+                  <Icon icon="solar:arrow-left-linear" width={18} />
+                  Back
+                </EsportsButton>
+              )}
+            </CardHeader>
 
-              {/* Step Indicators */}
-              <div className="flex items-center justify-between w-full px-2">
-                {Object.entries(STEP_CONFIG).map(([step, config], index) => {
-                  const stepOrder = Object.keys(STEP_CONFIG);
-                  const currentIndex = stepOrder.indexOf(currentStep);
-                  const thisIndex = index;
-                  const isCompleted = thisIndex < currentIndex;
-                  const isCurrent = step === currentStep;
-
-                  if (step === OnboardingStep.COMPLETE) return null;
-
-                  return (
-                    <div
-                      key={step}
-                      className={`flex flex-col items-center gap-1 ${
-                        isCurrent
-                          ? 'text-primary'
-                          : isCompleted
-                          ? 'text-success'
-                          : 'text-default-400'
-                      }`}
-                    >
-                      <div
-                        className={`
-                          w-10 h-10 rounded-full flex items-center justify-center
-                          ${isCurrent ? 'bg-primary/20' : isCompleted ? 'bg-success/20' : 'bg-default-100'}
-                        `}
-                      >
-                        {isCompleted ? (
-                          <Icon icon="solar:check-circle-bold" width={24} />
-                        ) : (
-                          <Icon icon={config.icon} width={20} />
-                        )}
-                      </div>
-                      <span className="text-xs font-medium hidden sm:block">{config.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {/* Back Button */}
-          {!isFirstStep && currentStep !== OnboardingStep.COMPLETE && (
-            <EsportsButton
-              variant="ghost"
-              size="sm"
-              onClick={goToPreviousStep}
-              className="self-start"
-            >
-              <Icon icon="solar:arrow-left-linear" width={18} />
-              Back
-            </EsportsButton>
-          )}
-        </CardHeader>
-
-        <CardBody className="p-6 md:p-8">
-          {renderStep()}
-        </CardBody>
-      </Card>
+            <CardBody className="p-6 md:p-8">
+              {renderStep()}
+            </CardBody>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 }

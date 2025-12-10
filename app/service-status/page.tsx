@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardBody, Chip, Spinner, Divider, Progress } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Chip,
+  Spinner,
+  Divider,
+  Progress,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
 interface ServiceStatus {
@@ -103,7 +110,10 @@ function ServiceCard({ service }: { service: ServiceStatus }) {
       <CardBody className="gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Icon icon={config.icon} className={`text-${config.color} w-6 h-6`} />
+            <Icon
+              icon={config.icon}
+              className={`text-${config.color} w-6 h-6`}
+            />
             <div>
               <p className="font-semibold">{service.name}</p>
               <p className="text-xs text-default-500">{service.description}</p>
@@ -113,23 +123,29 @@ function ServiceCard({ service }: { service: ServiceStatus }) {
             {config.label}
           </Chip>
         </div>
-        
+
         {service.latency !== undefined && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-default-500">Latency</span>
             <span className="font-mono">{service.latency}ms</span>
           </div>
         )}
-        
+
         {service.uptime !== undefined && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-sm">
               <span className="text-default-500">Uptime (30d)</span>
               <span className="font-mono">{service.uptime}%</span>
             </div>
-            <Progress 
-              value={service.uptime} 
-              color={service.uptime >= 99.9 ? "success" : service.uptime >= 99 ? "warning" : "danger"}
+            <Progress
+              value={service.uptime}
+              color={
+                service.uptime >= 99.9
+                  ? "success"
+                  : service.uptime >= 99
+                  ? "warning"
+                  : "danger"
+              }
               size="sm"
               className="max-w-full"
             />
@@ -158,12 +174,12 @@ export default function ServiceStatusPage() {
   const hasOutage = services.some((s) => s.status === "outage");
   const hasDegraded = services.some((s) => s.status === "degraded");
 
-  const overallStatus = hasOutage 
-    ? "outage" 
-    : hasDegraded 
-    ? "degraded" 
-    : allOperational 
-    ? "operational" 
+  const overallStatus = hasOutage
+    ? "outage"
+    : hasDegraded
+    ? "degraded"
+    : allOperational
+    ? "operational"
     : "maintenance";
 
   const overallConfig = statusConfig[overallStatus];
@@ -188,16 +204,16 @@ export default function ServiceStatusPage() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-4">
-                <Icon 
-                  icon={overallConfig.icon} 
-                  className={`text-${overallConfig.color} w-16 h-16`} 
+                <Icon
+                  icon={overallConfig.icon}
+                  className={`text-${overallConfig.color} w-16 h-16`}
                 />
                 <div className="text-center">
                   <h2 className="text-2xl font-bold">
-                    {allOperational 
-                      ? "All Systems Operational" 
-                      : hasOutage 
-                      ? "Service Disruption" 
+                    {allOperational
+                      ? "All Systems Operational"
+                      : hasOutage
+                      ? "Service Disruption"
                       : "Partial Disruption"}
                   </h2>
                   {lastUpdated && (
@@ -240,22 +256,25 @@ export default function ServiceStatusPage() {
         <div className="mt-12 text-center">
           <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-white/10">
             <CardBody className="py-8">
-              <Icon icon="solar:bell-bold" className="w-10 h-10 mx-auto mb-4 text-primary" />
+              <Icon
+                icon="solar:bell-bold"
+                className="w-10 h-10 mx-auto mb-4 text-primary"
+              />
               <h3 className="text-lg font-semibold mb-2">Stay Informed</h3>
               <p className="text-default-500 mb-4">
                 Get notified about service disruptions and maintenance windows
               </p>
               <p className="text-sm text-default-400">
                 Follow us on{" "}
-                <a 
-                  href="https://twitter.com/leetgamingpro" 
-                  target="_blank" 
+                <a
+                  href="https://twitter.com/leetgamingpro"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
                   Twitter/X
-                </a>
-                {" "}for real-time updates
+                </a>{" "}
+                for real-time updates
               </p>
             </CardBody>
           </Card>

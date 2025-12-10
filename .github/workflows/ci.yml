@@ -14,15 +14,15 @@ on:
   workflow_dispatch:
     inputs:
       run_all_browsers:
-        description: 'Run E2E tests on all browsers'
+        description: "Run E2E tests on all browsers"
         type: boolean
         default: false
       skip_e2e:
-        description: 'Skip E2E tests'
+        description: "Skip E2E tests"
         type: boolean
         default: false
       deploy_preview:
-        description: 'Deploy preview environment'
+        description: "Deploy preview environment"
         type: boolean
         default: false
 
@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
   DOCKER_REGISTRY: ghcr.io
   DOCKER_NAMESPACE: leetgaming-pro
 
@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --silent
@@ -81,7 +81,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --silent
@@ -121,7 +121,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --silent
@@ -189,12 +189,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.23"
           cache-dependency-path: replay-api/go.sum
 
       - name: Build Backend API

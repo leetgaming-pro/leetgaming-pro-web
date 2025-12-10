@@ -1,12 +1,12 @@
 /**
  * Global E2E Test Setup
  * Enforces console error checking across ALL E2E tests
- * 
+ *
  * This ensures that React hydration errors, API errors, and runtime
  * exceptions are captured and cause test failures in CI.
  */
 
-import { test as base, expect, ConsoleMessage } from '@playwright/test';
+import { test as base, expect, ConsoleMessage } from "@playwright/test";
 
 // Patterns for errors that should ALWAYS fail tests
 const CRITICAL_ERRORS = [
@@ -44,11 +44,11 @@ const IGNORED_PATTERNS = [
 ];
 
 function shouldIgnore(text: string): boolean {
-  return IGNORED_PATTERNS.some(p => p.test(text));
+  return IGNORED_PATTERNS.some((p) => p.test(text));
 }
 
 function isCritical(text: string): boolean {
-  return CRITICAL_ERRORS.some(p => p.test(text));
+  return CRITICAL_ERRORS.some((p) => p.test(text));
 }
 
 /**
@@ -61,9 +61,9 @@ export const test = base.extend<{
 }>({
   consoleErrors: async ({ page }, use) => {
     const errors: string[] = [];
-    
+
     const handleConsole = (msg: ConsoleMessage) => {
-      if (msg.type() === 'error') {
+      if (msg.type() === "error") {
         const text = msg.text();
         if (!shouldIgnore(text)) {
           errors.push(text);
@@ -84,32 +84,32 @@ export const test = base.extend<{
       }
     };
 
-    page.on('console', handleConsole);
-    page.on('pageerror', handlePageError);
+    page.on("console", handleConsole);
+    page.on("pageerror", handlePageError);
 
     await use(errors);
 
-    page.off('console', handleConsole);
-    page.off('pageerror', handlePageError);
+    page.off("console", handleConsole);
+    page.off("pageerror", handlePageError);
   },
 
   assertNoConsoleErrors: async ({ consoleErrors }, use) => {
     await use(() => {
-      const criticalErrors = consoleErrors.filter(e => isCritical(e));
-      
+      const criticalErrors = consoleErrors.filter((e) => isCritical(e));
+
       if (criticalErrors.length > 0) {
         throw new Error(
           `Test detected ${criticalErrors.length} critical console error(s):\n` +
-          criticalErrors.map((e, i) => `  ${i + 1}. ${e}`).join('\n')
+            criticalErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n")
         );
       }
-      
+
       // In CI with FAIL_ON_CONSOLE_ERROR=true, fail on any error
-      if (process.env.CI && process.env.FAIL_ON_CONSOLE_ERROR === 'true') {
+      if (process.env.CI && process.env.FAIL_ON_CONSOLE_ERROR === "true") {
         if (consoleErrors.length > 0) {
           throw new Error(
             `Test detected ${consoleErrors.length} console error(s) (strict mode):\n` +
-            consoleErrors.map((e, i) => `  ${i + 1}. ${e}`).join('\n')
+              consoleErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n")
           );
         }
       }
@@ -126,19 +126,23 @@ export { expect };
 test.afterEach(async ({ consoleErrors }, testInfo) => {
   if (consoleErrors.length > 0) {
     // Attach errors to test report
-    const errorReport = consoleErrors.map((e, i) => `${i + 1}. ${e}`).join('\n');
-    await testInfo.attach('console-errors', {
+    const errorReport = consoleErrors
+      .map((e, i) => `${i + 1}. ${e}`)
+      .join("\n");
+    await testInfo.attach("console-errors", {
       body: errorReport,
-      contentType: 'text/plain',
+      contentType: "text/plain",
     });
 
     // In CI, fail tests with critical errors
     if (process.env.CI) {
-      const criticalErrors = consoleErrors.filter(e => isCritical(e));
+      const criticalErrors = consoleErrors.filter((e) => isCritical(e));
       if (criticalErrors.length > 0) {
-        testInfo.status = 'failed';
+        testInfo.status = "failed";
         // Log the error - Playwright will handle the failure
-        console.error(`Critical console errors detected:\n${criticalErrors.join('\n')}`);
+        console.error(
+          `Critical console errors detected:\n${criticalErrors.join("\n")}`
+        );
       }
     }
   }

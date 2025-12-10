@@ -49,35 +49,35 @@ components/
 
 ### Matchmaking
 
-| Component | Description | SDK Integration |
-|-----------|-------------|-----------------|
-| `WizardContext` | State management | ✅ MatchmakingAPI |
-| `GameModeForm` | Game mode selection | - |
-| `ChooseRegionForm` | Region selection | - |
-| `SquadForm` | Squad selection | - |
-| `PrizeDistributionSelector` | Prize split config | - |
-| `ReviewConfirmForm` | Final confirmation | - |
+| Component                   | Description         | SDK Integration   |
+| --------------------------- | ------------------- | ----------------- |
+| `WizardContext`             | State management    | ✅ MatchmakingAPI |
+| `GameModeForm`              | Game mode selection | -                 |
+| `ChooseRegionForm`          | Region selection    | -                 |
+| `SquadForm`                 | Squad selection     | -                 |
+| `PrizeDistributionSelector` | Prize split config  | -                 |
+| `ReviewConfirmForm`         | Final confirmation  | -                 |
 
 ### Teams
 
-| Component | Description | SDK Integration |
-|-----------|-------------|-----------------|
+| Component               | Description        | SDK Integration           |
+| ----------------------- | ------------------ | ------------------------- |
 | `LaunchYourSquadButton` | Create squad modal | ✅ SquadAPI.createSquad() |
-| `TeamCard` | Team display card | - |
-| `PlayerSearchInput` | Search players | - |
+| `TeamCard`              | Team display card  | -                         |
+| `PlayerSearchInput`     | Search players     | -                         |
 
 ### Players
 
-| Component | Description | SDK Integration |
-|-----------|-------------|-----------------|
+| Component             | Description          | SDK Integration                           |
+| --------------------- | -------------------- | ----------------------------------------- |
 | `PlayerCreationModal` | Create profile modal | ✅ PlayerProfileAPI.createPlayerProfile() |
-| `MiniPlayerCard` | Compact player card | - |
+| `MiniPlayerCard`      | Compact player card  | -                                         |
 
 ### Tournaments
 
-| Component | Description | SDK Integration |
-|-----------|-------------|-----------------|
-| `TournamentBracket` | Bracket visualization | - |
+| Component           | Description           | SDK Integration |
+| ------------------- | --------------------- | --------------- |
+| `TournamentBracket` | Bracket visualization | -               |
 
 ---
 
@@ -86,6 +86,7 @@ components/
 These components now use real SDK calls instead of mock data:
 
 ### `wizard-context.tsx`
+
 ```typescript
 // Uses MatchmakingAPI for queue operations
 const response = await matchmakingSDK.joinQueue({
@@ -96,6 +97,7 @@ const response = await matchmakingSDK.joinQueue({
 ```
 
 ### `launch-your-squad-button.tsx`
+
 ```typescript
 // Uses SquadAPI for squad creation
 const squad = await sdk.squads.createSquad({
@@ -107,6 +109,7 @@ const squad = await sdk.squads.createSquad({
 ```
 
 ### `player-creation-modal.tsx`
+
 ```typescript
 // Uses PlayerProfileAPI for profile creation
 const profile = await sdk.playerProfiles.createPlayerProfile({
@@ -122,26 +125,36 @@ const profile = await sdk.playerProfiles.createPlayerProfile({
 ## Component Patterns
 
 ### Loading States
+
 All components use consistent loading patterns:
+
 ```tsx
-{isLoading && <Spinner size="lg" label="Loading..." />}
+{
+  isLoading && <Spinner size="lg" label="Loading..." />;
+}
 ```
 
 ### Error States
+
 Error handling with retry:
+
 ```tsx
-{error && (
-  <Card className="bg-danger-50">
-    <CardBody>
-      <Icon icon="solar:danger-triangle-bold" />
-      <p>{error}</p>
-    </CardBody>
-  </Card>
-)}
+{
+  error && (
+    <Card className="bg-danger-50">
+      <CardBody>
+        <Icon icon="solar:danger-triangle-bold" />
+        <p>{error}</p>
+      </CardBody>
+    </Card>
+  );
+}
 ```
 
 ### Form Validation
+
 Using controlled inputs with validation:
+
 ```tsx
 const validateForm = (): boolean => {
   if (!formData.name || formData.name.length < 3) {
@@ -157,6 +170,7 @@ const validateForm = (): boolean => {
 ## Icon Usage
 
 Using Iconify with Solar icons:
+
 ```tsx
 import { Icon } from '@iconify/react';
 
@@ -170,6 +184,7 @@ import { Icon } from '@iconify/react';
 ## Styling
 
 Using NextUI + Tailwind CSS:
+
 - Cards with gradient backgrounds
 - Chips for status indicators
 - Progress bars for completion

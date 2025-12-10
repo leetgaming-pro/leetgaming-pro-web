@@ -48,15 +48,15 @@ leetgaming-pro-web/
 
 ## Technology Stack
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Next.js | 14.x | React framework with App Router |
-| React | 18.x | UI library |
-| TypeScript | 5.x | Type safety |
-| Tailwind CSS | 3.x | Utility-first styling |
-| NextUI | 2.x | Component library |
-| NextAuth.js | 4.x | Authentication |
-| Playwright | 1.x | E2E testing |
+| Technology   | Version | Purpose                         |
+| ------------ | ------- | ------------------------------- |
+| Next.js      | 14.x    | React framework with App Router |
+| React        | 18.x    | UI library                      |
+| TypeScript   | 5.x     | Type safety                     |
+| Tailwind CSS | 3.x     | Utility-first styling           |
+| NextUI       | 2.x     | Component library               |
+| NextAuth.js  | 4.x     | Authentication                  |
+| Playwright   | 1.x     | E2E testing                     |
 
 ---
 
@@ -78,6 +78,7 @@ leetgaming-pro-web/
 ### SDK Integration ✅
 
 All major pages now use real SDK integration:
+
 - `MatchmakingAPI` - Queue management with polling
 - `SquadAPI` - Squad CRUD operations
 - `PlayerProfileAPI` - Player management
@@ -88,18 +89,18 @@ All major pages now use real SDK integration:
 
 ## E2E Test Coverage
 
-| Test Suite | Status | Tests |
-|------------|--------|-------|
-| Homepage | ✅ | Basic smoke tests |
-| Auth | ✅ | Login/logout flows |
-| Matchmaking | ✅ | Wizard flow tests |
-| Tournaments | ✅ | Listing, details, registration |
-| Teams | ✅ | Search, create, filters |
-| Players | ✅ | Search, profiles |
-| Ranked | ✅ | Stats, match history |
-| Leaderboards | ✅ | Rankings, filters |
-| Payments | ✅ | Checkout flows |
-| Replays | ✅ | Upload, listing |
+| Test Suite   | Status | Tests                          |
+| ------------ | ------ | ------------------------------ |
+| Homepage     | ✅     | Basic smoke tests              |
+| Auth         | ✅     | Login/logout flows             |
+| Matchmaking  | ✅     | Wizard flow tests              |
+| Tournaments  | ✅     | Listing, details, registration |
+| Teams        | ✅     | Search, create, filters        |
+| Players      | ✅     | Search, profiles               |
+| Ranked       | ✅     | Stats, match history           |
+| Leaderboards | ✅     | Rankings, filters              |
+| Payments     | ✅     | Checkout flows                 |
+| Replays      | ✅     | Upload, listing                |
 
 ---
 
@@ -135,10 +136,10 @@ NEXTAUTH_SECRET=your-secret-key
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
-| `npm run e2e` | Run Playwright E2E tests |
-| `npm run e2e:ui` | Run E2E with UI |
+| Command          | Description              |
+| ---------------- | ------------------------ |
+| `npm run dev`    | Start development server |
+| `npm run build`  | Production build         |
+| `npm run lint`   | Run ESLint               |
+| `npm run e2e`    | Run Playwright E2E tests |
+| `npm run e2e:ui` | Run E2E with UI          |

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Redirect page for legacy /cloud/replays URL
@@ -11,7 +11,7 @@ export default function CloudReplaysRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/replays');
+    router.replace("/replays");
   }, [router]);
 
   return (

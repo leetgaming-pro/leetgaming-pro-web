@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Redirect page for legacy /cloud/upload URL
@@ -11,7 +11,7 @@ export default function CloudUploadRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/upload');
+    router.replace("/upload");
   }, [router]);
 
   return (

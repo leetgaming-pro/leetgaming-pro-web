@@ -1,8 +1,6 @@
 "use client"
-import SignUp from '@/components/signup/app'
+import { BrandedSignUp } from '@/components/auth';
 
-export default function SignUpApp() {
-  return (
-        <SignUp />
-  );
+export default function SignUpPage() {
+  return <BrandedSignUp />;
 }
