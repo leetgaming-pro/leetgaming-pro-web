@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="dota-banner-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#CC2929;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#8C1919;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" fill="#1E1E1E"/>
+  <rect width="800" height="300" fill="url(#dota-banner-grad)"/>
+  <text x="50" y="170" fill="#CC2929" font-family="Arial Black" font-size="72" font-weight="bold">DOTA 2</text>
+  <text x="52" y="220" fill="#888888" font-family="Arial" font-size="24">The Most-Played Game on Steam</text>
+</svg>

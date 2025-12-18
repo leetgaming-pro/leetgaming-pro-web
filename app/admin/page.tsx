@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 /**
  * LeetGaming PRO - Professional Esport Platform Admin Dashboard
  * Comprehensive dashboard with ALL platform features
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardBody,
@@ -26,16 +26,14 @@ import {
   Link,
   Badge,
   Avatar,
-  AvatarGroup,
-  Tooltip,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { ReplayAPISDK } from "@/types/replay-api/sdk";
+import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { logger } from "@/lib/logger";
 import {
   LineChart,
   Line,
@@ -52,7 +50,7 @@ import {
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts';
+} from "recharts";
 
 // Dashboard section types
 interface PlatformStats {
@@ -89,7 +87,12 @@ interface TournamentStats {
   upcoming: number;
   completed: number;
   totalPrizePool: number;
-  topTournaments: { name: string; prizePool: number; participants: number; status: string }[];
+  topTournaments: {
+    name: string;
+    prizePool: number;
+    participants: number;
+    status: string;
+  }[];
 }
 
 interface MemberActivity {
@@ -99,27 +102,58 @@ interface MemberActivity {
   matches: number;
 }
 
-const CHART_COLORS = ['#006FEE', '#17C964', '#F5A524', '#F31260', '#7828C8', '#0E793C'];
+// Chart colors for visualizations
+const _CHART_COLORS = [
+  "#006FEE",
+  "#17C964",
+  "#F5A524",
+  "#F31260",
+  "#7828C8",
+  "#0E793C",
+];
 
 export default function AdminDashboardPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
-  const sdk = useMemo(() => new ReplayAPISDK(ReplayApiSettingsMock, logger), []);
+  const sdk = useMemo(
+    () => new ReplayAPISDK(ReplayApiSettingsMock, logger),
+    []
+  );
 
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
-  const [matchmakingStats, setMatchmakingStats] = useState<MatchmakingStats | null>(null);
+  const [selectedTab, setSelectedTab] = useState("overview");
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(
+    null
+  );
+  const [matchmakingStats, setMatchmakingStats] =
+    useState<MatchmakingStats | null>(null);
   const [walletStats, setWalletStats] = useState<WalletStats | null>(null);
-  const [tournamentStats, setTournamentStats] = useState<TournamentStats | null>(null);
+  const [tournamentStats, setTournamentStats] =
+    useState<TournamentStats | null>(null);
   const [memberActivity, setMemberActivity] = useState<MemberActivity[]>([]);
-  const [recentMembers, setRecentMembers] = useState<{ id: string; name: string; avatar: string; joinedAt: string; tier: string }[]>([]);
-  const [activeMatches, setActiveMatches] = useState<{ id: string; mode: string; players: number; status: string; region: string }[]>([]);
+  const [recentMembers, setRecentMembers] = useState<
+    {
+      id: string;
+      name: string;
+      avatar: string;
+      joinedAt: string;
+      tier: string;
+    }[]
+  >([]);
+  const [activeMatches, setActiveMatches] = useState<
+    {
+      id: string;
+      mode: string;
+      players: number;
+      status: string;
+      region: string;
+    }[]
+  >([]);
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/signin?callbackUrl=/admin');
+    if (status === "unauthenticated") {
+      router.push("/signin?callbackUrl=/admin");
     }
   }, [status, router]);
 
@@ -158,16 +192,38 @@ export default function AdminDashboardPage() {
           averageWaitTime: Math.floor(Math.random() * 45) + 15,
           matchesCreated: totalMatches,
           byTier: [
-            { tier: 'Free', count: Math.floor(totalMembers * 0.6), color: '#71717A' },
-            { tier: 'Premium', count: Math.floor(totalMembers * 0.25), color: '#006FEE' },
-            { tier: 'Pro', count: Math.floor(totalMembers * 0.1), color: '#7828C8' },
-            { tier: 'Elite', count: Math.floor(totalMembers * 0.05), color: '#F5A524' },
+            {
+              tier: "Free",
+              count: Math.floor(totalMembers * 0.6),
+              color: "#71717A",
+            },
+            {
+              tier: "Premium",
+              count: Math.floor(totalMembers * 0.25),
+              color: "#006FEE",
+            },
+            {
+              tier: "Pro",
+              count: Math.floor(totalMembers * 0.1),
+              color: "#7828C8",
+            },
+            {
+              tier: "Elite",
+              count: Math.floor(totalMembers * 0.05),
+              color: "#F5A524",
+            },
           ],
           byRegion: [
-            { region: 'NA East', count: Math.floor(Math.random() * 40) + 20 },
-            { region: 'EU West', count: Math.floor(Math.random() * 35) + 15 },
-            { region: 'Asia Pacific', count: Math.floor(Math.random() * 30) + 10 },
-            { region: 'South America', count: Math.floor(Math.random() * 20) + 5 },
+            { region: "NA East", count: Math.floor(Math.random() * 40) + 20 },
+            { region: "EU West", count: Math.floor(Math.random() * 35) + 15 },
+            {
+              region: "Asia Pacific",
+              count: Math.floor(Math.random() * 30) + 10,
+            },
+            {
+              region: "South America",
+              count: Math.floor(Math.random() * 20) + 5,
+            },
           ],
         });
 
@@ -177,9 +233,9 @@ export default function AdminDashboardPage() {
           pendingPayouts: 45000,
           floatBalance: 385000,
           currencies: [
-            { currency: 'USD', balance: 250000, color: '#17C964' },
-            { currency: 'USDC', balance: 95000, color: '#006FEE' },
-            { currency: 'ETH', balance: 40000, color: '#7828C8' },
+            { currency: "USD", balance: 250000, color: "#17C964" },
+            { currency: "USDC", balance: 95000, color: "#006FEE" },
+            { currency: "ETH", balance: 40000, color: "#7828C8" },
           ],
         });
 
@@ -189,10 +245,30 @@ export default function AdminDashboardPage() {
           completed: 142,
           totalPrizePool: 125000,
           topTournaments: [
-            { name: 'Pro League Season 4', prizePool: 50000, participants: 256, status: 'active' },
-            { name: 'Weekly Showdown', prizePool: 5000, participants: 64, status: 'active' },
-            { name: 'Rookie Championship', prizePool: 2500, participants: 128, status: 'upcoming' },
-            { name: 'Elite Masters', prizePool: 25000, participants: 32, status: 'upcoming' },
+            {
+              name: "Pro League Season 4",
+              prizePool: 50000,
+              participants: 256,
+              status: "active",
+            },
+            {
+              name: "Weekly Showdown",
+              prizePool: 5000,
+              participants: 64,
+              status: "active",
+            },
+            {
+              name: "Rookie Championship",
+              prizePool: 2500,
+              participants: 128,
+              status: "upcoming",
+            },
+            {
+              name: "Elite Masters",
+              prizePool: 25000,
+              participants: 32,
+              status: "upcoming",
+            },
           ],
         });
 
@@ -202,7 +278,7 @@ export default function AdminDashboardPage() {
           const date = new Date();
           date.setDate(date.getDate() - i);
           activityData.push({
-            date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+            date: date.toLocaleDateString("en-US", { weekday: "short" }),
             signups: Math.floor(Math.random() * 50) + 20,
             logins: Math.floor(Math.random() * 500) + 200,
             matches: Math.floor(Math.random() * 200) + 100,
@@ -214,30 +290,60 @@ export default function AdminDashboardPage() {
         setRecentMembers(
           playersRes.slice(0, 5).map((p) => ({
             id: p.id,
-            name: p.nickname || 'Player',
-            avatar: p.avatar_uri || `https://api.dicebear.com/7.x/identicon/svg?seed=${p.id}`,
+            name: p.nickname || "Player",
+            avatar:
+              p.avatar_uri ||
+              `https://api.dicebear.com/7.x/identicon/svg?seed=${p.id}`,
             joinedAt: p.created_at
-              ? (typeof p.created_at === 'string' ? p.created_at : new Date(p.created_at).toISOString())
+              ? typeof p.created_at === "string"
+                ? p.created_at
+                : new Date(p.created_at).toISOString()
               : new Date().toISOString(),
-            tier: ['Free', 'Premium', 'Pro', 'Elite'][Math.floor(Math.random() * 4)],
+            tier: ["Free", "Premium", "Pro", "Elite"][
+              Math.floor(Math.random() * 4)
+            ],
           }))
         );
 
         // Generate active matches
         setActiveMatches([
-          { id: 'match-1', mode: 'Competitive', players: 10, status: 'In Progress', region: 'NA East' },
-          { id: 'match-2', mode: 'Wingman', players: 4, status: 'In Progress', region: 'EU West' },
-          { id: 'match-3', mode: 'Competitive', players: 10, status: 'Starting', region: 'Asia Pacific' },
-          { id: 'match-4', mode: 'Casual', players: 10, status: 'In Progress', region: 'NA West' },
+          {
+            id: "match-1",
+            mode: "Competitive",
+            players: 10,
+            status: "In Progress",
+            region: "NA East",
+          },
+          {
+            id: "match-2",
+            mode: "Wingman",
+            players: 4,
+            status: "In Progress",
+            region: "EU West",
+          },
+          {
+            id: "match-3",
+            mode: "Competitive",
+            players: 10,
+            status: "Starting",
+            region: "Asia Pacific",
+          },
+          {
+            id: "match-4",
+            mode: "Casual",
+            players: 10,
+            status: "In Progress",
+            region: "NA West",
+          },
         ]);
       } catch (error) {
-        logger.error('Failed to load admin dashboard data', error);
+        logger.error("Failed to load admin dashboard data", error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (status === 'authenticated') {
+    if (status === "authenticated") {
       loadData();
       const interval = setInterval(loadData, 30000);
       return () => clearInterval(interval);
@@ -245,7 +351,7 @@ export default function AdminDashboardPage() {
     return undefined;
   }, [status, sdk]);
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner size="lg" label="Loading dashboard..." />
@@ -253,7 +359,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (status === 'unauthenticated') {
+  if (status === "unauthenticated") {
     return null;
   }
 
@@ -261,14 +367,14 @@ export default function AdminDashboardPage() {
     title,
     value,
     icon,
-    color = 'primary',
+    color = "primary",
     trend,
     subtitle,
   }: {
     title: string;
     value: string | number;
     icon: string;
-    color?: 'primary' | 'success' | 'warning' | 'danger' | 'secondary';
+    color?: "primary" | "success" | "warning" | "danger" | "secondary";
     trend?: { value: number; isUp: boolean };
     subtitle?: string;
   }) => (
@@ -282,8 +388,15 @@ export default function AdminDashboardPage() {
             <Chip
               size="sm"
               variant="flat"
-              color={trend.isUp ? 'success' : 'danger'}
-              startContent={<Icon icon={trend.isUp ? 'solar:arrow-up-bold' : 'solar:arrow-down-bold'} width={12} />}
+              color={trend.isUp ? "success" : "danger"}
+              startContent={
+                <Icon
+                  icon={
+                    trend.isUp ? "solar:arrow-up-bold" : "solar:arrow-down-bold"
+                  }
+                  width={12}
+                />
+              }
             >
               {trend.value}%
             </Chip>
@@ -292,7 +405,9 @@ export default function AdminDashboardPage() {
         <div className="mt-2">
           <p className="text-2xl font-bold">{value}</p>
           <p className="text-sm text-default-500">{title}</p>
-          {subtitle && <p className="text-xs text-default-400 mt-1">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs text-default-400 mt-1">{subtitle}</p>
+          )}
         </div>
       </CardBody>
     </Card>
@@ -307,15 +422,26 @@ export default function AdminDashboardPage() {
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-            <Icon icon="solar:chart-2-bold-duotone" className="text-[#F5F0E1] dark:text-[#1a1a1a]" width={32} />
+          <div
+            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{
+              clipPath:
+                "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+            }}
+          >
+            <Icon
+              icon="solar:chart-2-bold-duotone"
+              className="text-[#F5F0E1] dark:text-[#1a1a1a]"
+              width={32}
+            />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
               LeetGaming PRO Dashboard
             </h1>
-            <p className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">Professional Esport Platform Management</p>
+            <p className="text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">
+              Professional Esport Platform Management
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -330,7 +456,10 @@ export default function AdminDashboardPage() {
           </Button>
           <Button
             className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+            style={{
+              clipPath:
+                "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+            }}
             startContent={<Icon icon="solar:settings-bold" width={18} />}
           >
             Platform Settings
@@ -344,10 +473,11 @@ export default function AdminDashboardPage() {
         onSelectionChange={(key) => setSelectedTab(key as string)}
         variant="underlined"
         aria-label="Dashboard sections"
-        classNames={{ 
-          tabList: 'gap-6 border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20',
-          cursor: 'bg-[#FF4654] dark:bg-[#DCFF37]',
-          tab: 'data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]',
+        classNames={{
+          tabList:
+            "gap-6 border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          cursor: "bg-[#FF4654] dark:bg-[#DCFF37]",
+          tab: "data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]",
         }}
       >
         <Tab
@@ -407,8 +537,12 @@ export default function AdminDashboardPage() {
       </Tabs>
 
       {/* Overview Tab */}
-      {selectedTab === 'overview' && platformStats && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "overview" && platformStats && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <StatCard
@@ -451,19 +585,49 @@ export default function AdminDashboardPage() {
             {/* Member Activity Chart */}
             <Card>
               <CardHeader className="pb-0">
-                <h3 className="text-lg font-semibold">Platform Activity (7 Days)</h3>
+                <h3 className="text-lg font-semibold">
+                  Platform Activity (7 Days)
+                </h3>
               </CardHeader>
               <CardBody className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={memberActivity}>
                     <defs>
-                      <linearGradient id="colorSignups" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#006FEE" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#006FEE" stopOpacity={0} />
+                      <linearGradient
+                        id="colorSignups"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#006FEE"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#006FEE"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
-                      <linearGradient id="colorMatches" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#17C964" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#17C964" stopOpacity={0} />
+                      <linearGradient
+                        id="colorMatches"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#17C964"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#17C964"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
@@ -471,8 +635,20 @@ export default function AdminDashboardPage() {
                     <YAxis tick={{ fontSize: 12 }} />
                     <RechartsTooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="signups" name="Signups" stroke="#006FEE" fill="url(#colorSignups)" />
-                    <Area type="monotone" dataKey="matches" name="Matches" stroke="#17C964" fill="url(#colorMatches)" />
+                    <Area
+                      type="monotone"
+                      dataKey="signups"
+                      name="Signups"
+                      stroke="#006FEE"
+                      fill="url(#colorSignups)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="matches"
+                      name="Matches"
+                      stroke="#17C964"
+                      fill="url(#colorMatches)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardBody>
@@ -481,7 +657,9 @@ export default function AdminDashboardPage() {
             {/* Tier Distribution */}
             <Card>
               <CardHeader className="pb-0">
-                <h3 className="text-lg font-semibold">Member Tier Distribution</h3>
+                <h3 className="text-lg font-semibold">
+                  Member Tier Distribution
+                </h3>
               </CardHeader>
               <CardBody className="h-[300px]">
                 {matchmakingStats && (
@@ -494,7 +672,9 @@ export default function AdminDashboardPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        label={({ tier, percent }) => `${tier} ${(percent * 100).toFixed(0)}%`}
+                        label={({ tier, percent }) =>
+                          `${tier} ${(percent * 100).toFixed(0)}%`
+                        }
                       >
                         {matchmakingStats.byTier.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -513,11 +693,17 @@ export default function AdminDashboardPage() {
             <Card isPressable as={Link} href="/admin/members">
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="p-3 rounded-xl bg-primary/10">
-                  <Icon icon="solar:users-group-rounded-bold" width={28} className="text-primary" />
+                  <Icon
+                    icon="solar:users-group-rounded-bold"
+                    width={28}
+                    className="text-primary"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold">Manage Members</p>
-                  <p className="text-sm text-default-500">View all players & squads</p>
+                  <p className="text-sm text-default-500">
+                    View all players & squads
+                  </p>
                 </div>
               </CardBody>
             </Card>
@@ -525,11 +711,17 @@ export default function AdminDashboardPage() {
             <Card isPressable as={Link} href="/match-making">
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="p-3 rounded-xl bg-secondary/10">
-                  <Icon icon="solar:gamepad-bold" width={28} className="text-secondary" />
+                  <Icon
+                    icon="solar:gamepad-bold"
+                    width={28}
+                    className="text-secondary"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold">Matchmaking Queue</p>
-                  <p className="text-sm text-default-500">{matchmakingStats?.queuedPlayers || 0} players waiting</p>
+                  <p className="text-sm text-default-500">
+                    {matchmakingStats?.queuedPlayers || 0} players waiting
+                  </p>
                 </div>
               </CardBody>
             </Card>
@@ -537,11 +729,17 @@ export default function AdminDashboardPage() {
             <Card isPressable as={Link} href="/tournaments">
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="p-3 rounded-xl bg-warning/10">
-                  <Icon icon="solar:cup-star-bold" width={28} className="text-warning" />
+                  <Icon
+                    icon="solar:cup-star-bold"
+                    width={28}
+                    className="text-warning"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold">Tournaments</p>
-                  <p className="text-sm text-default-500">{tournamentStats?.active || 0} active events</p>
+                  <p className="text-sm text-default-500">
+                    {tournamentStats?.active || 0} active events
+                  </p>
                 </div>
               </CardBody>
             </Card>
@@ -549,11 +747,17 @@ export default function AdminDashboardPage() {
             <Card isPressable as={Link} href="/wallet">
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="p-3 rounded-xl bg-success/10">
-                  <Icon icon="solar:wallet-bold" width={28} className="text-success" />
+                  <Icon
+                    icon="solar:wallet-bold"
+                    width={28}
+                    className="text-success"
+                  />
                 </div>
                 <div>
                   <p className="font-semibold">Platform Wallet</p>
-                  <p className="text-sm text-default-500">${(walletStats?.floatBalance || 0).toLocaleString()}</p>
+                  <p className="text-sm text-default-500">
+                    ${(walletStats?.floatBalance || 0).toLocaleString()}
+                  </p>
                 </div>
               </CardBody>
             </Card>
@@ -562,13 +766,38 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Members Tab */}
-      {selectedTab === 'members' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "members" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatCard title="Total Members" value={platformStats?.totalMembers.toLocaleString() || '0'} icon="solar:users-group-rounded-bold" color="primary" />
-            <StatCard title="Active Today" value={platformStats?.activeMembers.toLocaleString() || '0'} icon="solar:user-check-bold" color="success" />
-            <StatCard title="New This Week" value="156" icon="solar:user-plus-bold" color="secondary" trend={{ value: 23, isUp: true }} />
-            <StatCard title="Total Squads" value={platformStats?.totalSquads.toLocaleString() || '0'} icon="solar:users-group-two-rounded-bold" color="warning" />
+            <StatCard
+              title="Total Members"
+              value={platformStats?.totalMembers.toLocaleString() || "0"}
+              icon="solar:users-group-rounded-bold"
+              color="primary"
+            />
+            <StatCard
+              title="Active Today"
+              value={platformStats?.activeMembers.toLocaleString() || "0"}
+              icon="solar:user-check-bold"
+              color="success"
+            />
+            <StatCard
+              title="New This Week"
+              value="156"
+              icon="solar:user-plus-bold"
+              color="secondary"
+              trend={{ value: 23, isUp: true }}
+            />
+            <StatCard
+              title="Total Squads"
+              value={platformStats?.totalSquads.toLocaleString() || "0"}
+              icon="solar:users-group-two-rounded-bold"
+              color="warning"
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -589,12 +818,28 @@ export default function AdminDashboardPage() {
                       <TableRow key={member.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar size="sm" src={member.avatar} name={member.name} />
+                            <Avatar
+                              size="sm"
+                              src={member.avatar}
+                              name={member.name}
+                            />
                             <span className="font-medium">{member.name}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Chip size="sm" variant="flat" color={member.tier === 'Elite' ? 'warning' : member.tier === 'Pro' ? 'secondary' : member.tier === 'Premium' ? 'primary' : 'default'}>
+                          <Chip
+                            size="sm"
+                            variant="flat"
+                            color={
+                              member.tier === "Elite"
+                                ? "warning"
+                                : member.tier === "Pro"
+                                ? "secondary"
+                                : member.tier === "Premium"
+                                ? "primary"
+                                : "default"
+                            }
+                          >
                             {member.tier}
                           </Chip>
                         </TableCell>
@@ -619,8 +864,22 @@ export default function AdminDashboardPage() {
                     <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
                     <RechartsTooltip />
-                    <Line type="monotone" dataKey="signups" stroke="#006FEE" strokeWidth={2} dot={false} name="New Signups" />
-                    <Line type="monotone" dataKey="logins" stroke="#17C964" strokeWidth={2} dot={false} name="Daily Logins" />
+                    <Line
+                      type="monotone"
+                      dataKey="signups"
+                      stroke="#006FEE"
+                      strokeWidth={2}
+                      dot={false}
+                      name="New Signups"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="logins"
+                      stroke="#17C964"
+                      strokeWidth={2}
+                      dot={false}
+                      name="Daily Logins"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardBody>
@@ -630,13 +889,37 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Matchmaking Tab */}
-      {selectedTab === 'matchmaking' && matchmakingStats && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "matchmaking" && matchmakingStats && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatCard title="In Queue" value={matchmakingStats.queuedPlayers} icon="solar:hourglass-bold" color="primary" />
-            <StatCard title="Avg Wait Time" value={`${matchmakingStats.averageWaitTime}s`} icon="solar:clock-circle-bold" color="warning" />
-            <StatCard title="Matches Today" value={matchmakingStats.matchesCreated} icon="solar:gamepad-bold" color="success" />
-            <StatCard title="Active Matches" value={activeMatches.length} icon="solar:play-circle-bold" color="secondary" />
+            <StatCard
+              title="In Queue"
+              value={matchmakingStats.queuedPlayers}
+              icon="solar:hourglass-bold"
+              color="primary"
+            />
+            <StatCard
+              title="Avg Wait Time"
+              value={`${matchmakingStats.averageWaitTime}s`}
+              icon="solar:clock-circle-bold"
+              color="warning"
+            />
+            <StatCard
+              title="Matches Today"
+              value={matchmakingStats.matchesCreated}
+              icon="solar:gamepad-bold"
+              color="success"
+            />
+            <StatCard
+              title="Active Matches"
+              value={activeMatches.length}
+              icon="solar:play-circle-bold"
+              color="secondary"
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -656,11 +939,21 @@ export default function AdminDashboardPage() {
                   <TableBody>
                     {activeMatches.map((match) => (
                       <TableRow key={match.id}>
-                        <TableCell className="font-medium">{match.mode}</TableCell>
+                        <TableCell className="font-medium">
+                          {match.mode}
+                        </TableCell>
                         <TableCell>{match.players}</TableCell>
                         <TableCell>{match.region}</TableCell>
                         <TableCell>
-                          <Chip size="sm" color={match.status === 'In Progress' ? 'success' : 'warning'} variant="flat">
+                          <Chip
+                            size="sm"
+                            color={
+                              match.status === "In Progress"
+                                ? "success"
+                                : "warning"
+                            }
+                            variant="flat"
+                          >
                             {match.status}
                           </Chip>
                         </TableCell>
@@ -680,7 +973,12 @@ export default function AdminDashboardPage() {
                   <BarChart data={matchmakingStats.byRegion} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
                     <XAxis type="number" tick={{ fontSize: 12 }} />
-                    <YAxis dataKey="region" type="category" tick={{ fontSize: 12 }} width={100} />
+                    <YAxis
+                      dataKey="region"
+                      type="category"
+                      tick={{ fontSize: 12 }}
+                      width={100}
+                    />
                     <RechartsTooltip />
                     <Bar dataKey="count" fill="#006FEE" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -692,13 +990,37 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Tournaments & Prizes Tab */}
-      {selectedTab === 'tournaments' && tournamentStats && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "tournaments" && tournamentStats && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatCard title="Active Tournaments" value={tournamentStats.active} icon="solar:cup-star-bold" color="warning" />
-            <StatCard title="Upcoming" value={tournamentStats.upcoming} icon="solar:calendar-bold" color="primary" />
-            <StatCard title="Total Prize Pool" value={`$${(tournamentStats.totalPrizePool / 1000).toFixed(0)}K`} icon="solar:dollar-bold" color="success" />
-            <StatCard title="Completed" value={tournamentStats.completed} icon="solar:check-circle-bold" color="secondary" />
+            <StatCard
+              title="Active Tournaments"
+              value={tournamentStats.active}
+              icon="solar:cup-star-bold"
+              color="warning"
+            />
+            <StatCard
+              title="Upcoming"
+              value={tournamentStats.upcoming}
+              icon="solar:calendar-bold"
+              color="primary"
+            />
+            <StatCard
+              title="Total Prize Pool"
+              value={`$${(tournamentStats.totalPrizePool / 1000).toFixed(0)}K`}
+              icon="solar:dollar-bold"
+              color="success"
+            />
+            <StatCard
+              title="Completed"
+              value={tournamentStats.completed}
+              icon="solar:check-circle-bold"
+              color="secondary"
+            />
           </div>
 
           <Card>
@@ -718,16 +1040,31 @@ export default function AdminDashboardPage() {
                 <TableBody>
                   {tournamentStats.topTournaments.map((tournament, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="font-semibold">{tournament.name}</TableCell>
-                      <TableCell className="text-success font-medium">${tournament.prizePool.toLocaleString()}</TableCell>
+                      <TableCell className="font-semibold">
+                        {tournament.name}
+                      </TableCell>
+                      <TableCell className="text-success font-medium">
+                        ${tournament.prizePool.toLocaleString()}
+                      </TableCell>
                       <TableCell>{tournament.participants}</TableCell>
                       <TableCell>
-                        <Chip size="sm" color={tournament.status === 'active' ? 'success' : 'primary'} variant="flat">
-                          {tournament.status.charAt(0).toUpperCase() + tournament.status.slice(1)}
+                        <Chip
+                          size="sm"
+                          color={
+                            tournament.status === "active"
+                              ? "success"
+                              : "primary"
+                          }
+                          variant="flat"
+                        >
+                          {tournament.status.charAt(0).toUpperCase() +
+                            tournament.status.slice(1)}
                         </Chip>
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="flat">View Details</Button>
+                        <Button size="sm" variant="flat">
+                          View Details
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -739,13 +1076,37 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Wallets & Finance Tab */}
-      {selectedTab === 'wallets' && walletStats && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "wallets" && walletStats && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatCard title="Total Deposits" value={`$${(walletStats.totalDeposits / 1000).toFixed(0)}K`} icon="solar:download-minimalistic-bold" color="success" />
-            <StatCard title="Total Withdrawals" value={`$${(walletStats.totalWithdrawals / 1000).toFixed(0)}K`} icon="solar:upload-minimalistic-bold" color="warning" />
-            <StatCard title="Pending Payouts" value={`$${walletStats.pendingPayouts.toLocaleString()}`} icon="solar:clock-circle-bold" color="danger" />
-            <StatCard title="Platform Float" value={`$${walletStats.floatBalance.toLocaleString()}`} icon="solar:wallet-bold" color="primary" />
+            <StatCard
+              title="Total Deposits"
+              value={`$${(walletStats.totalDeposits / 1000).toFixed(0)}K`}
+              icon="solar:download-minimalistic-bold"
+              color="success"
+            />
+            <StatCard
+              title="Total Withdrawals"
+              value={`$${(walletStats.totalWithdrawals / 1000).toFixed(0)}K`}
+              icon="solar:upload-minimalistic-bold"
+              color="warning"
+            />
+            <StatCard
+              title="Pending Payouts"
+              value={`$${walletStats.pendingPayouts.toLocaleString()}`}
+              icon="solar:clock-circle-bold"
+              color="danger"
+            />
+            <StatCard
+              title="Platform Float"
+              value={`$${walletStats.floatBalance.toLocaleString()}`}
+              icon="solar:wallet-bold"
+              color="primary"
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -763,7 +1124,9 @@ export default function AdminDashboardPage() {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      label={({ currency, balance }) => `${currency}: $${(balance / 1000).toFixed(0)}K`}
+                      label={({ currency, balance }) =>
+                        `${currency}: $${(balance / 1000).toFixed(0)}K`
+                      }
                     >
                       {walletStats.currencies.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -783,33 +1146,61 @@ export default function AdminDashboardPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 rounded-lg bg-success/10">
                     <div className="flex items-center gap-3">
-                      <Icon icon="solar:dollar-bold" width={24} className="text-success" />
+                      <Icon
+                        icon="solar:dollar-bold"
+                        width={24}
+                        className="text-success"
+                      />
                       <div>
                         <p className="font-semibold">Today&apos;s Revenue</p>
-                        <p className="text-sm text-default-500">Entry fees, subscriptions</p>
+                        <p className="text-sm text-default-500">
+                          Entry fees, subscriptions
+                        </p>
                       </div>
                     </div>
-                    <p className="text-2xl font-bold text-success">${platformStats?.revenueToday.toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-success">
+                      ${platformStats?.revenueToday.toLocaleString()}
+                    </p>
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-lg bg-primary/10">
                     <div className="flex items-center gap-3">
-                      <Icon icon="solar:chart-bold" width={24} className="text-primary" />
+                      <Icon
+                        icon="solar:chart-bold"
+                        width={24}
+                        className="text-primary"
+                      />
                       <div>
                         <p className="font-semibold">Monthly Revenue</p>
-                        <p className="text-sm text-default-500">Total this month</p>
+                        <p className="text-sm text-default-500">
+                          Total this month
+                        </p>
                       </div>
                     </div>
-                    <p className="text-2xl font-bold text-primary">${(platformStats?.revenueMonth || 0 / 1000).toFixed(0)}K</p>
+                    <p className="text-2xl font-bold text-primary">
+                      ${(platformStats?.revenueMonth || 0 / 1000).toFixed(0)}K
+                    </p>
                   </div>
 
                   <Divider />
 
                   <div className="flex gap-2">
-                    <Button color="primary" startContent={<Icon icon="solar:document-text-bold" width={18} />} fullWidth>
+                    <Button
+                      color="primary"
+                      startContent={
+                        <Icon icon="solar:document-text-bold" width={18} />
+                      }
+                      fullWidth
+                    >
                       Generate Report
                     </Button>
-                    <Button variant="bordered" startContent={<Icon icon="solar:export-bold" width={18} />} fullWidth>
+                    <Button
+                      variant="bordered"
+                      startContent={
+                        <Icon icon="solar:export-bold" width={18} />
+                      }
+                      fullWidth
+                    >
                       Export Data
                     </Button>
                   </div>
@@ -821,14 +1212,27 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Infrastructure Tab */}
-      {selectedTab === 'infrastructure' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {selectedTab === "infrastructure" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="border-2 border-success">
               <CardBody className="flex flex-row items-center gap-4">
-                <Badge content="" color="success" placement="bottom-right" shape="circle">
+                <Badge
+                  content=""
+                  color="success"
+                  placement="bottom-right"
+                  shape="circle"
+                >
                   <div className="p-3 rounded-xl bg-success/10">
-                    <Icon icon="solar:server-bold" width={28} className="text-success" />
+                    <Icon
+                      icon="solar:server-bold"
+                      width={28}
+                      className="text-success"
+                    />
                   </div>
                 </Badge>
                 <div>
@@ -840,9 +1244,18 @@ export default function AdminDashboardPage() {
 
             <Card className="border-2 border-success">
               <CardBody className="flex flex-row items-center gap-4">
-                <Badge content="" color="success" placement="bottom-right" shape="circle">
+                <Badge
+                  content=""
+                  color="success"
+                  placement="bottom-right"
+                  shape="circle"
+                >
                   <div className="p-3 rounded-xl bg-success/10">
-                    <Icon icon="solar:database-bold" width={28} className="text-success" />
+                    <Icon
+                      icon="solar:database-bold"
+                      width={28}
+                      className="text-success"
+                    />
                   </div>
                 </Badge>
                 <div>
@@ -854,9 +1267,18 @@ export default function AdminDashboardPage() {
 
             <Card className="border-2 border-success">
               <CardBody className="flex flex-row items-center gap-4">
-                <Badge content="" color="success" placement="bottom-right" shape="circle">
+                <Badge
+                  content=""
+                  color="success"
+                  placement="bottom-right"
+                  shape="circle"
+                >
                   <div className="p-3 rounded-xl bg-success/10">
-                    <Icon icon="solar:atom-bold" width={28} className="text-success" />
+                    <Icon
+                      icon="solar:atom-bold"
+                      width={28}
+                      className="text-success"
+                    />
                   </div>
                 </Badge>
                 <div>
@@ -868,9 +1290,18 @@ export default function AdminDashboardPage() {
 
             <Card className="border-2 border-success">
               <CardBody className="flex flex-row items-center gap-4">
-                <Badge content="" color="success" placement="bottom-right" shape="circle">
+                <Badge
+                  content=""
+                  color="success"
+                  placement="bottom-right"
+                  shape="circle"
+                >
                   <div className="p-3 rounded-xl bg-success/10">
-                    <Icon icon="solar:chart-2-bold" width={28} className="text-success" />
+                    <Icon
+                      icon="solar:chart-2-bold"
+                      width={28}
+                      className="text-success"
+                    />
                   </div>
                 </Badge>
                 <div>
@@ -895,7 +1326,9 @@ export default function AdminDashboardPage() {
                   fullWidth
                   className="justify-start"
                   startContent={<Icon icon="logos:grafana" width={20} />}
-                  endContent={<Icon icon="solar:arrow-right-up-bold" width={16} />}
+                  endContent={
+                    <Icon icon="solar:arrow-right-up-bold" width={16} />
+                  }
                 >
                   Grafana Dashboards
                 </Button>
@@ -907,7 +1340,9 @@ export default function AdminDashboardPage() {
                   fullWidth
                   className="justify-start"
                   startContent={<Icon icon="logos:prometheus" width={20} />}
-                  endContent={<Icon icon="solar:arrow-right-up-bold" width={16} />}
+                  endContent={
+                    <Icon icon="solar:arrow-right-up-bold" width={16} />
+                  }
                 >
                   Prometheus Metrics
                 </Button>
@@ -919,7 +1354,9 @@ export default function AdminDashboardPage() {
                   fullWidth
                   className="justify-start"
                   startContent={<Icon icon="logos:kafka-icon" width={20} />}
-                  endContent={<Icon icon="solar:arrow-right-up-bold" width={16} />}
+                  endContent={
+                    <Icon icon="solar:arrow-right-up-bold" width={16} />
+                  }
                 >
                   Kafka UI
                 </Button>
@@ -931,7 +1368,9 @@ export default function AdminDashboardPage() {
                   fullWidth
                   className="justify-start"
                   startContent={<Icon icon="logos:kubernetes" width={20} />}
-                  endContent={<Icon icon="solar:arrow-right-up-bold" width={16} />}
+                  endContent={
+                    <Icon icon="solar:arrow-right-up-bold" width={16} />
+                  }
                 >
                   Kubernetes Dashboard
                 </Button>

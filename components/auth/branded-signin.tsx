@@ -93,7 +93,8 @@ export default function BrandedSignIn() {
                 </span>
               </h1>
               <p className="text-xl text-white/60 max-w-md">
-                Your next victory awaits. Sign in to continue your competitive journey.
+                Your next victory awaits. Sign in to continue your competitive
+                journey.
               </p>
             </div>
 
@@ -204,7 +205,11 @@ export default function BrandedSignIn() {
                     <button type="button" onClick={toggleVisibility}>
                       <Icon
                         className="text-2xl text-white/50 hover:text-white transition-colors"
-                        icon={isVisible ? "solar:eye-closed-linear" : "solar:eye-bold"}
+                        icon={
+                          isVisible
+                            ? "solar:eye-closed-linear"
+                            : "solar:eye-bold"
+                        }
                       />
                     </button>
                   }
@@ -268,7 +273,9 @@ export default function BrandedSignIn() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() => signIn("steam", { callbackUrl: "/match-making" })}
+                  onClick={() =>
+                    signIn("steam", { callbackUrl: "/match-making" })
+                  }
                 >
                   <SteamIcon className="w-5 h-5" />
                   Steam
@@ -277,7 +284,9 @@ export default function BrandedSignIn() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() => signIn("google", { callbackUrl: "/match-making" })}
+                  onClick={() =>
+                    signIn("google", { callbackUrl: "/match-making" })
+                  }
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />
                   Google

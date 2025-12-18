@@ -263,11 +263,11 @@ test.describe("HPA Scaling Simulation", () => {
         const response = await request.get(`${API_URL}/health`, {
           timeout: 5000,
         });
-        if (response.ok) {
+        if (response.ok()) {
           recovered = true;
           console.log(`✓ Recovered on attempt ${attempts + 1}`);
         }
-      } catch (error) {
+      } catch {
         console.log(`⏳ Attempt ${attempts + 1} failed, retrying...`);
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1s before retry
       }

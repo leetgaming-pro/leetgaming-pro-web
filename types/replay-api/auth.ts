@@ -209,22 +209,26 @@ export class RIDTokenManager {
    */
   async clearToken(): Promise<void> {
     try {
-      // Call API to clear httpOnly cookies
-      if (this.csrfToken) {
-        await fetch(SESSION_ENDPOINT, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-Token': this.csrfToken,
-          },
-          credentials: 'include',
-        });
-      }
+      // Call API to clear httpOnly cookies (always try, server handles missing CSRF)
+      await fetch(SESSION_ENDPOINT, {
+        method: 'DELETE',
+        headers: this.csrfToken ? {
+          'X-CSRF-Token': this.csrfToken,
+        } : {},
+        credentials: 'include',
+      });
     } catch (error) {
       console.error('Failed to clear session:', error);
     } finally {
       // Clear local state
       this.metadata = null;
       this.csrfToken = null;
+
+      // Clear metadata cookie client-side as backup
+      if (typeof document !== 'undefined') {
+        document.cookie = `${RID_METADATA_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        document.cookie = `${CSRF_TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      }
 
       if (this.refreshTimer) {
         clearTimeout(this.refreshTimer);

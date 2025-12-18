@@ -2,10 +2,23 @@
 
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardBody, Chip, Button, Badge, Tooltip, Input } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Chip,
+  Button,
+  Badge,
+  Tooltip,
+  Input,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
-import { GAME_CONFIGS, getActiveGames, GAME_CATEGORIES, getGamesByCategory } from "@/config/games";
+import {
+  GAME_CONFIGS,
+  getActiveGames,
+  GAME_CATEGORIES,
+  getGamesByCategory,
+} from "@/config/games";
 import type { GameId, GameCategory, GameConfig } from "@/types/games";
 
 export interface GameSelectorProps {
@@ -59,7 +72,9 @@ export function GameSelector({
   onMultiSelect,
   className = "",
 }: GameSelectorProps) {
-  const [activeCategory, setActiveCategory] = useState<GameCategory | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<GameCategory | "all">(
+    "all"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredGame, setHoveredGame] = useState<GameId | null>(null);
 
@@ -151,10 +166,10 @@ export function GameSelector({
                 >
                   <Icon icon={category.icon} className="mr-1" />
                   {category.name}
-                  <Badge 
-                    content={gameCount} 
-                    size="sm" 
-                    color="primary" 
+                  <Badge
+                    content={gameCount}
+                    size="sm"
+                    color="primary"
                     className="ml-1"
                   >
                     <span />
@@ -171,7 +186,9 @@ export function GameSelector({
             placeholder="Search games..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            startContent={<Icon icon="solar:magnifer-linear" className="text-default-400" />}
+            startContent={
+              <Icon icon="solar:magnifer-linear" className="text-default-400" />
+            }
             classNames={{
               input: "font-gaming",
               inputWrapper: "bg-content2/50 backdrop-blur-md",
@@ -239,14 +256,18 @@ interface GameCardProps {
   onHover: (hovered: boolean) => void;
 }
 
-function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCardProps) {
+function GameCard({
+  game,
+  selected,
+  hovered,
+  layout,
+  onSelect,
+  onHover,
+}: GameCardProps) {
   if (layout === "compact") {
     return (
       <Tooltip content={game.name}>
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Chip
             variant={selected ? "solid" : "bordered"}
             color={selected ? "primary" : "default"}
@@ -296,7 +317,9 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
             {/* Game info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-gaming font-bold truncate">{game.name}</h3>
-              <p className="text-sm text-default-500 truncate">{game.description}</p>
+              <p className="text-sm text-default-500 truncate">
+                {game.description}
+              </p>
             </div>
 
             {/* Category chip */}
@@ -348,7 +371,7 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
               background: `linear-gradient(135deg, ${game.color.primary}40, ${game.color.accent}40)`,
             }}
           />
-          
+
           {/* Game icon centered */}
           <div className="absolute inset-0 flex items-center justify-center">
             <Icon
@@ -366,7 +389,10 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
               className="absolute top-2 right-2"
             >
               <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                <Icon icon="solar:check-linear" className="text-white text-sm" />
+                <Icon
+                  icon="solar:check-linear"
+                  className="text-white text-sm"
+                />
               </div>
             </motion.div>
           )}
@@ -376,21 +402,30 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
             {game.features.tournaments && (
               <Tooltip content="Tournaments">
                 <div className="w-5 h-5 bg-black/50 rounded flex items-center justify-center">
-                  <Icon icon="solar:cup-star-bold" className="text-amber-400 text-xs" />
+                  <Icon
+                    icon="solar:cup-star-bold"
+                    className="text-amber-400 text-xs"
+                  />
                 </div>
               </Tooltip>
             )}
             {game.features.replayAnalysis && (
               <Tooltip content="Replay Analysis">
                 <div className="w-5 h-5 bg-black/50 rounded flex items-center justify-center">
-                  <Icon icon="solar:videocamera-record-bold" className="text-blue-400 text-xs" />
+                  <Icon
+                    icon="solar:videocamera-record-bold"
+                    className="text-blue-400 text-xs"
+                  />
                 </div>
               </Tooltip>
             )}
             {game.features.coaching && (
               <Tooltip content="Coaching">
                 <div className="w-5 h-5 bg-black/50 rounded flex items-center justify-center">
-                  <Icon icon="solar:users-group-rounded-bold" className="text-green-400 text-xs" />
+                  <Icon
+                    icon="solar:users-group-rounded-bold"
+                    className="text-green-400 text-xs"
+                  />
                 </div>
               </Tooltip>
             )}
@@ -398,7 +433,10 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
         </div>
 
         <CardBody className="p-3">
-          <h3 className="font-gaming font-bold text-sm truncate" title={game.name}>
+          <h3
+            className="font-gaming font-bold text-sm truncate"
+            title={game.name}
+          >
             {game.name}
           </h3>
           <div className="flex items-center justify-between mt-1">
@@ -414,7 +452,8 @@ function GameCard({ game, selected, hovered, layout, onSelect, onHover }: GameCa
               {game.shortName}
             </Chip>
             <span className="text-xs text-default-400">
-              {game.matchmaking.modes.filter((m) => m.ranked).length} ranked modes
+              {game.matchmaking.modes.filter((m) => m.ranked).length} ranked
+              modes
             </span>
           </div>
         </CardBody>
@@ -491,7 +530,9 @@ export function GameSelectorWithDetails({
                       />
                     </div>
                     <div>
-                      <h3 className="font-gaming font-bold text-lg">{game.name}</h3>
+                      <h3 className="font-gaming font-bold text-lg">
+                        {game.name}
+                      </h3>
                       <p className="text-sm text-default-500">
                         {GAME_CATEGORIES[game.category]?.name}
                       </p>
@@ -505,7 +546,9 @@ export function GameSelectorWithDetails({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="p-2 rounded-lg bg-content2">
                       <p className="text-xs text-default-500">Team Size</p>
-                      <p className="font-gaming font-bold">{game.matchmaking.teamSize}v{game.matchmaking.teamSize}</p>
+                      <p className="font-gaming font-bold">
+                        {game.matchmaking.teamSize}v{game.matchmaking.teamSize}
+                      </p>
                     </div>
                     <div className="p-2 rounded-lg bg-content2">
                       <p className="text-xs text-default-500">Maps</p>
@@ -515,11 +558,15 @@ export function GameSelectorWithDetails({
                     </div>
                     <div className="p-2 rounded-lg bg-content2">
                       <p className="text-xs text-default-500">Modes</p>
-                      <p className="font-gaming font-bold">{game.matchmaking.modes.length}</p>
+                      <p className="font-gaming font-bold">
+                        {game.matchmaking.modes.length}
+                      </p>
                     </div>
                     <div className="p-2 rounded-lg bg-content2">
                       <p className="text-xs text-default-500">Ranks</p>
-                      <p className="font-gaming font-bold">{game.ranking.tiers.length}</p>
+                      <p className="font-gaming font-bold">
+                        {game.ranking.tiers.length}
+                      </p>
                     </div>
                   </div>
 

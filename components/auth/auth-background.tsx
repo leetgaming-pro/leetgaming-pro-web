@@ -20,8 +20,13 @@ interface AuthBackgroundProps {
 
 const GAME_ICONS = ["🎮", "🏆", "⚔️", "🎯", "🔥", "💎", "⭐", "🚀"];
 
-export function AuthBackground({ variant = "signin", children }: AuthBackgroundProps) {
-  const [floatingElements, setFloatingElements] = useState<FloatingElement[]>([]);
+export function AuthBackground({
+  variant = "signin",
+  children,
+}: AuthBackgroundProps) {
+  const [floatingElements, setFloatingElements] = useState<FloatingElement[]>(
+    []
+  );
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -78,7 +83,7 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Base gradient background */}
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: `
@@ -90,22 +95,23 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
       />
 
       {/* Animated grid pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
             linear-gradient(${gradientColors.accent}40 1px, transparent 1px),
             linear-gradient(90deg, ${gradientColors.accent}40 1px, transparent 1px)
           `,
-          backgroundSize: '60px 60px',
+          backgroundSize: "60px 60px",
         }}
       />
 
       {/* Scanline effect */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none opacity-[0.02]"
         style={{
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+          background:
+            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
         }}
       />
 
@@ -158,7 +164,7 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
           ease: "easeInOut",
         }}
       />
-      
+
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
         style={{
@@ -179,13 +185,13 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
       />
 
       {/* Corner accents */}
-      <div 
+      <div
         className="absolute top-0 left-0 w-32 h-32"
         style={{
           background: `linear-gradient(135deg, ${gradientColors.accent}30 0%, transparent 50%)`,
         }}
       />
-      <div 
+      <div
         className="absolute bottom-0 right-0 w-32 h-32"
         style={{
           background: `linear-gradient(-45deg, ${gradientColors.accentAlt}20 0%, transparent 50%)`,
@@ -194,7 +200,7 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
 
       {/* Diagonal accent lines */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
+        <div
           className="absolute w-[200%] h-[2px] opacity-10 -rotate-45"
           style={{
             background: `linear-gradient(90deg, transparent, ${gradientColors.accent}, transparent)`,
@@ -202,7 +208,7 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
             left: "-50%",
           }}
         />
-        <div 
+        <div
           className="absolute w-[200%] h-[1px] opacity-5 -rotate-45"
           style={{
             background: `linear-gradient(90deg, transparent, ${gradientColors.accentAlt}, transparent)`,
@@ -213,12 +219,10 @@ export function AuthBackground({ variant = "signin", children }: AuthBackgroundP
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen">
-        {children}
-      </div>
+      <div className="relative z-10 min-h-screen">{children}</div>
 
       {/* Bottom gradient fade */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
         style={{
           background: `linear-gradient(to top, ${gradientColors.from}, transparent)`,

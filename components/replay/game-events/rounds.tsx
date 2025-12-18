@@ -1,11 +1,23 @@
 "use client";
 
 import React from "react";
-import { Accordion, AccordionItem, Avatar, Card, Chip, Popover, PopoverContent, PopoverTrigger, Progress, Skeleton, Spacer } from "@nextui-org/react";
-import { logo } from '@/components/primitives';
-import SearchEvent from './search-event';
-import BreadcrumbEvents from '@/components/replay/game-events/breadcrumb';
-import ViewPlayerInfoCard from '@/components/replay/game-events/playercard/view-player-info-card';
+import {
+  Accordion,
+  AccordionItem,
+  Avatar,
+  Card,
+  Chip,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Progress,
+  Skeleton,
+  Spacer,
+} from "@nextui-org/react";
+import { logo } from "@/components/primitives";
+import SearchEvent from "./search-event";
+import BreadcrumbEvents from "@/components/replay/game-events/breadcrumb";
+import ViewPlayerInfoCard from "@/components/replay/game-events/playercard/view-player-info-card";
 
 export interface PlayerData {
   id: string;
@@ -24,7 +36,12 @@ export interface KillEvent {
 
 export interface RoundEvent {
   id: string;
-  type: "kill" | "clutch_start" | "clutch_progress" | "clutch_won" | "round_end";
+  type:
+    | "kill"
+    | "clutch_start"
+    | "clutch_progress"
+    | "clutch_won"
+    | "round_end";
   description?: string;
   players?: PlayerData[];
   killEvent?: KillEvent;
@@ -97,120 +114,156 @@ export default function Rounds({
         <Card className="p-8">
           <div className="flex flex-col items-center justify-center gap-2">
             <p className="text-default-500">No round data available</p>
-            <p className="text-small text-default-400">Upload a replay file to see round details</p>
+            <p className="text-small text-default-400">
+              Upload a replay file to see round details
+            </p>
           </div>
         </Card>
       </div>
     );
   }
 
-  const getTeamColor = (team: "T" | "CT") => team === "T" ? "warning" : "primary";
-  const getTeamTextClass = (team: "T" | "CT") => team === "T" ? "text-warning" : "text-primary";
+  const getTeamColor = (team: "T" | "CT") =>
+    team === "T" ? "warning" : "primary";
+  const getTeamTextClass = (team: "T" | "CT") =>
+    team === "T" ? "text-warning" : "text-primary";
 
   const renderRoundEvents = (round: RoundData) => {
     if (!round.events || round.events.length === 0) return null;
 
-    return (
-      <Accordion selectionMode="multiple">
-        {round.events.map((event, index) => {
-          if (event.type === "kill" && event.killEvent) {
-            const { killer, victim } = event.killEvent;
-            return (
-              <AccordionItem
-                key={event.id}
-                aria-label={`Event ${index + 1}`}
-                subtitle={<div></div>}
-                title={
-                  <div>
-                    <span className={`${getTeamTextClass(killer.team)} ml-1`}>{killer.name}</span> defeated{" "}
-                    <span className={`${getTeamTextClass(victim.team)} ml-1`}>{victim.name}</span>
-                    {event.killEvent.weapon && <Chip size="sm" className="ml-2">{event.killEvent.weapon}</Chip>}
-                    {event.killEvent.isHeadshot && <Chip size="sm" color="danger" className="ml-1">HS</Chip>}
-                  </div>
-                }
-              >
-                <Card isBlurred>
-                  {killer.health !== undefined && (
-                    <Progress
-                      size="sm"
-                      radius="sm"
-                      classNames={{
-                        base: "max-w-md",
-                        track: "drop-shadow-md border border-default",
-                        indicator: killer.health > 50
+    const accordionItems = round.events
+      .map((event, index) => {
+        if (event.type === "kill" && event.killEvent) {
+          const { killer, victim } = event.killEvent;
+          return (
+            <AccordionItem
+              key={event.id}
+              aria-label={`Event ${index + 1}`}
+              subtitle={<div></div>}
+              title={
+                <div>
+                  <span className={`${getTeamTextClass(killer.team)} ml-1`}>
+                    {killer.name}
+                  </span>{" "}
+                  defeated{" "}
+                  <span className={`${getTeamTextClass(victim.team)} ml-1`}>
+                    {victim.name}
+                  </span>
+                  {event.killEvent.weapon && (
+                    <Chip size="sm" className="ml-2">
+                      {event.killEvent.weapon}
+                    </Chip>
+                  )}
+                  {event.killEvent.isHeadshot && (
+                    <Chip size="sm" color="danger" className="ml-1">
+                      HS
+                    </Chip>
+                  )}
+                </div>
+              }
+            >
+              <Card isBlurred>
+                {killer.health !== undefined && (
+                  <Progress
+                    size="sm"
+                    radius="sm"
+                    classNames={{
+                      base: "max-w-md",
+                      track: "drop-shadow-md border border-default",
+                      indicator:
+                        killer.health > 50
                           ? "bg-gradient-to-r from-green-500 to-lime-500"
                           : killer.health > 25
-                            ? "bg-gradient-to-r from-orange-500 to-yellow-500"
-                            : "bg-gradient-to-r from-red-500 to-orange-500",
-                        label: "tracking-wider font-medium text-default-600",
-                        value: "text-foreground/60",
-                      }}
-                      label={`Health: ${killer.health}`}
-                      value={killer.health}
-                      showValueLabel={false}
-                    />
-                  )}
-                  {event.clutchPlayer && (
-                    <>
-                      <Spacer y={4} />
-                      <Chip color="danger" variant="dot">
-                        <span className={`${getTeamTextClass(event.clutchPlayer.team)} ml-1`}>{event.clutchPlayer.name}</span>
-                        {" "}in <span className="text-danger">Clutch Situation</span>
-                      </Chip>
-                    </>
-                  )}
-                </Card>
-              </AccordionItem>
-            );
-          }
-
-          if (event.type === "round_end" && event.winningTeam) {
-            const winningTeamName = round.events.find(e => e.clutchPlayer)?.clutchPlayer?.name;
-            return (
-              <AccordionItem
-                key={event.id}
-                aria-label={`Round End`}
-                startContent={
-                  <Avatar
-                    isBordered
-                    color={getTeamColor(event.winningTeam)}
-                    radius="lg"
-                    showFallback
-                    name={event.winningTeam}
+                          ? "bg-gradient-to-r from-orange-500 to-yellow-500"
+                          : "bg-gradient-to-r from-red-500 to-orange-500",
+                      label: "tracking-wider font-medium text-default-600",
+                      value: "text-foreground/60",
+                    }}
+                    label={`Health: ${killer.health}`}
+                    value={killer.health}
+                    showValueLabel={false}
                   />
-                }
-                subtitle=""
-                title={
-                  <div>
-                    <span className={logo({ color: event.winningTeam === "CT" ? "blue" : "yellow" })}>
-                      {event.winningTeam === "CT" ? "Counter-Terrorists" : "Terrorists"} Win
-                    </span>
-                  </div>
-                }
-              >
-                {winningTeamName && (
-                  <Card isBlurred>
-                    <Chip color="danger" variant="dot">
-                      <Popover showArrow placement="bottom">
-                        <PopoverTrigger>
-                          <span className="text-primary ml-1 cursor-pointer">{winningTeamName}</span>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-1">
-                          <ViewPlayerInfoCard />
-                        </PopoverContent>
-                      </Popover>
-                      <span className="text-success"> Clutch Won!</span>
-                    </Chip>
-                  </Card>
                 )}
-              </AccordionItem>
-            );
-          }
+                {event.clutchPlayer && (
+                  <>
+                    <Spacer y={4} />
+                    <Chip color="danger" variant="dot">
+                      <span
+                        className={`${getTeamTextClass(
+                          event.clutchPlayer.team
+                        )} ml-1`}
+                      >
+                        {event.clutchPlayer.name}
+                      </span>{" "}
+                      in <span className="text-danger">Clutch Situation</span>
+                    </Chip>
+                  </>
+                )}
+              </Card>
+            </AccordionItem>
+          );
+        }
 
-          return null;
-        })}
-      </Accordion>
-    );
+        if (event.type === "round_end" && event.winningTeam) {
+          const winningTeamName = round.events.find((e) => e.clutchPlayer)
+            ?.clutchPlayer?.name;
+          return (
+            <AccordionItem
+              key={event.id}
+              aria-label={`Round End`}
+              startContent={
+                <Avatar
+                  isBordered
+                  color={getTeamColor(event.winningTeam)}
+                  radius="lg"
+                  showFallback
+                  name={event.winningTeam}
+                />
+              }
+              subtitle=""
+              title={
+                <div>
+                  <span
+                    className={logo({
+                      color: event.winningTeam === "CT" ? "blue" : "yellow",
+                    })}
+                  >
+                    {event.winningTeam === "CT"
+                      ? "Counter-Terrorists"
+                      : "Terrorists"}{" "}
+                    Win
+                  </span>
+                </div>
+              }
+            >
+              {winningTeamName && (
+                <Card isBlurred>
+                  <Chip color="danger" variant="dot">
+                    <Popover showArrow placement="bottom">
+                      <PopoverTrigger>
+                        <span className="text-primary ml-1 cursor-pointer">
+                          {winningTeamName}
+                        </span>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-1">
+                        <ViewPlayerInfoCard />
+                      </PopoverContent>
+                    </Popover>
+                    <span className="text-success"> Clutch Won!</span>
+                  </Chip>
+                </Card>
+              )}
+            </AccordionItem>
+          );
+        }
+
+        return null;
+      })
+      .filter((item): item is React.ReactElement => item !== null);
+
+    if (accordionItems.length === 0) return null;
+
+    return <Accordion selectionMode="multiple">{accordionItems}</Accordion>;
   };
 
   return (
@@ -222,7 +275,7 @@ export default function Rounds({
       </div>
       <Accordion
         selectionMode="single"
-        disabledKeys={data.rounds.filter(r => r.isLocked).map(r => r.id)}
+        disabledKeys={data.rounds.filter((r) => r.isLocked).map((r) => r.id)}
         variant="shadow"
       >
         {data.rounds.map((round) => (
@@ -242,17 +295,23 @@ export default function Rounds({
               round.isLocked
                 ? round.lockedMessage
                 : round.mvpPlayer
-                  ? `${round.mvpPlayer.name} is the MVP`
-                  : `${round.winner === "T" ? "Terrorists" : "Counter-Terrorists"} win`
+                ? `${round.mvpPlayer.name} is the MVP`
+                : `${
+                    round.winner === "T" ? "Terrorists" : "Counter-Terrorists"
+                  } win`
             }
             title={
               <div>
                 Round #{round.number}
                 {round.isPistol && (
-                  <Chip variant="bordered" isDisabled className="ml-2">Pistol</Chip>
+                  <Chip variant="bordered" isDisabled className="ml-2">
+                    Pistol
+                  </Chip>
                 )}
                 {round.isClutch && (
-                  <Chip color="danger" variant="dot" className="ml-2">Clutch</Chip>
+                  <Chip color="danger" variant="dot" className="ml-2">
+                    Clutch
+                  </Chip>
                 )}
                 {round.isLocked && (
                   <>

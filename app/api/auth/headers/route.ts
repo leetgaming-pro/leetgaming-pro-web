@@ -16,6 +16,7 @@ const RID_METADATA_COOKIE = 'rid_metadata';
  * GET /api/auth/headers
  * Returns authentication headers for replay-api requests
  * Reads httpOnly cookie server-side (secure from XSS)
+ * Returns empty headers (not 401) for unauthenticated users to allow public API access
  */
 export async function GET(request: NextRequest) {
   try {
@@ -23,28 +24,29 @@ export async function GET(request: NextRequest) {
     const ridToken = cookieStore.get(RID_TOKEN_COOKIE)?.value;
     const ridMetadata = cookieStore.get(RID_METADATA_COOKIE)?.value;
 
+    // Return empty headers for unauthenticated users (allows public API access)
     if (!ridToken || !ridMetadata) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ headers: {} });
     }
 
-    const metadata = JSON.parse(ridMetadata);
+    let metadata;
+    try {
+      metadata = JSON.parse(ridMetadata);
+    } catch {
+      // Invalid metadata, return empty headers
+      return NextResponse.json({ headers: {} });
+    }
 
-    // Check if token is expired
+    // Check if token is expired - return empty headers (not error)
     const expiresAt = new Date(metadata.expiresAt);
     if (expiresAt <= new Date()) {
-      return NextResponse.json(
-        { error: 'Session expired' },
-        { status: 401 }
-      );
+      return NextResponse.json({ headers: {}, expired: true });
     }
 
     // Return headers for replay-api
     const headers: Record<string, string> = {
       'X-Resource-Owner-ID': ridToken,
-      'X-Intended-Audience': metadata.intendedAudience.toString(),
+      'X-Intended-Audience': metadata.intendedAudience?.toString() || '1',
     };
 
     // Add resource owner context headers
@@ -63,12 +65,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ headers });
+    return NextResponse.json({ headers, authenticated: true });
   } catch (error) {
     console.error('Failed to get auth headers:', error);
-    return NextResponse.json(
-      { error: 'Failed to retrieve authentication headers' },
-      { status: 500 }
-    );
+    // Return empty headers on error, not 500
+    return NextResponse.json({ headers: {} });
   }
 }

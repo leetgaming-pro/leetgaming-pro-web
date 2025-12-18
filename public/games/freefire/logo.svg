@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="ff-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFC300"/>
+      <stop offset="100%" style="stop-color:#FF5733"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="20" fill="#1A1A1A"/>
+  <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" fill="url(#ff-grad)" font-family="Arial Black" font-size="60" font-weight="bold">FF</text>
+  <text x="100" y="160" text-anchor="middle" fill="url(#ff-grad)" font-family="Arial Black" font-size="16">FREE FIRE</text>
+</svg>

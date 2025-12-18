@@ -34,6 +34,7 @@ export interface WizardState {
   selectedFriends?: string[];
 
   // Step 3: Schedule (optional for instant matchmaking)
+  scheduleType?: "now" | "time-frames" | "weekly-routine";
   scheduleStart?: Date;
   scheduleEnd?: Date;
   weeklyRoutine?: string[];

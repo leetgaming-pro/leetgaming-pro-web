@@ -26,7 +26,12 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
-import { GAME_CONFIGS, getGameMaps, getGameModes, getRankTier } from "@/config/games";
+import {
+  GAME_CONFIGS,
+  getGameMaps,
+  getGameModes,
+  getRankTier,
+} from "@/config/games";
 import type { GameId, QueuePreferences } from "@/types/games";
 import { EsportsButton } from "@/components/ui/esports-button";
 
@@ -77,7 +82,12 @@ interface MatchFoundData {
   estimatedDuration: number;
 }
 
-type QueueStatus = "idle" | "queuing" | "match-found" | "ready-check" | "connecting";
+type QueueStatus =
+  | "idle"
+  | "queuing"
+  | "match-found"
+  | "ready-check"
+  | "connecting";
 
 /**
  * Premium matchmaking queue component with full game configuration support.
@@ -101,29 +111,37 @@ export function MatchmakingQueue({
   className = "",
 }: MatchmakingQueueProps) {
   const game = GAME_CONFIGS[gameId];
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-  
+  const {
+    isOpen: isSettingsOpen,
+    onOpen: onSettingsOpen,
+    onClose: onSettingsClose,
+  } = useDisclosure();
+
   // Queue state
   const [queueStatus, setQueueStatus] = useState<QueueStatus>("idle");
   const [queueTime, setQueueTime] = useState(0);
   const [estimatedWait] = useState(120); // seconds
   const [playersInQueue, setPlayersInQueue] = useState(0);
-  
+
   // Preferences state
   const [selectedMode, setSelectedMode] = useState<string>(
-    game?.matchmaking.modes.find((m) => m.ranked)?.id || game?.matchmaking.modes[0]?.id || ""
+    game?.matchmaking.modes.find((m) => m.ranked)?.id ||
+      game?.matchmaking.modes[0]?.id ||
+      ""
   );
   const [selectedMaps, setSelectedMaps] = useState<string[]>(
-    game?.matchmaking.maps.filter((m) => m.active && m.competitive).map((m) => m.id) || []
+    game?.matchmaking.maps
+      .filter((m) => m.active && m.competitive)
+      .map((m) => m.id) || []
   );
   const [selectedRegions, setSelectedRegions] = useState<string[]>(["auto"]);
   const [maxPing, setMaxPing] = useState(100);
   const [acceptCrossPlatform, setAcceptCrossPlatform] = useState(true);
-  
+
   // Ready check state
   const [readyCheckAccepted, setReadyCheckAccepted] = useState(false);
   const [readyCheckTimeout, setReadyCheckTimeout] = useState(30);
-  
+
   // Match found state
   const [foundMatch, setFoundMatch] = useState<MatchFoundData | null>(null);
 
@@ -198,7 +216,7 @@ export function MatchmakingQueue({
 
   const handleAcceptMatch = () => {
     setReadyCheckAccepted(true);
-    
+
     // Simulate all players accepting
     setTimeout(() => {
       const mockMatch: MatchFoundData = {
@@ -210,7 +228,12 @@ export function MatchmakingQueue({
           {
             id: "team1",
             players: [
-              { id: "p1", name: playerName, avatar: playerAvatar, rating: playerRating },
+              {
+                id: "p1",
+                name: playerName,
+                avatar: playerAvatar,
+                rating: playerRating,
+              },
               { id: "p2", name: "Player2", rating: playerRating + 50 },
               { id: "p3", name: "Player3", rating: playerRating - 30 },
               { id: "p4", name: "Player4", rating: playerRating + 20 },
@@ -230,7 +253,7 @@ export function MatchmakingQueue({
         ],
         estimatedDuration: 45,
       };
-      
+
       setFoundMatch(mockMatch);
       setQueueStatus("match-found");
       onMatchFound?.(mockMatch);
@@ -253,7 +276,10 @@ export function MatchmakingQueue({
     return (
       <Card className={className}>
         <CardBody className="text-center py-12">
-          <Icon icon="solar:gamepad-no-charge-bold" className="text-4xl text-default-300 mx-auto mb-2" />
+          <Icon
+            icon="solar:gamepad-no-charge-bold"
+            className="text-4xl text-default-300 mx-auto mb-2"
+          />
           <p className="text-default-500">Game not found</p>
         </CardBody>
       </Card>
@@ -301,7 +327,9 @@ export function MatchmakingQueue({
                     {rankTier.icon} {rankTier.name}
                   </Chip>
                 )}
-                <span className="text-sm text-default-500">{playerRating} MMR</span>
+                <span className="text-sm text-default-500">
+                  {playerRating} MMR
+                </span>
               </div>
             </div>
             <Button
@@ -318,7 +346,9 @@ export function MatchmakingQueue({
         <CardBody className="p-4 space-y-4">
           {/* Mode selector */}
           <div>
-            <p className="text-sm font-semibold text-default-600 mb-2">Game Mode</p>
+            <p className="text-sm font-semibold text-default-600 mb-2">
+              Game Mode
+            </p>
             <div className="flex flex-wrap gap-2">
               {modes.map((mode) => (
                 <Button
@@ -332,7 +362,10 @@ export function MatchmakingQueue({
                 >
                   {mode.name}
                   {mode.ranked && (
-                    <Icon icon="solar:ranking-bold" className="ml-1 text-amber-500" />
+                    <Icon
+                      icon="solar:ranking-bold"
+                      className="ml-1 text-amber-500"
+                    />
                   )}
                 </Button>
               ))}
@@ -343,7 +376,9 @@ export function MatchmakingQueue({
           {game.matchmaking.mapVetoEnabled && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-default-600">Map Pool</p>
+                <p className="text-sm font-semibold text-default-600">
+                  Map Pool
+                </p>
                 <span className="text-xs text-default-400">
                   {selectedMaps.length}/{maps.length} maps selected
                 </span>
@@ -352,8 +387,12 @@ export function MatchmakingQueue({
                 {maps.map((map) => (
                   <Chip
                     key={map.id}
-                    variant={selectedMaps.includes(map.id) ? "solid" : "bordered"}
-                    color={selectedMaps.includes(map.id) ? "primary" : "default"}
+                    variant={
+                      selectedMaps.includes(map.id) ? "solid" : "bordered"
+                    }
+                    color={
+                      selectedMaps.includes(map.id) ? "primary" : "default"
+                    }
                     className="cursor-pointer text-xs"
                     onClick={() => {
                       if (queueStatus !== "idle") return;
@@ -391,7 +430,11 @@ export function MatchmakingQueue({
                       key={member.id}
                       src={member.avatar}
                       name={member.name}
-                      className={member.isReady ? "ring-2 ring-success" : "ring-2 ring-warning"}
+                      className={
+                        member.isReady
+                          ? "ring-2 ring-success"
+                          : "ring-2 ring-warning"
+                      }
                     />
                   ))}
                 </AvatarGroup>
@@ -420,19 +463,31 @@ export function MatchmakingQueue({
                 <div className="text-center">
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="inline-block"
                   >
-                    <Icon icon="solar:loading-bold" className="text-4xl text-primary" />
+                    <Icon
+                      icon="solar:loading-bold"
+                      className="text-4xl text-primary"
+                    />
                   </motion.div>
-                  <p className="font-gaming text-2xl mt-2">{formatTime(queueTime)}</p>
+                  <p className="font-gaming text-2xl mt-2">
+                    {formatTime(queueTime)}
+                  </p>
                   <p className="text-sm text-default-500">
                     Estimated wait: ~{formatTime(estimatedWait)}
                   </p>
                 </div>
                 <div className="flex items-center justify-center gap-4 text-sm text-default-500">
                   <span>
-                    <Icon icon="solar:users-group-rounded-bold" className="inline mr-1" />
+                    <Icon
+                      icon="solar:users-group-rounded-bold"
+                      className="inline mr-1"
+                    />
                     {playersInQueue} in queue
                   </span>
                   <span>
@@ -468,7 +523,9 @@ export function MatchmakingQueue({
                   />
                 </motion.div>
                 <div>
-                  <h3 className="font-gaming text-xl text-success">MATCH FOUND!</h3>
+                  <h3 className="font-gaming text-xl text-success">
+                    MATCH FOUND!
+                  </h3>
                   <p className="text-sm text-default-500">
                     Accept within {readyCheckTimeout} seconds
                   </p>
@@ -518,9 +575,12 @@ export function MatchmakingQueue({
                   className="text-5xl text-primary mx-auto"
                 />
                 <div>
-                  <h3 className="font-gaming text-xl">Connecting to Match...</h3>
+                  <h3 className="font-gaming text-xl">
+                    Connecting to Match...
+                  </h3>
                   <p className="text-sm text-default-500">
-                    {game.matchmaking.maps.find((m) => m.id === foundMatch.map)?.name || foundMatch.map}
+                    {game.matchmaking.maps.find((m) => m.id === foundMatch.map)
+                      ?.name || foundMatch.map}
                   </p>
                 </div>
                 <Progress
@@ -584,7 +644,9 @@ export function MatchmakingQueue({
 
             {/* Max ping slider */}
             <div>
-              <p className="text-sm font-semibold mb-2">Maximum Ping: {maxPing}ms</p>
+              <p className="text-sm font-semibold mb-2">
+                Maximum Ping: {maxPing}ms
+              </p>
               <Slider
                 step={10}
                 minValue={30}

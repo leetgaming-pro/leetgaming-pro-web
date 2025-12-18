@@ -1,7 +1,7 @@
 /**
  * @fileoverview Matchmaking Components Index
  * @module components/matchmaking
- * 
+ *
  * Central export for all matchmaking-related components.
  */
 

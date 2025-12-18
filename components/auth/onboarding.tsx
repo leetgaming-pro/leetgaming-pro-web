@@ -2,7 +2,14 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button, Progress, Checkbox, RadioGroup, Radio, Input } from "@nextui-org/react";
+import {
+  Button,
+  Progress,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  Input,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,7 +25,12 @@ interface Game {
 }
 
 const SUPPORTED_GAMES: Game[] = [
-  { id: "cs2", name: "Counter-Strike 2", icon: "🎯", logo: "/cs2/cs2-logo-icon.png" },
+  {
+    id: "cs2",
+    name: "Counter-Strike 2",
+    icon: "🎯",
+    logo: "/cs2/cs2-logo-icon.png",
+  },
   { id: "valorant", name: "VALORANT", icon: "💜", logo: "/vlrntlogo.png" },
   { id: "lol", name: "League of Legends", icon: "⚔️" },
   { id: "dota2", name: "Dota 2", icon: "🔮" },
@@ -41,7 +53,11 @@ const SKILL_LEVELS = [
   { id: "casual", name: "Casual", description: "Play for fun" },
   { id: "competitive", name: "Competitive", description: "Want to improve" },
   { id: "semi-pro", name: "Semi-Pro", description: "Tournament experience" },
-  { id: "professional", name: "Professional", description: "Full-time competitor" },
+  {
+    id: "professional",
+    name: "Professional",
+    description: "Full-time competitor",
+  },
 ];
 
 const INTERESTS = [
@@ -57,14 +73,14 @@ export default function Onboarding() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Form state
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [skillLevel, setSkillLevel] = useState("");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [displayName, setDisplayName] = useState("");
-  
+
   const totalSteps = 5;
   const progress = (step / totalSteps) * 100;
 
@@ -170,7 +186,9 @@ export default function Onboarding() {
         <div className="px-6 pb-4">
           <div className="max-w-2xl mx-auto">
             <div className="flex justify-between text-sm text-white/50 mb-2">
-              <span>Step {step} of {totalSteps}</span>
+              <span>
+                Step {step} of {totalSteps}
+              </span>
               <span>{Math.round(progress)}% complete</span>
             </div>
             <Progress
@@ -456,7 +474,8 @@ export default function Onboarding() {
                       classNames={{
                         inputWrapper:
                           "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#FFC700] data-[hover=true]:border-white/40",
-                        input: "text-white placeholder:text-white/30 text-center text-xl",
+                        input:
+                          "text-white placeholder:text-white/30 text-center text-xl",
                         label: "text-white/70",
                       }}
                     />
@@ -467,7 +486,9 @@ export default function Onboarding() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center"
                       >
-                        <div className="text-white/40 text-sm mb-2">Preview</div>
+                        <div className="text-white/40 text-sm mb-2">
+                          Preview
+                        </div>
                         <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-[#FFC700] to-[#FF4654] flex items-center justify-center text-xl font-bold text-black">
                             {displayName[0].toUpperCase()}
@@ -477,7 +498,8 @@ export default function Onboarding() {
                               {displayName}
                             </div>
                             <div className="text-white/40 text-sm">
-                              {SKILL_LEVELS.find((l) => l.id === skillLevel)?.name || "Player"}
+                              {SKILL_LEVELS.find((l) => l.id === skillLevel)
+                                ?.name || "Player"}
                             </div>
                           </div>
                         </div>

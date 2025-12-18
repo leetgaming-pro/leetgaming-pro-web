@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="ow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FA9C1E"/>
+      <stop offset="100%" style="stop-color:#F06414"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="20" fill="#1A1A1A"/>
+  <circle cx="100" cy="85" r="45" fill="none" stroke="url(#ow-grad)" stroke-width="8"/>
+  <circle cx="100" cy="85" r="15" fill="url(#ow-grad)"/>
+  <text x="100" y="165" text-anchor="middle" fill="url(#ow-grad)" font-family="Arial Black" font-size="18" font-weight="bold">OVERWATCH</text>
+</svg>

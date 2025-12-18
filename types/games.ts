@@ -1,7 +1,7 @@
 /**
  * @fileoverview Games Type Definitions
  * @module types/games
- * 
+ *
  * Type definitions for the games configuration system.
  * These types ensure type safety across all game-related features.
  */
@@ -9,7 +9,7 @@
 /**
  * Unique identifier for each supported game
  */
-export type GameId = 
+export type GameId =
   | "cs2"
   | "valorant"
   | "freefire"
@@ -40,7 +40,7 @@ export type ReplayFormat = "dem" | "mp4" | "webm" | "replay" | "rec" | "rofl";
 /**
  * Gaming platform integrations
  */
-export type GamePlatform = 
+export type GamePlatform =
   | "steam"
   | "riot"
   | "garena"
@@ -52,7 +52,7 @@ export type GamePlatform =
 /**
  * Anticheat provider types
  */
-export type AnticheatProvider = 
+export type AnticheatProvider =
   | "vac"
   | "vanguard"
   | "battleye"
@@ -214,24 +214,24 @@ export interface GameConfig {
   shortName: string;
   slug: string;
   category: GameCategory;
-  
+
   // Branding
   icon: string;
   logo: string;
   banner: string;
   color: GameColorScheme;
   description: string;
-  
+
   // Integration
   integration: GameIntegration;
-  
+
   // Features
   replay: GameReplayConfig;
   matchmaking: GameMatchmaking;
   ranking: GameRanking;
   stats: string[];
   features: GameFeatures;
-  
+
   // Platform Status
   priority: number;
   active: boolean;
@@ -246,18 +246,18 @@ export interface PlayerGameProfile {
   gameId: GameId;
   platformId: string;
   platformUsername: string;
-  
+
   // Stats
   rating: number;
   rankTierId: string;
   wins: number;
   losses: number;
   totalGames: number;
-  
+
   // Activity
   lastPlayed: Date;
   totalPlaytime: number;
-  
+
   // Platform-specific stats
   gameStats: Record<string, number | string>;
 }
@@ -270,15 +270,15 @@ export interface MatchConfig {
   gameId: GameId;
   mode: string;
   map: string;
-  
+
   // Teams
   teamSize: number;
   teams: MatchTeam[];
-  
+
   // Settings
   ranked: boolean;
   anticheat: AnticheatProvider[];
-  
+
   // Status
   status: MatchStatus;
   scheduledAt?: Date;
@@ -311,7 +311,7 @@ export interface MatchPlayer {
 /**
  * Match status
  */
-export type MatchStatus = 
+export type MatchStatus =
   | "pending"
   | "ready-check"
   | "veto"
@@ -352,18 +352,18 @@ export interface MapVetoAction {
  */
 export interface TournamentGameConfig {
   gameId: GameId;
-  format: TournamentFormat;
+  format: GameTournamentFormat;
   teamSize: number;
-  
+
   // Maps
   mapPool: string[];
   mapVetoFormat: string;
-  
+
   // Rules
   overtimeRules?: OvertimeRules;
   roundTime?: number;
   maxRounds?: number;
-  
+
   // Requirements
   minRank?: string;
   maxRank?: string;
@@ -371,9 +371,10 @@ export interface TournamentGameConfig {
 }
 
 /**
- * Tournament format
+ * Tournament format for game configurations
+ * Note: Main TournamentFormat type is exported from tournament.ts
  */
-export type TournamentFormat =
+type GameTournamentFormat =
   | "single-elimination"
   | "double-elimination"
   | "round-robin"

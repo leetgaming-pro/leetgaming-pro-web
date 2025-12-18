@@ -1,7 +1,7 @@
 /**
  * @fileoverview Games Configuration Registry
  * @module config/games
- * 
+ *
  * Central configuration for all supported games on LeetGaming.PRO platform.
  * This configuration drives the entire game-related UX across:
  * - Matchmaking
@@ -24,15 +24,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "counter-strike-2",
     category: "tactical-fps",
     icon: "simple-icons:counterstrike",
-    logo: "/games/cs2/logo.png",
-    banner: "/games/cs2/banner.jpg",
+    logo: "/games/cs2/logo.svg",
+    banner: "/games/cs2/banner.svg",
     color: {
       primary: "#F7B93E",
       secondary: "#1A1A1A",
       accent: "#FF6B00",
     },
     description: "Premier tactical FPS with competitive 5v5 gameplay",
-    
+
     // Platform Integration
     integration: {
       platform: "steam",
@@ -40,9 +40,10 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       apiEnabled: true,
       replaySupport: true,
       rankingSupport: true,
-      statsApiUrl: "https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/",
+      statsApiUrl:
+        "https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/",
     },
-    
+
     // Replay Configuration
     replay: {
       formats: ["dem"],
@@ -60,7 +61,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         "clutch-analysis",
       ],
     },
-    
+
     // Matchmaking Configuration
     matchmaking: {
       teamSize: 5,
@@ -78,14 +79,19 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         { id: "de_ancient", name: "Ancient", active: true, competitive: true },
         { id: "de_anubis", name: "Anubis", active: true, competitive: true },
         { id: "de_vertigo", name: "Vertigo", active: true, competitive: true },
-        { id: "de_overpass", name: "Overpass", active: false, competitive: true },
+        {
+          id: "de_overpass",
+          name: "Overpass",
+          active: false,
+          competitive: true,
+        },
       ],
       mapVetoEnabled: true,
       mapVetoFormat: "ban-ban-ban-ban-pick-pick-remaining",
       anticheatRequired: true,
       anticheatProviders: ["vac", "faceit-ac", "leetguard"],
     },
-    
+
     // Ranking Configuration
     ranking: {
       system: "elo-mmr",
@@ -94,33 +100,94 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         { id: "silver2", name: "Silver II", minRating: 1000, icon: "🥈" },
         { id: "silver3", name: "Silver III", minRating: 1100, icon: "🥈" },
         { id: "silver4", name: "Silver IV", minRating: 1200, icon: "🥈" },
-        { id: "silverelite", name: "Silver Elite", minRating: 1300, icon: "🥈" },
-        { id: "silverelitemaster", name: "Silver Elite Master", minRating: 1400, icon: "🥈" },
+        {
+          id: "silverelite",
+          name: "Silver Elite",
+          minRating: 1300,
+          icon: "🥈",
+        },
+        {
+          id: "silverelitemaster",
+          name: "Silver Elite Master",
+          minRating: 1400,
+          icon: "🥈",
+        },
         { id: "goldnova1", name: "Gold Nova I", minRating: 1500, icon: "⭐" },
         { id: "goldnova2", name: "Gold Nova II", minRating: 1600, icon: "⭐" },
         { id: "goldnova3", name: "Gold Nova III", minRating: 1700, icon: "⭐" },
-        { id: "goldnovamaster", name: "Gold Nova Master", minRating: 1800, icon: "⭐" },
-        { id: "masterguardian1", name: "Master Guardian I", minRating: 1900, icon: "🛡️" },
-        { id: "masterguardian2", name: "Master Guardian II", minRating: 2000, icon: "🛡️" },
-        { id: "masterguardianelite", name: "Master Guardian Elite", minRating: 2100, icon: "🛡️" },
-        { id: "dmg", name: "Distinguished Master Guardian", minRating: 2200, icon: "🛡️" },
-        { id: "legendaryeagle", name: "Legendary Eagle", minRating: 2300, icon: "🦅" },
-        { id: "legendaryeaglemaster", name: "Legendary Eagle Master", minRating: 2400, icon: "🦅" },
-        { id: "suprememaster", name: "Supreme Master First Class", minRating: 2500, icon: "💎" },
+        {
+          id: "goldnovamaster",
+          name: "Gold Nova Master",
+          minRating: 1800,
+          icon: "⭐",
+        },
+        {
+          id: "masterguardian1",
+          name: "Master Guardian I",
+          minRating: 1900,
+          icon: "🛡️",
+        },
+        {
+          id: "masterguardian2",
+          name: "Master Guardian II",
+          minRating: 2000,
+          icon: "🛡️",
+        },
+        {
+          id: "masterguardianelite",
+          name: "Master Guardian Elite",
+          minRating: 2100,
+          icon: "🛡️",
+        },
+        {
+          id: "dmg",
+          name: "Distinguished Master Guardian",
+          minRating: 2200,
+          icon: "🛡️",
+        },
+        {
+          id: "legendaryeagle",
+          name: "Legendary Eagle",
+          minRating: 2300,
+          icon: "🦅",
+        },
+        {
+          id: "legendaryeaglemaster",
+          name: "Legendary Eagle Master",
+          minRating: 2400,
+          icon: "🦅",
+        },
+        {
+          id: "suprememaster",
+          name: "Supreme Master First Class",
+          minRating: 2500,
+          icon: "💎",
+        },
         { id: "global", name: "Global Elite", minRating: 2600, icon: "🌍" },
       ],
       placements: 10,
       decayEnabled: true,
       decayDays: 30,
     },
-    
+
     // Stats tracked
     stats: [
-      "kills", "deaths", "assists", "kd_ratio", "adr", "hsp",
-      "clutches_won", "clutches_lost", "first_kills", "first_deaths",
-      "flash_assists", "trade_kills", "utility_damage", "mvp_stars",
+      "kills",
+      "deaths",
+      "assists",
+      "kd_ratio",
+      "adr",
+      "hsp",
+      "clutches_won",
+      "clutches_lost",
+      "first_kills",
+      "first_deaths",
+      "flash_assists",
+      "trade_kills",
+      "utility_damage",
+      "mvp_stars",
     ],
-    
+
     // Feature flags
     features: {
       tournaments: true,
@@ -131,7 +198,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false, // Regulated
       trading: true,
     },
-    
+
     // Priority
     priority: 1,
     active: true,
@@ -145,15 +212,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "valorant",
     category: "tactical-fps",
     icon: "simple-icons:valorant",
-    logo: "/games/valorant/logo.png",
-    banner: "/games/valorant/banner.jpg",
+    logo: "/games/valorant/logo.svg",
+    banner: "/games/valorant/banner.svg",
     color: {
       primary: "#FF4655",
       secondary: "#0F1923",
       accent: "#BD3944",
     },
     description: "Character-based tactical shooter by Riot Games",
-    
+
     integration: {
       platform: "riot",
       appId: "valorant",
@@ -162,7 +229,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       rankingSupport: true,
       statsApiUrl: "https://api.henrikdev.xyz/valorant/v1",
     },
-    
+
     replay: {
       formats: ["mp4", "webm"], // VOD-based
       maxFileSize: 500 * 1024 * 1024,
@@ -177,7 +244,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         "ultimate-tracking",
       ],
     },
-    
+
     matchmaking: {
       teamSize: 5,
       modes: [
@@ -186,7 +253,12 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         { id: "swiftplay", name: "Swiftplay", teamSize: 5, ranked: false },
         { id: "spike-rush", name: "Spike Rush", teamSize: 5, ranked: false },
         { id: "escalation", name: "Escalation", teamSize: 5, ranked: false },
-        { id: "team-deathmatch", name: "Team Deathmatch", teamSize: 5, ranked: false },
+        {
+          id: "team-deathmatch",
+          name: "Team Deathmatch",
+          teamSize: 5,
+          ranked: false,
+        },
       ],
       maps: [
         { id: "ascent", name: "Ascent", active: true, competitive: true },
@@ -206,7 +278,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       anticheatRequired: true,
       anticheatProviders: ["vanguard", "leetguard"],
     },
-    
+
     ranking: {
       system: "elo-rr",
       tiers: [
@@ -240,13 +312,23 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: true,
       decayDays: 14,
     },
-    
+
     stats: [
-      "kills", "deaths", "assists", "kd_ratio", "adr", "hsp",
-      "first_bloods", "clutches", "aces", "plants", "defuses",
-      "ability_casts", "ultimate_kills",
+      "kills",
+      "deaths",
+      "assists",
+      "kd_ratio",
+      "adr",
+      "hsp",
+      "first_bloods",
+      "clutches",
+      "aces",
+      "plants",
+      "defuses",
+      "ability_casts",
+      "ultimate_kills",
     ],
-    
+
     features: {
       tournaments: true,
       coaching: true,
@@ -256,7 +338,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: false, // No trading in Valorant
     },
-    
+
     priority: 2,
     active: true,
     launchDate: new Date("2024-02-01"),
@@ -269,15 +351,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "free-fire",
     category: "battle-royale",
     icon: "game-icons:fire",
-    logo: "/games/freefire/logo.png",
-    banner: "/games/freefire/banner.jpg",
+    logo: "/games/freefire/logo.svg",
+    banner: "/games/freefire/banner.svg",
     color: {
       primary: "#FF5722",
       secondary: "#1A1A1A",
       accent: "#FFC107",
     },
     description: "Mobile battle royale with fast-paced action",
-    
+
     integration: {
       platform: "garena",
       appId: "free-fire",
@@ -285,18 +367,23 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       replaySupport: false,
       rankingSupport: true,
     },
-    
+
     replay: {
       formats: ["mp4"],
       maxFileSize: 200 * 1024 * 1024,
       parser: "vod-mobile",
       features: ["kill-feed", "match-summary", "player-stats"],
     },
-    
+
     matchmaking: {
       teamSize: 4,
       modes: [
-        { id: "battle-royale", name: "Battle Royale", teamSize: 4, ranked: true },
+        {
+          id: "battle-royale",
+          name: "Battle Royale",
+          teamSize: 4,
+          ranked: true,
+        },
         { id: "clash-squad", name: "Clash Squad", teamSize: 4, ranked: true },
         { id: "lone-wolf", name: "Lone Wolf", teamSize: 1, ranked: false },
       ],
@@ -310,7 +397,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       anticheatRequired: true,
       anticheatProviders: ["garena-ac", "leetguard"],
     },
-    
+
     ranking: {
       system: "tiered",
       tiers: [
@@ -326,9 +413,9 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: true,
       decayDays: 7,
     },
-    
+
     stats: ["kills", "deaths", "damage", "headshots", "wins", "top10"],
-    
+
     features: {
       tournaments: true,
       coaching: true,
@@ -338,7 +425,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: false,
     },
-    
+
     priority: 3,
     active: true,
     launchDate: new Date("2024-03-01"),
@@ -351,15 +438,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "pubg",
     category: "battle-royale",
     icon: "simple-icons:pubg",
-    logo: "/games/pubg/logo.png",
-    banner: "/games/pubg/banner.jpg",
+    logo: "/games/pubg/logo.svg",
+    banner: "/games/pubg/banner.svg",
     color: {
       primary: "#F2A900",
       secondary: "#1A1A1A",
       accent: "#E8B923",
     },
     description: "Original battle royale experience",
-    
+
     integration: {
       platform: "steam",
       appId: "578080",
@@ -368,14 +455,20 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       rankingSupport: true,
       statsApiUrl: "https://api.pubg.com/shards/steam",
     },
-    
+
     replay: {
       formats: ["replay"],
       maxFileSize: 100 * 1024 * 1024,
       parser: "pubg-replay-parser",
-      features: ["kill-feed", "positioning-heatmaps", "loot-tracking", "vehicle-paths", "circle-analysis"],
+      features: [
+        "kill-feed",
+        "positioning-heatmaps",
+        "loot-tracking",
+        "vehicle-paths",
+        "circle-analysis",
+      ],
     },
-    
+
     matchmaking: {
       teamSize: 4,
       modes: [
@@ -398,7 +491,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       anticheatRequired: true,
       anticheatProviders: ["battleye", "leetguard"],
     },
-    
+
     ranking: {
       system: "tiered-survival",
       tiers: [
@@ -413,9 +506,18 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: true,
       decayDays: 14,
     },
-    
-    stats: ["kills", "deaths", "wins", "top10", "damage", "headshots", "longest_kill", "vehicle_destroys"],
-    
+
+    stats: [
+      "kills",
+      "deaths",
+      "wins",
+      "top10",
+      "damage",
+      "headshots",
+      "longest_kill",
+      "vehicle_destroys",
+    ],
+
     features: {
       tournaments: true,
       coaching: true,
@@ -425,7 +527,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: true,
     },
-    
+
     priority: 4,
     active: true,
     launchDate: new Date("2024-03-15"),
@@ -438,15 +540,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "rainbow-six-siege",
     category: "tactical-fps",
     icon: "simple-icons:ubisoft",
-    logo: "/games/r6/logo.png",
-    banner: "/games/r6/banner.jpg",
+    logo: "/games/r6/logo.svg",
+    banner: "/games/r6/banner.svg",
     color: {
       primary: "#F5A623",
       secondary: "#1A1A1A",
       accent: "#4A90D9",
     },
     description: "Tactical team-based shooter with destructible environments",
-    
+
     integration: {
       platform: "ubisoft",
       appId: "rainbow-six-siege",
@@ -454,14 +556,20 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       replaySupport: true,
       rankingSupport: true,
     },
-    
+
     replay: {
       formats: ["rec"],
       maxFileSize: 50 * 1024 * 1024,
       parser: "r6-dissect",
-      features: ["kill-feed", "operator-picks", "gadget-usage", "round-by-round", "player-stats"],
+      features: [
+        "kill-feed",
+        "operator-picks",
+        "gadget-usage",
+        "round-by-round",
+        "player-stats",
+      ],
     },
-    
+
     matchmaking: {
       teamSize: 5,
       modes: [
@@ -477,9 +585,19 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         { id: "clubhouse", name: "Clubhouse", active: true, competitive: true },
         { id: "coastline", name: "Coastline", active: true, competitive: true },
         { id: "consulate", name: "Consulate", active: true, competitive: true },
-        { id: "kafe", name: "Kafe Dostoyevsky", active: true, competitive: true },
+        {
+          id: "kafe",
+          name: "Kafe Dostoyevsky",
+          active: true,
+          competitive: true,
+        },
         { id: "oregon", name: "Oregon", active: true, competitive: true },
-        { id: "theme-park", name: "Theme Park", active: true, competitive: true },
+        {
+          id: "theme-park",
+          name: "Theme Park",
+          active: true,
+          competitive: true,
+        },
         { id: "villa", name: "Villa", active: true, competitive: true },
       ],
       mapVetoEnabled: true,
@@ -487,7 +605,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       anticheatRequired: true,
       anticheatProviders: ["battleye", "leetguard"],
     },
-    
+
     ranking: {
       system: "elo-mmr",
       tiers: [
@@ -524,9 +642,17 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: true,
       decayDays: 14,
     },
-    
-    stats: ["kills", "deaths", "assists", "kd_ratio", "win_rate", "headshot_rate", "melee_kills"],
-    
+
+    stats: [
+      "kills",
+      "deaths",
+      "assists",
+      "kd_ratio",
+      "win_rate",
+      "headshot_rate",
+      "melee_kills",
+    ],
+
     features: {
       tournaments: true,
       coaching: true,
@@ -536,7 +662,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: false,
     },
-    
+
     priority: 5,
     active: true,
     launchDate: new Date("2024-04-01"),
@@ -549,15 +675,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "tibia",
     category: "mmorpg",
     icon: "game-icons:skull-crossbones",
-    logo: "/games/tibia/logo.png",
-    banner: "/games/tibia/banner.jpg",
+    logo: "/games/tibia/logo.svg",
+    banner: "/games/tibia/banner.svg",
     color: {
       primary: "#8B4513",
       secondary: "#2C1810",
       accent: "#DAA520",
     },
     description: "Classic MMORPG with rich PvP and guild warfare",
-    
+
     integration: {
       platform: "cipsoft",
       appId: "tibia",
@@ -566,14 +692,14 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       rankingSupport: true,
       statsApiUrl: "https://api.tibiadata.com/v3",
     },
-    
+
     replay: {
       formats: [],
       maxFileSize: 0,
       parser: null,
       features: [],
     },
-    
+
     matchmaking: {
       teamSize: 0, // Guild-based
       modes: [
@@ -585,7 +711,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       anticheatRequired: false,
       anticheatProviders: [],
     },
-    
+
     ranking: {
       system: "experience",
       tiers: [],
@@ -593,9 +719,17 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: false,
       decayDays: 0,
     },
-    
-    stats: ["level", "experience", "deaths", "kills", "guild_rank", "magic_level", "skills"],
-    
+
+    stats: [
+      "level",
+      "experience",
+      "deaths",
+      "kills",
+      "guild_rank",
+      "magic_level",
+      "skills",
+    ],
+
     features: {
       tournaments: true,
       coaching: false,
@@ -605,7 +739,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: true, // In-game economy
     },
-    
+
     priority: 6,
     active: true,
     launchDate: new Date("2024-06-01"),
@@ -618,15 +752,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "dota-2",
     category: "moba",
     icon: "simple-icons:dota2",
-    logo: "/games/dota2/logo.png",
-    banner: "/games/dota2/banner.jpg",
+    logo: "/games/dota2/logo.svg",
+    banner: "/games/dota2/banner.svg",
     color: {
       primary: "#C23C2A",
       secondary: "#1A1A1A",
       accent: "#9E2720",
     },
     description: "Premier competitive MOBA by Valve",
-    
+
     integration: {
       platform: "steam",
       appId: "570",
@@ -635,7 +769,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       rankingSupport: true,
       statsApiUrl: "https://api.opendota.com/api",
     },
-    
+
     replay: {
       formats: ["dem"],
       maxFileSize: 100 * 1024 * 1024,
@@ -650,23 +784,33 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         "lane-analysis",
       ],
     },
-    
+
     matchmaking: {
       teamSize: 5,
       modes: [
         { id: "ranked", name: "Ranked All Pick", teamSize: 5, ranked: true },
-        { id: "captains-mode", name: "Captains Mode", teamSize: 5, ranked: true },
+        {
+          id: "captains-mode",
+          name: "Captains Mode",
+          teamSize: 5,
+          ranked: true,
+        },
         { id: "turbo", name: "Turbo", teamSize: 5, ranked: false },
         { id: "all-pick", name: "All Pick", teamSize: 5, ranked: false },
       ],
       maps: [
-        { id: "dota-map", name: "The Dota Map", active: true, competitive: true },
+        {
+          id: "dota-map",
+          name: "The Dota Map",
+          active: true,
+          competitive: true,
+        },
       ],
       mapVetoEnabled: false,
       anticheatRequired: true,
       anticheatProviders: ["vac", "leetguard"],
     },
-    
+
     ranking: {
       system: "mmr-medals",
       tiers: [
@@ -711,9 +855,20 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: false,
       decayDays: 0,
     },
-    
-    stats: ["kills", "deaths", "assists", "last_hits", "denies", "gpm", "xpm", "hero_damage", "tower_damage", "healing"],
-    
+
+    stats: [
+      "kills",
+      "deaths",
+      "assists",
+      "last_hits",
+      "denies",
+      "gpm",
+      "xpm",
+      "hero_damage",
+      "tower_damage",
+      "healing",
+    ],
+
     features: {
       tournaments: true,
       coaching: true,
@@ -723,7 +878,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: true,
     },
-    
+
     priority: 7,
     active: true,
     launchDate: new Date("2024-04-15"),
@@ -736,15 +891,15 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     slug: "league-of-legends",
     category: "moba",
     icon: "simple-icons:leagueoflegends",
-    logo: "/games/lol/logo.png",
-    banner: "/games/lol/banner.jpg",
+    logo: "/games/lol/logo.svg",
+    banner: "/games/lol/banner.svg",
     color: {
       primary: "#C89B3C",
       secondary: "#0A1428",
       accent: "#0397AB",
     },
     description: "World's most popular competitive MOBA",
-    
+
     integration: {
       platform: "riot",
       appId: "league-of-legends",
@@ -753,7 +908,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       rankingSupport: true,
       statsApiUrl: "https://api.riotgames.com/lol",
     },
-    
+
     replay: {
       formats: ["rofl"],
       maxFileSize: 50 * 1024 * 1024,
@@ -768,24 +923,44 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
         "objective-control",
       ],
     },
-    
+
     matchmaking: {
       teamSize: 5,
       modes: [
-        { id: "ranked-solo", name: "Ranked Solo/Duo", teamSize: 5, ranked: true },
+        {
+          id: "ranked-solo",
+          name: "Ranked Solo/Duo",
+          teamSize: 5,
+          ranked: true,
+        },
         { id: "ranked-flex", name: "Ranked Flex", teamSize: 5, ranked: true },
-        { id: "normal-draft", name: "Normal Draft", teamSize: 5, ranked: false },
+        {
+          id: "normal-draft",
+          name: "Normal Draft",
+          teamSize: 5,
+          ranked: false,
+        },
         { id: "aram", name: "ARAM", teamSize: 5, ranked: false },
       ],
       maps: [
-        { id: "summoners-rift", name: "Summoner's Rift", active: true, competitive: true },
-        { id: "howling-abyss", name: "Howling Abyss", active: true, competitive: false },
+        {
+          id: "summoners-rift",
+          name: "Summoner's Rift",
+          active: true,
+          competitive: true,
+        },
+        {
+          id: "howling-abyss",
+          name: "Howling Abyss",
+          active: true,
+          competitive: false,
+        },
       ],
       mapVetoEnabled: false,
       anticheatRequired: true,
       anticheatProviders: ["vanguard", "leetguard"],
     },
-    
+
     ranking: {
       system: "lp-tiers",
       tiers: [
@@ -825,9 +1000,19 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       decayEnabled: true,
       decayDays: 28,
     },
-    
-    stats: ["kills", "deaths", "assists", "cs", "vision_score", "gold_earned", "damage_dealt", "damage_taken", "objectives"],
-    
+
+    stats: [
+      "kills",
+      "deaths",
+      "assists",
+      "cs",
+      "vision_score",
+      "gold_earned",
+      "damage_dealt",
+      "damage_taken",
+      "objectives",
+    ],
+
     features: {
       tournaments: true,
       coaching: true,
@@ -837,7 +1022,7 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
       betting: false,
       trading: false,
     },
-    
+
     priority: 8,
     active: true,
     launchDate: new Date("2024-05-01"),
@@ -864,7 +1049,9 @@ export function getGamesByCategory(category: GameCategory): GameConfig[] {
     .sort((a, b) => a.priority - b.priority);
 }
 
-export function getGamesWithFeature(feature: keyof GameConfig["features"]): GameConfig[] {
+export function getGamesWithFeature(
+  feature: keyof GameConfig["features"]
+): GameConfig[] {
   return Object.values(GAME_CONFIGS)
     .filter((game) => game.active && game.features[feature])
     .sort((a, b) => a.priority - b.priority);
@@ -876,36 +1063,50 @@ export function getGamesWithReplaySupport(): GameConfig[] {
     .sort((a, b) => a.priority - b.priority);
 }
 
-export function getGameMaps(gameId: GameId, competitiveOnly = false): GameConfig["matchmaking"]["maps"] {
+export function getGameMaps(
+  gameId: GameId,
+  competitiveOnly = false
+): GameConfig["matchmaking"]["maps"] {
   const game = GAME_CONFIGS[gameId];
   if (!game) return [];
-  
+
   return competitiveOnly
     ? game.matchmaking.maps.filter((m) => m.competitive && m.active)
     : game.matchmaking.maps.filter((m) => m.active);
 }
 
-export function getGameModes(gameId: GameId, rankedOnly = false): GameConfig["matchmaking"]["modes"] {
+export function getGameModes(
+  gameId: GameId,
+  rankedOnly = false
+): GameConfig["matchmaking"]["modes"] {
   const game = GAME_CONFIGS[gameId];
   if (!game) return [];
-  
+
   return rankedOnly
     ? game.matchmaking.modes.filter((m) => m.ranked)
     : game.matchmaking.modes;
 }
 
-export function getRankTier(gameId: GameId, rating: number): GameConfig["ranking"]["tiers"][0] | undefined {
+export function getRankTier(
+  gameId: GameId,
+  rating: number
+): GameConfig["ranking"]["tiers"][0] | undefined {
   const game = GAME_CONFIGS[gameId];
   if (!game) return undefined;
-  
-  const tiers = [...game.ranking.tiers].sort((a, b) => b.minRating - a.minRating);
+
+  const tiers = [...game.ranking.tiers].sort(
+    (a, b) => b.minRating - a.minRating
+  );
   return tiers.find((tier) => rating >= tier.minRating);
 }
 
 /**
  * Game category configuration
  */
-export const GAME_CATEGORIES: Record<GameCategory, { name: string; icon: string; description: string }> = {
+export const GAME_CATEGORIES: Record<
+  GameCategory,
+  { name: string; icon: string; description: string }
+> = {
   "tactical-fps": {
     name: "Tactical FPS",
     icon: "solar:target-bold",

@@ -89,7 +89,7 @@ export function MapVetoComponent({
 }: MapVetoProps) {
   const game = GAME_CONFIGS[gameId];
   const maps = getGameMaps(gameId, true);
-  
+
   // Parse veto format into steps
   const parseVetoFormat = useCallback((format: string): VetoStep[] => {
     return format.split("-").map((step) => {
@@ -98,7 +98,7 @@ export function MapVetoComponent({
       return "remaining";
     });
   }, []);
-  
+
   const [vetoState, setVetoState] = useState<VetoState>(() => ({
     steps: parseVetoFormat(vetoFormat),
     currentStep: 0,
@@ -108,92 +108,98 @@ export function MapVetoComponent({
     remainingMaps: maps.map((m) => m.id),
     isComplete: false,
   }));
-  
+
   const [timeRemaining, setTimeRemaining] = useState(actionTimeLimit);
   const [hoveredMap, setHoveredMap] = useState<string | null>(null);
-  
+
   const getCurrentTeam = () => {
     return vetoState.currentTeamIndex === 0 ? team1 : team2;
   };
-  
+
   const getCurrentAction = (): VetoStep => {
     return vetoState.steps[vetoState.currentStep] || "remaining";
   };
-  
+
   const canPlayerAct = () => {
     if (isSpectator) return false;
     if (!playerTeamId) return false;
     return getCurrentTeam().id === playerTeamId;
   };
-  
+
   const handleMapAction = (mapId: string) => {
     if (!canPlayerAct()) return;
     if (vetoState.isComplete) return;
     if (!vetoState.remainingMaps.includes(mapId)) return;
-    
+
     const action = getCurrentAction();
     const currentTeam = getCurrentTeam();
-    
+
     const vetoAction: MapVetoAction = {
       teamId: currentTeam.id,
       action: action === "ban" ? "ban" : "pick",
       mapId,
       timestamp: new Date(),
     };
-    
+
     onVetoAction?.(vetoAction);
-    
+
     setVetoState((prev) => {
       const newState = { ...prev };
       const newRemaining = prev.remainingMaps.filter((id) => id !== mapId);
-      
+
       if (action === "ban") {
         newState.bannedMaps = [...prev.bannedMaps, mapId];
       } else if (action === "pick") {
         newState.pickedMaps = [...prev.pickedMaps, mapId];
       }
-      
+
       newState.remainingMaps = newRemaining;
       newState.currentStep = prev.currentStep + 1;
-      
+
       // Alternate teams for each step (unless it's the final remaining step)
       if (prev.steps[prev.currentStep + 1] !== "remaining") {
         newState.currentTeamIndex = prev.currentTeamIndex === 0 ? 1 : 0;
       }
-      
+
       // Check if veto is complete
-      if (prev.currentStep + 1 >= prev.steps.length || newRemaining.length <= 1) {
+      if (
+        prev.currentStep + 1 >= prev.steps.length ||
+        newRemaining.length <= 1
+      ) {
         newState.isComplete = true;
-        
+
         // Add remaining map(s) as picked if format ends with "remaining"
-        if (prev.steps[prev.steps.length - 1] === "remaining" && newRemaining.length > 0) {
+        if (
+          prev.steps[prev.steps.length - 1] === "remaining" &&
+          newRemaining.length > 0
+        ) {
           newState.pickedMaps = [...newState.pickedMaps, ...newRemaining];
           newState.remainingMaps = [];
         }
-        
+
         onVetoComplete?.(newState.pickedMaps, newState.bannedMaps);
       }
-      
+
       return newState;
     });
-    
+
     setTimeRemaining(actionTimeLimit);
   };
-  
+
   const handleAutoAction = useCallback(() => {
     const remaining = vetoState.remainingMaps;
     if (remaining.length === 0) return;
-    
+
     // Pick random map
     const randomIndex = Math.floor(Math.random() * remaining.length);
     handleMapAction(remaining[randomIndex]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vetoState.remainingMaps]);
-  
+
   // Timer countdown
   useEffect(() => {
     if (vetoState.isComplete) return;
-    
+
     const interval = setInterval(() => {
       setTimeRemaining((t) => {
         if (t <= 1) {
@@ -204,9 +210,14 @@ export function MapVetoComponent({
         return t - 1;
       });
     }, 1000);
-    
+
     return () => clearInterval(interval);
-  }, [vetoState.currentStep, vetoState.isComplete, actionTimeLimit, handleAutoAction]);
+  }, [
+    vetoState.currentStep,
+    vetoState.isComplete,
+    actionTimeLimit,
+    handleAutoAction,
+  ]);
 
   const getMapStatus = (mapId: string): "available" | "banned" | "picked" => {
     if (vetoState.bannedMaps.includes(mapId)) return "banned";
@@ -218,7 +229,10 @@ export function MapVetoComponent({
     return (
       <Card className={className}>
         <CardBody className="text-center py-12">
-          <Icon icon="solar:map-bold" className="text-4xl text-default-300 mx-auto mb-2" />
+          <Icon
+            icon="solar:map-bold"
+            className="text-4xl text-default-300 mx-auto mb-2"
+          />
           <p className="text-default-500">Game not found</p>
         </CardBody>
       </Card>
@@ -256,7 +270,7 @@ export function MapVetoComponent({
               )}
             </div>
           </div>
-          
+
           {/* VS divider */}
           <div className="text-center">
             <p className="font-gaming text-2xl text-default-400">VS</p>
@@ -271,7 +285,7 @@ export function MapVetoComponent({
               </Chip>
             )}
           </div>
-          
+
           {/* Team 2 */}
           <div className="flex items-center gap-3 flex-row-reverse">
             <Avatar
@@ -294,7 +308,7 @@ export function MapVetoComponent({
             </div>
           </div>
         </div>
-        
+
         {/* Timer and status */}
         {!vetoState.isComplete && (
           <div className="w-full space-y-2">
@@ -315,17 +329,22 @@ export function MapVetoComponent({
             />
           </div>
         )}
-        
+
         {vetoState.isComplete && (
           <div className="w-full text-center py-2">
-            <Chip color="success" variant="solid" size="lg" className="font-gaming">
+            <Chip
+              color="success"
+              variant="solid"
+              size="lg"
+              className="font-gaming"
+            >
               <Icon icon="solar:check-circle-bold" className="mr-1" />
               VETO COMPLETE
             </Chip>
           </div>
         )}
       </CardHeader>
-      
+
       <CardBody className="p-4">
         {/* Map grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -333,7 +352,7 @@ export function MapVetoComponent({
             const status = getMapStatus(map.id);
             const isAvailable = status === "available" && !vetoState.isComplete;
             const canSelect = isAvailable && canPlayerAct();
-            
+
             return (
               <motion.div
                 key={map.id}
@@ -367,7 +386,7 @@ export function MapVetoComponent({
                       className="text-4xl opacity-50"
                       style={{ color: game.color.primary }}
                     />
-                    
+
                     {/* Status overlay */}
                     <AnimatePresence>
                       {status === "banned" && (
@@ -377,10 +396,13 @@ export function MapVetoComponent({
                           exit={{ opacity: 0, scale: 0.5 }}
                           className="absolute inset-0 flex items-center justify-center bg-danger/50"
                         >
-                          <Icon icon="solar:close-circle-bold" className="text-4xl text-danger" />
+                          <Icon
+                            icon="solar:close-circle-bold"
+                            className="text-4xl text-danger"
+                          />
                         </motion.div>
                       )}
-                      
+
                       {status === "picked" && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0.5 }}
@@ -388,30 +410,41 @@ export function MapVetoComponent({
                           exit={{ opacity: 0, scale: 0.5 }}
                           className="absolute inset-0 flex items-center justify-center bg-success/30"
                         >
-                          <Icon icon="solar:check-circle-bold" className="text-4xl text-success" />
+                          <Icon
+                            icon="solar:check-circle-bold"
+                            className="text-4xl text-success"
+                          />
                         </motion.div>
                       )}
                     </AnimatePresence>
-                    
+
                     {/* Action hint on hover */}
                     {canSelect && hoveredMap === map.id && (
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className={`absolute inset-0 flex items-center justify-center ${
-                          getCurrentAction() === "ban" ? "bg-danger/30" : "bg-success/30"
+                          getCurrentAction() === "ban"
+                            ? "bg-danger/30"
+                            : "bg-success/30"
                         }`}
                       >
                         <Icon
-                          icon={getCurrentAction() === "ban" ? "solar:close-circle-bold" : "solar:check-circle-bold"}
+                          icon={
+                            getCurrentAction() === "ban"
+                              ? "solar:close-circle-bold"
+                              : "solar:check-circle-bold"
+                          }
                           className={`text-3xl ${
-                            getCurrentAction() === "ban" ? "text-danger" : "text-success"
+                            getCurrentAction() === "ban"
+                              ? "text-danger"
+                              : "text-success"
                           }`}
                         />
                       </motion.div>
                     )}
                   </div>
-                  
+
                   <CardBody className="p-2 text-center">
                     <p className="font-gaming text-sm truncate">{map.name}</p>
                     {status !== "available" && (
@@ -430,17 +463,19 @@ export function MapVetoComponent({
             );
           })}
         </div>
-        
+
         <Divider className="my-4" />
-        
+
         {/* Veto history */}
         <div>
-          <p className="text-sm font-semibold text-default-600 mb-2">Veto History</p>
+          <p className="text-sm font-semibold text-default-600 mb-2">
+            Veto History
+          </p>
           <div className="flex flex-wrap gap-2">
             {vetoState.bannedMaps.map((mapId, index) => {
               const map = maps.find((m) => m.id === mapId);
               const team = index % 2 === 0 ? team1 : team2;
-              
+
               return (
                 <Tooltip key={`ban-${mapId}`} content={`${team.name} banned`}>
                   <Chip
@@ -454,12 +489,12 @@ export function MapVetoComponent({
                 </Tooltip>
               );
             })}
-            
+
             {vetoState.pickedMaps.map((mapId, index) => {
               const map = maps.find((m) => m.id === mapId);
               const banCount = vetoState.bannedMaps.length;
               const team = (banCount + index) % 2 === 0 ? team1 : team2;
-              
+
               return (
                 <Tooltip key={`pick-${mapId}`} content={`${team.name} picked`}>
                   <Chip
@@ -473,18 +508,22 @@ export function MapVetoComponent({
                 </Tooltip>
               );
             })}
-            
-            {vetoState.bannedMaps.length === 0 && vetoState.pickedMaps.length === 0 && (
-              <p className="text-sm text-default-400">No actions yet</p>
-            )}
+
+            {vetoState.bannedMaps.length === 0 &&
+              vetoState.pickedMaps.length === 0 && (
+                <p className="text-sm text-default-400">No actions yet</p>
+              )}
           </div>
         </div>
-        
+
         {/* Final map selection summary */}
         {vetoState.isComplete && vetoState.pickedMaps.length > 0 && (
           <div className="mt-4 p-4 rounded-xl bg-success/10 border border-success/30">
             <p className="font-gaming text-success mb-2">
-              <Icon icon="solar:map-arrow-square-bold" className="inline mr-2" />
+              <Icon
+                icon="solar:map-arrow-square-bold"
+                className="inline mr-2"
+              />
               SELECTED MAPS
             </p>
             <div className="flex flex-wrap gap-2">

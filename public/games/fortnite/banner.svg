@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="fn-banner-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9D4DFF;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#4D88FF;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" fill="#1A1A1A"/>
+  <rect width="800" height="300" fill="url(#fn-banner-grad)"/>
+  <text x="50" y="170" fill="#9D4DFF" font-family="Arial Black" font-size="72" font-weight="bold">FORTNITE</text>
+  <text x="52" y="220" fill="#888888" font-family="Arial" font-size="24">Battle Royale</text>
+</svg>

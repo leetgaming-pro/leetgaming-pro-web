@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="cs2-banner-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F7B93E;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#FF6B00;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" fill="#1A1A1A"/>
+  <rect width="800" height="300" fill="url(#cs2-banner-grad)"/>
+  <circle cx="650" cy="150" r="180" fill="#F7B93E" opacity="0.05"/>
+  <circle cx="700" cy="200" r="120" fill="#FF6B00" opacity="0.05"/>
+  <text x="50" y="170" fill="#F7B93E" font-family="Arial Black" font-size="72" font-weight="bold">COUNTER-STRIKE 2</text>
+  <text x="52" y="220" fill="#888888" font-family="Arial" font-size="24">Premier Tactical FPS</text>
+</svg>

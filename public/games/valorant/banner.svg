@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="val-banner-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF4655;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#BD3944;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" fill="#0F1923"/>
+  <rect width="800" height="300" fill="url(#val-banner-grad)"/>
+  <polygon points="700,0 800,0 800,300 600,300" fill="#FF4655" opacity="0.1"/>
+  <text x="50" y="170" fill="#FF4655" font-family="Arial Black" font-size="72" font-weight="bold">VALORANT</text>
+  <text x="52" y="220" fill="#888888" font-family="Arial" font-size="24">5v5 Character-Based Tactical Shooter</text>
+</svg>

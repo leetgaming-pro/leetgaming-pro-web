@@ -34,7 +34,8 @@ export default function BrandedSignUp() {
     if (password.length >= 8) strength += 25;
     if (password.match(/[a-z]/)) strength += 25;
     if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[0-9]/) || password.match(/[^a-zA-Z0-9]/)) strength += 25;
+    if (password.match(/[0-9]/) || password.match(/[^a-zA-Z0-9]/))
+      strength += 25;
     return strength;
   };
 
@@ -84,7 +85,7 @@ export default function BrandedSignUp() {
       const result = await signIn("email-password", {
         email,
         password,
-        username,
+        displayName: username, // Map username to displayName for the provider
         action: "signup",
         redirect: false,
       });
@@ -149,7 +150,8 @@ export default function BrandedSignUp() {
                 </span>
               </h1>
               <p className="text-xl text-white/60 max-w-md">
-                Create your account and join the most competitive gaming community.
+                Create your account and join the most competitive gaming
+                community.
               </p>
             </div>
 
@@ -169,7 +171,10 @@ export default function BrandedSignUp() {
                   className="flex items-center gap-3"
                 >
                   <div className="w-10 h-10 flex items-center justify-center bg-[#DCFF37]/10 border border-[#DCFF37]/30">
-                    <Icon icon={feature.icon} className="text-[#DCFF37] text-xl" />
+                    <Icon
+                      icon={feature.icon}
+                      className="text-[#DCFF37] text-xl"
+                    />
                   </div>
                   <span className="text-white/80">{feature.text}</span>
                 </motion.div>
@@ -185,7 +190,8 @@ export default function BrandedSignUp() {
             className="bg-white/5 border border-white/10 p-4"
           >
             <p className="text-white/70 italic mb-3">
-              &ldquo;LeetGaming transformed how I compete. The platform is insane!&rdquo;
+              &ldquo;LeetGaming transformed how I compete. The platform is
+              insane!&rdquo;
             </p>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#DCFF37] to-[#34445C]" />
@@ -227,7 +233,9 @@ export default function BrandedSignUp() {
               </div>
 
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  Create Account
+                </h2>
                 <p className="text-white/50 text-sm">
                   Start your competitive journey today
                 </p>
@@ -290,7 +298,11 @@ export default function BrandedSignUp() {
                       <button type="button" onClick={toggleVisibility}>
                         <Icon
                           className="text-2xl text-white/50 hover:text-white transition-colors"
-                          icon={isVisible ? "solar:eye-closed-linear" : "solar:eye-bold"}
+                          icon={
+                            isVisible
+                              ? "solar:eye-closed-linear"
+                              : "solar:eye-bold"
+                          }
                         />
                       </button>
                     }
@@ -344,7 +356,9 @@ export default function BrandedSignUp() {
                       <Icon
                         className="text-2xl text-white/50 hover:text-white transition-colors"
                         icon={
-                          isConfirmVisible ? "solar:eye-closed-linear" : "solar:eye-bold"
+                          isConfirmVisible
+                            ? "solar:eye-closed-linear"
+                            : "solar:eye-bold"
                         }
                       />
                     </button>
@@ -374,7 +388,8 @@ export default function BrandedSignUp() {
                   onValueChange={setTermsAccepted}
                   isDisabled={isLoading}
                   classNames={{
-                    wrapper: "before:border-white/30 rounded-none after:bg-[#DCFF37]",
+                    wrapper:
+                      "before:border-white/30 rounded-none after:bg-[#DCFF37]",
                     label: "text-white/70 text-sm",
                   }}
                 >
@@ -394,7 +409,14 @@ export default function BrandedSignUp() {
                   fullWidth
                   type="submit"
                   loading={isLoading}
-                  disabled={isLoading || !email || !password || !confirmPassword || !username || !termsAccepted}
+                  disabled={
+                    isLoading ||
+                    !email ||
+                    !password ||
+                    !confirmPassword ||
+                    !username ||
+                    !termsAccepted
+                  }
                 >
                   {isLoading ? "Creating account..." : "JOIN THE BATTLE"}
                 </EsportsButton>
@@ -413,7 +435,9 @@ export default function BrandedSignUp() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() => signIn("steam", { callbackUrl: "/onboarding" })}
+                  onClick={() =>
+                    signIn("steam", { callbackUrl: "/onboarding" })
+                  }
                 >
                   <SteamIcon className="w-5 h-5" />
                   Steam
@@ -422,7 +446,9 @@ export default function BrandedSignUp() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
+                  onClick={() =>
+                    signIn("google", { callbackUrl: "/onboarding" })
+                  }
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />
                   Google

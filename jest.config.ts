@@ -19,7 +19,7 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
   // Module file extensions
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  moduleFileExtensions: ['ts', 'tsx',  'js', 'jsx', 'json'],
 
   // Test match patterns
   testMatch: [

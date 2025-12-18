@@ -144,9 +144,9 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="hidden md:flex gap-3" justify="end">
-        {/* Separator // */}
+        {/* Separator */}
         <NavbarItem className="hidden md:flex items-center">
-          <span className="text-[#FF4654]/40 dark:text-[#DCFF37]/40 font-mono text-lg tracking-tighter select-none">//</span>
+          <span className="text-[#FF4654]/40 dark:text-[#DCFF37]/40 font-mono text-lg tracking-tighter select-none">{"//"}</span>
         </NavbarItem>
         
         <NavbarItem className="hidden md:flex w-48 lg:w-64 xl:w-80">

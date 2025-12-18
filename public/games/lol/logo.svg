@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="lol-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C89B3C"/>
+      <stop offset="100%" style="stop-color:#785A28"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="20" fill="#010A13"/>
+  <path d="M60,50 L100,30 L140,50 L140,120 L100,140 L60,120 Z" fill="none" stroke="url(#lol-grad)" stroke-width="5"/>
+  <path d="M80,65 L100,55 L120,65 L120,105 L100,115 L80,105 Z" fill="url(#lol-grad)"/>
+  <text x="100" y="175" text-anchor="middle" fill="url(#lol-grad)" font-family="Arial Black" font-size="24" font-weight="bold">LoL</text>
+</svg>

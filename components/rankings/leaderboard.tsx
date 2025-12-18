@@ -75,39 +75,87 @@ export interface LeaderboardEntry {
 }
 
 // Mock data generator
-const generateMockLeaderboard = (gameId: GameId, count: number): LeaderboardEntry[] => {
+const generateMockLeaderboard = (
+  gameId: GameId,
+  count: number
+): LeaderboardEntry[] => {
   const names = [
-    "s1mple", "ZywOo", "NiKo", "device", "m0NESY", "Kscerato", "sh1ro", "b1t",
-    "YEKINDAR", "Jame", "stavn", "blameF", "Magisk", "cadiaN", "dupreeh",
-    "electroNic", "Perfecto", "Boombl4", "rain", "karrigan", "ropz", "Twistzz",
-    "EliGE", "NAF", "Glaive", "k0nfig", "broky", "olof", "flusha", "krimz"
+    "s1mple",
+    "ZywOo",
+    "NiKo",
+    "device",
+    "m0NESY",
+    "Kscerato",
+    "sh1ro",
+    "b1t",
+    "YEKINDAR",
+    "Jame",
+    "stavn",
+    "blameF",
+    "Magisk",
+    "cadiaN",
+    "dupreeh",
+    "electroNic",
+    "Perfecto",
+    "Boombl4",
+    "rain",
+    "karrigan",
+    "ropz",
+    "Twistzz",
+    "EliGE",
+    "NAF",
+    "Glaive",
+    "k0nfig",
+    "broky",
+    "olof",
+    "flusha",
+    "krimz",
   ];
-  
+
   return Array.from({ length: count }, (_, i) => {
-    const rating = Math.max(100, 3500 - i * 35 - Math.floor(Math.random() * 50));
+    const rating = Math.max(
+      100,
+      3500 - i * 35 - Math.floor(Math.random() * 50)
+    );
     const tier = getRankTier(gameId, rating);
     const wins = Math.floor(Math.random() * 300) + 100;
     const losses = Math.floor(Math.random() * 200) + 50;
-    
+
     return {
       rank: i + 1,
       previousRank: i + 1 + Math.floor(Math.random() * 5) - 2,
       playerId: `player-${i + 1}`,
-      playerName: names[i % names.length] + (i >= names.length ? `_${Math.floor(i / names.length)}` : ""),
+      playerName:
+        names[i % names.length] +
+        (i >= names.length ? `_${Math.floor(i / names.length)}` : ""),
       rating,
-      tier: tier || { id: "unranked", name: "Unranked", minRating: 0, icon: "❓" },
+      tier: tier || {
+        id: "unranked",
+        name: "Unranked",
+        minRating: 0,
+        icon: "❓",
+      },
       wins,
       losses,
       winRate: Math.round((wins / (wins + losses)) * 100),
       gamesPlayed: wins + losses,
-      streak: Math.random() > 0.5 
-        ? { type: Math.random() > 0.5 ? "win" : "loss", count: Math.floor(Math.random() * 8) + 1 }
-        : undefined,
-      badges: Math.random() > 0.7 
-        ? ["verified", Math.random() > 0.5 ? "pro" : "streamer"].filter(() => Math.random() > 0.5)
-        : [],
+      streak:
+        Math.random() > 0.5
+          ? {
+              type: Math.random() > 0.5 ? "win" : "loss",
+              count: Math.floor(Math.random() * 8) + 1,
+            }
+          : undefined,
+      badges:
+        Math.random() > 0.7
+          ? ["verified", Math.random() > 0.5 ? "pro" : "streamer"].filter(
+              () => Math.random() > 0.5
+            )
+          : [],
       region: ["NA", "EU", "SA", "ASIA"][Math.floor(Math.random() * 4)],
-      country: ["US", "SE", "BR", "RU", "DK", "DE", "FR", "PL"][Math.floor(Math.random() * 8)],
+      country: ["US", "SE", "BR", "RU", "DK", "DE", "FR", "PL"][
+        Math.floor(Math.random() * 8)
+      ],
       lastActive: new Date(Date.now() - Math.floor(Math.random() * 86400000)),
     };
   });
@@ -132,26 +180,28 @@ export function Leaderboard({
   className = "",
   showGameSelector = true,
 }: LeaderboardProps) {
-  const [selectedGame, setSelectedGame] = useState<GameId>(initialGameId || "cs2");
+  const [selectedGame, setSelectedGame] = useState<GameId>(
+    initialGameId || "cs2"
+  );
   const [selectedType, setSelectedType] = useState(type);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading] = useState(false);
-  
+
   const game = GAME_CONFIGS[selectedGame];
   const activeGames = getActiveGames();
-  
+
   // Generate mock data (replace with API call)
-  const [leaderboardData] = useState<LeaderboardEntry[]>(() => 
+  const [leaderboardData] = useState<LeaderboardEntry[]>(() =>
     generateMockLeaderboard(selectedGame, 100)
   );
-  
+
   const paginatedData = leaderboardData.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
-  
+
   const totalPages = Math.ceil(leaderboardData.length / pageSize);
-  
+
   const getRankChangeIcon = (current: number, previous?: number) => {
     if (!previous || current === previous) {
       return <Icon icon="solar:minus-linear" className="text-default-400" />;
@@ -175,20 +225,27 @@ export function Leaderboard({
       </Tooltip>
     );
   };
-  
+
   const getBadgeIcon = (badge: string) => {
     switch (badge) {
       case "verified":
-        return <Icon icon="solar:verified-check-bold" className="text-primary" />;
+        return (
+          <Icon icon="solar:verified-check-bold" className="text-primary" />
+        );
       case "pro":
         return <Icon icon="solar:crown-bold" className="text-amber-500" />;
       case "streamer":
-        return <Icon icon="solar:videocamera-record-bold" className="text-purple-500" />;
+        return (
+          <Icon
+            icon="solar:videocamera-record-bold"
+            className="text-purple-500"
+          />
+        );
       default:
         return null;
     }
   };
-  
+
   const getRankMedal = (rank: number) => {
     if (rank === 1) return "🥇";
     if (rank === 2) return "🥈";
@@ -200,7 +257,10 @@ export function Leaderboard({
     return (
       <Card className={className}>
         <CardBody className="text-center py-12">
-          <Icon icon="solar:ranking-bold" className="text-4xl text-default-300 mx-auto mb-2" />
+          <Icon
+            icon="solar:ranking-bold"
+            className="text-4xl text-default-300 mx-auto mb-2"
+          />
           <p className="text-default-500">Select a game to view leaderboard</p>
         </CardBody>
       </Card>
@@ -230,15 +290,21 @@ export function Leaderboard({
             </div>
             <div>
               <h2 className="font-gaming font-bold text-xl">
-                {selectedType === "global" ? "Global" : 
-                 selectedType === "regional" ? "Regional" :
-                 selectedType === "seasonal" ? "Seasonal" :
-                 selectedType === "weekly" ? "Weekly" : "Friends"} Leaderboard
+                {selectedType === "global"
+                  ? "Global"
+                  : selectedType === "regional"
+                  ? "Regional"
+                  : selectedType === "seasonal"
+                  ? "Seasonal"
+                  : selectedType === "weekly"
+                  ? "Weekly"
+                  : "Friends"}{" "}
+                Leaderboard
               </h2>
               <p className="text-sm text-default-500">{game.name}</p>
             </div>
           </div>
-          
+
           {/* Game selector dropdown */}
           {showGameSelector && (
             <Dropdown>
@@ -273,11 +339,13 @@ export function Leaderboard({
             </Dropdown>
           )}
         </div>
-        
+
         {/* Leaderboard type tabs */}
         <Tabs
           selectedKey={selectedType}
-          onSelectionChange={(key) => setSelectedType(key as typeof selectedType)}
+          onSelectionChange={(key) =>
+            setSelectedType(key as typeof selectedType)
+          }
           variant="solid"
           color="primary"
           classNames={{
@@ -291,36 +359,48 @@ export function Leaderboard({
           <Tab key="friends" title="Friends" />
         </Tabs>
       </CardHeader>
-      
+
       <CardBody className="p-0">
         {/* Stats summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-content2/30">
           <div className="text-center">
-            <p className="text-2xl font-gaming font-bold" style={{ color: game.color.primary }}>
+            <p
+              className="text-2xl font-gaming font-bold"
+              style={{ color: game.color.primary }}
+            >
               {leaderboardData.length.toLocaleString()}
             </p>
             <p className="text-xs text-default-500">Total Players</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-gaming font-bold">
-              {Math.round(leaderboardData.reduce((acc, e) => acc + e.rating, 0) / leaderboardData.length)}
+              {Math.round(
+                leaderboardData.reduce((acc, e) => acc + e.rating, 0) /
+                  leaderboardData.length
+              )}
             </p>
             <p className="text-xs text-default-500">Avg Rating</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-gaming font-bold">
-              {Math.round(leaderboardData.reduce((acc, e) => acc + e.winRate, 0) / leaderboardData.length)}%
+              {Math.round(
+                leaderboardData.reduce((acc, e) => acc + e.winRate, 0) /
+                  leaderboardData.length
+              )}
+              %
             </p>
             <p className="text-xs text-default-500">Avg Win Rate</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-gaming font-bold">
-              {leaderboardData.reduce((acc, e) => acc + e.gamesPlayed, 0).toLocaleString()}
+              {leaderboardData
+                .reduce((acc, e) => acc + e.gamesPlayed, 0)
+                .toLocaleString()}
             </p>
             <p className="text-xs text-default-500">Total Games</p>
           </div>
         </div>
-        
+
         {/* Leaderboard table */}
         <div className="overflow-x-auto">
           <Table
@@ -364,7 +444,7 @@ export function Leaderboard({
                       </span>
                     </div>
                   </TableCell>
-                  
+
                   {/* Player */}
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -374,7 +454,10 @@ export function Leaderboard({
                         placement="bottom-right"
                         shape="circle"
                         size="sm"
-                        isInvisible={!entry.lastActive || Date.now() - entry.lastActive.getTime() > 300000}
+                        isInvisible={
+                          !entry.lastActive ||
+                          Date.now() - entry.lastActive.getTime() > 300000
+                        }
                       >
                         <Avatar
                           src={entry.playerAvatar}
@@ -384,7 +467,9 @@ export function Leaderboard({
                       </Badge>
                       <div>
                         <div className="flex items-center gap-1">
-                          <span className="font-semibold">{entry.playerName}</span>
+                          <span className="font-semibold">
+                            {entry.playerName}
+                          </span>
                           {entry.badges?.map((badge) => (
                             <Tooltip key={badge} content={badge}>
                               <span>{getBadgeIcon(badge)}</span>
@@ -392,12 +477,14 @@ export function Leaderboard({
                           ))}
                         </div>
                         {entry.teamName && (
-                          <p className="text-xs text-default-400">{entry.teamName}</p>
+                          <p className="text-xs text-default-400">
+                            {entry.teamName}
+                          </p>
                         )}
                       </div>
                     </div>
                   </TableCell>
-                  
+
                   {/* Tier */}
                   <TableCell>
                     <Chip
@@ -412,43 +499,55 @@ export function Leaderboard({
                       {entry.tier.name}
                     </Chip>
                   </TableCell>
-                  
+
                   {/* Rating */}
                   <TableCell>
-                    <span className="font-gaming font-bold" style={{ color: game.color.primary }}>
+                    <span
+                      className="font-gaming font-bold"
+                      style={{ color: game.color.primary }}
+                    >
                       {entry.rating.toLocaleString()}
                     </span>
                   </TableCell>
-                  
+
                   {/* W/L */}
                   <TableCell>
                     <span className="text-success">{entry.wins}</span>
                     <span className="text-default-400 mx-1">/</span>
                     <span className="text-danger">{entry.losses}</span>
                   </TableCell>
-                  
+
                   {/* Win Rate */}
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Progress
                         value={entry.winRate}
-                        color={entry.winRate >= 55 ? "success" : entry.winRate >= 45 ? "warning" : "danger"}
+                        color={
+                          entry.winRate >= 55
+                            ? "success"
+                            : entry.winRate >= 45
+                            ? "warning"
+                            : "danger"
+                        }
                         size="sm"
                         className="max-w-[4rem]"
                       />
                       <span className="text-sm">{entry.winRate}%</span>
                     </div>
                   </TableCell>
-                  
+
                   {/* Streak */}
                   <TableCell>
                     {entry.streak ? (
                       <Chip
                         size="sm"
-                        color={entry.streak.type === "win" ? "success" : "danger"}
+                        color={
+                          entry.streak.type === "win" ? "success" : "danger"
+                        }
                         variant="flat"
                       >
-                        {entry.streak.type === "win" ? "🔥" : "❄️"} {entry.streak.count}
+                        {entry.streak.type === "win" ? "🔥" : "❄️"}{" "}
+                        {entry.streak.count}
                       </Chip>
                     ) : (
                       <span className="text-default-400">-</span>
@@ -459,7 +558,7 @@ export function Leaderboard({
             </TableBody>
           </Table>
         </div>
-        
+
         {/* Pagination */}
         <div className="flex justify-center p-4 border-t border-divider">
           <Pagination
@@ -492,7 +591,7 @@ export function CompactLeaderboard({
 }) {
   const game = GAME_CONFIGS[gameId];
   const [data] = useState(() => generateMockLeaderboard(gameId, limit));
-  
+
   if (!game) return null;
 
   return (
@@ -516,15 +615,26 @@ export function CompactLeaderboard({
             >
               <div className="flex items-center gap-2">
                 <span className="font-gaming font-bold text-sm w-6 text-center">
-                  {entry.rank <= 3 ? ["🥇", "🥈", "🥉"][entry.rank - 1] : `#${entry.rank}`}
+                  {entry.rank <= 3
+                    ? ["🥇", "🥈", "🥉"][entry.rank - 1]
+                    : `#${entry.rank}`}
                 </span>
-                <Avatar src={entry.playerAvatar} name={entry.playerName} size="sm" />
+                <Avatar
+                  src={entry.playerAvatar}
+                  name={entry.playerName}
+                  size="sm"
+                />
                 <div>
                   <p className="text-sm font-semibold">{entry.playerName}</p>
-                  <p className="text-xs text-default-400">{entry.tier.icon} {entry.tier.name}</p>
+                  <p className="text-xs text-default-400">
+                    {entry.tier.icon} {entry.tier.name}
+                  </p>
                 </div>
               </div>
-              <span className="font-gaming text-sm" style={{ color: game.color.primary }}>
+              <span
+                className="font-gaming text-sm"
+                style={{ color: game.color.primary }}
+              >
                 {entry.rating}
               </span>
             </div>
@@ -568,9 +678,9 @@ export function PlayerRankCard({
 }) {
   const game = GAME_CONFIGS[gameId];
   const tier = getRankTier(gameId, rating);
-  
+
   if (!game || !tier) return null;
-  
+
   const winRate = Math.round((wins / (wins + losses)) * 100);
 
   return (
@@ -589,7 +699,7 @@ export function PlayerRankCard({
             size="lg"
             className="ring-2 ring-primary"
           />
-          
+
           {/* Player info */}
           <div className="flex-1">
             <div className="flex items-center gap-2">
@@ -610,7 +720,7 @@ export function PlayerRankCard({
               <span className="text-sm text-default-500">#{rank}</span>
             </div>
           </div>
-          
+
           {/* Rating */}
           <div className="text-right">
             <p
@@ -622,7 +732,7 @@ export function PlayerRankCard({
             <p className="text-xs text-default-500">MMR</p>
           </div>
         </div>
-        
+
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-divider">
           <div className="text-center">
@@ -630,13 +740,19 @@ export function PlayerRankCard({
             <p className="text-xs text-default-500">Wins</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-gaming font-bold text-danger">{losses}</p>
+            <p className="text-lg font-gaming font-bold text-danger">
+              {losses}
+            </p>
             <p className="text-xs text-default-500">Losses</p>
           </div>
           <div className="text-center">
             <p
               className={`text-lg font-gaming font-bold ${
-                winRate >= 55 ? "text-success" : winRate >= 45 ? "text-warning" : "text-danger"
+                winRate >= 55
+                  ? "text-success"
+                  : winRate >= 45
+                  ? "text-warning"
+                  : "text-danger"
               }`}
             >
               {winRate}%
@@ -644,7 +760,7 @@ export function PlayerRankCard({
             <p className="text-xs text-default-500">Win Rate</p>
           </div>
         </div>
-        
+
         {/* Progress to next rank */}
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-default-500 mb-1">

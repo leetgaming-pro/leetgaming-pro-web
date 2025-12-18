@@ -160,20 +160,13 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE /api/auth/session
  * Clear session and remove cookies
+ * Note: CSRF validation is optional for DELETE since clearing is idempotent and safe
  */
 export async function DELETE(request: NextRequest) {
   try {
-    // CSRF validation for state-changing operation
-    if (!validateCSRFToken(request)) {
-      return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
-      );
-    }
-
     const response = NextResponse.json({ success: true });
 
-    // Clear all auth cookies
+    // Clear all auth cookies (always clear, even without CSRF)
     response.cookies.delete(RID_TOKEN_COOKIE);
     response.cookies.delete(RID_METADATA_COOKIE);
     response.cookies.delete(CSRF_TOKEN_COOKIE);

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="r6-banner-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#888888;stop-opacity:0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" fill="#1A1A1A"/>
+  <rect width="800" height="300" fill="url(#r6-banner-grad)"/>
+  <text x="50" y="160" fill="#FFFFFF" font-family="Arial Black" font-size="56" font-weight="bold">RAINBOW SIX SIEGE</text>
+  <text x="52" y="220" fill="#888888" font-family="Arial" font-size="24">Tactical 5v5 Shooter</text>
+</svg>

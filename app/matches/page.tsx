@@ -16,127 +16,7 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-
-interface Match {
-  id: string;
-  game: string;
-  gameIcon: string;
-  map: string;
-  mode: string;
-  teams: {
-    name: string;
-    score: number;
-    players: { name: string; avatar?: string }[];
-  }[];
-  status: "live" | "completed" | "upcoming";
-  timestamp: Date;
-  duration?: string;
-  tournament?: string;
-}
-
-const mockMatches: Match[] = [
-  {
-    id: "m1",
-    game: "Counter-Strike 2",
-    gameIcon: "simple-icons:counterstrike",
-    map: "Dust 2",
-    mode: "Competitive 5v5",
-    teams: [
-      {
-        name: "Team Alpha",
-        score: 16,
-        players: [
-          { name: "Player1" },
-          { name: "Player2" },
-          { name: "Player3" },
-          { name: "Player4" },
-          { name: "Player5" },
-        ],
-      },
-      {
-        name: "Team Beta",
-        score: 12,
-        players: [
-          { name: "Player6" },
-          { name: "Player7" },
-          { name: "Player8" },
-          { name: "Player9" },
-          { name: "Player10" },
-        ],
-      },
-    ],
-    status: "completed",
-    timestamp: new Date(Date.now() - 3600000),
-    duration: "45:23",
-    tournament: "Pro League Season 12",
-  },
-  {
-    id: "m2",
-    game: "Valorant",
-    gameIcon: "simple-icons:valorant",
-    map: "Ascent",
-    mode: "Ranked",
-    teams: [
-      {
-        name: "Phoenix Squad",
-        score: 8,
-        players: [
-          { name: "ValorantPro" },
-          { name: "HeadshotKing" },
-          { name: "FlashMaster" },
-          { name: "SmokeGod" },
-          { name: "ClutchKing" },
-        ],
-      },
-      {
-        name: "Radiant Stars",
-        score: 7,
-        players: [
-          { name: "AimBot" },
-          { name: "TriggerHappy" },
-          { name: "WallBanger" },
-          { name: "SprayNPray" },
-          { name: "OneDeag" },
-        ],
-      },
-    ],
-    status: "live",
-    timestamp: new Date(),
-  },
-  {
-    id: "m3",
-    game: "League of Legends",
-    gameIcon: "simple-icons:leagueoflegends",
-    map: "Summoner's Rift",
-    mode: "Ranked Solo/Duo",
-    teams: [
-      {
-        name: "Blue Side",
-        score: 0,
-        players: [
-          { name: "TopLaner" },
-          { name: "JungleKing" },
-          { name: "MidOrFeed" },
-          { name: "ADCarry" },
-          { name: "Support" },
-        ],
-      },
-      {
-        name: "Red Side",
-        score: 0,
-        players: [
-          { name: "Faker" },
-          { name: "Canyon" },
-          { name: "ShowMaker" },
-          { name: "Ruler" },
-          { name: "Keria" },
-        ],
-      },
-    ],
-    status: "upcoming",
-    timestamp: new Date(Date.now() + 7200000),
-  },
-];
+import { useMatches, Match } from "@/hooks/use-matches";
 
 const statusConfig = {
   live: {
@@ -155,6 +35,14 @@ const statusConfig = {
     label: "Upcoming",
   },
 };
+
+const gameOptions = [
+  { key: "all", label: "All Games" },
+  { key: "Counter-Strike 2", label: "Counter-Strike 2" },
+  { key: "Valorant", label: "Valorant" },
+  { key: "League of Legends", label: "League of Legends" },
+  { key: "Dota 2", label: "Dota 2" },
+];
 
 function MatchCard({ match }: { match: Match }) {
   const config = statusConfig[match.status];
@@ -209,19 +97,19 @@ function MatchCard({ match }: { match: Match }) {
             >
               <div className="flex items-center gap-3">
                 <AvatarGroup max={3} size="sm">
-                  {match.teams[0].players.map((player, i) => (
+                  {match.teams[0]?.players.map((player, i) => (
                     <Avatar
                       key={i}
-                      name={player.name[0]}
+                      name={player.name?.[0]}
                       src={player.avatar}
                       size="sm"
                     />
                   ))}
                 </AvatarGroup>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{match.teams[0].name}</p>
+                  <p className="font-medium truncate">{match.teams[0]?.name}</p>
                   <p className="text-xs text-default-500">
-                    {match.teams[0].players.length} players
+                    {match.teams[0]?.players.length} players
                   </p>
                 </div>
               </div>
@@ -234,7 +122,7 @@ function MatchCard({ match }: { match: Match }) {
                   winner === 0 ? "text-success" : ""
                 }`}
               >
-                {match.teams[0].score}
+                {match.teams[0]?.score ?? 0}
               </span>
               <span className="text-default-400">-</span>
               <span
@@ -242,7 +130,7 @@ function MatchCard({ match }: { match: Match }) {
                   winner === 1 ? "text-success" : ""
                 }`}
               >
-                {match.teams[1].score}
+                {match.teams[1]?.score ?? 0}
               </span>
             </div>
 
@@ -254,16 +142,16 @@ function MatchCard({ match }: { match: Match }) {
             >
               <div className="flex items-center gap-3 justify-end">
                 <div className="flex-1 min-w-0 text-right">
-                  <p className="font-medium truncate">{match.teams[1].name}</p>
+                  <p className="font-medium truncate">{match.teams[1]?.name}</p>
                   <p className="text-xs text-default-500">
-                    {match.teams[1].players.length} players
+                    {match.teams[1]?.players.length} players
                   </p>
                 </div>
                 <AvatarGroup max={3} size="sm">
-                  {match.teams[1].players.map((player, i) => (
+                  {match.teams[1]?.players.map((player, i) => (
                     <Avatar
                       key={i}
-                      name={player.name[0]}
+                      name={player.name?.[0]}
                       src={player.avatar}
                       size="sm"
                     />
@@ -339,24 +227,37 @@ export default function MatchesPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [gameFilter, setGameFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
-  const [loading] = useState(false);
+  const itemsPerPage = 10;
 
-  const filteredMatches = mockMatches.filter((match) => {
+  // Fetch matches from real API
+  const { matches, total, isLoading, isError, refresh } = useMatches({
+    status: statusFilter,
+    game: gameFilter,
+    limit: 50, // Fetch more to enable client-side filtering
+    offset: 0,
+  });
+
+  // Client-side filtering for search
+  const filteredMatches = matches.filter((match) => {
     const matchesSearch =
+      search === "" ||
       match.game.toLowerCase().includes(search.toLowerCase()) ||
       match.map.toLowerCase().includes(search.toLowerCase()) ||
       match.teams.some((t) =>
         t.name.toLowerCase().includes(search.toLowerCase())
       );
 
-    const matchesStatus =
-      statusFilter === "all" || match.status === statusFilter;
-    const matchesGame = gameFilter === "all" || match.game === gameFilter;
-
-    return matchesSearch && matchesStatus && matchesGame;
+    return matchesSearch;
   });
 
-  const games = Array.from(new Set(mockMatches.map((m) => m.game)));
+  // Pagination
+  const totalPages = Math.ceil(filteredMatches.length / itemsPerPage);
+  const paginatedMatches = filteredMatches.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const liveMatches = filteredMatches.filter((m) => m.status === "live");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-content1/20">
@@ -387,9 +288,10 @@ export default function MatchesPage() {
           <Select
             placeholder="Status"
             selectedKeys={[statusFilter]}
-            onSelectionChange={(keys) =>
-              setStatusFilter(Array.from(keys)[0] as string)
-            }
+            onSelectionChange={(keys) => {
+              setStatusFilter(Array.from(keys)[0] as string);
+              setPage(1);
+            }}
             className="w-full sm:w-40"
             classNames={{
               trigger: "bg-content1/60 backdrop-blur-md border border-white/10",
@@ -403,24 +305,50 @@ export default function MatchesPage() {
           <Select
             placeholder="Game"
             selectedKeys={[gameFilter]}
-            onSelectionChange={(keys) =>
-              setGameFilter(Array.from(keys)[0] as string)
-            }
+            onSelectionChange={(keys) => {
+              setGameFilter(Array.from(keys)[0] as string);
+              setPage(1);
+            }}
             className="w-full sm:w-48"
             classNames={{
               trigger: "bg-content1/60 backdrop-blur-md border border-white/10",
             }}
-            items={[
-              { key: "all", label: "All Games" },
-              ...games.map((g) => ({ key: g, label: g })),
-            ]}
+            items={gameOptions}
           >
             {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
           </Select>
+          <Button
+            isIconOnly
+            variant="flat"
+            onPress={() => refresh()}
+            className="bg-content1/60 backdrop-blur-md border border-white/10"
+          >
+            <Icon icon="solar:refresh-linear" className="w-5 h-5" />
+          </Button>
         </div>
 
+        {/* Error State */}
+        {isError && (
+          <Card className="bg-danger/10 border border-danger/20 mb-8">
+            <CardBody className="py-4 text-center">
+              <p className="text-danger">
+                Failed to load matches. Please try again.
+              </p>
+              <Button
+                color="danger"
+                variant="flat"
+                size="sm"
+                className="mt-2"
+                onPress={() => refresh()}
+              >
+                Retry
+              </Button>
+            </CardBody>
+          </Card>
+        )}
+
         {/* Live Matches Highlight */}
-        {filteredMatches.some((m) => m.status === "live") && (
+        {liveMatches.length > 0 && statusFilter !== "completed" && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <span className="relative flex h-3 w-3">
@@ -430,11 +358,9 @@ export default function MatchesPage() {
               <h2 className="text-xl font-semibold">Live Now</h2>
             </div>
             <div className="space-y-4">
-              {filteredMatches
-                .filter((m) => m.status === "live")
-                .map((match) => (
-                  <MatchCard key={match.id} match={match} />
-                ))}
+              {liveMatches.map((match) => (
+                <MatchCard key={match.id} match={match} />
+              ))}
             </div>
           </div>
         )}
@@ -449,9 +375,14 @@ export default function MatchesPage() {
               : statusFilter === "completed"
               ? "Completed Matches"
               : "All Matches"}
+            {total > 0 && (
+              <span className="text-sm font-normal text-default-500 ml-2">
+                ({filteredMatches.length} matches)
+              </span>
+            )}
           </h2>
 
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <MatchSkeleton key={i} />
@@ -466,7 +397,9 @@ export default function MatchesPage() {
                 />
                 <p className="text-lg font-medium">No matches found</p>
                 <p className="text-default-500 mt-2">
-                  Try adjusting your search or filters
+                  {isError
+                    ? "Unable to connect to the server"
+                    : "Try adjusting your search or filters"}
                 </p>
                 <Button
                   color="primary"
@@ -484,7 +417,7 @@ export default function MatchesPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {filteredMatches
+              {paginatedMatches
                 .filter((m) =>
                   statusFilter === "live" ? true : m.status !== "live"
                 )
@@ -496,10 +429,10 @@ export default function MatchesPage() {
         </div>
 
         {/* Pagination */}
-        {filteredMatches.length > 10 && (
+        {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <Pagination
-              total={Math.ceil(filteredMatches.length / 10)}
+              total={totalPages}
               page={page}
               onChange={setPage}
               showControls

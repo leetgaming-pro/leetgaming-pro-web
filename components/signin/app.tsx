@@ -125,11 +125,11 @@ export default function SignIn() {
             name="LeetGaming.PRO"
           />
           <p className="w-full text-right text-2xl text-black/60">
-            <span className="font-medium">"</span>
+            <span className="font-medium">&ldquo;</span>
             <span className="font-normal italic">
               Level up your competitive gaming experience. Track replays, analyze performance, and climb the ranks.
             </span>
-            <span className="font-medium">"</span>
+            <span className="font-medium">&rdquo;</span>
           </p>
         </div>
       </div>

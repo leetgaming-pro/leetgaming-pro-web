@@ -7,7 +7,7 @@ import { Icon } from '@iconify/react';
 import { UploadClient, UploadProgress } from '@/types/replay-api/upload-client';
 import { ReplayApiSettingsMock, GameIDKey } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
-import { isAuthenticatedSync } from '@/types/replay-api/auth';
+import { useAuth } from '@/hooks/use-auth';
 import { EsportsButton } from '@/components/ui/esports-button';
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'failed';
@@ -20,6 +20,7 @@ interface FileInfo {
 }
 
 export function UploadForm() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<UploadStatus>('idle');
@@ -109,7 +110,12 @@ export function UploadForm() {
       return;
     }
 
-    if (!isAuthenticatedSync()) {
+    if (isAuthLoading) {
+      setError('🔄 Please wait, checking authentication...');
+      return;
+    }
+
+    if (!isAuthenticated) {
       setError('🔐 Please sign in to upload replays');
       return;
     }
@@ -285,8 +291,28 @@ export function UploadForm() {
         )}
       </div>
 
-      {/* Error Message */}
-      {error && (
+      {/* Auth Required Message */}
+      {!isAuthenticated && !isAuthLoading && (
+        <div className="mt-4 p-4 bg-warning/10 border-l-2 border-warning rounded-none">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-warning flex items-center gap-2">
+              <Icon icon="solar:lock-bold" width={18} />
+              Sign in required to upload replays
+            </p>
+            <EsportsButton
+              variant="primary"
+              size="sm"
+              onClick={() => window.location.href = '/signin'}
+            >
+              <Icon icon="solar:login-bold" width={16} />
+              Sign In
+            </EsportsButton>
+          </div>
+        </div>
+      )}
+
+      {/* Error Message (only show if authenticated or non-auth related error) */}
+      {error && !error.includes('sign in') && (
         <div className="mt-4 p-3 bg-danger/10 border-l-2 border-danger rounded-none">
           <p className="text-sm text-danger flex items-center gap-2">
             <Icon icon="solar:danger-triangle-bold" width={18} />
@@ -334,12 +360,22 @@ export function UploadForm() {
             size="lg"
             className="w-full"
             onClick={handleUpload}
-            disabled={!fileInfo || isUploading}
+            disabled={!fileInfo || isUploading || !isAuthenticated || isAuthLoading}
           >
             {isUploading ? (
               <>
                 <Icon icon="solar:refresh-bold" className="animate-spin" width={20} />
                 {status === 'uploading' ? 'Uploading...' : 'Processing...'}
+              </>
+            ) : isAuthLoading ? (
+              <>
+                <Icon icon="solar:refresh-bold" className="animate-spin" width={20} />
+                Checking auth...
+              </>
+            ) : !isAuthenticated ? (
+              <>
+                <Icon icon="solar:lock-bold" width={20} />
+                Sign In to Upload
               </>
             ) : (
               <>

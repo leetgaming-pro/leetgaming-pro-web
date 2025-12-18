@@ -1,24 +1,30 @@
-import { ResourceOwner } from './replay-file';
-import { IntendedAudienceKey, VisibilityTypeKey, GameIDKey, ShareTokenStatus, GrantType } from './settings';
+import { ResourceOwner } from "./replay-file";
+import {
+  IntendedAudienceKey,
+  VisibilityTypeKey,
+  GameIDKey,
+  ShareTokenStatus,
+  GrantType,
+} from "./settings";
 
 /**
  * Identity provider sources
  * Based on replay-api/pkg/domain/profile.go
  */
 export enum IdentifierSourceType {
-    Steam = 'steam',
-    Google = 'google',
-    Discord = 'discord',
-    Epic = 'epic',
+  Steam = "steam",
+  Google = "google",
+  Discord = "discord",
+  Epic = "epic",
 }
 
 /**
  * Profile type classification
  */
 export enum ProfileType {
-    User = 'user',
-    Squad = 'squad',
-    Player = 'player',
+  User = "user",
+  Squad = "squad",
+  Player = "player",
 }
 
 /**
@@ -26,9 +32,9 @@ export enum ProfileType {
  * Based on replay-api/pkg/domain/group.go
  */
 export enum GroupType {
-    Account = 'account',
-    ProfileGroup = 'profile_group',
-    System = 'system',
+  Account = "account",
+  ProfileGroup = "profile_group",
+  System = "system",
 }
 
 /**
@@ -36,12 +42,12 @@ export enum GroupType {
  * Based on replay-api/pkg/domain/entity.go
  */
 export interface BaseEntity {
-    id: string;
-    visibility_level: IntendedAudienceKey;
-    visibility_type: VisibilityTypeKey;
-    resource_owner: ResourceOwner;
-    created_at: Date;
-    updated_at: Date;
+  id: string;
+  visibility_level: IntendedAudienceKey;
+  visibility_type: VisibilityTypeKey;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
@@ -49,12 +55,12 @@ export interface BaseEntity {
  * Based on replay-api/pkg/domain/user.go
  */
 export interface User {
-    id: string;
-    name: string;
-    resource_owner: ResourceOwner;
-    profiles?: Record<IdentifierSourceType, Profile>;
-    created_at: Date;
-    updated_at: Date;
+  id: string;
+  name: string;
+  resource_owner: ResourceOwner;
+  profiles?: Record<IdentifierSourceType, Profile>;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
@@ -62,12 +68,12 @@ export interface User {
  * Based on replay-api/pkg/domain/group.go
  */
 export interface Group {
-    id: string;
-    name: string;
-    type: GroupType;
-    resource_owner: ResourceOwner;
-    created_at: Date;
-    updated_at: Date;
+  id: string;
+  name: string;
+  type: GroupType;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
@@ -75,10 +81,10 @@ export interface Group {
  * Based on replay-api/pkg/domain/profile.go
  */
 export interface Profile extends BaseEntity {
-    rid_source: IdentifierSourceType;
-    source_key: string;
-    type: ProfileType;
-    details: ProfileDetails;
+  rid_source: IdentifierSourceType;
+  source_key: string;
+  type: ProfileType;
+  details: ProfileDetails;
 }
 
 export type ProfileDetails = any;
@@ -88,18 +94,18 @@ export type ProfileDetails = any;
  * Based on replay-api/pkg/domain/membership.go
  */
 export enum MembershipType {
-    Owner = 'owner',
-    Admin = 'admin',
-    Member = 'member',
+  Owner = "owner",
+  Admin = "admin",
+  Member = "member",
 }
 
 /**
  * Membership status
  */
 export enum MembershipStatus {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending',
+  Active = "active",
+  Inactive = "inactive",
+  Pending = "pending",
 }
 
 /**
@@ -107,14 +113,14 @@ export enum MembershipStatus {
  * Based on replay-api/pkg/domain/membership.go
  */
 export interface Membership {
-    id: string;
-    user_id: string;
-    group_id: string;
-    type: MembershipType;
-    status: MembershipStatus;
-    resource_owner: ResourceOwner;
-    created_at: Date;
-    updated_at: Date;
+  id: string;
+  user_id: string;
+  group_id: string;
+  type: MembershipType;
+  status: MembershipStatus;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
@@ -122,14 +128,14 @@ export interface Membership {
  * Based on replay-api/pkg/domain/rid_token.go
  */
 export interface RIDToken {
-    id: string;
-    key: string;
-    source: IdentifierSourceType;
-    resource_owner: ResourceOwner;
-    intended_audience: IntendedAudienceKey;
-    grant_type: GrantType;
-    expires_at: Date;
-    created_at: Date;
+  id: string;
+  key: string;
+  source: IdentifierSourceType;
+  resource_owner: ResourceOwner;
+  intended_audience: IntendedAudienceKey;
+  grant_type: GrantType;
+  expires_at: Date;
+  created_at: Date;
 }
 
 /**
@@ -137,34 +143,34 @@ export interface RIDToken {
  * Based on replay-api/pkg/domain/squad.go
  */
 export enum SquadMembershipType {
-    Owner = 'owner',
-    Captain = 'captain',
-    Member = 'member',
+  Owner = "owner",
+  Captain = "captain",
+  Member = "member",
 }
 
 /**
  * Squad membership status
  */
 export enum SquadMembershipStatus {
-    Active = 'active',
-    Inactive = 'inactive',
-    Invited = 'invited',
+  Active = "active",
+  Inactive = "inactive",
+  Invited = "invited",
 }
 
 /**
  * Squad membership entry
  */
 export interface SquadMembership {
-    user_id: string;
-    type: SquadMembershipType;
-    status: SquadMembershipStatus;
-    roles: string[];
+  user_id: string;
+  type: SquadMembershipType;
+  status: SquadMembershipStatus;
+  roles: string[];
 }
 
 export interface SquadHistory {
-    user_id: string;
-    action: string;
-    created_at: Date;
+  user_id: string;
+  action: string;
+  created_at: Date;
 }
 
 /**
@@ -172,16 +178,16 @@ export interface SquadHistory {
  * Based on replay-api/pkg/domain/squad.go
  */
 export interface Squad extends BaseEntity {
-    game_id: GameIDKey;
-    group_id: string;
-    name: string;
-    symbol: string;
-    description: string;
-    logo_uri?: string;
-    slug_uri?: string;
-    members: Record<string, SquadMembership>;
-    profiles?: Record<string, ProfileDetails>;
-    history?: SquadHistory[];
+  game_id: GameIDKey;
+  group_id: string;
+  name: string;
+  symbol: string;
+  description: string;
+  logo_uri?: string;
+  slug_uri?: string;
+  members: Record<string, SquadMembership>;
+  profiles?: Record<string, ProfileDetails>;
+  history?: SquadHistory[];
 }
 
 /**
@@ -189,12 +195,25 @@ export interface Squad extends BaseEntity {
  * Based on replay-api/pkg/domain/player_profile.go
  */
 export interface PlayerProfile extends BaseEntity {
-    game_id: GameIDKey;
-    nickname: string;
-    slug_uri?: string;
-    avatar_uri?: string;
-    roles: string[];
-    description?: string;
+  game_id: GameIDKey;
+  nickname: string;
+  slug_uri?: string;
+  avatar_uri?: string;
+  roles: string[];
+  description?: string;
+  region?: string;
+  wallet_id?: string;
+}
+
+/**
+ * Request to create a new player profile
+ */
+export interface CreatePlayerProfileRequest {
+  game_id: GameIDKey;
+  nickname: string;
+  avatar_uri?: string;
+  roles?: string[];
+  description?: string;
 }
 
 /**
@@ -202,11 +221,11 @@ export interface PlayerProfile extends BaseEntity {
  * Based on replay-api/pkg/domain/share_token.go
  */
 export interface ShareToken extends BaseEntity {
-    token: string;
-    resource_type: string;
-    resource_id: string;
-    status: ShareTokenStatus;
-    expires_at?: Date;
+  token: string;
+  resource_type: string;
+  resource_id: string;
+  status: ShareTokenStatus;
+  expires_at?: Date;
 }
 
 /**
@@ -214,13 +233,13 @@ export interface ShareToken extends BaseEntity {
  * Based on replay-api/pkg/domain/match.go
  */
 export interface Match extends BaseEntity {
-    game_id: GameIDKey;
-    replay_file_id: string;
-    network_id: string;
-    map_name: string;
-    visibility: VisibilityTypeKey;
-    share_tokens?: string[];
-    metadata?: Record<string, any>;
+  game_id: GameIDKey;
+  replay_file_id: string;
+  network_id: string;
+  map_name: string;
+  visibility: VisibilityTypeKey;
+  share_tokens?: string[];
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -228,13 +247,13 @@ export interface Match extends BaseEntity {
  * Based on replay-api/pkg/domain/round.go
  */
 export interface Round extends BaseEntity {
-    match_id: string;
-    number: number;
-    winner_team_id?: string;
-    mvp_player_id?: string;
-    round_type?: string;
-    end_reason?: string;
-    tick_start?: number;
-    tick_end?: number;
-    metadata?: Record<string, any>;
+  match_id: string;
+  number: number;
+  winner_team_id?: string;
+  mvp_player_id?: string;
+  round_type?: string;
+  end_reason?: string;
+  tick_start?: number;
+  tick_end?: number;
+  metadata?: Record<string, any>;
 }

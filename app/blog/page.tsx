@@ -1,16 +1,26 @@
-'use client';
+"use client";
 
 /**
  * Intelligent News/Blog Page
  * Features: Categories, featured posts, recent posts, search integration
  */
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardBody, CardFooter, Image, Button, Chip, Input, Spinner } from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { PageContainer } from '@/components/layouts/centered-content';
-import { logger } from '@/lib/logger';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Image,
+  Button,
+  Chip,
+  Input,
+  Spinner,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { PageContainer } from "@/components/layouts/centered-content";
+import { logger } from "@/lib/logger";
 
 interface BlogPost {
   id: string;
@@ -60,31 +70,42 @@ interface APIBlogResponse {
 
 // Map API response to BlogPost
 const mapAPIToBlogPost = (p: APIBlogPost): BlogPost => ({
-  id: p.id || p.post_id || '',
-  title: p.title || 'Untitled',
-  excerpt: p.excerpt || p.summary || '',
-  content: p.content || '',
+  id: p.id || p.post_id || "",
+  title: p.title || "Untitled",
+  excerpt: p.excerpt || p.summary || "",
+  content: p.content || "",
   author: {
-    name: p.author?.name || p.author_name || 'Unknown',
-    avatar: p.author?.avatar || p.author_avatar || '/avatars/default-author.svg',
+    name: p.author?.name || p.author_name || "Unknown",
+    avatar:
+      p.author?.avatar || p.author_avatar || "/avatars/default-author.svg",
   },
-  category: p.category || 'General',
+  category: p.category || "General",
   tags: p.tags || [],
   publishedAt: p.published_at || p.created_at || new Date().toISOString(),
   readTime: p.read_time || Math.ceil((p.content?.length || 0) / 1000) || 5,
   featured: p.featured || false,
-  image: p.image_url || p.cover_image || '/images/blog-placeholder.svg',
-  slug: p.slug || p.id || '',
+  image: p.image_url || p.cover_image || "/images/blog-placeholder.svg",
+  slug: p.slug || p.id || "",
 });
 
-const categories = ['All', 'Product Updates', 'Interviews', 'Community', 'Guides', 'Engineering'];
+const categories = [
+  "All",
+  "Product Updates",
+  "Interviews",
+  "Community",
+  "Guides",
+  "Engineering",
+];
 
-const categoryColors: Record<string, 'primary' | 'secondary' | 'success' | 'warning' | 'danger'> = {
-  'Product Updates': 'primary',
-  'Interviews': 'secondary',
-  'Community': 'success',
-  'Guides': 'warning',
-  'Engineering': 'danger',
+const categoryColors: Record<
+  string,
+  "primary" | "secondary" | "success" | "warning" | "danger"
+> = {
+  "Product Updates": "primary",
+  Interviews: "secondary",
+  Community: "success",
+  Guides: "warning",
+  Engineering: "danger",
 };
 
 export default function BlogPage() {
@@ -92,15 +113,16 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchPosts() {
       try {
         setLoading(true);
         setError(null);
-        const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+        const baseUrl =
+          process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
         const response = await fetch(`${baseUrl}/api/v1/blog/posts`);
 
         if (response.ok) {
@@ -113,8 +135,9 @@ export default function BlogPage() {
           setPosts([]);
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load blog posts';
-        logger.error('Failed to fetch blog posts', err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load blog posts";
+        logger.error("Failed to fetch blog posts", err);
         setError(errorMessage);
         // Show empty state on error - no mock data fallback
         setPosts([]);
@@ -130,12 +153,15 @@ export default function BlogPage() {
   const regularPosts = posts.filter((post) => !post.featured);
 
   const filteredPosts = regularPosts.filter((post) => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchesCategory =
+      selectedCategory === "All" || post.category === selectedCategory;
     const matchesSearch =
-      searchQuery === '' ||
+      searchQuery === "" ||
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      post.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
     return matchesCategory && matchesSearch;
   });
@@ -164,8 +190,14 @@ export default function BlogPage() {
       {error && (
         <Card className="mb-6">
           <CardBody className="text-center py-8">
-            <Icon icon="solar:danger-triangle-bold" width={48} className="mx-auto mb-4 text-warning" />
-            <p className="text-warning font-semibold mb-2">Error loading posts</p>
+            <Icon
+              icon="solar:danger-triangle-bold"
+              width={48}
+              className="mx-auto mb-4 text-warning"
+            />
+            <p className="text-warning font-semibold mb-2">
+              Error loading posts
+            </p>
             <p className="text-default-500">{error}</p>
           </CardBody>
         </Card>
@@ -175,9 +207,18 @@ export default function BlogPage() {
       {featuredPosts.length > 0 && (
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-[#34445C] dark:text-[#F5F0E1]">
-            <div className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
-              <Icon icon="solar:star-bold" className="text-[#F5F0E1] dark:text-[#34445C]" width={18} />
+            <div
+              className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="solar:star-bold"
+                className="text-[#F5F0E1] dark:text-[#34445C]"
+                width={18}
+              />
             </div>
             Featured Stories
           </h2>
@@ -189,12 +230,24 @@ export default function BlogPage() {
                 className="hover:scale-[1.01] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
                 onPress={() => router.push(`/blog/${post.slug}`)}
               >
-                <CardHeader className="absolute z-10 top-4 flex-col items-start bg-[#34445C]/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm m-2 rounded-none"
-                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
-                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat" className="rounded-none">
+                <CardHeader
+                  className="absolute z-10 top-4 flex-col items-start bg-[#34445C]/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm m-2 rounded-none"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)",
+                  }}
+                >
+                  <Chip
+                    size="sm"
+                    color={categoryColors[post.category] || "default"}
+                    variant="flat"
+                    className="rounded-none"
+                  >
                     {post.category}
                   </Chip>
-                  <h3 className="text-[#F5F0E1] font-bold text-xl mt-2">{post.title}</h3>
+                  <h3 className="text-[#F5F0E1] font-bold text-xl mt-2">
+                    {post.title}
+                  </h3>
                 </CardHeader>
                 <Image
                   removeWrapper
@@ -215,10 +268,14 @@ export default function BlogPage() {
                           width={24}
                           src={post.author.avatar}
                         />
-                        <span className="text-tiny text-white/60">{post.author.name}</span>
+                        <span className="text-tiny text-white/60">
+                          {post.author.name}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3 text-tiny text-white/60">
-                        <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(post.publishedAt).toLocaleDateString()}
+                        </span>
                         <span className="flex items-center gap-1">
                           <Icon icon="solar:clock-circle-linear" width={14} />
                           {post.readTime} min read
@@ -240,10 +297,12 @@ export default function BlogPage() {
             <Chip
               key={category}
               size="lg"
-              variant={selectedCategory === category ? 'solid' : 'bordered'}
-              className={`cursor-pointer rounded-none ${selectedCategory === category 
-                ? 'bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C]' 
-                : 'border-[#34445C]/30 dark:border-[#DCFF37]/30'}`}
+              variant={selectedCategory === category ? "solid" : "bordered"}
+              className={`cursor-pointer rounded-none ${
+                selectedCategory === category
+                  ? "bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C]"
+                  : "border-[#34445C]/30 dark:border-[#DCFF37]/30"
+              }`}
               onClick={() => setSelectedCategory(category)}
             >
               {category}
@@ -255,31 +314,51 @@ export default function BlogPage() {
           placeholder="Search posts..."
           value={searchQuery}
           onValueChange={setSearchQuery}
-          startContent={<Icon icon="solar:magnifer-linear" width={20} className="text-[#FF4654] dark:text-[#DCFF37]" />}
+          startContent={
+            <Icon
+              icon="solar:magnifer-linear"
+              width={20}
+              className="text-[#FF4654] dark:text-[#DCFF37]"
+            />
+          }
           isClearable
-          onClear={() => setSearchQuery('')}
+          onClear={() => setSearchQuery("")}
           classNames={{
-            inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+            inputWrapper:
+              "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
           }}
         />
       </div>
 
       {/* Recent Posts Grid */}
       <div>
-        <h2 className="text-2xl font-bold mb-6 text-[#34445C] dark:text-[#F5F0E1]">Recent Posts</h2>
+        <h2 className="text-2xl font-bold mb-6 text-[#34445C] dark:text-[#F5F0E1]">
+          Recent Posts
+        </h2>
         {filteredPosts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-              <Icon icon="solar:ghost-linear" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
+            <div
+              className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="solar:ghost-linear"
+                width={32}
+                className="text-[#34445C] dark:text-[#DCFF37]"
+              />
             </div>
-            <p className="text-default-600">No posts found matching your criteria</p>
+            <p className="text-default-600">
+              No posts found matching your criteria
+            </p>
             <Button
               className="mt-4 rounded-none text-[#FF4654] dark:text-[#DCFF37]"
               variant="light"
               onClick={() => {
-                setSelectedCategory('All');
-                setSearchQuery('');
+                setSelectedCategory("All");
+                setSearchQuery("");
               }}
             >
               Clear filters
@@ -295,10 +374,17 @@ export default function BlogPage() {
                 onPress={() => router.push(`/blog/${post.slug}`)}
               >
                 <CardHeader className="pb-0 pt-4 px-4 flex-col items-start">
-                  <Chip size="sm" color={categoryColors[post.category] || 'default'} variant="flat" className="mb-2 rounded-none">
+                  <Chip
+                    size="sm"
+                    color={categoryColors[post.category] || "default"}
+                    variant="flat"
+                    className="mb-2 rounded-none"
+                  >
                     {post.category}
                   </Chip>
-                  <h4 className="font-bold text-lg line-clamp-2 text-[#34445C] dark:text-[#F5F0E1]">{post.title}</h4>
+                  <h4 className="font-bold text-lg line-clamp-2 text-[#34445C] dark:text-[#F5F0E1]">
+                    {post.title}
+                  </h4>
                 </CardHeader>
                 <CardBody className="overflow-visible py-2 px-4">
                   <Image
@@ -308,7 +394,9 @@ export default function BlogPage() {
                     width="100%"
                     height={180}
                   />
-                  <p className="text-tiny text-default-600 mt-3 line-clamp-3">{post.excerpt}</p>
+                  <p className="text-tiny text-default-600 mt-3 line-clamp-3">
+                    {post.excerpt}
+                  </p>
                 </CardBody>
                 <CardFooter className="text-small px-4 pt-0">
                   <div className="flex items-center justify-between w-full">
@@ -320,7 +408,9 @@ export default function BlogPage() {
                         width={20}
                         src={post.author.avatar}
                       />
-                      <span className="text-tiny text-default-500">{post.author.name}</span>
+                      <span className="text-tiny text-default-500">
+                        {post.author.name}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 text-tiny text-default-400">
                       <Icon icon="solar:clock-circle-linear" width={14} />
@@ -340,9 +430,12 @@ export default function BlogPage() {
         <CardBody className="py-8 px-6 lg:px-12">
           <div className="flex flex-col lg:flex-row items-center gap-6">
             <div className="flex-1 text-center lg:text-left">
-              <h3 className="text-2xl font-bold text-[#F5F0E1] mb-2">Stay Updated</h3>
+              <h3 className="text-2xl font-bold text-[#F5F0E1] mb-2">
+                Stay Updated
+              </h3>
               <p className="text-[#F5F0E1]/80">
-                Get the latest news, guides, and updates delivered directly to your inbox.
+                Get the latest news, guides, and updates delivered directly to
+                your inbox.
               </p>
             </div>
             <div className="flex gap-2 w-full lg:w-auto">
@@ -352,12 +445,16 @@ export default function BlogPage() {
                 type="email"
                 variant="bordered"
                 classNames={{
-                  inputWrapper: 'rounded-none border-[#F5F0E1]/30',
-                  input: 'text-[#F5F0E1]',
-                  inputWrapper: 'border-white/40 hover:border-white/60',
+                  inputWrapper:
+                    "rounded-none border-white/40 hover:border-white/60",
+                  input: "text-[#F5F0E1]",
                 }}
               />
-              <Button color="default" variant="solid" className="bg-white text-primary font-semibold">
+              <Button
+                color="default"
+                variant="solid"
+                className="bg-white text-primary font-semibold"
+              >
                 Subscribe
               </Button>
             </div>

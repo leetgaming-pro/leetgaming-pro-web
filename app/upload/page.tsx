@@ -114,7 +114,7 @@ const SubmitReplay: React.FC = () => {
                   <ol className="text-xs text-default-500 space-y-1 list-decimal list-inside">
                     <li>Open CS2 and go to your Match History</li>
                     <li>Click on the match you want to share</li>
-                    <li>Click "Copy Share Link"</li>
+                    <li>Click &ldquo;Copy Share Link&rdquo;</li>
                     <li>Paste the link above</li>
                   </ol>
                 </div>
