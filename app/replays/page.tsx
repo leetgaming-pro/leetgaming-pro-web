@@ -14,8 +14,10 @@ import {
   Card,
   CardBody,
   CardFooter,
+  Tooltip,
 } from "@nextui-org/react";
-import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useOptionalAuth } from "@/hooks";
 import { ShareButton } from "@/components/share/share-button";
 
 import GameRadioItem from "@/components/filters/game-filter/game-radio-item";
@@ -38,7 +40,8 @@ interface ReplayListState {
 }
 
 export default function Component() {
-  const { data: session } = useSession();
+  const { isAuthenticated, isLoading: authLoading, redirectToSignIn } = useOptionalAuth();
+  const router = useRouter();
   const [state, setState] = useState<ReplayListState>({
     replays: [],
     loading: true,
@@ -54,6 +57,15 @@ export default function Component() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedVisibility, setSelectedVisibility] = useState<string>("public");
   const [sortBy, setSortBy] = useState<string>("most_recent");
+
+  // Handle visibility change - private/shared require auth
+  const handleVisibilityChange = (value: string) => {
+    if ((value === 'private' || value === 'shared') && !isAuthenticated) {
+      redirectToSignIn('/replays');
+      return;
+    }
+    setSelectedVisibility(value);
+  };
 
   const sdk = useMemo(() => new ReplayAPISDK(ReplayApiSettingsMock, logger), []);
 
@@ -152,8 +164,14 @@ export default function Component() {
                   <h2 className="text-medium font-medium text-[#34445C] dark:text-[#F5F0E1]">Replays</h2>
                   <span className="text-small text-[#FF4654] dark:text-[#DCFF37]">({state.total})</span>
                 </div>
-                {!session && (
-                  <Chip color="warning" variant="flat" size="sm" className="rounded-none">
+                {!isAuthenticated && !authLoading && (
+                  <Chip 
+                    color="warning" 
+                    variant="flat" 
+                    size="sm" 
+                    className="rounded-none cursor-pointer hover:bg-warning/20"
+                    onClick={() => redirectToSignIn('/replays')}
+                  >
                     Sign in to upload replays
                   </Chip>
                 )}
@@ -182,11 +200,35 @@ export default function Component() {
                     }}
                     orientation="vertical"
                     value={selectedVisibility}
-                    onValueChange={setSelectedVisibility}
+                    onValueChange={handleVisibilityChange}
                   >
                     <TagGroupItem value="public">Public</TagGroupItem>
-                    <TagGroupItem value="private">Private</TagGroupItem>
-                    <TagGroupItem value="shared">Shared</TagGroupItem>
+                    <Tooltip 
+                      content={!isAuthenticated ? "Sign in to view your private replays" : undefined}
+                      isDisabled={isAuthenticated}
+                    >
+                      <div>
+                        <TagGroupItem 
+                          value="private" 
+                          isDisabled={!isAuthenticated}
+                        >
+                          Private {!isAuthenticated && "🔒"}
+                        </TagGroupItem>
+                      </div>
+                    </Tooltip>
+                    <Tooltip 
+                      content={!isAuthenticated ? "Sign in to view shared replays" : undefined}
+                      isDisabled={isAuthenticated}
+                    >
+                      <div>
+                        <TagGroupItem 
+                          value="shared"
+                          isDisabled={!isAuthenticated}
+                        >
+                          Shared {!isAuthenticated && "🔒"}
+                        </TagGroupItem>
+                      </div>
+                    </Tooltip>
                     <TagGroupItem value="all">All</TagGroupItem>
                   </RadioGroup>
                 </PopoverFilterWrapper>

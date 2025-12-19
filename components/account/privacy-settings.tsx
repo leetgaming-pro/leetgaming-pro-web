@@ -4,9 +4,10 @@
  * Privacy & Data Management Component
  * GDPR/CCPA/LGPD Compliant Account Management
  * Branded for LeetGaming.PRO
+ * Uses SDK via UserSettingsAPI - DO NOT use direct fetch calls
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   CardBody,
@@ -28,6 +29,10 @@ import {
   AccordionItem,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { UserSettingsAPI } from '@/types/replay-api/settings.sdk';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // Enums
@@ -153,6 +158,15 @@ export function PrivacySettings() {
   const exportModal = useDisclosure();
   const deleteModal = useDisclosure();
 
+  // Initialize SDK
+  const settingsApi = useMemo(() => {
+    const baseUrl = typeof window !== 'undefined' 
+      ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
+      : 'http://localhost:8080';
+    const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
+    return new UserSettingsAPI(sdk.client);
+  }, []);
+
   // State
   const [consent, setConsent] = useState<PrivacyConsent>(DEFAULT_CONSENT);
   const [dataExportRequest, setDataExportRequest] = useState<DataExportRequest | null>(null);
@@ -171,26 +185,35 @@ export function PrivacySettings() {
     fetchDeletionStatus();
   }, []);
 
-  // Fetch data export status
+  // Fetch data export status using SDK
   const fetchDataExportStatus = async () => {
     try {
-      const response = await fetch('/api/account/data-export');
-      const data = await response.json();
-      if (data.success && data.data) {
-        setDataExportRequest(data.data);
+      const result = await settingsApi.getDataExportStatus();
+      if (result) {
+        setDataExportRequest({
+          id: 'export-request',
+          status: result.ready ? DataExportStatus.READY : DataExportStatus.PROCESSING,
+          requestedAt: new Date().toISOString(),
+          expiresAt: result.expires_at,
+          downloadUrl: result.download_url,
+        });
       }
     } catch (error) {
       console.error('Failed to fetch data export status:', error);
     }
   };
 
-  // Fetch deletion status
+  // Fetch deletion status using SDK
   const fetchDeletionStatus = async () => {
     try {
-      const response = await fetch('/api/account/delete');
-      const data = await response.json();
-      if (data.success && data.data) {
-        setDeletionRequest(data.data);
+      const result = await settingsApi.getAccountDeletionStatus();
+      if (result && result.pending) {
+        setDeletionRequest({
+          id: 'deletion-request',
+          status: DeletionStatus.SCHEDULED,
+          requestedAt: new Date().toISOString(),
+          scheduledFor: result.deletion_date,
+        });
       }
     } catch (error) {
       console.error('Failed to fetch deletion status:', error);
@@ -214,16 +237,18 @@ export function PrivacySettings() {
   const handleExportRequest = async () => {
     setIsExporting(true);
     try {
-      const response = await fetch('/api/account/data-export', {
-        method: 'POST',
-      });
-      const data = await response.json();
+      // Use SDK instead of direct fetch
+      const result = await settingsApi.requestDataExport({});
 
-      if (data.success) {
-        setDataExportRequest(data.data);
+      if (result) {
+        setDataExportRequest({
+          id: 'export-request',
+          status: DataExportStatus.PROCESSING,
+          requestedAt: new Date().toISOString(),
+        });
         exportModal.onClose();
       } else {
-        console.error('Export request failed:', data.error);
+        console.error('Export request failed');
       }
     } catch (error) {
       console.error('Export request error:', error);
@@ -237,21 +262,25 @@ export function PrivacySettings() {
 
     setIsDeleting(true);
     try {
-      const response = await fetch('/api/account/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: deleteReason }),
+      // Use SDK instead of direct fetch
+      const result = await settingsApi.requestAccountDeletion({
+        confirmation: deleteConfirmation,
+        reason: deleteReason,
       });
-      const data = await response.json();
 
-      if (data.success) {
-        setDeletionRequest(data.data);
+      if (result) {
+        setDeletionRequest({
+          id: 'deletion-request',
+          status: DeletionStatus.SCHEDULED,
+          requestedAt: new Date().toISOString(),
+          scheduledFor: result.deletion_date,
+        });
         deleteModal.onClose();
         setDeleteReason('');
         setDeleteConfirmation('');
         setDeleteAcknowledged(false);
       } else {
-        console.error('Delete request failed:', data.error);
+        console.error('Delete request failed');
       }
     } catch (error) {
       console.error('Delete request error:', error);
@@ -263,15 +292,13 @@ export function PrivacySettings() {
   const handleCancelDeletion = async () => {
     setIsCanceling(true);
     try {
-      const response = await fetch('/api/account/delete', {
-        method: 'DELETE',
-      });
-      const data = await response.json();
+      // Use SDK instead of direct fetch
+      const success = await settingsApi.cancelAccountDeletion();
 
-      if (data.success) {
+      if (success) {
         setDeletionRequest(null);
       } else {
-        console.error('Cancel deletion failed:', data.error);
+        console.error('Cancel deletion failed');
       }
     } catch (error) {
       console.error('Cancel deletion error:', error);

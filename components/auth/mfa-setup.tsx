@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * MFASetup - Component for enabling/disabling MFA in user settings
+ * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -16,6 +21,7 @@ import {
   Divider,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { useAuthExtensions } from '@/hooks/use-auth-extensions';
 
 interface MFASetupProps {
   onStatusChange?: (enabled: boolean) => void;
@@ -27,10 +33,18 @@ interface MFAStatus {
   backupCodesRemaining: number;
 }
 
-/**
- * MFASetup - Component for enabling/disabling MFA in user settings
- */
 export function MFASetup({ onStatusChange }: MFASetupProps) {
+  // Use SDK-powered auth hook instead of direct fetch
+  const {
+    mfaSetup,
+    isMFALoading,
+    mfaError,
+    setupMFA,
+    confirmMFASetup,
+    disableMFA: disableMFAAction,
+    generateRecoveryCodes,
+  } = useAuthExtensions();
+
   const [status, setStatus] = useState<MFAStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEnabling, setIsEnabling] = useState(false);
@@ -47,14 +61,13 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
 
   const fetchMFAStatus = async () => {
     try {
-      const response = await fetch('/api/auth/mfa/setup');
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      // Use SDK hook to get MFA status
+      const result = await setupMFA();
+      if (result) {
         setStatus({
-          enabled: data.enabled,
-          method: data.method || 'email',
-          backupCodesRemaining: data.backupCodesRemaining || 0,
+          enabled: !!result.secret,
+          method: 'totp',
+          backupCodesRemaining: result.recovery_codes?.length || 0,
         });
       }
     } catch (err) {
@@ -69,28 +82,24 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/mfa/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method: 'email' }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to enable MFA');
+      // Use SDK hook to setup MFA
+      const result = await setupMFA();
+      
+      if (!result) {
+        throw new Error(mfaError || 'Failed to enable MFA');
       }
 
-      setBackupCodes(data.backupCodes || []);
+      setBackupCodes(result.recovery_codes || []);
       setShowBackupCodes(true);
       setStatus({
         enabled: true,
-        method: 'email',
-        backupCodesRemaining: data.backupCodes?.length || 0,
+        method: 'totp',
+        backupCodesRemaining: result.recovery_codes?.length || 0,
       });
       onStatusChange?.(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to enable MFA');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to enable MFA';
+      setError(errorMessage);
     } finally {
       setIsEnabling(false);
     }
@@ -106,16 +115,11 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/mfa/setup', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: disableCode }),
-      });
+      // Use SDK hook to disable MFA
+      const success = await disableMFAAction(disableCode);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to disable MFA');
+      if (!success) {
+        throw new Error(mfaError || 'Failed to disable MFA');
       }
 
       setStatus({
@@ -126,8 +130,9 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
       setShowDisableModal(false);
       setDisableCode('');
       onStatusChange?.(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to disable MFA');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to disable MFA';
+      setError(errorMessage);
     } finally {
       setIsDisabling(false);
     }

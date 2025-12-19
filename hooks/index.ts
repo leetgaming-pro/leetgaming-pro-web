@@ -1,6 +1,6 @@
 // Export all hooks
-export { useAuth } from './use-auth';
-export type { AuthState } from './use-auth';
+export { useAuth, useRequireAuth, useOptionalAuth } from './use-auth';
+export type { AuthState, RequireAuthOptions } from './use-auth';
 export { useLobbyWebSocket } from './use-lobby-websocket';
 export { useLobby } from './use-lobby';
 export { useMatchmaking } from './use-matchmaking';

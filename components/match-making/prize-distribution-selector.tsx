@@ -6,15 +6,7 @@
  */
 
 import React, { useState } from "react";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Radio,
-  RadioGroup,
-  Divider,
-} from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Chip, Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 
@@ -209,7 +201,7 @@ export function PrizeDistributionSelector({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * idx }}
-                        className="flex items-center justify-between p-2 rounded-lg bg-default-100/50 dark:bg-default-50/5"
+                        className="flex items-center justify-between p-2 rounded-none bg-default-100/50 dark:bg-default-50/5 border-l-2 border-[#FF4654] dark:border-[#DCFF37]"
                       >
                         <div className="flex items-center gap-2">
                           <div
@@ -294,7 +286,7 @@ export function PrizeDistributionSelector({
       </div>
 
       {/* Visual Preview of Distribution */}
-      <Card className="bg-gradient-to-br from-default-50 to-default-100 dark:from-default-900/20 dark:to-default-800/20">
+      <Card className="bg-gradient-to-br from-default-50 to-default-100 dark:from-default-900/20 dark:to-default-800/20 rounded-none border-l-4 border-l-[#FF4654] dark:border-l-[#DCFF37]">
         <CardBody className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-default-700">
@@ -304,7 +296,7 @@ export function PrizeDistributionSelector({
               {DISTRIBUTION_OPTIONS.find((o) => o.id === selectedRule)?.name}
             </Chip>
           </div>
-          <div className="relative h-12 bg-default-200 dark:bg-default-800 rounded-full overflow-hidden">
+          <div className="relative h-12 bg-default-200 dark:bg-default-800 rounded-none overflow-hidden">
             {DISTRIBUTION_OPTIONS.find(
               (o) => o.id === selectedRule
             )?.percentages.map((payout, idx) => {

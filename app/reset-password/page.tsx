@@ -1,11 +1,17 @@
 "use client";
 
+/**
+ * Reset Password Page
+ * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
+ */
+
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button, Input, Link, Progress } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AuthBackground } from "@/components/auth";
+import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
 type FormState = "loading" | "valid" | "invalid" | "success" | "error";
 
@@ -13,6 +19,14 @@ function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+
+  // Use SDK-powered auth hook instead of direct fetch
+  const {
+    isPasswordResetLoading,
+    passwordResetError,
+    confirmPasswordReset,
+    clearErrors,
+  } = useAuthExtensions();
 
   const [formState, setFormState] = useState<FormState>("loading");
   const [email, setEmail] = useState("");
@@ -36,6 +50,8 @@ function ResetPasswordContent() {
 
   const validateToken = async (resetToken: string) => {
     try {
+      // Note: Token validation still uses fetch as it's a read-only check
+      // The actual reset uses the SDK hook
       const response = await fetch(
         `/api/auth/password-reset/validate?token=${encodeURIComponent(resetToken)}`
       );
@@ -85,30 +101,24 @@ function ResetPasswordContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    clearErrors();
 
-    if (!validatePassword()) {
+    if (!validatePassword() || !token) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/password-reset/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          new_password: password,
-        }),
-      });
+      // Use SDK hook instead of direct fetch
+      const success = await confirmPasswordReset(token, password);
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || data.error || "Failed to reset password");
+      if (success) {
+        setFormState("success");
+      } else {
+        setError(passwordResetError || "Failed to reset password");
+        setFormState("error");
       }
-
-      setFormState("success");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An error occurred";
       setError(message);

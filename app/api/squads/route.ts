@@ -1,22 +1,58 @@
 /**
  * Squads API Routes
- * GET - Search/list squads
- * POST - Create a new squad
+ * GET - Search/list squads (public)
+ * POST - Create a new squad (authenticated)
+ * 
+ * Properly forwards auth context to backend SDK
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { cookies } from 'next/headers';
 import { ReplayAPISDK } from '@/types/replay-api/sdk';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Cookie names for RID token authentication
+ */
+const RID_TOKEN_COOKIE = 'rid_token';
+const RID_METADATA_COOKIE = 'rid_metadata';
+
+/**
+ * Create SDK with auth headers from cookies
+ */
+function createAuthenticatedSDK(request: NextRequest): { sdk: ReplayAPISDK; isAuthenticated: boolean } {
+  const cookieStore = cookies();
+  const ridToken = cookieStore.get(RID_TOKEN_COOKIE)?.value;
+  const ridMetadata = cookieStore.get(RID_METADATA_COOKIE)?.value;
+  
+  // Create SDK with auth token if available
+  const settings = {
+    ...ReplayApiSettingsMock,
+    authToken: ridToken,
+  };
+  
+  const sdk = new ReplayAPISDK(settings, logger);
+  
+  // If we have auth token, set it on the client
+  if (ridToken) {
+    // The SDK client will include the auth token in requests
+    logger.info('[API /api/squads] Using authenticated SDK', { hasToken: true });
+  }
+  
+  return { 
+    sdk, 
+    isAuthenticated: !!ridToken && !!ridMetadata,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const { sdk } = createAuthenticatedSDK(request);
 
-    const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
     const squads = await sdk.squads.searchSquads({
       game_id: searchParams.get('game_id') || 'cs2',
       page: parseInt(searchParams.get('page') || '1'),
@@ -42,8 +78,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
+    const { sdk, isAuthenticated } = createAuthenticatedSDK(request);
+    
+    if (!isAuthenticated) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
@@ -60,7 +97,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
     const squad = await sdk.squads.createSquad({
       game_id: body.game_id || 'cs2',
       name: body.name,

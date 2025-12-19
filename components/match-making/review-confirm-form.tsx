@@ -6,7 +6,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardBody, CardHeader, Divider, Chip } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Divider, Chip, Button } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useWizard } from "./wizard-context";
@@ -25,7 +25,7 @@ const GAME_MODE_NAMES: Record<string, string> = {
 };
 
 export default function ReviewConfirmForm() {
-  const { state } = useWizard();
+  const { state, cancelMatchmaking } = useWizard();
 
   const sections = [
     {
@@ -97,11 +97,11 @@ export default function ReviewConfirmForm() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-[#111111] border border-default-200 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30 rounded-none">
+            <Card className="hover:shadow-lg transition-all duration-200 bg-default-50 dark:bg-[#111111] border border-default-200 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30 rounded-none border-l-3 border-l-[#FF4654] dark:border-l-[#DCFF37]">
               <CardBody className="p-4">
                 <div className="flex items-start gap-3">
                   <div
-                    className={`rounded-lg p-2.5 bg-${section.color}-100 dark:bg-${section.color}-900/30 border border-${section.color}-200 dark:border-${section.color}-800/50`}
+                    className={`rounded-none p-2.5 bg-${section.color}-100 dark:bg-${section.color}-900/30 border border-${section.color}-200 dark:border-${section.color}-800/50`}
                   >
                     <Icon
                       icon={section.icon}
@@ -285,6 +285,18 @@ export default function ReviewConfirmForm() {
                       )}
                     </span>
                   </div>
+                </div>
+                
+                {/* Cancel Button */}
+                <div className="mt-4">
+                  <Button
+                    className="w-full rounded-none bg-danger/20 text-danger border border-danger/30 hover:bg-danger/30 transition-colors"
+                    size="lg"
+                    onPress={cancelMatchmaking}
+                    startContent={<Icon icon="solar:close-circle-bold" width={20} />}
+                  >
+                    Cancel Search
+                  </Button>
                 </div>
               </div>
             </CardBody>

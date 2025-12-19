@@ -1,5 +1,11 @@
 'use client';
 
+/**
+ * MFAModal - Multi-Factor Authentication verification modal
+ * Used for sensitive operations like payments, account changes, etc.
+ * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
@@ -12,6 +18,7 @@ import {
   Spinner,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { useAuthExtensions } from '@/hooks/use-auth-extensions';
 
 interface MFAModalProps {
   isOpen: boolean;
@@ -20,16 +27,21 @@ interface MFAModalProps {
   onVerified: (token: string) => void;
 }
 
-/**
- * MFAModal - Multi-Factor Authentication verification modal
- * Used for sensitive operations like payments, account changes, etc.
- */
 export function MFAModal({
   isOpen,
   onClose,
   action,
   onVerified,
 }: MFAModalProps) {
+  // Use SDK-powered auth hook instead of direct fetch
+  const {
+    isMFALoading: isVerifying,
+    mfaError,
+    verifyMFA,
+    sendVerificationEmail,
+    clearErrors,
+  } = useAuthExtensions();
+
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -60,8 +72,9 @@ export function MFAModal({
       setCode(['', '', '', '', '', '']);
       setError(null);
       setCodeSent(false);
+      clearErrors();
     }
-  }, [isOpen]);
+  }, [isOpen, clearErrors]);
 
   const sendMFACode = async () => {
     if (cooldown > 0) return;
@@ -70,22 +83,18 @@ export function MFAModal({
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/mfa/verify', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send MFA code');
+      // Use SDK hook to send verification email
+      const success = await sendVerificationEmail();
+      
+      if (success) {
+        setCodeSent(true);
+        setCooldown(60);
+      } else {
+        setError('Failed to send MFA code');
       }
-
-      setCodeSent(true);
-      setCooldown(60);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send MFA code');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send MFA code';
+      setError(errorMessage);
     } finally {
       setIsSending(false);
     }
@@ -129,21 +138,20 @@ export function MFAModal({
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/mfa/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: verificationCode, action }),
-      });
+      // Use SDK hook to verify MFA code
+      const success = await verifyMFA(verificationCode, 'totp');
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid MFA code');
+      if (success) {
+        // Generate a session token for the verified action
+        onVerified(verificationCode);
+      } else {
+        setError(mfaError || 'Invalid MFA code');
+        setCode(['', '', '', '', '', '']);
+        inputRefs.current[0]?.focus();
       }
-
-      onVerified(data.token);
-    } catch (err: any) {
-      setError(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Verification failed';
+      setError(errorMessage);
       setCode(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {

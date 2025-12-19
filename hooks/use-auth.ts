@@ -7,7 +7,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth";
 import { logger } from "@/lib/logger";
 
@@ -101,3 +102,110 @@ export function useAuth(): AuthState {
  * Uses local RIDTokenManager metadata only, doesn't validate with server
  */
 export { isAuthenticatedSync };
+
+/**
+ * Options for useRequireAuth hook
+ */
+export interface RequireAuthOptions {
+  /** Path to redirect to when unauthenticated (default: '/signin') */
+  redirectTo?: string;
+  /** Whether to include callback URL for post-login redirect (default: true) */
+  includeCallback?: boolean;
+  /** Custom callback URL (defaults to current path) */
+  callbackUrl?: string;
+}
+
+/**
+ * Hook for pages that require authentication
+ * Automatically redirects unauthenticated users to sign-in page
+ * 
+ * @example
+ * ```tsx
+ * export default function ProtectedPage() {
+ *   const { isAuthenticated, isLoading, user } = useRequireAuth();
+ *   
+ *   if (isLoading) return <PageLoader />;
+ *   // At this point, user is guaranteed to be authenticated
+ *   // (or being redirected to sign-in)
+ *   
+ *   return <ProtectedContent user={user} />;
+ * }
+ * ```
+ */
+export function useRequireAuth(options: RequireAuthOptions = {}): AuthState & { isRedirecting: boolean } {
+  const { redirectTo = '/signin', includeCallback = true, callbackUrl } = options;
+  const auth = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isRedirecting = !auth.isLoading && !auth.isAuthenticated;
+
+  useEffect(() => {
+    if (auth.isLoading) return;
+    
+    if (!auth.isAuthenticated) {
+      const targetCallback = callbackUrl || pathname;
+      const redirectPath = includeCallback 
+        ? `${redirectTo}?callbackUrl=${encodeURIComponent(targetCallback)}`
+        : redirectTo;
+      
+      logger.info('[useRequireAuth] Redirecting unauthenticated user', { 
+        from: pathname, 
+        to: redirectPath 
+      });
+      
+      router.push(redirectPath);
+    }
+  }, [auth.isLoading, auth.isAuthenticated, router, pathname, redirectTo, includeCallback, callbackUrl]);
+
+  return {
+    ...auth,
+    isRedirecting,
+  };
+}
+
+/**
+ * Hook that provides auth state for pages with mixed access
+ * (public viewing but authenticated actions)
+ * 
+ * @example
+ * ```tsx
+ * const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
+ * 
+ * const handleCreate = () => {
+ *   if (!requireAuthForAction('create a team')) return;
+ *   // User is authenticated, proceed
+ * };
+ * ```
+ */
+export function useOptionalAuth(): AuthState & { 
+  requireAuthForAction: (actionDescription: string) => boolean;
+  redirectToSignIn: (callbackPath?: string) => void;
+} {
+  const auth = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const redirectToSignIn = useCallback((callbackPath?: string) => {
+    const callback = callbackPath || pathname;
+    router.push(`/signin?callbackUrl=${encodeURIComponent(callback)}`);
+  }, [router, pathname]);
+
+  const requireAuthForAction = useCallback((actionDescription: string): boolean => {
+    if (auth.isAuthenticated) return true;
+    
+    logger.info('[useOptionalAuth] Action requires authentication', { 
+      action: actionDescription,
+      path: pathname 
+    });
+    
+    redirectToSignIn();
+    return false;
+  }, [auth.isAuthenticated, pathname, redirectToSignIn]);
+
+  return {
+    ...auth,
+    requireAuthForAction,
+    redirectToSignIn,
+  };
+}

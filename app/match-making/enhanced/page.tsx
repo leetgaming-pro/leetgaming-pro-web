@@ -100,10 +100,18 @@ export default function EnhancedMatchmakingPage() {
       return;
     }
 
+    const user = session?.user as ExtendedUser | undefined;
+    if (!user?.id) {
+      setMatchmakingState((prev) => ({
+        ...prev,
+        error: 'Unable to verify your account. Please sign in again.',
+      }));
+      return;
+    }
+
     try {
-      const user = session?.user as ExtendedUser | undefined;
       const response = await matchmakingSDK.joinQueue({
-        player_id: user?.id || 'mock-player-id',
+        player_id: user.id,
         preferences: {
           game_id: 'cs2',
           game_mode: selectedGameMode,
@@ -183,7 +191,10 @@ export default function EnhancedMatchmakingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background p-4 md:p-8">
+    <div className="min-h-screen w-full bg-gradient-to-b from-[#F5F0E1] via-white to-[#F5F0E1] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] p-4 md:p-8">
+      {/* Top accent bar */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37] z-50" />
+      
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
@@ -191,10 +202,13 @@ export default function EnhancedMatchmakingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Icon icon="solar:gamepad-bold" className="text-[#FF4654] dark:text-[#DCFF37]" width={48} />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#34445C] dark:from-[#DCFF37] dark:via-[#F5F0E1] dark:to-[#DCFF37] bg-clip-text text-transparent">
             Competitive Matchmaking
           </h1>
-          <p className="text-foreground/60 text-lg">
+          <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/60 text-lg">
             Find skilled teammates and dominate the competition
           </p>
         </motion.div>
@@ -205,9 +219,9 @@ export default function EnhancedMatchmakingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-background/60 backdrop-blur-md">
-            <CardHeader>
-              <h2 className="text-2xl font-bold">Select Your Tier</h2>
+          <Card className="bg-[#F5F0E1]/80 dark:bg-[#111111]/80 backdrop-blur-md rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+              <h2 className="text-2xl font-bold text-[#34445C] dark:text-[#DCFF37]">Select Your Tier</h2>
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -216,10 +230,10 @@ export default function EnhancedMatchmakingPage() {
                     key={tier.tier}
                     isPressable
                     isHoverable
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all rounded-none ${
                       selectedTier === tier.tier
-                        ? 'border-2 border-primary scale-105'
-                        : 'border border-foreground/10'
+                        ? 'border-2 border-[#FF4654] dark:border-[#DCFF37] scale-105 shadow-lg shadow-[#FF4654]/20 dark:shadow-[#DCFF37]/20'
+                        : 'border border-[#34445C]/20 dark:border-[#DCFF37]/10 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50'
                     }`}
                     onPress={() => setSelectedTier(tier.tier)}
                   >
@@ -267,9 +281,9 @@ export default function EnhancedMatchmakingPage() {
             className="lg:col-span-2 space-y-6"
           >
             {/* Game Mode & Region */}
-            <Card className="bg-background/60 backdrop-blur-md">
-              <CardHeader>
-                <h2 className="text-xl font-bold">Match Preferences</h2>
+            <Card className="bg-[#F5F0E1]/80 dark:bg-[#111111]/80 backdrop-blur-md rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-[#DCFF37]">Match Preferences</h2>
               </CardHeader>
               <CardBody className="space-y-4">
                 <Select
@@ -369,12 +383,11 @@ export default function EnhancedMatchmakingPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
-                  <Card className="bg-background/60 backdrop-blur-md">
+                  <Card className="bg-[#F5F0E1]/80 dark:bg-[#111111]/80 backdrop-blur-md rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                     <CardBody className="p-8">
                       <Button
-                        color="primary"
                         size="lg"
-                        className="w-full h-16 text-lg font-semibold"
+                        className="w-full h-16 text-lg font-semibold rounded-none bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#1a1a1a] hover:opacity-90 transition-opacity shadow-lg"
                         onPress={handleStartMatchmaking}
                         startContent={<Icon icon="solar:play-bold" width={24} />}
                       >
@@ -393,9 +406,9 @@ export default function EnhancedMatchmakingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-background/60 backdrop-blur-md sticky top-4">
-              <CardHeader className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Queue Status</h2>
+            <Card className="bg-[#F5F0E1]/80 dark:bg-[#111111]/80 backdrop-blur-md sticky top-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="flex items-center justify-between border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-[#DCFF37]">Queue Status</h2>
                 <Badge
                   content={poolStats?.queue_health || 'loading'}
                   color={

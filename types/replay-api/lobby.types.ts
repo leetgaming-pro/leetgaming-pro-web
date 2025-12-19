@@ -6,14 +6,26 @@
 import { DistributionRule } from '@/components/match-making/prize-distribution-selector';
 
 // Lobby Status Lifecycle
+// IMPORTANT: These MUST match backend Go enum values in replay-api/pkg/domain/matchmaking/entities/lobby.go
 export type LobbyStatus =
-  | 'waiting_for_players'  // Lobby created, accepting players
-  | 'ready_check'          // All slots filled, checking player readiness
-  | 'starting'             // All players ready, starting match
-  | 'in_progress'          // Match is active
-  | 'completed'            // Match finished
-  | 'cancelled'            // Lobby was cancelled
-  | 'expired';             // Lobby expired due to timeout
+  | 'open'           // Lobby accepting players (backend: LobbyStatusOpen)
+  | 'ready_check'    // Countdown active, checking player readiness (backend: LobbyStatusReadyCheck)
+  | 'starting'       // Creating match, all ready (backend: LobbyStatusStarting)
+  | 'started'        // Match in progress (backend: LobbyStatusStarted)
+  | 'cancelled';     // Lobby was cancelled (backend: LobbyStatusCancelled)
+
+// Legacy status mappings for backwards compatibility
+export const LobbyStatusMap = {
+  open: 'open',
+  waiting_for_players: 'open',  // Legacy alias
+  ready_check: 'ready_check',
+  starting: 'starting',
+  started: 'started',
+  in_progress: 'started',       // Legacy alias
+  cancelled: 'cancelled',
+  completed: 'started',         // Matches complete through match system
+  expired: 'cancelled',         // Expired lobbies are treated as cancelled
+} as const;
 
 // Player Slot in Lobby
 export interface PlayerSlot {

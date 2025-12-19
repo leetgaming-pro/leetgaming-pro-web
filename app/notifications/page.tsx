@@ -3,9 +3,10 @@
 /**
  * Notifications Page
  * Full page view of all user notifications with filtering and management
+ * Uses SDK via useNotifications hook - DO NOT use direct fetch calls
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Card,
   CardBody,
@@ -13,14 +14,13 @@ import {
   Chip,
   Tabs,
   Tab,
-  Divider,
   Skeleton,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { PageContainer } from '@/components/layouts/centered-content';
-import { Notification } from '@/components/notifications/notification-center';
+import { useNotifications, Notification, NotificationType } from '@/hooks/use-notifications';
 
-const notificationIcons: Record<Notification['type'], string> = {
+const notificationIcons: Record<NotificationType, string> = {
   match: 'solar:gameboy-bold',
   team: 'solar:users-group-rounded-bold',
   friend: 'solar:user-plus-bold',
@@ -30,7 +30,7 @@ const notificationIcons: Record<Notification['type'], string> = {
 };
 
 const notificationColors: Record<
-  Notification['type'],
+  NotificationType,
   'primary' | 'secondary' | 'success' | 'warning' | 'danger'
 > = {
   match: 'primary',
@@ -59,101 +59,51 @@ const colorTextClasses: Record<string, string> = {
 };
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<string>('all');
   const [filterUnread, setFilterUnread] = useState(false);
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  const loadNotifications = async () => {
-    setLoading(true);
-    try {
-      // In production, fetch from API
-      const response = await fetch('/api/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-      } else {
-        // Show empty state when API fails
-        setNotifications([]);
-      }
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-      // Show empty state on error - no mock data fallback
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use SDK-powered notifications hook instead of direct fetch
+  const {
+    notifications,
+    isLoading: loading,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    deleteAll,
+    getByType,
+    getUnread,
+  } = useNotifications(true);
 
   const handleMarkAsRead = async (notificationId: string) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PUT',
-      });
-
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-      );
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-    }
+    await markAsRead(notificationId);
   };
 
   const handleMarkAllAsRead = async () => {
-    try {
-      await fetch('/api/notifications/read-all', {
-        method: 'PUT',
-      });
-
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-    }
+    await markAllAsRead();
   };
 
   const handleDeleteNotification = async (notificationId: string) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE',
-      });
-
-      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
-    }
+    await deleteNotification(notificationId);
   };
 
   const handleClearAll = async () => {
     if (!confirm('Are you sure you want to delete all notifications?')) return;
-
-    try {
-      await fetch('/api/notifications', {
-        method: 'DELETE',
-      });
-
-      setNotifications([]);
-    } catch (error) {
-      console.error('Failed to clear notifications:', error);
-    }
+    await deleteAll();
   };
 
-  let filteredNotifications = notifications;
-
-  // Filter by type
-  if (selectedTab !== 'all') {
-    filteredNotifications = filteredNotifications.filter((n) => n.type === selectedTab);
-  }
-
-  // Filter by read status
-  if (filterUnread) {
-    filteredNotifications = filteredNotifications.filter((n) => !n.read);
-  }
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Filter notifications using hook's helper methods
+  const filteredNotifications = useMemo(() => {
+    let filtered = selectedTab === 'all' 
+      ? notifications 
+      : getByType(selectedTab as NotificationType);
+    
+    if (filterUnread) {
+      filtered = filtered.filter((n) => !n.read);
+    }
+    
+    return filtered;
+  }, [notifications, selectedTab, filterUnread, getByType]);
 
   const renderNotification = (notification: Notification) => {
     const icon = notification.metadata?.icon || notificationIcons[notification.type];

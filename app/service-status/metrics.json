@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-12-19T18:43:10Z",
+  "dateDisplay": "Dec 19, 2025",
+  "summary": {
+    "totalLinesOfCode": 220154,
+    "totalTests": 87,
+    "totalComponents": 281,
+    "totalPages": 65
+  },
+  "linesOfCode": {
+    "frontend": 122064,
+    "backend": 92520,
+    "infrastructure": 5570,
+    "documentation": 22960
+  },
+  "frontend": {
+    "components": 281,
+    "pages": 65,
+    "hooks": 18,
+    "e2eTests": 24,
+    "linesOfCode": 122064
+  },
+  "backend": {
+    "goFiles": 464,
+    "unitTests": 63,
+    "apiEndpoints": 599,
+    "linesOfCode": 92520
+  },
+  "infrastructure": {
+    "k8sManifests": 61,
+    "terraformFiles": 8,
+    "linesOfCode": 5570
+  },
+  "features": {
+    "total": 147,
+    "completed": 118,
+    "inProgress": 21,
+    "planned": 8,
+    "completionPercentage": 80.2
+  }
+}

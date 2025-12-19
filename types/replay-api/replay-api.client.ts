@@ -124,7 +124,16 @@ export class ReplayApiClient {
     retryCount = 0
   ): Promise<ApiResponse<T>> {
     const url = this.buildUrl(path);
-    const authHeaders: Record<string, string> = await getRIDTokenManager().getAuthHeaders();
+    
+    // Use auth token from settings (server-side) or RIDTokenManager (client-side)
+    let authHeaders: Record<string, string> = {};
+    if ((this.settings as any).authToken) {
+      // Server-side: use token from settings
+      authHeaders = { 'Authorization': `Bearer ${(this.settings as any).authToken}` };
+    } else if (typeof window !== 'undefined') {
+      // Client-side: use RIDTokenManager
+      authHeaders = await getRIDTokenManager().getAuthHeaders();
+    }
 
     const controller = new AbortController();
     const timeoutId = options?.timeout

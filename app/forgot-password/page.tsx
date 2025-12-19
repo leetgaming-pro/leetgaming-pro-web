@@ -1,52 +1,47 @@
 "use client";
 
+/**
+ * Forgot Password Page
+ * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
+ */
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button, Input, Link } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AuthBackground } from "@/components/auth";
+import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
 type FormState = "form" | "success";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [formState, setFormState] = useState<FormState>("form");
+
+  // Use SDK-powered auth hook instead of direct fetch
+  const {
+    isPasswordResetLoading: isLoading,
+    passwordResetError: error,
+    requestPasswordReset,
+    clearErrors,
+  } = useAuthExtensions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    clearErrors();
 
     if (!email) {
-      setError("Please enter your email address");
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/auth/password-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send reset email");
-      }
-
+    // Use SDK hook instead of direct fetch
+    const success = await requestPasswordReset(email);
+    
+    if (success) {
       // Always show success to prevent email enumeration
       setFormState("success");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An error occurred";
-      setError(message);
-    } finally {
-      setIsLoading(false);
     }
   };
 

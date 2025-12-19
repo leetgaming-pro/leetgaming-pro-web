@@ -4,6 +4,8 @@
  * Settings Page
  * User preferences, account settings, privacy, billing, and notifications
  * Supports URL-based tab selection via ?tab= query parameter
+ * 
+ * @protected - Requires authentication
  */
 
 import React, { useState, useEffect, Suspense, useCallback, useRef } from 'react';
@@ -25,7 +27,6 @@ import {
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { PageContainer } from '@/components/layouts/centered-content';
 import { PrivacySettings } from '@/components/account/privacy-settings';
 import { SubscriptionManagement } from '@/components/checkout/subscription-management';
@@ -33,6 +34,8 @@ import { PaymentHistory } from '@/components/checkout/payment-history';
 import { logger } from '@/lib/logger';
 import { ReplayAPISDK } from '@/types/replay-api/sdk';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { UserSettingsAPI } from '@/types/replay-api/settings.sdk';
+import { useRequireAuth } from '@/hooks';
 
 /**
  * Settings tab keys - matches URL query params
@@ -48,7 +51,7 @@ enum SettingsTab {
 function SettingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { isAuthenticated, isLoading: authLoading, user, isRedirecting } = useRequireAuth();
   const tabParam = searchParams.get('tab') as SettingsTab | null;
   const sdkRef = useRef<ReplayAPISDK>();
 
@@ -60,6 +63,15 @@ function SettingsContent() {
   const [selectedTab, setSelectedTab] = useState<string>(tabParam || SettingsTab.PROFILE);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileId, setProfileId] = useState<string | null>(null);
+
+  // Show loading while checking auth or redirecting
+  if (authLoading || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Spinner size="lg" label={authLoading ? "Checking authentication..." : "Redirecting to sign in..."} />
+      </div>
+    );
+  }
 
   // Sync tab with URL
   useEffect(() => {
@@ -103,7 +115,7 @@ function SettingsContent() {
 
   // Fetch user profile from API
   const fetchProfile = useCallback(async () => {
-    if (!session?.user) return;
+    if (!isAuthenticated || !user) return;
 
     setProfileLoading(true);
     try {
@@ -111,39 +123,39 @@ function SettingsContent() {
       if (profile) {
         setProfileId(profile.id);
         setProfileData({
-          nickname: profile.nickname || session.user.name || '',
-          email: session.user.email || '',
+          nickname: profile.nickname || user.name || '',
+          email: user.email || '',
           bio: profile.description || '',
           country: profile.region || '',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          avatarUri: profile.avatar_uri || session.user.image || '',
+          avatarUri: profile.avatar_uri || user.image || '',
         });
       } else {
-        // Fallback to session data if no profile exists
+        // Fallback to user data if no profile exists
         setProfileData({
-          nickname: session.user.name || '',
-          email: session.user.email || '',
+          nickname: user.name || '',
+          email: user.email || '',
           bio: '',
           country: '',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          avatarUri: session.user.image || '',
+          avatarUri: user.image || '',
         });
       }
     } catch (error) {
       logger.error('Failed to fetch profile', error);
-      // Fallback to session data on error
+      // Fallback to user data on error
       setProfileData({
-        nickname: session.user.name || '',
-        email: session.user.email || '',
+        nickname: user.name || '',
+        email: user.email || '',
         bio: '',
         country: '',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        avatarUri: session.user.image || '',
+        avatarUri: user.image || '',
       });
     } finally {
       setProfileLoading(false);
     }
-  }, [session]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     fetchProfile();
@@ -175,14 +187,14 @@ function SettingsContent() {
 
   const handleNotificationUpdate = async () => {
     try {
-      const response = await fetch('/api/user/notifications', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(notifications),
-      });
-      if (!response.ok) throw new Error('Failed to update notifications');
+      // Use SDK instead of direct fetch
+      const settingsApi = new UserSettingsAPI(sdkRef.current!.client);
+      const success = await settingsApi.updateNotificationSettings(notifications);
+      if (!success) throw new Error('Failed to update notifications');
+      showToast('success', 'Notification settings saved!');
     } catch (error) {
       logger.error('Failed to update notification settings', error);
+      showToast('error', 'Could not save notification settings. Please try again.');
     }
   };
 

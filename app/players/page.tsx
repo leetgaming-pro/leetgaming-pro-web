@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useOptionalAuth } from "@/hooks";
 import {
   Card,
   CardBody,
@@ -69,7 +70,8 @@ interface Player {
 }
 
 export default function PlayersPage() {
-  const { data: session } = useSession();
+  const { isAuthenticated, isLoading: authLoading, requireAuthForAction } = useOptionalAuth();
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +81,13 @@ export default function PlayersPage() {
   const [showOnlyLFT, setShowOnlyLFT] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
+
+  // Handle create profile click - requires auth
+  const handleCreateProfile = () => {
+    if (requireAuthForAction('create a player profile')) {
+      onOpen();
+    }
+  };
 
   useEffect(() => {
     async function fetchPlayers() {
@@ -458,9 +467,9 @@ export default function PlayersPage() {
             className="bg-[#F5F0E1] text-[#34445C] font-semibold rounded-none"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
             size="lg" 
-            onPress={onOpen}
+            onPress={handleCreateProfile}
           >
-            Create Profile
+            {isAuthenticated ? 'Create Profile' : 'Sign in to Create Profile'}
           </Button>
         </CardBody>
       </Card>

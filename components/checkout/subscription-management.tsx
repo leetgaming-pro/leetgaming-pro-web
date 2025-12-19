@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * Subscription Management Component
+ * Uses SDK via useSubscription hook - DO NOT use direct fetch calls
+ */
+
 import React, { useState } from 'react';
 import {
   Button,
@@ -24,6 +29,7 @@ import {
   SubscriptionStatus,
   BILLING_PERIOD_LABELS,
 } from './types';
+import { useSubscription } from '@/hooks/use-subscription';
 
 // ============================================================================
 // Types
@@ -91,17 +97,18 @@ export function SubscriptionManagement({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isCanceling, setIsCanceling] = useState(false);
 
+  // Use SDK-powered subscription hook for cancel operation
+  const { cancelSubscription } = useSubscription(false);
+
   const handleCancel = async () => {
     setIsCanceling(true);
     try {
-      // Call cancel API
-      await fetch('/api/subscriptions/cancel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription_id: subscription?.id }),
-      });
-      onCancel?.();
-      onClose();
+      // Use SDK hook instead of direct fetch
+      const success = await cancelSubscription();
+      if (success) {
+        onCancel?.();
+        onClose();
+      }
     } catch (error) {
       console.error('Failed to cancel subscription:', error);
     } finally {

@@ -3,17 +3,17 @@
  * Comprehensive types for real-time competitive matchmaking
  */
 
-export type MatchmakingTier = 'free' | 'premium' | 'pro' | 'elite';
+export type MatchmakingTier = "free" | "premium" | "pro" | "elite";
 
 export type SessionStatus =
-  | 'queued'
-  | 'searching'
-  | 'matched'
-  | 'ready'
-  | 'cancelled'
-  | 'expired';
+  | "queued"
+  | "searching"
+  | "matched"
+  | "ready"
+  | "cancelled"
+  | "expired";
 
-export type QueueHealth = 'healthy' | 'moderate' | 'slow' | 'degraded';
+export type QueueHealth = "healthy" | "moderate" | "slow" | "degraded";
 
 export interface SkillRange {
   min_mmr: number;
@@ -54,6 +54,7 @@ export interface SessionStatusResponse {
   estimated_wait: number;
   queue_position?: number;
   match_id?: string;
+  lobby_id?: string;
 }
 
 export interface PoolStatsResponse {
@@ -88,72 +89,72 @@ export interface TierBenefits {
   features: string[];
   waitTimeReduction: number;
   priorityMultiplier: number;
-  color: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+  color: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
   icon: string;
 }
 
 export const TIER_BENEFITS: Record<MatchmakingTier, TierBenefits> = {
   free: {
-    tier: 'free',
-    name: 'Free',
+    tier: "free",
+    name: "Free",
     price: 0,
     features: [
-      'Standard matchmaking',
-      'Basic region selection',
-      'Community servers',
+      "Standard matchmaking",
+      "Basic region selection",
+      "Community servers",
     ],
     waitTimeReduction: 0,
     priorityMultiplier: 1,
-    color: 'default',
-    icon: 'solar:user-linear',
+    color: "default",
+    icon: "solar:user-linear",
   },
   premium: {
-    tier: 'premium',
-    name: 'Premium',
+    tier: "premium",
+    name: "Premium",
     price: 4.99,
     features: [
-      'Priority queue (2x faster)',
-      'Advanced map selection',
-      'Server location choice',
-      'Ad-free experience',
+      "Priority queue (2x faster)",
+      "Advanced map selection",
+      "Server location choice",
+      "Ad-free experience",
     ],
     waitTimeReduction: 50,
     priorityMultiplier: 2,
-    color: 'primary',
-    icon: 'solar:star-bold',
+    color: "primary",
+    icon: "solar:star-bold",
   },
   pro: {
-    tier: 'pro',
-    name: 'Pro',
+    tier: "pro",
+    name: "Pro",
     price: 9.99,
     features: [
-      'Ultra-priority queue (3x faster)',
-      'Custom game modes',
-      'Premium servers',
-      'Stats & analytics',
-      'Replay analysis',
+      "Ultra-priority queue (3x faster)",
+      "Custom game modes",
+      "Premium servers",
+      "Stats & analytics",
+      "Replay analysis",
     ],
     waitTimeReduction: 66,
     priorityMultiplier: 3,
-    color: 'secondary',
-    icon: 'solar:cup-star-bold',
+    color: "secondary",
+    icon: "solar:cup-star-bold",
   },
   elite: {
-    tier: 'elite',
-    name: 'Elite',
+    tier: "elite",
+    name: "Elite",
     price: 19.99,
     features: [
-      'Instant priority (4x faster)',
-      'Exclusive tournaments',
-      'Premium-only servers',
-      'Advanced analytics',
-      'Coach matching',
-      'VIP support',
+      "Instant priority (4x faster)",
+      "Exclusive tournaments",
+      "Premium-only servers",
+      "Advanced analytics",
+      "Coach matching",
+      "VIP support",
     ],
     waitTimeReduction: 75,
     priorityMultiplier: 4,
-    color: 'warning',
-    icon: 'solar:crown-star-bold',
+    color: "warning",
+    icon: "solar:crown-star-bold",
   },
 };
 
@@ -176,77 +177,77 @@ export interface RegionOption {
 
 export const GAME_MODES: Record<string, GameModeOption> = {
   competitive: {
-    id: 'competitive',
-    name: 'Competitive',
-    description: 'Ranked 5v5 matches',
-    playerCount: '5v5',
-    icon: 'solar:ranking-bold',
+    id: "competitive",
+    name: "Competitive",
+    description: "Ranked 5v5 matches",
+    playerCount: "5v5",
+    icon: "solar:ranking-bold",
   },
   casual: {
-    id: 'casual',
-    name: 'Casual',
-    description: 'Unranked 5v5 matches',
-    playerCount: '5v5',
-    icon: 'solar:gameboy-bold',
+    id: "casual",
+    name: "Casual",
+    description: "Unranked 5v5 matches",
+    playerCount: "5v5",
+    icon: "solar:gameboy-bold",
   },
   wingman: {
-    id: 'wingman',
-    name: 'Wingman',
-    description: '2v2 tactical matches',
-    playerCount: '2v2',
-    icon: 'solar:user-hands-bold',
+    id: "wingman",
+    name: "Wingman",
+    description: "2v2 tactical matches",
+    playerCount: "2v2",
+    icon: "solar:user-hands-bold",
   },
   deathmatch: {
-    id: 'deathmatch',
-    name: 'Deathmatch',
-    description: 'Free-for-all combat',
-    playerCount: 'FFA',
-    icon: 'solar:target-bold',
+    id: "deathmatch",
+    name: "Deathmatch",
+    description: "Free-for-all combat",
+    playerCount: "FFA",
+    icon: "solar:target-bold",
   },
 };
 
 export const REGIONS: Record<string, RegionOption> = {
-  'na-east': {
-    id: 'na-east',
-    name: 'North America East',
-    location: 'Virginia, USA',
+  "na-east": {
+    id: "na-east",
+    name: "North America East",
+    location: "Virginia, USA",
     avgPing: 15,
-    icon: '🇺🇸',
+    icon: "🇺🇸",
   },
-  'na-west': {
-    id: 'na-west',
-    name: 'North America West',
-    location: 'Oregon, USA',
+  "na-west": {
+    id: "na-west",
+    name: "North America West",
+    location: "Oregon, USA",
     avgPing: 25,
-    icon: '🇺🇸',
+    icon: "🇺🇸",
   },
-  'eu-west': {
-    id: 'eu-west',
-    name: 'Europe West',
-    location: 'Dublin, Ireland',
+  "eu-west": {
+    id: "eu-west",
+    name: "Europe West",
+    location: "Dublin, Ireland",
     avgPing: 35,
-    icon: '🇪🇺',
+    icon: "🇪🇺",
   },
-  'eu-east': {
-    id: 'eu-east',
-    name: 'Europe East',
-    location: 'Frankfurt, Germany',
+  "eu-east": {
+    id: "eu-east",
+    name: "Europe East",
+    location: "Frankfurt, Germany",
     avgPing: 30,
-    icon: '🇪🇺',
+    icon: "🇪🇺",
   },
-  'asia-pacific': {
-    id: 'asia-pacific',
-    name: 'Asia Pacific',
-    location: 'Singapore',
+  "asia-pacific": {
+    id: "asia-pacific",
+    name: "Asia Pacific",
+    location: "Singapore",
     avgPing: 45,
-    icon: '🌏',
+    icon: "🌏",
   },
-  'south-america': {
-    id: 'south-america',
-    name: 'South America',
-    location: 'São Paulo, Brazil',
+  "south-america": {
+    id: "south-america",
+    name: "South America",
+    location: "São Paulo, Brazil",
     avgPing: 50,
-    icon: '🇧🇷',
+    icon: "🇧🇷",
   },
 };
 
@@ -255,14 +256,43 @@ export const REGIONS: Record<string, RegionOption> = {
 /**
  * Get session status display config
  */
-export const getSessionStatusConfig = (status: SessionStatus): { color: 'success' | 'warning' | 'danger' | 'default' | 'primary'; label: string; icon: string } => {
-  const config: Record<SessionStatus, { color: 'success' | 'warning' | 'danger' | 'default' | 'primary'; label: string; icon: string }> = {
-    queued: { color: 'warning', label: 'Queued', icon: 'solar:clock-circle-bold' },
-    searching: { color: 'primary', label: 'Searching', icon: 'solar:magnifer-bold' },
-    matched: { color: 'success', label: 'Matched', icon: 'solar:check-circle-bold' },
-    ready: { color: 'success', label: 'Ready', icon: 'solar:play-circle-bold' },
-    cancelled: { color: 'default', label: 'Cancelled', icon: 'solar:close-circle-bold' },
-    expired: { color: 'danger', label: 'Expired', icon: 'solar:alarm-bold' },
+export const getSessionStatusConfig = (
+  status: SessionStatus
+): {
+  color: "success" | "warning" | "danger" | "default" | "primary";
+  label: string;
+  icon: string;
+} => {
+  const config: Record<
+    SessionStatus,
+    {
+      color: "success" | "warning" | "danger" | "default" | "primary";
+      label: string;
+      icon: string;
+    }
+  > = {
+    queued: {
+      color: "warning",
+      label: "Queued",
+      icon: "solar:clock-circle-bold",
+    },
+    searching: {
+      color: "primary",
+      label: "Searching",
+      icon: "solar:magnifer-bold",
+    },
+    matched: {
+      color: "success",
+      label: "Matched",
+      icon: "solar:check-circle-bold",
+    },
+    ready: { color: "success", label: "Ready", icon: "solar:play-circle-bold" },
+    cancelled: {
+      color: "default",
+      label: "Cancelled",
+      icon: "solar:close-circle-bold",
+    },
+    expired: { color: "danger", label: "Expired", icon: "solar:alarm-bold" },
   };
   return config[status] ?? config.queued;
 };
@@ -270,12 +300,37 @@ export const getSessionStatusConfig = (status: SessionStatus): { color: 'success
 /**
  * Get queue health display config
  */
-export const getQueueHealthConfig = (health: QueueHealth): { color: 'success' | 'warning' | 'danger' | 'default'; label: string; icon: string } => {
-  const config: Record<QueueHealth, { color: 'success' | 'warning' | 'danger' | 'default'; label: string; icon: string }> = {
-    healthy: { color: 'success', label: 'Healthy', icon: 'solar:check-circle-bold' },
-    moderate: { color: 'warning', label: 'Moderate', icon: 'solar:clock-circle-bold' },
-    slow: { color: 'warning', label: 'Slow', icon: 'solar:hourglass-bold' },
-    degraded: { color: 'danger', label: 'Degraded', icon: 'solar:danger-triangle-bold' },
+export const getQueueHealthConfig = (
+  health: QueueHealth
+): {
+  color: "success" | "warning" | "danger" | "default";
+  label: string;
+  icon: string;
+} => {
+  const config: Record<
+    QueueHealth,
+    {
+      color: "success" | "warning" | "danger" | "default";
+      label: string;
+      icon: string;
+    }
+  > = {
+    healthy: {
+      color: "success",
+      label: "Healthy",
+      icon: "solar:check-circle-bold",
+    },
+    moderate: {
+      color: "warning",
+      label: "Moderate",
+      icon: "solar:clock-circle-bold",
+    },
+    slow: { color: "warning", label: "Slow", icon: "solar:hourglass-bold" },
+    degraded: {
+      color: "danger",
+      label: "Degraded",
+      icon: "solar:danger-triangle-bold",
+    },
   };
   return config[health] ?? config.healthy;
 };
@@ -295,7 +350,9 @@ export const formatWaitTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   if (minutes < 60) {
-    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+    return remainingSeconds > 0
+      ? `${minutes}m ${remainingSeconds}s`
+      : `${minutes}m`;
   }
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -313,14 +370,14 @@ export const formatElapsedTime = (seconds: number): string => {
  * Check if session is in a terminal state
  */
 export const isSessionTerminal = (status: SessionStatus): boolean => {
-  return ['matched', 'cancelled', 'expired'].includes(status);
+  return ["matched", "cancelled", "expired"].includes(status);
 };
 
 /**
  * Check if session is actively searching
  */
 export const isSessionActive = (status: SessionStatus): boolean => {
-  return ['queued', 'searching'].includes(status);
+  return ["queued", "searching"].includes(status);
 };
 
 /**
@@ -340,7 +397,10 @@ export const getRegion = (regionId: string): RegionOption | undefined => {
 /**
  * Calculate estimated wait reduction based on tier
  */
-export const calculateWaitReduction = (baseSeconds: number, tier: MatchmakingTier): number => {
+export const calculateWaitReduction = (
+  baseSeconds: number,
+  tier: MatchmakingTier
+): number => {
   const benefits = TIER_BENEFITS[tier];
   const reduction = (baseSeconds * benefits.waitTimeReduction) / 100;
   return Math.floor(baseSeconds - reduction);

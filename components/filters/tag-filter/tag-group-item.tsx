@@ -10,14 +10,16 @@ export interface TagGroupItemProps {
   children?: React.ReactNode;
   icon?: string;
   size?: "sm" | "md" | "lg";
+  isDisabled?: boolean;
 }
 
 const TagGroupItem = React.forwardRef<HTMLLabelElement, TagGroupItemProps>(
-  ({icon, size = "md", value, children: childrenProp}, ref) => {
+  ({icon, size = "md", value, children: childrenProp, isDisabled = false}, ref) => {
     const {children, isSelected, isFocusVisible, getBaseProps, getLabelProps, getInputProps} =
       useCheckbox({
         value,
         children: childrenProp,
+        isDisabled,
       });
 
     return (
@@ -30,6 +32,7 @@ const TagGroupItem = React.forwardRef<HTMLLabelElement, TagGroupItemProps>(
             base: cn({
               "outline-none ring-2 ring-focus ring-offset-2 ring-offset-background": isFocusVisible,
               "bg-primary": isSelected,
+              "opacity-50 cursor-not-allowed": isDisabled,
             }),
             content: cn("!text-small text-default-400", {
               "text-primary-foreground": isSelected,

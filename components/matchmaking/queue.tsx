@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -25,6 +25,7 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import { useSession } from "next-auth/react";
 
 import {
   GAME_CONFIGS,
@@ -34,6 +35,7 @@ import {
 } from "@/config/games";
 import type { GameId, QueuePreferences } from "@/types/games";
 import { EsportsButton } from "@/components/ui/esports-button";
+import { useMatchmaking } from "@/hooks/use-matchmaking";
 
 export interface MatchmakingQueueProps {
   /** Selected game ID */
@@ -111,17 +113,60 @@ export function MatchmakingQueue({
   className = "",
 }: MatchmakingQueueProps) {
   const game = GAME_CONFIGS[gameId];
+  const { data: session } = useSession();
   const {
     isOpen: isSettingsOpen,
     onOpen: onSettingsOpen,
     onClose: onSettingsClose,
   } = useDisclosure();
 
-  // Queue state
+  // Real matchmaking hook integration
+  const {
+    session: matchmakingSession,
+    poolStats,
+    isSearching,
+    isLoading: _isLoading,
+    error: _matchmakingError,
+    elapsedTime,
+    joinQueue,
+    leaveQueue,
+    fetchPoolStats,
+    clearError: _clearError,
+  } = useMatchmaking();
+
+  // Local UI state for queue status mapping
   const [queueStatus, setQueueStatus] = useState<QueueStatus>("idle");
   const [queueTime, setQueueTime] = useState(0);
-  const [estimatedWait] = useState(120); // seconds
-  const [playersInQueue, setPlayersInQueue] = useState(0);
+
+  // Map matchmaking state to local queue status
+  useEffect(() => {
+    if (isSearching) {
+      setQueueStatus("queuing");
+      setQueueTime(elapsedTime);
+    } else if (matchmakingSession?.status === "matched") {
+      setQueueStatus("ready-check");
+    } else if (matchmakingSession?.status === "ready") {
+      setQueueStatus("match-found");
+    } else {
+      setQueueStatus("idle");
+    }
+  }, [isSearching, matchmakingSession, elapsedTime]);
+
+  // Fetch pool stats on mount and periodically
+  useEffect(() => {
+    fetchPoolStats(gameId as string);
+    const interval = setInterval(() => {
+      fetchPoolStats(gameId as string);
+    }, 10000); // Every 10 seconds
+    return () => clearInterval(interval);
+  }, [gameId, fetchPoolStats]);
+
+  // Derived values from real data
+  const estimatedWait =
+    matchmakingSession?.estimated_wait ||
+    poolStats?.average_wait_time_seconds ||
+    120;
+  const playersInQueue = poolStats?.total_players || 0;
 
   // Preferences state
   const [selectedMode, setSelectedMode] = useState<string>(
@@ -148,36 +193,25 @@ export function MatchmakingQueue({
   // Get current rank tier
   const rankTier = getRankTier(gameId, playerRating);
 
-  // Queue timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (queueStatus === "queuing") {
-      interval = setInterval(() => {
-        setQueueTime((t) => t + 1);
-        // Simulate players in queue changing
-        setPlayersInQueue(Math.floor(Math.random() * 500) + 100);
-      }, 1000);
+  // Handle queue cancellation with real SDK
+  const handleCancelQueue = useCallback(async () => {
+    const success = await leaveQueue();
+    if (success) {
+      setQueueStatus("idle");
+      setQueueTime(0);
+      onQueueCancel?.();
     }
-    return () => clearInterval(interval);
-  }, [queueStatus]);
+  }, [leaveQueue, onQueueCancel]);
 
-  const handleCancelQueue = () => {
-    setQueueStatus("idle");
-    setQueueTime(0);
-    onQueueCancel?.();
-  };
-
-  // Simulate ready check countdown
+  // Ready check countdown - tracks time remaining for player to accept
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (queueStatus === "ready-check" && !readyCheckAccepted) {
       interval = setInterval(() => {
         setReadyCheckTimeout((t) => {
           if (t <= 1) {
-            // Time expired, cancel queue
-            setQueueStatus("idle");
-            setQueueTime(0);
-            onQueueCancel?.();
+            // Time expired - decline and leave queue
+            handleCancelQueue();
             return 30;
           }
           return t - 1;
@@ -185,9 +219,16 @@ export function MatchmakingQueue({
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [queueStatus, readyCheckAccepted, onQueueCancel]);
+  }, [queueStatus, readyCheckAccepted, handleCancelQueue]);
 
-  const handleStartQueue = () => {
+  const handleStartQueue = useCallback(async () => {
+    // Validate user is authenticated
+    const userId = (session?.user as { id?: string })?.id;
+    if (!userId) {
+      console.error("User must be authenticated to join queue");
+      return;
+    }
+
     const preferences: QueuePreferences = {
       gameId,
       modes: [selectedMode],
@@ -199,66 +240,142 @@ export function MatchmakingQueue({
       maxRankDiff: 2,
     };
 
-    setQueueStatus("queuing");
-    setQueueTime(0);
-    onQueueStart?.(preferences);
+    // Call the real SDK
+    const result = await joinQueue({
+      player_id: userId,
+      preferences: {
+        game_id: gameId as string,
+        game_mode: selectedMode,
+        region: selectedRegions[0] || "auto",
+        skill_range: {
+          min_mmr: playerRating - 200,
+          max_mmr: playerRating + 200,
+        },
+        max_ping: maxPing,
+        allow_cross_platform: acceptCrossPlatform,
+        tier: "free",
+        priority_boost: false,
+      },
+      player_mmr: playerRating,
+    });
 
-    // Simulate match found after random time (demo)
-    const waitTime = Math.random() * 30 + 10;
-    setTimeout(() => {
-      if (queueStatus === "queuing") {
-        setQueueStatus("ready-check");
-        setReadyCheckTimeout(30);
-        setReadyCheckAccepted(false);
-      }
-    }, waitTime * 1000);
-  };
+    if (result) {
+      setQueueTime(0);
+      onQueueStart?.(preferences);
+    }
+  }, [
+    session,
+    gameId,
+    selectedMode,
+    selectedMaps,
+    selectedRegions,
+    acceptCrossPlatform,
+    maxPing,
+    playerRating,
+    joinQueue,
+    onQueueStart,
+  ]);
 
-  const handleAcceptMatch = () => {
+  const handleAcceptMatch = useCallback(async () => {
+    const userId = (session?.user as { id?: string })?.id;
+    const lobbyId = matchmakingSession?.lobby_id;
+
+    if (!userId || !lobbyId) {
+      console.error("Cannot accept match: missing user ID or lobby ID");
+      return;
+    }
+
     setReadyCheckAccepted(true);
 
-    // Simulate all players accepting
-    setTimeout(() => {
-      const mockMatch: MatchFoundData = {
-        matchId: `match-${Date.now()}`,
-        gameId,
-        mode: selectedMode,
-        map: selectedMaps[Math.floor(Math.random() * selectedMaps.length)],
-        teams: [
-          {
-            id: "team1",
-            players: [
-              {
-                id: "p1",
-                name: playerName,
-                avatar: playerAvatar,
-                rating: playerRating,
-              },
-              { id: "p2", name: "Player2", rating: playerRating + 50 },
-              { id: "p3", name: "Player3", rating: playerRating - 30 },
-              { id: "p4", name: "Player4", rating: playerRating + 20 },
-              { id: "p5", name: "Player5", rating: playerRating - 10 },
-            ],
-          },
-          {
-            id: "team2",
-            players: [
-              { id: "p6", name: "Enemy1", rating: playerRating + 10 },
-              { id: "p7", name: "Enemy2", rating: playerRating - 20 },
-              { id: "p8", name: "Enemy3", rating: playerRating + 40 },
-              { id: "p9", name: "Enemy4", rating: playerRating - 40 },
-              { id: "p10", name: "Enemy5", rating: playerRating },
-            ],
-          },
-        ],
-        estimatedDuration: 45,
-      };
+    try {
+      // Use SDK to set player ready status on the lobby
+      const { ReplayAPISDK } = await import("@/types/replay-api/sdk");
+      const { ReplayApiSettingsMock } = await import(
+        "@/types/replay-api/settings"
+      );
+      const { logger } = await import("@/lib/logger");
+      const apiSdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
-      setFoundMatch(mockMatch);
-      setQueueStatus("match-found");
-      onMatchFound?.(mockMatch);
-    }, 2000);
-  };
+      await apiSdk.lobbies.setPlayerReady(lobbyId, {
+        player_id: userId,
+        is_ready: true,
+      });
+
+      // Poll for lobby status updates until match starts or is cancelled
+      const stopPolling = await apiSdk.lobbies.pollLobbyStatus(
+        lobbyId,
+        (lobby) => {
+          if (
+            (lobby.status === "started" || lobby.status === "starting") &&
+            lobby.match_id
+          ) {
+            // Match has started - build teams from lobby slots
+            interface TeamData {
+              id: string;
+              players: Array<{
+                id: string;
+                name: string;
+                avatar?: string;
+                rating: number;
+              }>;
+            }
+
+            const teams = (lobby.player_slots || []).reduce(
+              (acc: TeamData[], slot, index: number) => {
+                const teamIndex = Math.floor(index / 5);
+                if (!acc[teamIndex]) {
+                  acc[teamIndex] = { id: `team${teamIndex + 1}`, players: [] };
+                }
+                const playerId = slot.player_id;
+                if (playerId) {
+                  acc[teamIndex].players.push({
+                    id: playerId,
+                    name: `Player${index + 1}`,
+                    avatar: undefined,
+                    rating: slot.mmr || playerRating,
+                  });
+                }
+                return acc;
+              },
+              []
+            );
+
+            const matchData: MatchFoundData = {
+              matchId: lobby.match_id,
+              gameId,
+              mode: selectedMode,
+              map: selectedMaps[0] || "unknown",
+              teams,
+              estimatedDuration: 45,
+            };
+
+            setFoundMatch(matchData);
+            setQueueStatus("match-found");
+            onMatchFound?.(matchData);
+            stopPolling();
+          } else if (lobby.status === "cancelled") {
+            setQueueStatus("idle");
+            setQueueTime(0);
+            onQueueCancel?.();
+            stopPolling();
+          }
+        },
+        1500 // Poll every 1.5 seconds during ready check
+      );
+    } catch (error) {
+      console.error("Failed to accept match:", error);
+      setReadyCheckAccepted(false);
+    }
+  }, [
+    session,
+    matchmakingSession,
+    gameId,
+    selectedMode,
+    selectedMaps,
+    playerRating,
+    onMatchFound,
+    onQueueCancel,
+  ]);
 
   const handleDeclineMatch = () => {
     setQueueStatus("idle");

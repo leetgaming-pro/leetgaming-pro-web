@@ -2,6 +2,8 @@
 
 interface ApiSettings {
   baseUrl: string;
+  /** Optional auth token for server-side requests */
+  authToken?: string;
 }
 
 export interface ApiResource {

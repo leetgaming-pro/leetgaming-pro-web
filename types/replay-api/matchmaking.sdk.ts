@@ -18,9 +18,24 @@ export class MatchmakingAPI {
 
   /**
    * Join the matchmaking queue
+   * Transforms frontend request format to match backend API structure
    */
   async joinQueue(request: JoinQueueRequest): Promise<JoinQueueResponse | null> {
-    const response = await this.client.post<JoinQueueResponse>('/match-making/queue', request);
+    // Transform to backend's expected flat structure
+    const backendRequest = {
+      player_id: request.player_id,
+      squad_id: request.squad_id,
+      game_id: request.preferences.game_id,
+      game_mode: request.preferences.game_mode,
+      region: request.preferences.region,
+      tier: request.preferences.tier,
+      player_mmr: request.player_mmr,
+      max_ping: request.preferences.max_ping,
+      priority_boost: request.preferences.priority_boost,
+      team_format: "5v5", // Default, can be extended
+    };
+
+    const response = await this.client.post<JoinQueueResponse>('/match-making/queue', backendRequest);
     if (response.error) {
       console.error('Failed to join queue:', response.error);
       return null;

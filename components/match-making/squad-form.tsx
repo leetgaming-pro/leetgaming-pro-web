@@ -1,9 +1,29 @@
 "use client";
 
+/**
+ * Squad Form Component
+ * Uses SDK via useReplayApi hook - DO NOT use direct fetch calls
+ */
+
 import type { InputProps } from "@nextui-org/react";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Input, Checkbox, Link, Spacer, Card, Accordion, AccordionItem, Avatar, Tab, CardBody, Tabs, Chip, User, Spinner } from "@nextui-org/react";
+import {
+  Input,
+  Checkbox,
+  Link,
+  Spacer,
+  Card,
+  Accordion,
+  AccordionItem,
+  Avatar,
+  Tab,
+  CardBody,
+  Tabs,
+  Chip,
+  User,
+  Spinner,
+} from "@nextui-org/react";
 import { cn } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { SearchIcon } from "../icons";
@@ -11,6 +31,7 @@ import { title } from "../primitives";
 import { useTheme } from "next-themes";
 import { useWizard } from "./wizard-context";
 import { useSession } from "next-auth/react";
+import { useReplayApi } from "@/hooks/use-replay-api";
 
 interface TeamMember {
   nickname: string;
@@ -35,10 +56,11 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
   ({ className, ...props }, ref) => {
     const { updateState } = useWizard();
     const { data: session } = useSession();
+    const { sdk } = useReplayApi(); // Use SDK instead of direct fetch
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    
+
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
       classNames: {
@@ -58,84 +80,97 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
     // Get user info from session
     const user = {
       name: session?.user?.name || "Guest",
-      avatar: session?.user?.image || session?.user?.steam?.avatarmedium || "/default-avatar.png",
-      username: session?.user?.steam?.personaname || session?.user?.email?.split("@")[0] || "player",
+      avatar:
+        session?.user?.image ||
+        session?.user?.steam?.avatarmedium ||
+        "/default-avatar.png",
+      username:
+        session?.user?.steam?.personaname ||
+        session?.user?.email?.split("@")[0] ||
+        "player",
       url: session?.user?.steam?.profileurl || "#",
       role: "Player",
       status: session ? "Online" : "Offline",
     };
 
-    // Fetch user's teams from API
+    // Fetch user's teams using SDK instead of direct fetch
     const fetchTeams = useCallback(async () => {
       if (!session?.user) {
         setTeams([]);
         setLoading(false);
         return;
       }
-      
+
       try {
-        const response = await fetch('/api/squads');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data) {
-            const formattedTeams: Team[] = data.data.map((squad: any) => ({
-              id: squad.id,
-              displayName: squad.name || squad.display_name || "Unnamed Team",
-              tag: squad.symbol || squad.tag || "TEAM",
-              url: `/teams/${squad.id}`,
-              avatar: squad.logo_uri || "/team-default.png",
-              members: squad.members?.map((m: any) => ({
-                nickname: m.nickname || m.display_name || "Unknown",
-                avatar: m.avatar_uri || "/default-avatar.png",
-                type: m.role_type || "Member",
-                role: m.game_role || "Player",
-              })) || [],
-              description: squad.description || "",
-            }));
-            setTeams(formattedTeams);
-          }
+        // Use SDK to search squads instead of direct fetch
+        const squads = await sdk.squads.searchSquads({});
+        if (squads && squads.length > 0) {
+          const formattedTeams: Team[] = squads.map((squad) => ({
+            id: squad.id || "",
+            displayName: squad.name || "Unnamed Team",
+            tag: squad.symbol || "TEAM",
+            url: `/teams/${squad.id}`,
+            avatar: squad.logo_uri || "/team-default.png",
+            members: squad.members
+              ? Object.entries(squad.members).map(([userId, membership]) => ({
+                  nickname: userId.substring(0, 8),
+                  avatar: "/default-avatar.png",
+                  type: membership.type || "Member",
+                  role: membership.roles?.[0] || "Player",
+                }))
+              : [],
+            description: squad.description || "",
+          }));
+          setTeams(formattedTeams);
         }
       } catch (error) {
         console.error("Failed to fetch teams:", error);
       } finally {
         setLoading(false);
       }
-    }, [session]);
+    }, [session, sdk]);
 
     useEffect(() => {
       fetchTeams();
     }, [fetchTeams]);
 
-
-
     return (
       <>
         <div className="w-full text-3xl font-bold leading-9 text-default-foreground flex items-center justify-center">
-
-          <h1 className={title({ color: theme === "dark" ? "battleLime" : "battleNavy" })}>Setup your Squad</h1>
+          <h1
+            className={title({
+              color: theme === "dark" ? "battleLime" : "battleNavy",
+            })}
+          >
+            Setup your Squad
+          </h1>
         </div>
         <div className="py-2 text-medium text-default-500">
           Choose a team or pick your friends to play with.
         </div>
 
         <Tabs aria-label="Options" className="w-full" variant="underlined">
-
           <Tab key="create-team" title="Pick-up your party">
             <form
               ref={ref}
               {...props}
-              className={cn("flex grid grid-cols-12 flex-col gap-4 py-8 w-[500px]", className)}
+              className={cn(
+                "flex grid grid-cols-12 flex-col gap-4 py-8 w-[500px]",
+                className
+              )}
             >
               <Input
                 startContent={
                   <div>
-                    <Icon className="text-default-500" icon="solar:users-group-two-rounded-outline" width={20} />
+                    <Icon
+                      className="text-default-500"
+                      icon="solar:users-group-two-rounded-outline"
+                      width={20}
+                    />
                     <Spacer x={5} />
                   </div>
                 }
-                endContent={
-                  <SearchIcon />
-                }
+                endContent={<SearchIcon />}
                 className="col-span-12"
                 name="search"
                 placeholder="Search for players or teams..."
@@ -143,7 +178,6 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                 onChange={(e) => setSearchQuery(e.target.value)}
                 {...inputProps}
               />
-
 
               {/* <Checkbox
                 defaultSelected
@@ -171,7 +205,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                   "inline-flex w-full max-w-md bg-content1",
                   "hover:bg-content2 items-center justify-start",
                   "cursor-pointer rounded-none gap-2 p-4 border-2 border-transparent",
-                  "data-[selected=true]:border-primary",
+                  "data-[selected=true]:border-primary"
                 ),
                 label: "w-full",
               }}
@@ -189,7 +223,9 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                   name={user.name}
                 />
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-tiny text-default-500">{user.role}</span>
+                  <span className="text-tiny text-default-500">
+                    {user.role}
+                  </span>
                   <Chip color="success" size="sm" variant="flat">
                     {user.status}
                   </Chip>
@@ -202,12 +238,15 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
             <Card className="col-span-12 m-0 p-2 text-center">
               <div className="col-span-12 m-0 p-2 text-center">
                 Don&lsquo;t have a team yet?
-                <Link className="ml-2 text-secondary underline" href="/teams/create" size="md">
+                <Link
+                  className="ml-2 text-secondary underline"
+                  href="/teams/create"
+                  size="md"
+                >
                   Create a new team
                 </Link>
               </div>
             </Card>
-
           </Tab>
 
           <Tab key="your-teams" title="Your Teams">
@@ -219,9 +258,17 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                   </div>
                 ) : teams.length === 0 ? (
                   <div className="text-center p-8">
-                    <Icon icon="solar:users-group-two-rounded-outline" className="w-16 h-16 mx-auto text-default-300 mb-4" />
-                    <p className="text-default-500 mb-4">You haven&apos;t joined any teams yet.</p>
-                    <Link href="/teams/create" className="text-primary underline">
+                    <Icon
+                      icon="solar:users-group-two-rounded-outline"
+                      className="w-16 h-16 mx-auto text-default-300 mb-4"
+                    />
+                    <p className="text-default-500 mb-4">
+                      You haven&apos;t joined any teams yet.
+                    </p>
+                    <Link
+                      href="/teams/create"
+                      className="text-primary underline"
+                    >
                       Create your first team
                     </Link>
                   </div>
@@ -230,7 +277,9 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                     <Accordion
                       key={team.id}
                       selectionMode="multiple"
-                      onSelectionChange={() => updateState({ squadId: team.id })}
+                      onSelectionChange={() =>
+                        updateState({ squadId: team.id })
+                      }
                     >
                       <AccordionItem
                         key="1"
@@ -243,19 +292,43 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                             src={team.avatar}
                           />
                         }
-                        subtitle={`${team.displayName} (${team.members.length} member${team.members.length !== 1 ? 's' : ''})`}
+                        subtitle={`${team.displayName} (${
+                          team.members.length
+                        } member${team.members.length !== 1 ? "s" : ""})`}
                         title={team.tag}
                       >
-                        {team.description && <p className="text-sm text-default-500 mb-2">{team.description}</p>}
+                        {team.description && (
+                          <p className="text-sm text-default-500 mb-2">
+                            {team.description}
+                          </p>
+                        )}
 
                         {team.members.map((member, idx) => (
-                          <div key={`${member.nickname}-${idx}`} className="flex items-center gap-2">
+                          <div
+                            key={`${member.nickname}-${idx}`}
+                            className="flex items-center gap-2"
+                          >
                             <Spacer y={2} />
-                            <Card className="w-1/2 border border-[#DCFF37]/20 dark:border-[#DCFF37]/30" style={{ borderRadius: "0px" }}>
+                            <Card
+                              className="w-1/2 border border-[#DCFF37]/20 dark:border-[#DCFF37]/30"
+                              style={{ borderRadius: "0px" }}
+                            >
                               <div className="flex items-center gap-2 p-2">
-                                <Avatar alt={member.nickname.charAt(0).toUpperCase()} src={member.avatar} size="sm" />
-                                <span className="text-sm">{member.nickname}</span>
-                                <Chip size="sm" variant="flat" className="ml-auto">{member.role}</Chip>
+                                <Avatar
+                                  alt={member.nickname.charAt(0).toUpperCase()}
+                                  src={member.avatar}
+                                  size="sm"
+                                />
+                                <span className="text-sm">
+                                  {member.nickname}
+                                </span>
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  className="ml-auto"
+                                >
+                                  {member.role}
+                                </Chip>
                               </div>
                             </Card>
                           </div>
@@ -270,7 +343,7 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
         </Tabs>
       </>
     );
-  },
+  }
 );
 
 SignUpForm.displayName = "SignUpForm";

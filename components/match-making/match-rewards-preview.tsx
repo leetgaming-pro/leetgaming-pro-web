@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Card, CardBody, Chip, Progress } from "@nextui-org/react";
+import { Card, CardBody, Chip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import type { DistributionRule } from "./prize-distribution-selector";
@@ -145,11 +145,11 @@ export function MatchRewardsPreview({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white/60 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/30 transition-all"
+                  className="flex items-center justify-between p-3 rounded-none bg-white/60 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/30 transition-all border-l-2 border-[#FF4654] dark:border-[#DCFF37]"
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${
+                      className={`p-2 rounded-none ${
                         payout.color === "warning"
                           ? "bg-warning-100 dark:bg-warning-900/30"
                           : payout.color === "secondary"
@@ -195,7 +195,7 @@ export function MatchRewardsPreview({
           </div>
 
           {/* Match Probability Hint */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800">
+          <div className="flex items-start gap-2 p-3 rounded-none bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 border-l-2 border-l-success-500">
             <Icon
               icon="solar:chart-2-bold-duotone"
               width={20}

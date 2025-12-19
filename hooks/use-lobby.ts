@@ -30,13 +30,16 @@ const getApiBaseUrl = (): string =>
     : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 // --- Helper Functions ---
+// Status values aligned with backend: open, ready_check, starting, started, cancelled
 
 const isLobbyTerminal = (status: LobbyStatus): boolean => {
-  return ['completed', 'cancelled', 'expired'].includes(status);
+  // Backend only has 'cancelled' as terminal - matches complete through match system
+  return ['cancelled', 'started'].includes(status);
 };
 
 const isLobbyActive = (status: LobbyStatus): boolean => {
-  return ['waiting_for_players', 'ready_check', 'starting', 'in_progress'].includes(status);
+  // 'open' = waiting for players, 'started' = match in progress
+  return ['open', 'ready_check', 'starting'].includes(status);
 };
 
 const getReadyCount = (slots: PlayerSlot[]): number => {
@@ -144,8 +147,9 @@ export function useLobby(
     if (!lobby || !isHost) return false;
     const players = getPlayerCount(lobby.player_slots);
     const ready = getReadyCount(lobby.player_slots);
+    // Status 'open' means lobby is accepting players / waiting to start
     return (
-      lobby.status === 'waiting_for_players' &&
+      lobby.status === 'open' &&
       players >= lobby.min_players &&
       (!lobby.requires_ready_check || ready === players)
     );

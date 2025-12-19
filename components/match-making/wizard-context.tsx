@@ -122,6 +122,28 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   };
 
   const startMatchmaking = async (playerId: string) => {
+    // Validate player ID - no mock IDs allowed
+    if (
+      !playerId ||
+      playerId === "mock-player-id" ||
+      playerId.startsWith("mock-")
+    ) {
+      setState((prev) => ({
+        ...prev,
+        matchmaking: {
+          isSearching: false,
+          sessionId: null,
+          queuePosition: 0,
+          estimatedWait: 0,
+          elapsedTime: 0,
+          poolStats: null,
+          error:
+            "Authentication required. Please sign in to start matchmaking.",
+        },
+      }));
+      return;
+    }
+
     try {
       setState((prev) => ({
         ...prev,
@@ -184,7 +206,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             : prev.matchmaking,
         }));
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to start matchmaking";
       setState((prev) => ({
         ...prev,
         matchmaking: {
@@ -194,7 +218,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           estimatedWait: 0,
           elapsedTime: 0,
           poolStats: null,
-          error: error.message || "Failed to start matchmaking",
+          error: errorMessage,
         },
       }));
     }
@@ -221,13 +245,17 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             error: null,
           },
         }));
-      } catch (error: any) {
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel matchmaking";
         setState((prev) => ({
           ...prev,
           matchmaking: prev.matchmaking
             ? {
                 ...prev.matchmaking,
-                error: error.message || "Failed to cancel matchmaking",
+                error: errorMessage,
               }
             : prev.matchmaking,
         }));

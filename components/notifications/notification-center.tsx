@@ -3,9 +3,10 @@
 /**
  * Notification Center Component
  * Displays and manages user notifications with real-time updates
+ * Uses SDK via useNotifications hook - DO NOT use direct fetch calls
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Popover,
   PopoverTrigger,
@@ -15,42 +16,28 @@ import {
   Card,
   CardBody,
   Divider,
-  Chip,
   Tabs,
   Tab,
   ScrollShadow,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { useNotifications, Notification, NotificationType } from '@/hooks/use-notifications';
 
-export interface Notification {
-  id: string;
-  type: 'match' | 'team' | 'friend' | 'system' | 'achievement' | 'message';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  actionUrl?: string;
-  metadata?: {
-    icon?: string;
-    color?: string;
-    [key: string]: any;
-  };
-}
+// Re-export Notification type for backwards compatibility
+export type { Notification };
 
 export interface NotificationCenterProps {
-  /** Initial notifications */
-  initialNotifications?: Notification[];
   /** Callback when notification is clicked */
   onNotificationClick?: (notification: Notification) => void;
   /** Callback when notification is marked as read */
   onMarkAsRead?: (notificationId: string) => void;
   /** Callback when all notifications are marked as read */
   onMarkAllAsRead?: () => void;
-  /** Enable real-time updates */
+  /** Enable real-time updates via polling */
   enableRealtime?: boolean;
 }
 
-const notificationIcons: Record<Notification['type'], string> = {
+const notificationIcons: Record<NotificationType, string> = {
   match: 'solar:gameboy-bold',
   team: 'solar:users-group-rounded-bold',
   friend: 'solar:user-plus-bold',
@@ -60,7 +47,7 @@ const notificationIcons: Record<Notification['type'], string> = {
 };
 
 const notificationColors: Record<
-  Notification['type'],
+  NotificationType,
   'primary' | 'secondary' | 'success' | 'warning' | 'danger'
 > = {
   match: 'primary',
@@ -72,83 +59,33 @@ const notificationColors: Record<
 };
 
 export function NotificationCenter({
-  initialNotifications = [],
   onNotificationClick,
   onMarkAsRead,
   onMarkAllAsRead,
   enableRealtime = false,
 }: NotificationCenterProps) {
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [selectedTab, setSelectedTab] = useState<string>('all');
 
-  // Load notifications on mount
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  // Real-time updates simulation (replace with WebSocket in production)
-  useEffect(() => {
-    if (!enableRealtime) return;
-
-    const interval = setInterval(() => {
-      // In production, use WebSocket or Server-Sent Events
-      // For now, we'll just poll the API
-      loadNotifications();
-    }, 30000); // Poll every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [enableRealtime]);
-
-  const loadNotifications = async () => {
-    try {
-      const response = await fetch('/api/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-      } else {
-        // Show empty state when API fails
-        setNotifications([]);
-      }
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-      // Show empty state on error - no mock data fallback
-      setNotifications([]);
-    }
-  };
+  // Use SDK-powered notifications hook instead of direct fetch
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    getByType,
+  } = useNotifications(true, {}, enableRealtime, 30000);
 
   const handleMarkAsRead = async (notificationId: string) => {
-    try {
-      // In production, call API
-      await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PUT',
-      });
-
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-      );
-
-      if (onMarkAsRead) {
-        onMarkAsRead(notificationId);
-      }
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+    const success = await markAsRead(notificationId);
+    if (success && onMarkAsRead) {
+      onMarkAsRead(notificationId);
     }
   };
 
   const handleMarkAllAsRead = async () => {
-    try {
-      // In production, call API
-      await fetch('/api/notifications/read-all', {
-        method: 'PUT',
-      });
-
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-
-      if (onMarkAllAsRead) {
-        onMarkAllAsRead();
-      }
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+    const success = await markAllAsRead();
+    if (success && onMarkAllAsRead) {
+      onMarkAllAsRead();
     }
   };
 
@@ -164,12 +101,10 @@ export function NotificationCenter({
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
   const filteredNotifications =
     selectedTab === 'all'
       ? notifications
-      : notifications.filter((n) => n.type === selectedTab);
+      : getByType(selectedTab as NotificationType);
 
   const renderNotification = (notification: Notification) => {
     const icon = notification.metadata?.icon || notificationIcons[notification.type];

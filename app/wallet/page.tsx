@@ -32,21 +32,32 @@ import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import type { UserWallet, WalletTransaction, Currency } from '@/types/replay-api/wallet.types';
-import { formatAmount, formatEVMAddress, getAmountValue, getEVMAddressValue, getBalanceValue } from '@/types/replay-api/wallet.types';
+import type { Currency } from '@/types/replay-api/wallet.types';
+import { formatAmount, formatEVMAddress, getAmountValue, getEVMAddressValue } from '@/types/replay-api/wallet.types';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { DepositModal } from '@/components/wallet/modals/deposit-modal';
 import { WithdrawModal } from '@/components/wallet/modals/withdraw-modal';
 import { TransactionHistoryModal } from '@/components/wallet/modals/transaction-history-modal';
+import { useWallet } from '@/hooks/use-wallet';
 import { logger } from '@/lib/logger';
 
 export default function WalletPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
-  const [wallet, setWallet] = useState<UserWallet | null>(null);
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Use the SDK-powered wallet hook instead of direct fetch
+  const {
+    balance: wallet,
+    transactions: transactionsResult,
+    isLoadingBalance,
+    isLoadingTransactions,
+    refreshBalance,
+    refreshTransactions,
+  } = useWallet(status === 'authenticated', { limit: 50, offset: 0 });
+
+  const transactions = transactionsResult?.transactions || [];
+  const isLoading = isLoadingBalance || isLoadingTransactions;
+
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
   const [showCopied, setShowCopied] = useState(false);
 
@@ -66,50 +77,23 @@ export default function WalletPage() {
     }
   }, [status, router]);
 
-  const fetchWallet = async () => {
-    try {
-      const response = await fetch('/api/wallet/balance');
-      if (response.ok) {
-        const data = await response.json();
-        setWallet(data);
-      }
-    } catch (error) {
-      logger.error('Failed to fetch wallet', error);
-    }
-  };
-
-  const fetchTransactions = async () => {
-    try {
-      const response = await fetch('/api/wallet/transactions?limit=50');
-      if (response.ok) {
-        const data = await response.json();
-        setTransactions(data.transactions || []);
-      }
-    } catch (error) {
-      logger.error('Failed to fetch transactions', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Auto-refresh balance every 15 seconds
   useEffect(() => {
     if (status === 'authenticated') {
-      fetchWallet();
-      fetchTransactions();
-      const interval = setInterval(fetchWallet, 15000); // Refresh every 15s
+      const interval = setInterval(refreshBalance, 15000);
       return () => clearInterval(interval);
     }
     return undefined;
-  }, [status]);
+  }, [status, refreshBalance]);
 
   const handleDepositSuccess = () => {
-    fetchWallet();
-    fetchTransactions();
+    refreshBalance();
+    refreshTransactions();
   };
 
   const handleWithdrawSuccess = () => {
-    fetchWallet();
-    fetchTransactions();
+    refreshBalance();
+    refreshTransactions();
   };
 
   const copyAddress = async () => {

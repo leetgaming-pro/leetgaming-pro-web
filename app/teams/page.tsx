@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { Team, Squad as TeamCardSquad } from "@/components/teams/team-card/App";
+import { useOptionalAuth } from "@/hooks";
 
 import {
   Button,
@@ -36,7 +36,7 @@ interface SquadSearchFilters {
 }
 
 export default function TeamsPage() {
-  const { data: session } = useSession();
+  const { isAuthenticated, isLoading: authLoading, requireAuthForAction } = useOptionalAuth();
   const router = useRouter();
   const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,9 +108,23 @@ export default function TeamsPage() {
             <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Discover professional esports teams and find your squad</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <LaunchYourSquadButton />
-        </div>
+        {isAuthenticated && (
+          <div className="flex gap-2">
+            <LaunchYourSquadButton />
+          </div>
+        )}
+        {!isAuthenticated && !authLoading && (
+          <div className="flex gap-2">
+            <Button
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              startContent={<Icon icon="solar:login-bold" width={18} />}
+              onPress={() => router.push('/signin?callbackUrl=/teams')}
+            >
+              Sign in to create team
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Search and Filters Card */}
@@ -147,9 +161,11 @@ export default function TeamsPage() {
                 <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
               </Select>
             </div>
-            <div className="flex gap-2">
-              <ApplyNowButton />
-            </div>
+            {isAuthenticated && (
+              <div className="flex gap-2">
+                <ApplyNowButton />
+              </div>
+            )}
           </div>
         </CardBody>
       </Card>
@@ -197,7 +213,18 @@ export default function TeamsPage() {
               Be the first to create a team and start competing!
             </p>
             <div className="flex gap-3 justify-center">
-              <LaunchYourSquadButton />
+              {isAuthenticated ? (
+                <LaunchYourSquadButton />
+              ) : (
+                <Button
+                  className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                  startContent={<Icon icon="solar:login-bold" width={18} />}
+                  onPress={() => router.push('/signin?callbackUrl=/teams')}
+                >
+                  Sign in to create a team
+                </Button>
+              )}
             </div>
           </CardBody>
         </Card>

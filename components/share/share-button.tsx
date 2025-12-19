@@ -79,7 +79,7 @@ export function ShareButton({
   const generateShareToken = async () => {
     setIsGenerating(true);
     try {
-      // Use real SDK for replay content
+      // Use SDK for all content types - replay uses shareTokens API
       if (contentType === "replay") {
         const response = await sdk.shareTokens.createShareToken(
           "cs2",
@@ -98,23 +98,20 @@ export function ShareButton({
           throw new Error("No token received from API");
         }
       } else {
-        // For other content types, use the API endpoint
-        const response = await fetch("/api/share/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            content_type: contentType,
-            content_id: contentId,
-            expires_in_hours: 720, // 30 days
-          }),
+        // For other content types, use SDK client directly
+        // This ensures consistent authentication and error handling
+        const response = await sdk.client.post<{ token: string; share_token?: string }>("/share/token", {
+          content_type: contentType,
+          content_id: contentId,
+          expires_in_hours: 720, // 30 days
         });
 
-        if (!response.ok) {
+        if (response.error) {
           throw new Error("Failed to generate share token");
         }
 
-        const data = await response.json();
-        setShareToken(data.token || data.share_token);
+        const data = response.data;
+        setShareToken(data?.token || data?.share_token || null);
       }
     } catch (error) {
       console.error("Error generating share token:", error);

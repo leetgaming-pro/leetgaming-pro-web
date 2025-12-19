@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * Email Verification Modal
+ * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
@@ -12,6 +17,7 @@ import {
   Spinner,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
+import { useAuthExtensions } from '@/hooks/use-auth-extensions';
 
 interface EmailVerificationModalProps {
   isOpen: boolean;
@@ -26,6 +32,15 @@ export function EmailVerificationModal({
   email,
   onVerified,
 }: EmailVerificationModalProps) {
+  // Use SDK-powered auth hook instead of direct fetch
+  const {
+    isEmailVerificationLoading,
+    emailVerificationError,
+    sendVerificationEmail,
+    verifyEmail,
+    clearErrors,
+  } = useAuthExtensions();
+
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -57,22 +72,18 @@ export function EmailVerificationModal({
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      // Use SDK hook to send verification email
+      const success = await sendVerificationEmail(email);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send verification code');
+      if (success) {
+        setCodeSent(true);
+        setCooldown(60); // 60 second cooldown before resending
+      } else {
+        setError(emailVerificationError || 'Failed to send verification code');
       }
-
-      setCodeSent(true);
-      setCooldown(60); // 60 second cooldown before resending
-    } catch (err: any) {
-      setError(err.message || 'Failed to send verification code');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send verification code';
+      setError(errorMessage);
     } finally {
       setIsSending(false);
     }
@@ -118,21 +129,19 @@ export function EmailVerificationModal({
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: verificationCode }),
-      });
+      // Use SDK hook to verify email with code
+      const success = await verifyEmail(verificationCode);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid verification code');
+      if (success) {
+        onVerified();
+      } else {
+        setError(emailVerificationError || 'Invalid verification code');
+        setCode(['', '', '', '', '', '']);
+        inputRefs.current[0]?.focus();
       }
-
-      onVerified();
-    } catch (err: any) {
-      setError(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Verification failed';
+      setError(errorMessage);
       setCode(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
@@ -143,6 +152,7 @@ export function EmailVerificationModal({
   const handleClose = () => {
     setCode(['', '', '', '', '', '']);
     setError(null);
+    clearErrors();
     onClose();
   };
 

@@ -10,12 +10,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip, Skeleton } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { UserWallet, Currency } from '@/types/replay-api/wallet.types';
+import type { Currency } from '@/types/replay-api/wallet.types';
 import { formatAmount, formatEVMAddress, getAmountValue, getEVMAddressValue } from '@/types/replay-api/wallet.types';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { DepositModal } from '@/components/wallet/modals/deposit-modal';
 import { WithdrawModal } from '@/components/wallet/modals/withdraw-modal';
 import { TransactionHistoryModal } from '@/components/wallet/modals/transaction-history-modal';
+import { useWallet } from '@/hooks/use-wallet';
 
 interface WalletCardProps {
   compact?: boolean;
@@ -24,8 +25,13 @@ interface WalletCardProps {
 export function WalletCard({
   compact = true,
 }: WalletCardProps) {
-  const [wallet, setWallet] = useState<UserWallet | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Use SDK-powered wallet hook instead of direct fetch
+  const {
+    balance: wallet,
+    isLoadingBalance: isLoading,
+    refreshBalance,
+  } = useWallet(true);
+
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
   const [showCopied, setShowCopied] = useState(false);
 
@@ -34,33 +40,19 @@ export function WalletCard({
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  const fetchWallet = async () => {
-    try {
-      const response = await fetch('/api/wallet/balance');
-      if (response.ok) {
-        const data = await response.json();
-        setWallet(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch wallet:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Auto-refresh wallet every 10 seconds
   useEffect(() => {
-    fetchWallet();
-    const interval = setInterval(fetchWallet, 10000); // Refresh every 10s
+    const interval = setInterval(refreshBalance, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshBalance]);
 
   // Refresh wallet after successful transactions
   const handleDepositSuccess = () => {
-    fetchWallet();
+    refreshBalance();
   };
 
   const handleWithdrawSuccess = () => {
-    fetchWallet();
+    refreshBalance();
   };
 
   const copyAddress = async () => {

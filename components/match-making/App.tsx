@@ -2,8 +2,11 @@
 
 import React from "react";
 import { domAnimation, LazyMotion, m } from "framer-motion";
-import { useSession } from "next-auth/react";
 import { useToast } from "@/components/toast/toast-provider";
+import { useRequireAuth } from "@/hooks";
+import { Spinner, Card, CardBody, Button } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 import MultistepSidebar from "./multistep-sidebar";
 import SquadForm from "./squad-form";
@@ -33,10 +36,87 @@ const variants = {
 };
 
 function WizardContent() {
-  const { state, updateState, startMatchmaking } = useWizard();
-  const { data: session } = useSession();
+  const {
+    state,
+    updateState,
+    startMatchmaking,
+    cancelMatchmaking: _cancelMatchmaking,
+  } = useWizard();
+  const { isAuthenticated, isLoading: authLoading, user, isRedirecting } = useRequireAuth();
   const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
+
+  // Show auth loading state - prevent wizard access for unauthenticated users
+  if (authLoading || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] w-full">
+        <div className="text-center">
+          <Spinner size="lg" color="warning" />
+          <p className="mt-4 text-default-500">
+            {authLoading ? "Checking authentication..." : "Redirecting to sign in..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Step validation - ensure required fields are completed
+  const validateStep = React.useCallback(
+    (stepIndex: number): { valid: boolean; message?: string } => {
+      switch (stepIndex) {
+        case 0: // Region selection
+          if (!state.region) {
+            return {
+              valid: false,
+              message: "Please select a region to continue",
+            };
+          }
+          return { valid: true };
+
+        case 1: // Game mode
+          if (!state.gameMode) {
+            return {
+              valid: false,
+              message: "Please select a game mode to continue",
+            };
+          }
+          return { valid: true };
+
+        case 2: // Squad - Optional (solo is allowed)
+          return { valid: true };
+
+        case 3: // Schedule - Optional (instant play is default)
+          return { valid: true };
+
+        case 4: // Prize distribution
+          if (!state.distributionRule) {
+            return {
+              valid: false,
+              message: "Please select a prize distribution model",
+            };
+          }
+          return { valid: true };
+
+        case 5: // Review - Check all required
+          if (!state.region || !state.gameMode) {
+            return {
+              valid: false,
+              message: "Please complete all required steps",
+            };
+          }
+          return { valid: true };
+
+        default:
+          return { valid: true };
+      }
+    },
+    [state.region, state.gameMode, state.distributionRule]
+  );
+
+  // Check if current step is valid
+  const isCurrentStepValid = React.useMemo(() => {
+    return validateStep(page).valid;
+  }, [validateStep, page]);
 
   const paginate = React.useCallback((newDirection: number) => {
     setPage((prev) => {
@@ -62,18 +142,45 @@ function WizardContent() {
   }, [paginate]);
 
   const onNext = React.useCallback(async () => {
+    // Validate current step before proceeding
+    const validation = validateStep(page);
+    if (!validation.valid) {
+      showToast(validation.message || "Please complete this step", "warning");
+      return;
+    }
+
     // If on final step (page 5), trigger matchmaking
     if (page === 5) {
-      if (!session?.user) {
-        showToast("Please sign in to start matchmaking", "warning");
+      // If already searching, show status
+      if (state.matchmaking?.isSearching) {
+        showToast("Already searching for a match...", "info");
         return;
       }
-      await startMatchmaking((session.user as any)?.id || "mock-player-id");
+
+      // User is guaranteed to be authenticated at this point (useRequireAuth handles redirect)
+      const userId = user?.id;
+      if (!userId) {
+        showToast(
+          "Unable to verify your account. Please sign in again.",
+          "error"
+        );
+        return;
+      }
+
+      await startMatchmaking(userId);
       // Keep on same page to show matchmaking status
     } else {
       paginate(1);
     }
-  }, [paginate, page, session, startMatchmaking, showToast]);
+  }, [
+    paginate,
+    page,
+    user,
+    startMatchmaking,
+    showToast,
+    validateStep,
+    state.matchmaking?.isSearching,
+  ]);
 
   const content = React.useMemo(() => {
     let component = <ChooseRegionForm />;
@@ -124,7 +231,13 @@ function WizardContent() {
         </m.div>
       </LazyMotion>
     );
-  }, [direction, page]);
+  }, [
+    direction,
+    page,
+    state.distributionRule,
+    state.expectedPool,
+    updateState,
+  ]);
 
   return (
     <MultistepSidebar
@@ -145,8 +258,10 @@ function WizardContent() {
               ? "Searching..."
               : page === 5
               ? "Find Match"
-              : "Next",
-            isDisabled: state.matchmaking?.isSearching,
+              : "Continue",
+            isDisabled:
+              state.matchmaking?.isSearching ||
+              (!isCurrentStepValid && page !== 5),
           }}
           onBack={onBack}
           onNext={onNext}

@@ -1,6 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+/**
+ * Plan Selection Component
+ * Uses SDK via useSubscription hook - DO NOT use direct fetch calls
+ */
+
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -19,11 +24,8 @@ import { useCheckout } from './checkout-context';
 import {
   PricingPlan,
   BillingPeriod,
-  BILLING_PERIOD_LABELS,
 } from './types';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+import { useSubscription } from '@/hooks/use-subscription';
 
 // ============================================================================
 // Plan Data (Fallback if API fails)
@@ -119,56 +121,37 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
     getSavingsPercentage,
   } = useCheckout();
 
-  const sdkRef = useRef<ReplayAPISDK>();
+  // Use SDK-powered subscription hook instead of direct fetch
+  const {
+    plans: apiPlans,
+    isLoadingPlans: loading,
+    plansError: error,
+  } = useSubscription(true);
+
+  // Transform API plans to match PricingPlan interface, fallback to defaults
   const [plans, setPlans] = useState<PricingPlan[]>(DEFAULT_PRICING_PLANS);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Initialize SDK
-  if (!sdkRef.current) {
-    sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
-  }
-
-  // Fetch plans from API
   useEffect(() => {
-    async function fetchPlans() {
-      try {
-        setLoading(true);
-        // Try to fetch plans from the API
-        const response = await fetch('/api/subscriptions/plans');
-        if (response.ok) {
-          const apiPlans = await response.json();
-          if (apiPlans?.data?.length > 0) {
-            // Transform API plans to match our PricingPlan interface
-            const transformedPlans = apiPlans.data.map((plan: any) => ({
-              id: plan.id,
-              key: plan.key || plan.id,
-              name: plan.name,
-              description: plan.description,
-              price: {
-                monthly: plan.price_monthly || plan.price?.monthly || 0,
-                quarterly: plan.price_quarterly || plan.price?.quarterly || 0,
-                yearly: plan.price_yearly || plan.price?.yearly || 0,
-                currency: plan.currency || 'usd',
-              },
-              features: plan.features || [],
-              highlighted: plan.highlighted || plan.most_popular,
-              badge: plan.badge,
-              stripePriceId: plan.stripe_price_id,
-            }));
-            setPlans(transformedPlans);
-          }
-        }
-      } catch (err) {
-        logger.warn('Failed to fetch plans from API, using defaults', err);
-        setError('Using cached pricing data');
-      } finally {
-        setLoading(false);
-      }
+    if (apiPlans.length > 0) {
+      const transformedPlans = apiPlans.map((plan) => ({
+        id: plan.id,
+        key: plan.key || plan.id,
+        name: plan.name,
+        description: plan.description,
+        price: {
+          monthly: plan.price?.monthly || 0,
+          quarterly: plan.price?.quarterly || 0,
+          yearly: plan.price?.yearly || 0,
+          currency: plan.price?.currency || 'usd',
+        },
+        features: plan.features || [],
+        highlighted: plan.highlighted,
+        badge: plan.badge,
+        stripePriceId: plan.stripePriceId,
+      }));
+      setPlans(transformedPlans);
     }
-
-    fetchPlans();
-  }, []);
+  }, [apiPlans]);
 
   const handleSelectPlan = (plan: PricingPlan) => {
     selectPlan(plan);
