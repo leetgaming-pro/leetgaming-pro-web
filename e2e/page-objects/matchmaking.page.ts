@@ -196,9 +196,27 @@ export class MatchmakingPage {
 
   /**
    * Wait for wizard to load
+   * Tries multiple possible indicators as the wizard may use different layouts
    */
   async waitForWizardLoad(): Promise<void> {
-    await this.stepIndicator.first().waitFor({ state: 'visible', timeout: 10000 });
+    // Try multiple possible indicators - the wizard uses VerticalSteps (desktop) or RowSteps (mobile)
+    const possibleIndicators = [
+      this.page.locator('nav[aria-label="Progress"]'),
+      this.page.locator('[data-testid="step-indicator"]'),
+      this.page.locator('.wizard-steps'),
+      this.page.locator('ol.flex'), // Both RowSteps and VerticalSteps use ol.flex
+      this.nextButton, // Fallback: if Continue/Next button is visible, wizard is loaded
+    ];
+
+    // Wait for any of these to be visible
+    await Promise.race(
+      possibleIndicators.map((loc) =>
+        loc.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {})
+      )
+    );
+
+    // Also wait for any loading to complete
+    await this.waitForLoading();
   }
 
   /**

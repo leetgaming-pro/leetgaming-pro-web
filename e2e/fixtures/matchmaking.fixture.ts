@@ -283,7 +283,7 @@ export const authenticatedMatchmakingTest = base.extend<{
   matchmakingPage: MatchmakingPage;
 }>({
   matchmakingPage: async ({ page }, use) => {
-    // Mock auth session
+    // Mock auth session with RID token for full authentication
     await page.route('**/api/auth/session', async (route) => {
       await route.fulfill({
         status: 200,
@@ -291,11 +291,36 @@ export const authenticatedMatchmakingTest = base.extend<{
         body: JSON.stringify({
           user: {
             id: 'user_e2e_test_001',
+            uid: 'user_e2e_test_001',
             name: 'E2E Test Player',
             email: 'e2e.test@leetgaming.gg',
             image: null,
+            rid: 'e2e_rid_token_mock', // RID token required for isAuthenticated check
           },
           expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    // Mock CSRF token endpoint (required by NextAuth)
+    await page.route('**/api/auth/csrf', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          csrfToken: 'e2e_csrf_token_mock',
+        }),
+      });
+    });
+
+    // Mock providers endpoint
+    await page.route('**/api/auth/providers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          credentials: { id: 'credentials', name: 'Email', type: 'credentials' },
+          google: { id: 'google', name: 'Google', type: 'oauth' },
         }),
       });
     });
