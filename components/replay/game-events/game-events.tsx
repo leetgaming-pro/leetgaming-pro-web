@@ -2,11 +2,18 @@ import React from "react";
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue, Spinner, Button} from "@nextui-org/react";
 import {useAsyncList} from "@react-stately/data";
 
+interface SwapiPerson {
+  name: string;
+  height: string;
+  mass: string;
+  birth_year: string;
+}
+
 export default function App() {
   const [page, setPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  let list = useAsyncList({
+  const list = useAsyncList<SwapiPerson>({
     async load({signal, cursor}) {
       if (cursor) {
         setPage((prev) => prev + 1);
@@ -15,14 +22,14 @@ export default function App() {
       // If no cursor is available, then we're loading the first page.
       // Otherwise, the cursor is the next URL to load, as returned from the previous page.
       const res = await fetch(cursor || "https://swapi.py4e.com/api/people/?search=", {signal});
-      let json = await res.json();
+      const json = await res.json();
 
       if (!cursor) {
         setIsLoading(false);
       }
 
       return {
-        items: json.results,
+        items: json.results as SwapiPerson[],
         cursor: json.next,
       };
     },
@@ -61,7 +68,7 @@ export default function App() {
         loadingContent={<Spinner label="Loading..." />}
       >
         {(item) => (
-          <TableRow key={(item as any).name}>
+          <TableRow key={item.name}>
             {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
           </TableRow>
         )}

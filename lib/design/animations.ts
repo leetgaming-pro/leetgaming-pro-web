@@ -52,7 +52,10 @@ export const springs = {
 } as const;
 
 // Easing Curves (for non-spring animations)
-export const easings = {
+// Cubic bezier type for framer-motion compatibility
+type CubicBezier = [number, number, number, number];
+
+export const easings: Record<string, CubicBezier> = {
   // Standard curves
   linear: [0, 0, 1, 1],
   easeIn: [0.4, 0, 1, 1],
@@ -65,7 +68,7 @@ export const easings = {
   bounce: [0.68, -0.55, 0.265, 1.55],
   anticipate: [0.22, 1, 0.36, 1],
   overshoot: [0.175, 0.885, 0.32, 1.275],
-} as const;
+};
 
 // Duration Presets
 export const durations = {
@@ -415,7 +418,7 @@ export const gestures = {
 // Number counter animation
 export const numberCounterTransition: Transition = {
   duration: 0.8,
-  ease: easings.easeOut as any,
+  ease: easings.easeOut,
 };
 
 // Loading animations
@@ -467,7 +470,7 @@ export const feedbackAnimations: Record<string, Variants> = {
       pathLength: 1,
       opacity: 1,
       transition: {
-        pathLength: { duration: 0.5, ease: easings.easeOut as any },
+        pathLength: { duration: 0.5, ease: easings.easeOut },
         opacity: { duration: 0.2 },
       },
     },
@@ -480,7 +483,7 @@ export const feedbackAnimations: Record<string, Variants> = {
       x: [-10, 10, -10, 10, -5, 5, 0],
       transition: {
         duration: 0.5,
-        ease: easings.easeInOut as any,
+        ease: easings.easeInOut,
       },
     },
   },

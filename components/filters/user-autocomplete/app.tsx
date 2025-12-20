@@ -1,11 +1,18 @@
 import { Autocomplete, AutocompleteItem, Avatar, Button } from '@nextui-org/react';
+import type { AutocompleteProps } from '@nextui-org/react';
 import { SearchIcon } from '../../icons';
 
+interface UserItem {
+  id: string;
+  name: string;
+  avatar?: string;
+  team?: string;
+}
 
+type UserAutocompleteProps = Omit<AutocompleteProps<UserItem>, 'children'>;
 
-
-export default function App(props: any) {
-  const users = [] as any
+export default function App(props: UserAutocompleteProps) {
+  const users: UserItem[] = [];
   // TODO: implementar call para paginar /games/:id/players
   return (
     <Autocomplete
@@ -51,7 +58,7 @@ export default function App(props: any) {
       variant="bordered"
       {...props}
     >
-      {(item: any) => (
+      {(item: UserItem) => (
         <AutocompleteItem key={item.id} textValue={item.name}>
           <div className="flex justify-between items-center">
             <div className="flex gap-2 items-center">

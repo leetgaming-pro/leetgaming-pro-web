@@ -122,7 +122,9 @@ export function getLocaleFromTimezone(): Locale | null {
 export function getBrowserLocale(): Locale {
   if (typeof window === 'undefined') return defaultLocale;
   
-  const browserLang = navigator.language || (navigator as any).userLanguage;
+  // userLanguage is a non-standard IE property
+  const nav = navigator as Navigator & { userLanguage?: string };
+  const browserLang = navigator.language || nav.userLanguage || defaultLocale;
   
   // Check for exact match
   if (locales.includes(browserLang as Locale)) {

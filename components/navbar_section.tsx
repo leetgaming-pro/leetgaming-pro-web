@@ -36,11 +36,24 @@ const DropdownItem = styled('a', {
 });
 
 
-const DropdownSection = ({ title, items }: any) => (
+interface DropdownItemData {
+  key: string;
+  href: string;
+  icon: string;
+  label: string;
+  description: string;
+}
+
+interface DropdownSectionProps {
+  title: string;
+  items: DropdownItemData[];
+}
+
+const DropdownSection = ({ title, items }: DropdownSectionProps) => (
   <div>
     <text fontSize={14} fontWeight="bold" style={{ textTransform: 'uppercase' }}>{title}</text>
     <Spacer y={0.5} /> {/* Add some spacing */}
-    {items.map((item: any) => (
+    {items.map((item: DropdownItemData) => (
       <DropdownItem key={item.key} href={item.href} target="_blank" rel="noopener noreferrer">
         <Avatar src={item.icon} size="sm" />
         <Spacer x={1} />
@@ -55,14 +68,14 @@ const DropdownSection = ({ title, items }: any) => (
 
 export default function NavBarSection() {
   const pathname = usePathname();
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
 
   // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (dropdownRef.current && !((dropdownRef.current as any).contains(event.target))) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };

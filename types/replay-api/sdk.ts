@@ -407,8 +407,8 @@ export class ReplayFileAPI {
   /**
    * Get replay file metadata
    */
-  async getReplayFile(gameId: string, replayFileId: string): Promise<any | null> {
-    const response = await this.client.get(`/games/${gameId}/replays/${replayFileId}`);
+  async getReplayFile(gameId: string, replayFileId: string): Promise<ReplayFile | null> {
+    const response = await this.client.get<ReplayFile>(`/games/${gameId}/replays/${replayFileId}`);
     return response.data || null;
   }
 

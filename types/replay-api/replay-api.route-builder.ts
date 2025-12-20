@@ -208,7 +208,10 @@ export class RouteBuilder { // TODO: refactor ==>> criar interface (generica) pa
         this.route(resourceType, params);
       } else if (action.startsWith("for")) {
         for (const k of Object.keys(params)) {
-          this[action as RootFilterMethod](params[k] as any);
+          const method = this[action as RootFilterMethod];
+          if (typeof method === 'function') {
+            method.call(this, params[k] as UUIDParams);
+          }
         }
       }
     }

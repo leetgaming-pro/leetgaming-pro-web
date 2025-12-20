@@ -8,6 +8,7 @@ import { ReplayApiSettingsMock, GameIDKey } from './settings';
 import { logger } from '@/lib/logger';
 import { ResourceOwner } from './replay-file';
 import { SearchBuilder, SortDirection } from './search-builder';
+import { CSFilters } from './searchable';
 import { UploadClient } from './upload-client';
 import { getRIDTokenManager } from './auth';
 
@@ -24,7 +25,17 @@ export function initializeSDK() {
 // Example 2: Authentication Flow
 // ============================================================================
 
-export async function handleSteamLogin(steamProfile: any, verificationHash: string) {
+interface SteamProfile {
+  id: string;
+  personaname: string;
+  profileurl: string;
+  avatar: string;
+  avatarmedium?: string;
+  avatarfull?: string;
+  [key: string]: unknown;
+}
+
+export async function handleSteamLogin(steamProfile: SteamProfile, verificationHash: string) {
   const sdk = initializeSDK();
   
   // Onboard user
@@ -152,7 +163,7 @@ export async function searchUserReplays(userId: string, filters: {
   }
   
   if (filters.status) {
-    searchBuilder.withResourceStatus(filters.status as any);
+    searchBuilder.withResourceStatus(filters.status as CSFilters['resourceStatus']);
   }
   
   const search = searchBuilder.build();
@@ -250,7 +261,7 @@ export async function advancedMatchSearch(params: {
   }
   
   if (params.gameMode) {
-    searchBuilder.withGameModes(params.gameMode as any);
+    searchBuilder.withGameModes(params.gameMode as CSFilters['gameModes']);
   }
   
   const search = searchBuilder.build();
@@ -313,7 +324,7 @@ export function checkAuthStatus() {
 export async function safeAPICall<T>(
   apiCall: () => Promise<T>,
   fallbackValue: T,
-  errorHandler?: (error: any) => void
+  errorHandler?: (error: Error) => void
 ): Promise<T> {
   try {
     return await apiCall();
