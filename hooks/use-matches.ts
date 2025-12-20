@@ -48,7 +48,7 @@ const fetcher = async (url: string): Promise<MatchesResponse> => {
   // Convert timestamp strings to Date objects
   return {
     ...data,
-    data: data.data.map((match: any) => ({
+    data: data.data.map((match: Match & { timestamp: string | Date }) => ({
       ...match,
       timestamp: new Date(match.timestamp),
     })),

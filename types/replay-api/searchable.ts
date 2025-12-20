@@ -19,6 +19,22 @@ export interface DateRange {
     end: string;
 }
 
+/**
+ * Game event structure for rounds
+ */
+export interface GameEvent {
+    id: string;
+    type: string;
+    tick: number;
+    timestamp?: string;
+    player_id?: string;
+    team?: string;
+    victim_id?: string;
+    weapon?: string;
+    is_headshot?: boolean;
+    data?: Record<string, unknown>;
+}
+
 // common aggregate types
 export interface RoundData {
     id: string
@@ -27,11 +43,11 @@ export interface RoundData {
     number: string
     winner_team_id: string
     most_valuable_player_id: string
-    events: any[]       // REVIEW: tipar GameEvent 
+    events: GameEvent[]
     type: string
     reason: string
     description: string
-    highlights: any[]   // REVIEW: (former "keyEvents") tipar GameEvent
+    highlights: GameEvent[]
     tick_range: TickRange
     created_at: string
 }

@@ -15,6 +15,7 @@ import { PaymentAPI } from './payment.sdk';
 import { MatchmakingAPI } from './matchmaking.sdk';
 import { TournamentAPI } from './tournament.sdk';
 import { MatchAnalyticsAPI } from './match-analytics.sdk';
+import { ChallengeAPI } from './challenge.sdk';
 import { ReplayFile } from './replay-file';
 
 /**
@@ -579,6 +580,7 @@ export class ReplayAPISDK {
   public tournaments: TournamentAPI;
   public search: SearchAPI;
   public matchAnalytics: MatchAnalyticsAPI;
+  public challenges: ChallengeAPI;
 
   constructor(settings: ReplayApiSettings, logger: Loggable) {
     this.client = new ReplayApiClient(settings, logger);
@@ -596,5 +598,6 @@ export class ReplayAPISDK {
     this.tournaments = new TournamentAPI(this.client);
     this.search = new SearchAPI(this.client);
     this.matchAnalytics = new MatchAnalyticsAPI(this.client);
+    this.challenges = new ChallengeAPI(this.client);
   }
 }

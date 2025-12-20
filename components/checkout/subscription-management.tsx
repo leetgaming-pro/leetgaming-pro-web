@@ -60,12 +60,12 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-const getStatusColor = (status: SubscriptionStatus): 'success' | 'warning' | 'danger' | 'default' => {
+const getStatusColor = (status: SubscriptionStatus): 'success' | 'warning' | 'danger' | 'default' | 'primary' => {
   switch (status) {
     case SubscriptionStatus.ACTIVE:
       return 'success';
     case SubscriptionStatus.TRIALING:
-      return 'primary' as any;
+      return 'primary';
     case SubscriptionStatus.PAST_DUE:
       return 'danger';
     case SubscriptionStatus.CANCELED:

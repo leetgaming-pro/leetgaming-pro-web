@@ -6,7 +6,7 @@ import { SearchRequest } from "./search-builder";
 
 export interface ApiResponse<T> {
   data?: T;
-  error?: any;
+  error?: ApiError | string;
   nextOffset?: number | string;
   status?: number;
   message?: string;
@@ -16,7 +16,7 @@ export interface ApiError {
   message: string;
   status?: number;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface RequestOptions {
@@ -63,7 +63,7 @@ export class ReplayApiClient {
   /**
    * Generic POST request with authentication
    */
-  async post<T, D = any>(
+  async post<T, D = unknown>(
     path: string,
     data?: D,
     options?: RequestOptions
@@ -74,7 +74,7 @@ export class ReplayApiClient {
   /**
    * Generic PUT request with authentication
    */
-  async put<T, D = any>(
+  async put<T, D = unknown>(
     path: string,
     data?: D,
     options?: RequestOptions
@@ -95,7 +95,7 @@ export class ReplayApiClient {
   /**
    * Generic PATCH request with authentication
    */
-  async patch<T, D = any>(
+  async patch<T, D = unknown>(
     path: string,
     data?: D,
     options?: RequestOptions
@@ -119,7 +119,7 @@ export class ReplayApiClient {
   private async request<T>(
     method: string,
     path: string,
-    data?: any,
+    data?: unknown,
     options?: RequestOptions,
     retryCount = 0
   ): Promise<ApiResponse<T>> {
@@ -127,9 +127,9 @@ export class ReplayApiClient {
     
     // Use auth token from settings (server-side) or RIDTokenManager (client-side)
     let authHeaders: Record<string, string> = {};
-    if ((this.settings as any).authToken) {
+    if (this.settings.authToken) {
       // Server-side: use token from settings
-      authHeaders = { 'Authorization': `Bearer ${(this.settings as any).authToken}` };
+      authHeaders = { 'Authorization': `Bearer ${this.settings.authToken}` };
     } else if (typeof window !== 'undefined') {
       // Client-side: use RIDTokenManager
       authHeaders = await getRIDTokenManager().getAuthHeaders();
@@ -189,8 +189,11 @@ export class ReplayApiClient {
         data: responseData,
         status: response.status,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeoutId);
+
+      const errorMessage = error instanceof Error ? error.message : 'Request failed';
+      const errorName = error instanceof Error ? error.name : 'UnknownError';
 
       // Handle network errors with retry
       if (this.isNetworkError(error) && retryCount < this.maxRetries) {
@@ -199,12 +202,12 @@ export class ReplayApiClient {
         return this.request<T>(method, path, data, options, retryCount + 1);
       }
 
-      this.logger.error(`[ReplayApiClient] ${method} ${url} exception`, error);
+      this.logger.error(`[ReplayApiClient] ${method} ${url} exception`, { error: errorMessage });
 
       return {
         error: {
-          message: error.message || 'Request failed',
-          code: error.name,
+          message: errorMessage,
+          code: errorName,
           details: error,
         },
         status: 0,
@@ -257,7 +260,7 @@ export class ReplayApiClient {
 
     // Return as text for non-JSON responses
     const text = await response.text();
-    return text as any;
+    return text as T;
   }
 
   /**
@@ -271,13 +274,16 @@ export class ReplayApiClient {
   /**
    * Check if error is network-related
    */
-  private isNetworkError(error: any): boolean {
-    return (
-      error.name === 'AbortError' ||
-      error.name === 'TypeError' ||
-      error.message?.includes('network') ||
-      error.message?.includes('fetch')
-    );
+  private isNetworkError(error: unknown): boolean {
+    if (error instanceof Error) {
+      return (
+        error.name === 'AbortError' ||
+        error.name === 'TypeError' ||
+        error.message?.includes('network') ||
+        error.message?.includes('fetch')
+      );
+    }
+    return false;
   }
 
   /**

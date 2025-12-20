@@ -24,7 +24,7 @@ import {
 import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { SearchIcon } from "./SearchIcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
-import { columns, replayFiles, visibilityOptions, statusOptions } from "./data";
+import { columns, replayFiles, visibilityOptions, statusOptions, ReplayFileRow, Column } from "./data";
 import { capitalize } from "./utils";
 import UploadModal from '@/components/replay/upload/upload-modal';
 import { DeleteDocumentIcon } from '@/components/icons';
@@ -63,7 +63,7 @@ export default function App() {
     let filteredReplayFiles = [...replayFiles];
 
     if (hasSearchFilter) {
-      filteredReplayFiles = filteredReplayFiles.filter((replayFile: any) =>
+      filteredReplayFiles = filteredReplayFiles.filter((replayFile: ReplayFileRow) =>
         replayFile.map_name.toLowerCase().includes(filterValue.toLowerCase())
         || replayFile.client_name.toLowerCase().includes(filterValue.toLowerCase())
         || replayFile.server_name.toLowerCase().includes(filterValue.toLowerCase())
@@ -72,7 +72,7 @@ export default function App() {
       );
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredReplayFiles = filteredReplayFiles.filter((replayFile: any) =>
+      filteredReplayFiles = filteredReplayFiles.filter((replayFile: ReplayFileRow) =>
         Array.from(statusFilter).includes(replayFile.status),
       );
     }
@@ -93,7 +93,7 @@ export default function App() {
     return [...items];
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((replayFile: any, columnKey: any) => {
+  const renderCell = React.useCallback((replayFile: ReplayFileRow, columnKey: keyof ReplayFileRow | string) => {
     const cellValue = replayFile[columnKey];
 
     switch (columnKey) {
@@ -159,12 +159,12 @@ export default function App() {
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e: any) => {
+  const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value: any) => {
+  const onSearchChange = React.useCallback((value: string) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -269,7 +269,7 @@ export default function App() {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="text-small text-default-400">
-          {(selectedKeys as any ) === "all"
+          {(selectedKeys as unknown as string) === "all"
             ? "All items selected"
             : `${selectedKeys.size} of ${filteredItems.length} selected`}
         </span>

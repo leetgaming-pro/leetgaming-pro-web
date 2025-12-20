@@ -153,8 +153,9 @@ export class UploadClient {
         success: true,
         replayFile: this.mapToReplayFile(uploadResponse),
       };
-    } catch (error: any) {
-      this.logger.error('[UploadClient] Upload failed', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      this.logger.error('[UploadClient] Upload failed', { error: errorMessage });
       
       if (options.onProgress) {
         options.onProgress({
@@ -162,13 +163,13 @@ export class UploadClient {
           bytesUploaded: 0,
           totalBytes: file.size,
           percentage: 0,
-          error: error.message,
+          error: errorMessage,
         });
       }
 
       return {
         success: false,
-        error: error.message || 'Upload failed',
+        error: errorMessage,
       };
     } finally {
       this.activeUploads.delete(uploadId);
@@ -301,8 +302,9 @@ export class UploadClient {
       });
 
       return response;
-    } catch (error: any) {
-      this.logger.error('[UploadClient] Upload failed', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      this.logger.error('[UploadClient] Upload failed', { error: errorMessage });
       throw error;
     }
   }
@@ -373,8 +375,9 @@ export class UploadClient {
 
         // Still processing, wait and retry
         await this.delay(pollInterval);
-      } catch (error: any) {
-        this.logger.warn(`[UploadClient] Status check failed (attempt ${attempts}/${maxAttempts})`, error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.warn(`[UploadClient] Status check failed (attempt ${attempts}/${maxAttempts})`, { error: errorMessage });
         
         if (attempts >= maxAttempts) {
           throw error;

@@ -1,4 +1,34 @@
-const columns = [
+export interface ReplayFileRow {
+  id: string;
+  game_id: string;
+  network_id: string;
+  size: number;
+  uri: string;
+  status: string;
+  error: string;
+  resource_owner: string;
+  created_at: string;
+  updated_at: string;
+  filestamp: string;
+  protocol: number;
+  network_protocol: number;
+  server_name: string;
+  client_name: string;
+  map_name: string;
+  game_directory: string;
+  length: string;
+  ticks: number;
+  frames: number;
+  signon_length: number;
+}
+
+export interface Column {
+  name: string;
+  uid: string;
+  sortable?: boolean;
+}
+
+const columns: Column[] = [
   { name: "ID", uid: "id", sortable: true },
   { name: "GameID", uid: "game_id", sortable: true },
   { name: "NetworkID", uid: "network_id", sortable: true },
@@ -35,8 +65,7 @@ const visibilityOptions = [
   { name: "Private (Only me)", uid: "private" },
 ];
 
-// const replayFiles = [] as typeof replayFiles2
-const replayFiles = [
+const replayFiles: ReplayFileRow[] = [
   {
     id: "1",
     game_id: "1",
@@ -202,3 +231,4 @@ const replayFiles = [
 
 
 export { columns, visibilityOptions, replayFiles, statusOptions };
+export type { ReplayFileRow, Column };

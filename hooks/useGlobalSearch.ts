@@ -15,7 +15,7 @@ export interface GlobalSearchResult {
   title: string;
   description: string;
   href: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UseGlobalSearchResult {
@@ -49,13 +49,22 @@ function transformReplays(replays: ReplayFile[]): GlobalSearchResult[] {
   }));
 }
 
+interface PlayerSearchItem {
+  id?: string;
+  user_id?: string;
+  steam_name?: string;
+  username?: string;
+  steam_id?: string;
+  profiles?: unknown[];
+}
+
 /**
  * Transform player profiles to search results
  */
-function transformPlayers(players: any[]): GlobalSearchResult[] {
+function transformPlayers(players: PlayerSearchItem[]): GlobalSearchResult[] {
   return players.map((player) => ({
     type: 'player' as const,
-    id: player.id || player.user_id,
+    id: player.id || player.user_id || '',
     title: player.steam_name || player.username || 'Unknown Player',
     description: `Steam ID: ${player.steam_id || 'N/A'} • ${player.profiles?.length || 0} profiles`,
     href: `/players/${player.id || player.user_id}`,
@@ -66,15 +75,22 @@ function transformPlayers(players: any[]): GlobalSearchResult[] {
   }));
 }
 
+interface TeamSearchItem {
+  id: string;
+  name?: string;
+  members?: unknown[];
+  created_at?: string;
+}
+
 /**
  * Transform squads/teams to search results
  */
-function transformTeams(teams: any[]): GlobalSearchResult[] {
+function transformTeams(teams: TeamSearchItem[]): GlobalSearchResult[] {
   return teams.map((team) => ({
     type: 'team' as const,
     id: team.id,
     title: team.name || 'Unnamed Team',
-    description: `${team.members?.length || 0} members • Created ${new Date(team.created_at).toLocaleDateString()}`,
+    description: `${team.members?.length || 0} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
     href: `/teams/${team.id}`,
     metadata: {
       members: team.members,
@@ -83,13 +99,22 @@ function transformTeams(teams: any[]): GlobalSearchResult[] {
   }));
 }
 
+interface MatchSearchItem {
+  id?: string;
+  match_id?: string;
+  title?: string;
+  game_id?: string;
+  status?: string;
+  played_at?: string;
+}
+
 /**
  * Transform matches to search results
  */
-function transformMatches(matches: any[]): GlobalSearchResult[] {
+function transformMatches(matches: MatchSearchItem[]): GlobalSearchResult[] {
   return matches.map((match) => ({
     type: 'match' as const,
-    id: match.id || match.match_id,
+    id: match.id || match.match_id || '',
     title: match.title || `Match ${match.id?.substring(0, 8) || 'Unknown'}`,
     description: `${match.game_id?.toUpperCase() || 'CS2'} • ${match.status || 'Completed'} • ${match.played_at ? new Date(match.played_at).toLocaleDateString() : 'N/A'}`,
     href: `/match/${match.id || match.match_id}`,
@@ -169,13 +194,14 @@ export function useGlobalSearch(): UseGlobalSearchResult {
       }
 
       setResults(allResults);
-    } catch (err: any) {
-      if (err?.name === 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
         logger.warn('Global search aborted');
         return; // Ignore aborted requests
       }
-      logger.error('Global search error:', err);
-      setError(err.message || 'Search failed');
+      const message = err instanceof Error ? err.message : 'Search failed';
+      logger.error('Global search error:', { error: message });
+      setError(message);
     } finally {
       setLoading(false);
     }

@@ -181,8 +181,8 @@ export const Navbar = () => {
               return <Divider key={`divider-${index}`} className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />;
             }
 
-            const isHighlight = (item as any).highlight;
-            const itemIcon = (item as any).icon;
+            const isHighlight = item.highlight;
+            const itemIcon = item.icon;
             const active = isActive(item.href);
 
             return (

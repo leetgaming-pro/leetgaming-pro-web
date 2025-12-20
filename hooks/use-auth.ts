@@ -68,12 +68,12 @@ export function useAuth(): AuthState {
     if (!session?.user) return null;
     
     return {
-      id: (session.user as any).uid || session.user.id,
+      id: session.user.uid || session.user.id,
       name: session.user.name,
       email: session.user.email,
       image: session.user.image,
-      rid: (session.user as any).rid,
-      uid: (session.user as any).uid,
+      rid: session.user.rid,
+      uid: session.user.uid,
     };
   }, [session]);
 
@@ -83,7 +83,7 @@ export function useAuth(): AuthState {
   const isAuthenticated = useMemo(() => {
     if (!session?.user) return false;
     
-    const hasRid = !!(session.user as any).rid;
+    const hasRid = !!session.user.rid;
     const hasRidToken = isAuthenticatedSync();
     
     return hasRid || hasRidToken;

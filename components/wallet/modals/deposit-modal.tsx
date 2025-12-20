@@ -188,10 +188,11 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       setTimeout(() => {
         onClose();
       }, 3500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsProcessing(false);
-      setError(err.message || 'Payment failed. Please try again.');
-      console.error('Payment failed:', err.message);
+      const message = err instanceof Error ? err.message : 'Payment failed. Please try again.';
+      setError(message);
+      console.error('Payment failed:', message);
     }
   };
 

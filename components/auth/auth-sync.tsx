@@ -31,8 +31,8 @@ export function AuthSync({ children }: AuthSyncProps) {
         return;
       }
 
-      const sessionRid = (session?.user as any)?.rid;
-      const sessionUid = (session?.user as any)?.uid;
+      const sessionRid = session?.user?.rid;
+      const sessionUid = session?.user?.uid;
 
       // If no session, clear the RID token
       if (!session?.user) {
@@ -72,15 +72,15 @@ export function AuthSync({ children }: AuthSyncProps) {
         let sourceKey = session.user.email || "";
 
         // Check if user logged in via Steam
-        if ((session.user as any).steam?.steamid) {
+        if (session.user.steam?.steamid) {
           sourceType = IdentifierSourceType.Steam;
-          sourceKey = (session.user as any).steam.steamid;
+          sourceKey = session.user.steam.steamid;
         }
         // Check if user logged in via Google
-        else if ((session.user as any).google?.sub) {
+        else if (session.user.google?.sub) {
           sourceType = IdentifierSourceType.Google;
           sourceKey =
-            (session.user as any).google.email || session.user.email || "";
+            session.user.google.email || session.user.email || "";
         }
         // Email-password login defaults to Google type (email-based)
 

@@ -1,3 +1,10 @@
+export interface NavItem {
+  label: string;
+  href: string;
+  icon?: string;
+  highlight?: boolean;
+}
+
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {

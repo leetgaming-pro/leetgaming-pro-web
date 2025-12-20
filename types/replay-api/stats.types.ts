@@ -4,12 +4,14 @@
  * Based on replay-api/pkg/domain/cs/entities/*_stats.go
  */
 
+import { ResourceOwner } from './replay-file';
+
 /**
  * Base Stats Interface
  */
 export interface Stats {
   timestamp?: string;
-  resourceOwner?: any;
+  resourceOwner?: ResourceOwner;
 }
 
 /**
@@ -301,10 +303,24 @@ export interface PlayerStats {
  * Highlight Stats
  * Notable moments and events in the match
  */
+/**
+ * Highlighted event details
+ */
+export interface HighlightedEvent {
+  type: string;
+  tick: number;
+  player_id?: string;
+  team?: string;
+  victim_id?: string;
+  weapon?: string;
+  is_headshot?: boolean;
+  data?: Record<string, unknown>;
+}
+
 export interface HighlightStats extends Stats {
   highlightNumber: number;
   tick: number;
-  highlightedEvent: any;
+  highlightedEvent: HighlightedEvent;
   longStartTick?: number;
   longEndTick?: number;
   shortStartTick?: number;

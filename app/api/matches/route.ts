@@ -9,6 +9,38 @@ import { authOptions } from '../auth/[...nextauth]/options';
 
 const REPLAY_API_URL = process.env.REPLAY_API_URL || 'http://localhost:3001';
 
+interface BackendPlayer {
+  display_name?: string;
+  name?: string;
+  avatar?: string;
+}
+
+interface BackendTeamScoreboard {
+  name?: string;
+  score?: number;
+  players?: BackendPlayer[];
+}
+
+interface BackendMatch {
+  id?: string;
+  _id?: string;
+  game_id?: string;
+  map?: string;
+  mode?: string;
+  status?: string;
+  created_at?: string;
+  timestamp?: string;
+  duration?: number;
+  winner?: string;
+  final_score?: string;
+  tournament?: {
+    name?: string;
+  };
+  scoreboard?: {
+    team_scoreboards?: BackendTeamScoreboard[];
+  };
+}
+
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   
@@ -68,7 +100,7 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     
     // Transform backend match format to frontend format if needed
-    const matches = (data.data || data || []).map((match: any) => ({
+    const matches = (data.data || data || []).map((match: BackendMatch) => ({
       id: match.id || match._id,
       game: match.game_id || 'Counter-Strike 2',
       gameIcon: getGameIcon(match.game_id),
@@ -114,12 +146,18 @@ function getGameIcon(gameId: string): string {
   return gameIcons[gameId?.toLowerCase()] || 'solar:gameboy-bold';
 }
 
-function transformTeams(match: any): any[] {
+interface TransformedTeam {
+  name: string;
+  score: number;
+  players: { name: string; avatar?: string }[];
+}
+
+function transformTeams(match: BackendMatch): TransformedTeam[] {
   if (match.scoreboard?.team_scoreboards) {
-    return match.scoreboard.team_scoreboards.map((team: any) => ({
+    return match.scoreboard.team_scoreboards.map((team: BackendTeamScoreboard) => ({
       name: team.name || 'Unknown Team',
       score: team.score || 0,
-      players: (team.players || []).map((player: any) => ({
+      players: (team.players || []).map((player: BackendPlayer) => ({
         name: player.display_name || player.name || 'Player',
         avatar: player.avatar,
       })),
@@ -133,7 +171,7 @@ function transformTeams(match: any): any[] {
   ];
 }
 
-function getMatchStatus(match: any): 'live' | 'completed' | 'upcoming' {
+function getMatchStatus(match: BackendMatch): 'live' | 'completed' | 'upcoming' {
   if (match.status) {
     if (match.status === 'live' || match.status === 'in_progress') return 'live';
     if (match.status === 'completed' || match.status === 'finished') return 'completed';

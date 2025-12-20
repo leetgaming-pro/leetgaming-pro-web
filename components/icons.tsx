@@ -1,6 +1,14 @@
 import * as React from "react";
 import { IconSvgProps } from "@/types";
 
+/** Extended icon props with additional styling options */
+interface GameEventIconProps extends IconSvgProps {
+  fill?: string;
+  filled?: boolean;
+  label?: string;
+  strokeWidth?: number;
+}
+
 export const Logo: React.FC<IconSvgProps> = ({
   size = 36,
   width,
@@ -103,7 +111,7 @@ export const TwitterIcon: React.FC<IconSvgProps> = ({
   );
 };
 
-export const PauseCircleIcon = ({size = 24, width, height, ...props}: any) => (
+export const PauseCircleIcon = ({size = 24, width, height, ...props}: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -122,7 +130,7 @@ export const PauseCircleIcon = ({size = 24, width, height, ...props}: any) => (
 );
 
 
-export const PreviousIcon = ({size = 24, width, height, ...props}: any) => (
+export const PreviousIcon = ({size = 24, width, height, ...props}: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -166,7 +174,7 @@ export const HeartIcon = ({
   strokeWidth = 1.5,
   fill = "none",
   ...props
-}: any) => (
+}: GameEventIconProps) => (
   <svg
     aria-hidden="true"
     fill={fill}
@@ -187,7 +195,7 @@ export const HeartIcon = ({
   </svg>
 );
 
-export const RepeatOneIcon = ({size = 24, width, height, ...props}: any) => (
+export const RepeatOneIcon = ({size = 24, width, height, ...props}: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -213,7 +221,7 @@ export const RepeatOneIcon = ({size = 24, width, height, ...props}: any) => (
   </svg>
 );
 
-export const ShuffleIcon = ({size = 24, width, height, ...props}: any) => (
+export const ShuffleIcon = ({size = 24, width, height, ...props}: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -239,7 +247,7 @@ export const ShuffleIcon = ({size = 24, width, height, ...props}: any) => (
   </svg>
 );
 
-export const NextIcon = ({size = 24, width, height, ...props}: any) => (
+export const NextIcon = ({size = 24, width, height, ...props}: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -312,7 +320,7 @@ export const LogOutIcon: React.FC<IconSvgProps> = ({
   );
 }
 
-export const PlusIcon = (props: any) => (
+export const PlusIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -485,7 +493,7 @@ export const NextUILogo: React.FC<IconSvgProps> = (props) => {
   );
 };
 
-export const ChevronDownIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const ChevronDownIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       fill="none"
@@ -507,7 +515,7 @@ export const ChevronDownIcon = ({ fill, size, width = 24, height = 24, ...props 
   );
 };
 
-export const TagUserIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const TagUserIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       fill="none"
@@ -536,7 +544,7 @@ export const TagUserIcon = ({ fill, size, width = 24, height = 24, ...props }: a
   );
 };
 
-export const ServerIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const ServerIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       fill="none"
@@ -557,7 +565,7 @@ export const ServerIcon = ({ fill, size, width = 24, height = 24, ...props }: an
   );
 };
 
-export const FlashIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const FlashIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       fill="none"
@@ -579,7 +587,7 @@ export const FlashIcon = ({ fill, size, width = 24, height = 24, ...props }: any
   );
 };
 
-export const ActivityIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const ActivityIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       data-name="Iconly/Curved/Activity"
@@ -605,7 +613,7 @@ export const ActivityIcon = ({ fill, size, width = 24, height = 24, ...props }: 
   );
 };
 
-export const ScaleIcon = ({ fill, size, width = 24, height = 24, ...props }: any) => {
+export const ScaleIcon = ({ fill, size, width = 24, height = 24, ...props }: IconSvgProps & { fill?: string }) => {
   return (
     <svg
       fill="none"
@@ -633,7 +641,7 @@ export const ScaleIcon = ({ fill, size, width = 24, height = 24, ...props }: any
   );
 }
 
-export const AddNoteIcon = (props: any) => (
+export const AddNoteIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -657,7 +665,7 @@ export const AddNoteIcon = (props: any) => (
 );
 
 
-export const CopyDocumentIcon = (props: any) => (
+export const CopyDocumentIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -684,7 +692,7 @@ export const CopyDocumentIcon = (props: any) => (
   </svg>
 );
 
-export const EditDocumentIcon = (props: any) => (
+export const EditDocumentIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -707,7 +715,7 @@ export const EditDocumentIcon = (props: any) => (
   </svg>
 );
 
-export const DeleteDocumentIcon = (props: any) => (
+export const DeleteDocumentIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -744,7 +752,7 @@ export const UserIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       data-name="Iconly/Curved/Profile"
@@ -783,7 +791,7 @@ export const GameEventClutchSituationIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       data-name="Iconly/Curved/Profile"
@@ -804,7 +812,7 @@ export const GameEventClutchProgressIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       data-name="Iconly/Curved/Profile"
@@ -827,7 +835,7 @@ export const GameEventClutchWonIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       data-name="Iconly/Curved/Profile"
@@ -848,7 +856,7 @@ export const GameEventPistolRoundIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       data-name="Iconly/Curved/Profile"
@@ -869,7 +877,7 @@ export const VerifiedBadgeLimeGreen = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -890,7 +898,7 @@ export const SingleEliminationMatchIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
   
 <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"><path fill="currentColor" d="M6 9H5q-.425 0-.712-.288T4 8t.288-.712T5 7h2q.425 0 .713.288T8 8v8q0 .425-.288.713T7 17t-.712-.288T6 16zm8.65 4.65l-1.725 2.875q-.125.225-.337.35T12.1 17q-.575 0-.862-.5t.012-1l2.25-3.8l-1.925-3.175q-.3-.5-.013-1.013T12.425 7q.275 0 .513.138t.362.362l1.35 2.25l1.4-2.275q.125-.225.35-.35T16.9 7q.575 0 .863.5t-.013 1l-1.9 3.2l2.25 3.775q.3.5.013 1.013t-.888.512q-.275 0-.513-.137t-.362-.363z"></path></svg>
@@ -906,7 +914,7 @@ export const BestOfThreeMatchIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
   
 <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"><path fill="currentColor" d="M9 17.25h4q.875 0 1.438-.625T15 15.25v-.75q0-.575-.425-1.037T13.5 13q.65 0 1.075-.462T15 11.5v-.75q0-.75-.562-1.375T13 8.75H9v2h4V12h-3v2h3v1.25H9zM9 3V1h6v2zm3 19q-1.85 0-3.488-.712T5.65 19.35t-1.937-2.863T3 13t.713-3.488T5.65 6.65t2.863-1.937T12 4q1.55 0 2.975.5t2.675 1.45l1.4-1.4l1.4 1.4l-1.4 1.4Q20 8.6 20.5 10.025T21 13q0 1.85-.713 3.488T18.35 19.35t-2.863 1.938T12 22"></path></svg>  )
@@ -921,7 +929,7 @@ export const BestOfFiveMatchIcon = ({
   width,
   label,
   ...props
-}: any) => {
+}: GameEventIconProps) => {
   return (
   
 <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"><path fill="currentColor" d="M9 17.25h4q.825 0 1.413-.587T15 15.25V14q0-.825-.587-1.412T13 12h-2v-1.25h4v-2H9V14h4v1.25H9zM9 3V1h6v2zm3 19q-1.85 0-3.488-.712T5.65 19.35t-1.937-2.863T3 13t.713-3.488T5.65 6.65t2.863-1.937T12 4q1.55 0 2.975.5t2.675 1.45l1.4-1.4l1.4 1.4l-1.4 1.4Q20 8.6 20.5 10.025T21 13q0 1.85-.713 3.488T18.35 19.35t-2.863 1.938T12 22"></path></svg>

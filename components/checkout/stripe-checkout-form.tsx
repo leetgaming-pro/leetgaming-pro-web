@@ -73,9 +73,10 @@ export function StripeCheckoutForm({
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         onSuccess();
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Payment failed');
-      onError(err.message || 'Payment failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Payment failed';
+      setErrorMessage(message);
+      onError(message);
     } finally {
       setIsLoading(false);
     }
