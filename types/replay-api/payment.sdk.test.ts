@@ -5,6 +5,7 @@
  */
 
 import { PaymentAPI } from './payment.sdk';
+import { ReplayApiClient } from './replay-api.client';
 import type {
   Payment,
   PaymentsResult,
@@ -29,7 +30,7 @@ describe('PaymentAPI', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    paymentApi = new PaymentAPI(mockClient as unknown as Parameters<typeof PaymentAPI.prototype.constructor>[0]);
+    paymentApi = new PaymentAPI(mockClient as unknown as ReplayApiClient);
   });
 
   describe('getPayment', () => {
@@ -557,7 +558,7 @@ describe('PaymentAPI - Edge Cases', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    paymentApi = new PaymentAPI(mockClient as unknown as Parameters<typeof PaymentAPI.prototype.constructor>[0]);
+    paymentApi = new PaymentAPI(mockClient as unknown as ReplayApiClient);
   });
 
   it('should handle all payment statuses', async () => {

@@ -206,7 +206,7 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
           clientSecret: response.client_secret,
           redirectUrl: response.redirect_url,
           cryptoAddress: response.crypto_address,
-          status: response.payment.status,
+          status: response.payment.status as unknown as PaymentStatus,
           amount,
           currency: state.selectedPlan.price.currency,
         };

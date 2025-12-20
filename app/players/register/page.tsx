@@ -204,9 +204,10 @@ export default function PlayerRegistrationPage() {
 
     try {
       // Upload avatar if present
-      let avatarUrl = formData.avatarUrl;
+      let avatarUrl: string | undefined = formData.avatarUrl || undefined;
       if (formData.avatarFile) {
-        avatarUrl = await sdk.playerProfiles.uploadAvatar(formData.avatarFile) || undefined;
+        const uploaded = await sdk.playerProfiles.uploadAvatar(formData.avatarFile);
+        avatarUrl = uploaded || undefined;
       }
 
       const profile = await sdk.playerProfiles.createPlayerProfile({
