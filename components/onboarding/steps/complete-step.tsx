@@ -69,7 +69,7 @@ export function CompleteStep() {
           flex items-center justify-center
           ${showConfetti ? 'animate-bounce' : ''}
         `}>
-          <Icon icon="solar:check-circle-bold" className="w-12 h-12 text-white" />
+          <Icon icon="solar:check-circle-bold" className="w-12 h-12 text-[#F5F0E1]" />
         </div>
 
         {/* Confetti particles (CSS animation) */}
@@ -80,7 +80,7 @@ export function CompleteStep() {
                 key={i}
                 className="absolute w-2 h-2 rounded-full animate-ping"
                 style={{
-                  backgroundColor: ['#7C3AED', '#EC4899', '#F59E0B', '#10B981'][i % 4],
+                  backgroundColor: ['#DCFF37', '#FF4654', '#FFC700', '#34445C'][i % 4],
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 0.5}s`,

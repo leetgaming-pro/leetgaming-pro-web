@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardBody,
@@ -12,22 +12,23 @@ import {
   Tabs,
   Tab,
   Tooltip,
-  Button,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
 import {
   AreaChart,
   Area,
-  BarChart,
   Bar,
   PieChart,
   Pie,
   Cell,
-  LineChart,
   Line,
-  RadialBarChart,
-  RadialBar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -56,7 +57,6 @@ const BRAND_COLORS = {
   success: "#10B981",
   warning: "#F59E0B",
   danger: "#EF4444",
-  purple: "#8B5CF6",
   cyan: "#06B6D4",
   pink: "#EC4899",
 };
@@ -219,11 +219,41 @@ const implementationStats = {
 
 // Quality Metrics
 const qualityMetrics: QualityMetric[] = [
-  { name: "Test Coverage", value: 85, target: 90, color: BRAND_COLORS.lime, icon: "solar:test-tube-bold" },
-  { name: "Linter Compliance", value: 100, target: 100, color: BRAND_COLORS.success, icon: "solar:check-circle-bold" },
-  { name: "Security Score", value: 100, target: 100, color: BRAND_COLORS.orange, icon: "solar:shield-check-bold" },
-  { name: "Documentation", value: 90, target: 100, color: BRAND_COLORS.gold, icon: "solar:document-text-bold" },
-  { name: "Architecture", value: 100, target: 100, color: BRAND_COLORS.purple, icon: "solar:code-square-bold" },
+  {
+    name: "Test Coverage",
+    value: 85,
+    target: 90,
+    color: BRAND_COLORS.lime,
+    icon: "solar:test-tube-bold",
+  },
+  {
+    name: "Linter Compliance",
+    value: 100,
+    target: 100,
+    color: BRAND_COLORS.success,
+    icon: "solar:check-circle-bold",
+  },
+  {
+    name: "Security Score",
+    value: 100,
+    target: 100,
+    color: BRAND_COLORS.orange,
+    icon: "solar:shield-check-bold",
+  },
+  {
+    name: "Documentation",
+    value: 90,
+    target: 100,
+    color: BRAND_COLORS.gold,
+    icon: "solar:document-text-bold",
+  },
+  {
+    name: "Architecture",
+    value: 100,
+    target: 100,
+    color: BRAND_COLORS.navy,
+    icon: "solar:code-square-bold",
+  },
 ];
 
 // Sprint velocity data
@@ -284,7 +314,8 @@ const generateContributionData = () => {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     const count = Math.floor(Math.random() * 15);
-    const level = count === 0 ? 0 : count < 4 ? 1 : count < 8 ? 2 : count < 12 ? 3 : 4;
+    const level =
+      count === 0 ? 0 : count < 4 ? 1 : count < 8 ? 2 : count < 12 ? 3 : 4;
     data.push({
       date: date.toISOString().split("T")[0],
       count,
@@ -300,7 +331,8 @@ const milestones = [
     id: "m1",
     title: "Argon2id Password Hashing",
     date: "Dec 15, 2025",
-    description: "Bank-grade password security with OWASP-recommended algorithm",
+    description:
+      "Bank-grade password security with OWASP-recommended algorithm",
     category: "security",
     impact: "high",
   },
@@ -498,7 +530,9 @@ function AnimatedCounter({
 }) {
   const motionValue = useMotionValue(0);
   const rounded = useTransform(motionValue, (latest) =>
-    decimals > 0 ? latest.toFixed(decimals) : Math.floor(latest).toLocaleString()
+    decimals > 0
+      ? latest.toFixed(decimals)
+      : Math.floor(latest).toLocaleString()
   );
   const [displayValue, setDisplayValue] = useState("0");
 
@@ -615,7 +649,10 @@ function ContributionHeatmap() {
   });
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
-  const totalContributions = contributionData.reduce((sum, d) => sum + d.count, 0);
+  const totalContributions = contributionData.reduce(
+    (sum, d) => sum + d.count,
+    0
+  );
 
   return (
     <Card className="esports-card border border-leet-orange/20 dark:border-leet-lime/20">
@@ -627,7 +664,12 @@ function ContributionHeatmap() {
             </div>
             <h3 className="font-bold">Development Activity</h3>
           </div>
-          <Chip size="sm" variant="flat" className="rounded-none" color="success">
+          <Chip
+            size="sm"
+            variant="flat"
+            className="rounded-none"
+            color="success"
+          >
             {totalContributions} contributions (90 days)
           </Chip>
         </div>
@@ -644,7 +686,9 @@ function ContributionHeatmap() {
                     classNames={{ content: "rounded-none" }}
                   >
                     <div
-                      className={`w-3 h-3 ${levelColors[day.level]} transition-all hover:scale-125 cursor-pointer`}
+                      className={`w-3 h-3 ${
+                        levelColors[day.level]
+                      } transition-all hover:scale-125 cursor-pointer`}
                       style={{
                         clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
                       }}
@@ -671,7 +715,11 @@ function ContributionHeatmap() {
 // PULSE INDICATOR COMPONENT
 // ============================================
 
-function PulseIndicator({ status }: { status: "operational" | "degraded" | "outage" | "maintenance" }) {
+function PulseIndicator({
+  status,
+}: {
+  status: "operational" | "degraded" | "outage" | "maintenance";
+}) {
   const colors = {
     operational: "bg-success",
     degraded: "bg-warning",
@@ -684,7 +732,9 @@ function PulseIndicator({ status }: { status: "operational" | "degraded" | "outa
       <span
         className={`animate-ping absolute inline-flex h-full w-full rounded-full ${colors[status]} opacity-75`}
       />
-      <span className={`relative inline-flex rounded-full h-3 w-3 ${colors[status]}`} />
+      <span
+        className={`relative inline-flex rounded-full h-3 w-3 ${colors[status]}`}
+      />
     </span>
   );
 }
@@ -693,7 +743,13 @@ function PulseIndicator({ status }: { status: "operational" | "degraded" | "outa
 // SERVICE CARD WITH SPARKLINE
 // ============================================
 
-function ServiceCardAdvanced({ service, index }: { service: ServiceStatus; index: number }) {
+function ServiceCardAdvanced({
+  service,
+  index,
+}: {
+  service: ServiceStatus;
+  index: number;
+}) {
   const config = statusConfig[service.status];
 
   return (
@@ -705,18 +761,23 @@ function ServiceCardAdvanced({ service, index }: { service: ServiceStatus; index
       <Card className="esports-card bg-content1/80 backdrop-blur-md border border-leet-orange/20 dark:border-leet-lime/20 overflow-hidden group hover:border-leet-orange/40 dark:hover:border-leet-lime/40 transition-all duration-300">
         <CardBody className="gap-3 p-4">
           <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="leet-icon-box leet-icon-box-md flex-shrink-0">
-                <Icon icon={service.icon || "solar:server-bold"} className="w-5 h-5" />
+                <Icon
+                  icon={service.icon || "solar:server-bold"}
+                  className="w-5 h-5"
+                />
               </div>
-            <div>
+              <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold">{service.name}</h3>
                   <PulseIndicator status={service.status} />
                 </div>
-              <p className="text-xs text-default-500">{service.description}</p>
+                <p className="text-xs text-default-500">
+                  {service.description}
+                </p>
+              </div>
             </div>
-          </div>
           </div>
 
           {/* Mini Sparkline */}
@@ -725,9 +786,23 @@ function ServiceCardAdvanced({ service, index }: { service: ServiceStatus; index
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={service.metrics}>
                   <defs>
-                    <linearGradient id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={BRAND_COLORS.lime} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={BRAND_COLORS.lime} stopOpacity={0} />
+                    <linearGradient
+                      id={`gradient-${index}`}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={BRAND_COLORS.lime}
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={BRAND_COLORS.lime}
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
                   <Area
@@ -759,9 +834,9 @@ function ServiceCardAdvanced({ service, index }: { service: ServiceStatus; index
               variant="flat"
               classNames={{ base: "rounded-none" }}
             >
-            {config.label}
-          </Chip>
-        </div>
+              {config.label}
+            </Chip>
+          </div>
         </CardBody>
       </Card>
     </motion.div>
@@ -785,10 +860,22 @@ function QualityRadar() {
       </CardHeader>
       <CardBody>
         <ResponsiveContainer width="100%" height={300}>
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={platformCapabilities}>
+          <RadarChart
+            cx="50%"
+            cy="50%"
+            outerRadius="80%"
+            data={platformCapabilities}
+          >
             <PolarGrid stroke="#444" />
-            <PolarAngleAxis dataKey="subject" tick={{ fill: "#888", fontSize: 12 }} />
-            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "#888", fontSize: 10 }} />
+            <PolarAngleAxis
+              dataKey="subject"
+              tick={{ fill: "#888", fontSize: 12 }}
+            />
+            <PolarRadiusAxis
+              angle={30}
+              domain={[0, 100]}
+              tick={{ fill: "#888", fontSize: 10 }}
+            />
             <Radar
               name="Score"
               dataKey="A"
@@ -859,7 +946,10 @@ function ArchitectureDiagram() {
                     {layer.name}
                   </span>
                   {index < layers.length - 1 && (
-                    <Icon icon="solar:arrow-down-bold" className="w-4 h-4 text-default-400" />
+                    <Icon
+                      icon="solar:arrow-down-bold"
+                      className="w-4 h-4 text-default-400"
+                    />
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -869,7 +959,10 @@ function ArchitectureDiagram() {
                       size="sm"
                       variant="flat"
                       classNames={{ base: "rounded-none" }}
-                      style={{ backgroundColor: `${layer.color}20`, color: layer.color }}
+                      style={{
+                        backgroundColor: `${layer.color}20`,
+                        color: layer.color,
+                      }}
                     >
                       {item}
                     </Chip>
@@ -881,7 +974,8 @@ function ArchitectureDiagram() {
         </div>
         <div className="mt-4 p-3 bg-default-50/50 dark:bg-default-100/5 text-center text-sm text-default-500">
           <Icon icon="solar:info-circle-bold" className="w-4 h-4 inline mr-1" />
-          Controllers only orchestrate • Domain has no external dependencies • DDD + CQRS
+          Controllers only orchestrate • Domain has no external dependencies •
+          DDD + CQRS
         </div>
       </CardBody>
     </Card>
@@ -899,7 +993,7 @@ function SprintVelocityChart() {
         <div className="flex items-center gap-2">
           <div className="leet-icon-box leet-icon-box-sm">
             <Icon icon="solar:chart-square-bold" className="w-4 h-4" />
-            </div>
+          </div>
           <h3 className="font-bold">Sprint Velocity</h3>
         </div>
       </CardHeader>
@@ -909,8 +1003,18 @@ function SprintVelocityChart() {
             <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.2} />
             <XAxis dataKey="sprint" tick={{ fill: "#888", fontSize: 12 }} />
             <YAxis tick={{ fill: "#888", fontSize: 12 }} />
-            <Bar dataKey="completed" name="Completed" fill={BRAND_COLORS.lime} radius={[4, 4, 0, 0]} />
-            <Bar dataKey="bugs" name="Bugs Fixed" fill={BRAND_COLORS.orange} radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="completed"
+              name="Completed"
+              fill={BRAND_COLORS.lime}
+              radius={[4, 4, 0, 0]}
+            />
+            <Bar
+              dataKey="bugs"
+              name="Bugs Fixed"
+              fill={BRAND_COLORS.orange}
+              radius={[4, 4, 0, 0]}
+            />
             <Line
               type="monotone"
               dataKey="planned"
@@ -942,7 +1046,7 @@ function MilestoneTimeline() {
   const categoryColors: Record<string, string> = {
     backend: BRAND_COLORS.cyan,
     security: BRAND_COLORS.lime,
-    feature: BRAND_COLORS.purple,
+    feature: BRAND_COLORS.navy,
     infrastructure: BRAND_COLORS.gold,
   };
 
@@ -984,10 +1088,12 @@ function MilestoneTimeline() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h4 className="font-semibold text-sm">{milestone.title}</h4>
-                  <p className="text-xs text-default-500 mt-0.5">{milestone.description}</p>
+                  <p className="text-xs text-default-500 mt-0.5">
+                    {milestone.description}
+                  </p>
                 </div>
                 <Chip
-              size="sm"
+                  size="sm"
                   variant="flat"
                   classNames={{ base: "rounded-none flex-shrink-0" }}
                 >
@@ -1048,8 +1154,11 @@ function RoadmapPhaseCard({
               <div
                 className="w-8 h-8 flex items-center justify-center"
                 style={{
-                  background: `linear-gradient(135deg, ${statusColors[phase.status]}, ${BRAND_COLORS.navy})`,
-                  clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                  background: `linear-gradient(135deg, ${
+                    statusColors[phase.status]
+                  }, ${BRAND_COLORS.navy})`,
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
                 }}
               >
                 <Icon
@@ -1061,8 +1170,8 @@ function RoadmapPhaseCard({
                       : "solar:calendar-bold"
                   }
                   className="w-4 h-4 text-white"
-            />
-          </div>
+                />
+              </div>
               <div>
                 <h4 className="font-bold text-sm">{phase.title}</h4>
                 <p className="text-xs text-default-500">{phase.targetDate}</p>
@@ -1078,7 +1187,13 @@ function RoadmapPhaseCard({
             <Progress
               value={phase.progress}
               size="sm"
-              color={phase.status === "completed" ? "success" : phase.status === "in-progress" ? "warning" : "default"}
+              color={
+                phase.status === "completed"
+                  ? "success"
+                  : phase.status === "in-progress"
+                  ? "warning"
+                  : "default"
+              }
               classNames={{ track: "rounded-none", indicator: "rounded-none" }}
             />
           </div>
@@ -1121,8 +1236,8 @@ function RoadmapPhaseCard({
               </div>
             ))}
           </div>
-      </CardBody>
-    </Card>
+        </CardBody>
+      </Card>
     </motion.div>
   );
 }
@@ -1184,10 +1299,12 @@ export default function ServiceStatusPage() {
   }, []);
 
   const allOperational = services.every((s) => s.status === "operational");
-  const completionPercentage = Math.round((implementationStats.completed / implementationStats.totalFeatures) * 100);
+  const completionPercentage = Math.round(
+    (implementationStats.completed / implementationStats.totalFeatures) * 100
+  );
 
   return (
-    <div className="min-h-screen pb-16">
+    <div className="min-h-screen pb-16 lg:pb-24">
       {/* ============================================ */}
       {/* HERO SECTION */}
       {/* ============================================ */}
@@ -1226,37 +1343,61 @@ export default function ServiceStatusPage() {
           />
         </div>
 
-        <div className="relative container mx-auto px-4 py-12 max-w-7xl">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 py-12 lg:py-16 xl:py-20 max-w-[1600px]">
           {/* Title */}
-          <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12 lg:mb-16"
+          >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.2 }}
-              className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-leet-navy/5 dark:bg-leet-lime/10 border border-leet-orange/20 dark:border-leet-lime/20"
+              className="inline-flex items-center gap-3 mb-6 lg:mb-8 px-4 lg:px-6 py-2 lg:py-3 bg-leet-navy/5 dark:bg-leet-lime/10 border border-leet-orange/20 dark:border-leet-lime/20"
             >
               <PulseIndicator status="operational" />
-              <span className="font-mono text-sm uppercase tracking-wider">Platform Status & Engineering Overview</span>
+              <span className="font-mono text-sm lg:text-base uppercase tracking-wider">
+                Platform Status & Engineering Overview
+              </span>
             </motion.div>
 
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 lg:mb-6">
               <span className="text-leet-navy dark:text-leet-cream">Leet</span>
-              <span className="text-leet-orange dark:text-leet-lime">Gaming</span>
+              <span className="text-leet-orange dark:text-leet-lime">
+                Gaming
+              </span>
               <span className="text-leet-navy dark:text-leet-cream">.PRO</span>
             </h1>
-            <p className="text-lg text-default-500 max-w-2xl mx-auto">
-              Enterprise-grade esports infrastructure with bank-level security, real-time analytics, and competitive
-              gaming features
+            <p className="text-lg lg:text-xl xl:text-2xl text-default-500 max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
+              Enterprise-grade esports infrastructure with bank-level security,
+              real-time analytics, and competitive gaming features
             </p>
           </motion.div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 max-w-5xl mx-auto mb-12 lg:mb-16">
             {[
-              { label: "Features Completed", value: implementationStats.completed, icon: "solar:check-circle-bold" },
-              { label: "Lines of Code", value: "147K+", icon: "solar:code-square-bold" },
-              { label: "Test Coverage", value: "85%", icon: "solar:test-tube-bold" },
-              { label: "Services", value: services.length, icon: "solar:server-bold" },
+              {
+                label: "Features Completed",
+                value: implementationStats.completed,
+                icon: "solar:check-circle-bold",
+              },
+              {
+                label: "Lines of Code",
+                value: "147K+",
+                icon: "solar:code-square-bold",
+              },
+              {
+                label: "Test Coverage",
+                value: "85%",
+                icon: "solar:test-tube-bold",
+              },
+              {
+                label: "Services",
+                value: services.length,
+                icon: "solar:server-bold",
+              },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -1265,23 +1406,40 @@ export default function ServiceStatusPage() {
                 transition={{ delay: 0.3 + i * 0.1 }}
               >
                 <Card className="esports-card bg-content1/60 backdrop-blur-sm border border-leet-orange/20 dark:border-leet-lime/20">
-                  <CardBody className="p-4 text-center">
-                    <Icon icon={stat.icon} className="w-6 h-6 mx-auto mb-2 text-leet-orange dark:text-leet-lime" />
-                    <p className="text-2xl font-bold">
-                      {typeof stat.value === "number" ? <AnimatedCounter value={stat.value} /> : stat.value}
+                  <CardBody className="p-4 lg:p-6 xl:p-8 text-center">
+                    <Icon
+                      icon={stat.icon}
+                      className="w-6 h-6 lg:w-8 lg:h-8 mx-auto mb-2 lg:mb-3 text-leet-orange dark:text-leet-lime"
+                    />
+                    <p className="text-2xl lg:text-3xl xl:text-4xl font-bold">
+                      {typeof stat.value === "number" ? (
+                        <AnimatedCounter value={stat.value} />
+                      ) : (
+                        stat.value
+                      )}
                     </p>
-                    <p className="text-xs text-default-500">{stat.label}</p>
+                    <p className="text-xs lg:text-sm text-default-500 mt-1">
+                      {stat.label}
+                    </p>
                   </CardBody>
                 </Card>
               </motion.div>
             ))}
-        </div>
+          </div>
 
           {/* Overall Status Banner */}
           <AnimatePresence>
             {!loading && (
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto">
-                <Card className={`esports-card border-2 ${allOperational ? "border-success" : "border-warning"}`}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-xl mx-auto"
+              >
+                <Card
+                  className={`esports-card border-2 ${
+                    allOperational ? "border-success" : "border-warning"
+                  }`}
+                >
                   <CardBody className="py-6">
                     <div className="flex items-center justify-center gap-4">
                       <motion.div
@@ -1289,14 +1447,25 @@ export default function ServiceStatusPage() {
                         transition={{ duration: 2, repeat: Infinity }}
                       >
                         <Icon
-                          icon={allOperational ? "solar:check-circle-bold" : "solar:danger-triangle-bold"}
-                          className={`w-12 h-12 ${allOperational ? "text-success" : "text-warning"}`}
+                          icon={
+                            allOperational
+                              ? "solar:check-circle-bold"
+                              : "solar:danger-triangle-bold"
+                          }
+                          className={`w-12 h-12 ${
+                            allOperational ? "text-success" : "text-warning"
+                          }`}
                         />
                       </motion.div>
                       <div>
-                        <h2 className="text-xl font-bold">{allOperational ? "All Systems Operational" : "Partial Disruption"}</h2>
+                        <h2 className="text-xl font-bold">
+                          {allOperational
+                            ? "All Systems Operational"
+                            : "Partial Disruption"}
+                        </h2>
                         <p className="text-sm text-default-500">
-                          {services.length} services • Last checked {lastUpdated?.toLocaleTimeString()}
+                          {services.length} services • Last checked{" "}
+                          {lastUpdated?.toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
@@ -1311,16 +1480,18 @@ export default function ServiceStatusPage() {
       {/* ============================================ */}
       {/* MAIN CONTENT */}
       {/* ============================================ */}
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px]">
         {/* Tabs */}
         <Tabs
           selectedKey={selectedTab}
           onSelectionChange={(key) => setSelectedTab(key as string)}
           classNames={{
-            tabList: "gap-2 bg-content1/60 backdrop-blur-md p-1 border border-leet-orange/20 dark:border-leet-lime/20 mb-8",
+            tabList:
+              "gap-2 lg:gap-4 bg-content1/60 backdrop-blur-md p-1 lg:p-2 border border-leet-orange/20 dark:border-leet-lime/20 mb-8 lg:mb-12",
             cursor: "rounded-none bg-leet-navy dark:bg-leet-lime",
-            tab: "rounded-none",
-            tabContent: "group-data-[selected=true]:text-leet-cream dark:group-data-[selected=true]:text-leet-navy font-semibold",
+            tab: "rounded-none h-10 lg:h-12",
+            tabContent:
+              "group-data-[selected=true]:text-leet-cream dark:group-data-[selected=true]:text-leet-navy font-semibold text-sm lg:text-base",
           }}
           size="lg"
         >
@@ -1357,7 +1528,11 @@ export default function ServiceStatusPage() {
         {/* SERVICE STATUS TAB */}
         {/* ============================================ */}
         {selectedTab === "status" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8 lg:space-y-12"
+          >
             {loading ? (
               <div className="flex justify-center py-20">
                 <Spinner size="lg" />
@@ -1365,16 +1540,20 @@ export default function ServiceStatusPage() {
             ) : (
               <>
                 {/* Services Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
                   {services.map((service, index) => (
-                    <ServiceCardAdvanced key={service.name} service={service} index={index} />
+                    <ServiceCardAdvanced
+                      key={service.name}
+                      service={service}
+                      index={index}
+                    />
                   ))}
                 </div>
 
-                <Divider className="my-8" />
+                <Divider className="my-8 lg:my-12" />
 
                 {/* Architecture & Quality */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                   <ArchitectureDiagram />
                   <QualityRadar />
                 </div>
@@ -1384,7 +1563,10 @@ export default function ServiceStatusPage() {
                   <CardHeader>
                     <div className="flex items-center gap-2">
                       <div className="leet-icon-box leet-icon-box-sm">
-                        <Icon icon="solar:code-square-bold" className="w-4 h-4" />
+                        <Icon
+                          icon="solar:code-square-bold"
+                          className="w-4 h-4"
+                        />
                       </div>
                       <h3 className="font-bold">Technology Stack</h3>
                     </div>
@@ -1398,10 +1580,15 @@ export default function ServiceStatusPage() {
                 <Card className="esports-card border border-success/30 bg-success/5">
                   <CardBody className="py-4">
                     <div className="flex items-center gap-3">
-                      <Icon icon="solar:check-circle-bold" className="w-6 h-6 text-success" />
+                      <Icon
+                        icon="solar:check-circle-bold"
+                        className="w-6 h-6 text-success"
+                      />
                       <div>
                         <p className="font-semibold">No incidents reported</p>
-                        <p className="text-sm text-default-500">Last 30 days • 99.97% average uptime</p>
+                        <p className="text-sm text-default-500">
+                          Last 30 days • 99.97% average uptime
+                        </p>
                       </div>
                     </div>
                   </CardBody>
@@ -1415,7 +1602,11 @@ export default function ServiceStatusPage() {
         {/* WORK HISTORY TAB */}
         {/* ============================================ */}
         {selectedTab === "work" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8 lg:space-y-12"
+          >
             {/* Quality Metrics Ring */}
             <Card className="esports-card border-2 border-leet-orange dark:border-leet-lime overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-leet-orange via-leet-gold to-leet-lime" />
@@ -1426,9 +1617,12 @@ export default function ServiceStatusPage() {
                       <Icon icon="solar:rocket-2-bold" className="w-6 h-6" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">Platform Implementation</h2>
+                      <h2 className="text-2xl font-bold">
+                        Platform Implementation
+                      </h2>
                       <p className="text-default-500">
-                        {implementationStats.completed} of {implementationStats.totalFeatures} features completed
+                        {implementationStats.completed} of{" "}
+                        {implementationStats.totalFeatures} features completed
                       </p>
                     </div>
                   </div>
@@ -1453,7 +1647,7 @@ export default function ServiceStatusPage() {
             <ContributionHeatmap />
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               {/* Development Progress */}
               <Card className="esports-card border border-leet-orange/20 dark:border-leet-lime/20">
                 <CardHeader>
@@ -1466,13 +1660,34 @@ export default function ServiceStatusPage() {
                   <ResponsiveContainer width="100%" height={280}>
                     <AreaChart data={workHistory}>
                       <defs>
-                        <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={BRAND_COLORS.lime} stopOpacity={0.8} />
-                          <stop offset="95%" stopColor={BRAND_COLORS.lime} stopOpacity={0.1} />
+                        <linearGradient
+                          id="colorCompleted"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor={BRAND_COLORS.lime}
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor={BRAND_COLORS.lime}
+                            stopOpacity={0.1}
+                          />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.2} />
-                      <XAxis dataKey="date" tick={{ fill: "#888", fontSize: 11 }} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#333"
+                        opacity={0.2}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fill: "#888", fontSize: 11 }}
+                      />
                       <YAxis tick={{ fill: "#888", fontSize: 11 }} />
                       <Area
                         type="monotone"
@@ -1482,7 +1697,14 @@ export default function ServiceStatusPage() {
                         fill="url(#colorCompleted)"
                         name="Completed"
                       />
-                      <Line type="monotone" dataKey="velocity" stroke={BRAND_COLORS.gold} strokeWidth={2} name="Velocity" dot={{ r: 3 }} />
+                      <Line
+                        type="monotone"
+                        dataKey="velocity"
+                        stroke={BRAND_COLORS.gold}
+                        strokeWidth={2}
+                        name="Velocity"
+                        dot={{ r: 3 }}
+                      />
                       <Legend />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -1493,7 +1715,7 @@ export default function ServiceStatusPage() {
             </div>
 
             {/* Category & Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               {/* Category Breakdown */}
               <Card className="esports-card border border-leet-orange/20 dark:border-leet-lime/20">
                 <CardHeader>
@@ -1512,16 +1734,22 @@ export default function ServiceStatusPage() {
                         transition={{ delay: i * 0.05 }}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium">{cat.category}</span>
+                          <span className="text-sm font-medium">
+                            {cat.category}
+                          </span>
                           <span className="text-xs text-default-500">
-                            {cat.completed}/{cat.total} ({cat.coverage}% coverage)
+                            {cat.completed}/{cat.total} ({cat.coverage}%
+                            coverage)
                           </span>
                         </div>
                         <Progress
                           value={(cat.completed / cat.total) * 100}
                           size="sm"
                           color="success"
-                          classNames={{ track: "rounded-none", indicator: "rounded-none" }}
+                          classNames={{
+                            track: "rounded-none",
+                            indicator: "rounded-none",
+                          }}
                         />
                       </motion.div>
                     ))}
@@ -1548,7 +1776,9 @@ export default function ServiceStatusPage() {
                         outerRadius={90}
                         paddingAngle={3}
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
                         labelLine={false}
                       >
                         {techDistribution.map((entry, index) => (
@@ -1573,23 +1803,34 @@ export default function ServiceStatusPage() {
                     <Icon icon="solar:code-circle-bold" className="w-8 h-8" />
                   </div>
                   <div className="text-center md:text-left flex-1">
-                    <h3 className="text-2xl font-bold text-leet-cream mb-2">Open Source Excellence</h3>
+                    <h3 className="text-2xl font-bold text-leet-cream mb-2">
+                      Open Source Excellence
+                    </h3>
                     <p className="text-leet-cream/70 mb-4">
-                      LeetGaming.PRO is built with the highest engineering standards. MIT licensed, fully documented, community-driven.
+                      LeetGaming.PRO is built with the highest engineering
+                      standards. MIT licensed, fully documented,
+                      community-driven.
                     </p>
                     <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                      {["MIT License", "90%+ Test Coverage", "Full Documentation", "SOLID Principles"].map((badge) => (
+                      {[
+                        "MIT License",
+                        "90%+ Test Coverage",
+                        "Full Documentation",
+                        "SOLID Principles",
+                      ].map((badge) => (
                         <Chip
                           key={badge}
                           variant="flat"
                           size="sm"
-                          classNames={{ base: "bg-leet-lime/20 text-leet-lime rounded-none" }}
+                          classNames={{
+                            base: "bg-leet-lime/20 text-leet-lime rounded-none",
+                          }}
                         >
                           {badge}
                         </Chip>
                       ))}
-                </div>
-              </div>
+                    </div>
+                  </div>
                 </div>
               </CardBody>
             </Card>
@@ -1600,12 +1841,19 @@ export default function ServiceStatusPage() {
         {/* ROADMAP TAB */}
         {/* ============================================ */}
         {selectedTab === "roadmap" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8 lg:space-y-12"
+          >
             {/* Roadmap Header */}
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">Product Roadmap</h2>
-              <p className="text-default-500 max-w-2xl mx-auto">
-                Our phased approach ensures stability and quality at every step. Each phase builds on proven foundations.
+            <div className="text-center mb-8 lg:mb-12">
+              <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 lg:mb-4">
+                Product Roadmap
+              </h2>
+              <p className="text-default-500 max-w-2xl lg:max-w-3xl mx-auto text-base lg:text-lg">
+                Our phased approach ensures stability and quality at every step.
+                Each phase builds on proven foundations.
               </p>
             </div>
 
@@ -1619,48 +1867,88 @@ export default function ServiceStatusPage() {
                   </div>
                   <div className="flex-1 max-w-xl">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-default-500">Phase 4 in progress</span>
-                      <span className="font-bold">{completionPercentage}% complete</span>
+                      <span className="text-default-500">
+                        Phase 4 in progress
+                      </span>
+                      <span className="font-bold">
+                        {completionPercentage}% complete
+                      </span>
                     </div>
                     <Progress
                       value={completionPercentage}
                       size="lg"
                       classNames={{
                         track: "rounded-none h-4",
-                        indicator: "rounded-none bg-gradient-to-r from-leet-orange via-leet-gold to-leet-lime",
+                        indicator:
+                          "rounded-none bg-gradient-to-r from-leet-orange via-leet-gold to-leet-lime",
                       }}
                     />
                   </div>
                 </div>
-          </CardBody>
-        </Card>
+              </CardBody>
+            </Card>
 
             {/* Phase Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
               {roadmapPhases.map((phase, index) => (
                 <RoadmapPhaseCard key={phase.id} phase={phase} index={index} />
               ))}
-        </div>
+            </div>
 
-        <Divider className="my-8" />
+            <Divider className="my-8 lg:my-12" />
 
             {/* Feature Highlights */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:space-y-8">
               <div className="flex items-center gap-3">
                 <div className="leet-icon-box leet-icon-box-md">
-                  <Icon icon="solar:star-shine-bold" className="w-5 h-5" />
+                  <Icon
+                    icon="solar:star-shine-bold"
+                    className="w-5 h-5 lg:w-6 lg:h-6"
+                  />
                 </div>
-                <h2 className="text-2xl font-bold">Highlighted Capabilities</h2>
+                <h2 className="text-2xl lg:text-3xl font-bold">
+                  Highlighted Capabilities
+                </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                 {[
-                  { icon: "solar:shield-keyhole-bold", title: "Glicko-2 Rating", desc: "Advanced skill rating with confidence intervals", done: true },
-                  { icon: "solar:money-bag-bold", title: "Prize Pools", desc: "Merkle tree verification with blockchain proofs", done: true },
-                  { icon: "solar:user-check-bold", title: "Anti-Smurf System", desc: "Behavioral analysis and restriction management", done: true },
-                  { icon: "solar:document-medicine-bold", title: "Audit Trail", desc: "Bank-grade financial logging with hash chains", done: true },
-                  { icon: "solar:gamepad-charge-bold", title: "Real-time Matchmaking", desc: "WebSocket queue with ETA estimation", done: true },
-                  { icon: "solar:chart-2-bold", title: "Advanced Analytics", desc: "Performance tracking with visual insights", done: false },
+                  {
+                    icon: "solar:shield-keyhole-bold",
+                    title: "Glicko-2 Rating",
+                    desc: "Advanced skill rating with confidence intervals",
+                    done: true,
+                  },
+                  {
+                    icon: "solar:money-bag-bold",
+                    title: "Prize Pools",
+                    desc: "Merkle tree verification with blockchain proofs",
+                    done: true,
+                  },
+                  {
+                    icon: "solar:user-check-bold",
+                    title: "Anti-Smurf System",
+                    desc: "Behavioral analysis and restriction management",
+                    done: true,
+                  },
+                  {
+                    icon: "solar:document-medicine-bold",
+                    title: "Audit Trail",
+                    desc: "Bank-grade financial logging with hash chains",
+                    done: true,
+                  },
+                  {
+                    icon: "solar:gamepad-charge-bold",
+                    title: "Real-time Matchmaking",
+                    desc: "WebSocket queue with ETA estimation",
+                    done: true,
+                  },
+                  {
+                    icon: "solar:chart-2-bold",
+                    title: "Advanced Analytics",
+                    desc: "Performance tracking with visual insights",
+                    done: false,
+                  },
                 ].map((feature, index) => (
                   <motion.div
                     key={feature.title}
@@ -1686,15 +1974,17 @@ export default function ServiceStatusPage() {
                                 {feature.done ? "✓" : "→"}
                               </Chip>
                             </div>
-                            <p className="text-sm text-default-500">{feature.desc}</p>
+                            <p className="text-sm text-default-500">
+                              {feature.desc}
+                            </p>
                           </div>
-              </div>
-            </CardBody>
-          </Card>
+                        </div>
+                      </CardBody>
+                    </Card>
                   </motion.div>
                 ))}
               </div>
-        </div>
+            </div>
 
             {/* Vision Banner */}
             <Card className="esports-card bg-gradient-to-br from-leet-navy dark:from-leet-black to-leet-navy-dark border border-leet-lime/30 overflow-hidden">
@@ -1712,20 +2002,29 @@ export default function ServiceStatusPage() {
                   <div className="leet-icon-box leet-icon-box-xl mx-auto mb-6">
                     <Icon icon="solar:rocket-2-bold" className="w-8 h-8" />
                   </div>
-                  <h3 className="text-3xl font-bold text-leet-cream mb-4">The Future of Competitive Gaming</h3>
+                  <h3 className="text-3xl font-bold text-leet-cream mb-4">
+                    The Future of Competitive Gaming
+                  </h3>
                   <p className="text-leet-cream/70 mb-8 text-lg">
-                    From AI-powered analytics to blockchain-verified prize pools, we&apos;re building infrastructure that sets new standards for the esports industry.
+                    From AI-powered analytics to blockchain-verified prize
+                    pools, we&apos;re building infrastructure that sets new
+                    standards for the esports industry.
                   </p>
                   <div className="flex flex-wrap gap-8 justify-center">
                     <div className="text-center">
                       <p className="text-4xl font-bold text-leet-lime">
                         <AnimatedCounter value={147} />
                       </p>
-                      <p className="text-sm text-leet-cream/50">Total Features</p>
+                      <p className="text-sm text-leet-cream/50">
+                        Total Features
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-4xl font-bold text-leet-lime">
-                        <AnimatedCounter value={completionPercentage} suffix="%" />
+                        <AnimatedCounter
+                          value={completionPercentage}
+                          suffix="%"
+                        />
                       </p>
                       <p className="text-sm text-leet-cream/50">Complete</p>
                     </div>
@@ -1743,19 +2042,37 @@ export default function ServiceStatusPage() {
         {/* ============================================ */}
         {/* FOOTER CTA */}
         {/* ============================================ */}
-        <div className="mt-16 text-center">
+        <div className="mt-16 lg:mt-24 text-center">
           <Card className="bg-gradient-to-r from-leet-orange/10 via-leet-gold/10 to-leet-lime/10 dark:from-leet-orange/5 dark:via-leet-gold/5 dark:to-leet-lime/5 border border-leet-orange/20 dark:border-leet-lime/20">
-            <CardBody className="py-8">
-              <Icon icon="solar:bell-bold" className="w-10 h-10 mx-auto mb-4 text-leet-orange dark:text-leet-lime" />
-              <h3 className="text-lg font-semibold mb-2">Stay Informed</h3>
-              <p className="text-default-500 mb-4">Get notified about service updates, new features, and platform announcements</p>
-              <p className="text-sm text-default-400">
+            <CardBody className="py-8 lg:py-12 xl:py-16">
+              <Icon
+                icon="solar:bell-bold"
+                className="w-10 h-10 lg:w-14 lg:h-14 mx-auto mb-4 lg:mb-6 text-leet-orange dark:text-leet-lime"
+              />
+              <h3 className="text-lg lg:text-xl xl:text-2xl font-semibold mb-2 lg:mb-3">
+                Stay Informed
+              </h3>
+              <p className="text-default-500 mb-4 text-sm lg:text-base max-w-xl mx-auto">
+                Get notified about service updates, new features, and platform
+                announcements
+              </p>
+              <p className="text-sm lg:text-base text-default-400">
                 Follow us on{" "}
-                <a href="https://twitter.com/leetgamingpro" target="_blank" rel="noopener noreferrer" className="text-leet-orange dark:text-leet-lime hover:underline font-medium">
+                <a
+                  href="https://twitter.com/leetgamingpro"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-leet-orange dark:text-leet-lime hover:underline font-medium"
+                >
                   Twitter/X
                 </a>{" "}
                 and{" "}
-                <a href="https://discord.gg/leetgaming" target="_blank" rel="noopener noreferrer" className="text-leet-orange dark:text-leet-lime hover:underline font-medium">
+                <a
+                  href="https://discord.gg/leetgaming"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-leet-orange dark:text-leet-lime hover:underline font-medium"
+                >
                   Discord
                 </a>{" "}
                 for real-time updates

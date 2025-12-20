@@ -47,10 +47,22 @@
 
 ### Match Routes
 
-| Route                     | Status  | Description       |
-| ------------------------- | ------- | ----------------- |
-| `/match/[matchid]`        | ✅ Done | Match detail view |
-| `/match/[matchid]/rounds` | ✅ Done | Round list        |
+| Route                     | Status  | Description                              |
+| ------------------------- | ------- | ---------------------------------------- |
+| `/matches`                | ✅ Done | Match browser - live, upcoming, history  |
+| `/match/[matchid]`        | ✅ Done | Match detail view                        |
+| `/match/[matchid]/rounds` | ✅ Done | Round list                               |
+
+The Matches page is a state-of-the-art match browser featuring:
+- **Hero header** with animated gradient background and live stats
+- **Live matches section** with pulsing indicators and prominent cards
+- **Upcoming matches** with countdown styling
+- **Match history** with pagination and winner highlighting
+- **Team/map search** with real-time filtering
+- **Status & game filters** with dropdown menus
+- **SWR-powered data fetching** with automatic revalidation (10s for live)
+- **Mock data fallback** when API is unavailable
+- **Responsive grid layout** with Framer Motion animations
 
 ### Replay Routes
 
@@ -148,4 +160,5 @@ All pages now use real SDK integration via `types/replay-api/`:
 | `/replays`          | ReplayFileAPI              | `searchReplayFiles()`                             |
 | `/cloud`            | ReplayFileAPI              | `searchReplayFiles()`                             |
 | `/match/[id]`       | MatchAPI                   | `getMatch()`                                      |
+| `/matches`          | useMatches hook (SWR)      | Proxies to `/api/matches` → backend               |
 | `/highlights`       | HighlightsAPI              | `getHighlights()`, `getTrendingHighlights()`, `getClutches()`, `getAces()` |

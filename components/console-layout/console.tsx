@@ -16,7 +16,7 @@ import { siteConfig } from "@/config/site";
 import { Providers } from '../default-layout/providers';
 import Box from '../default-layout/box';
 import { logo } from '../primitives';
-import { SessionProvider, signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks';
 import DefaultLogo from '../logo/logo-default';
 import { useTheme } from 'next-themes';
 
@@ -55,7 +55,7 @@ export default function ConsoleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession()
+  const { user, isAuthenticated, signOut } = useAuth()
   const { theme: rawTheme, setTheme: _setTheme, systemTheme: _systemTheme } = useTheme()
 
   const theme = rawTheme ?? "light"
@@ -66,14 +66,14 @@ export default function ConsoleLayout({
   const [isHidden, setIsHidden] = React.useState(false);
 
   const sessionAvatar = (): React.ReactNode => {
-    if (session?.user) {
+    if (isAuthenticated && user) {
       return (
         <div>
           <Avatar
             isBordered
             className="flex-none"
             size="sm"
-            src={session?.user?.image || ""}
+            src={user?.image || ""}
           />
         </div>)
     }
@@ -170,14 +170,14 @@ export default function ConsoleLayout({
                       imgProps: {
                         className: "transition-none",
                       },
-                      src: session?.user?.image || "/logo_leetgaming-big-g.png",
+                      src: user?.image || "/logo_leetgaming-big-g.png",
                     }}
                     classNames={{
                       name: "text-default-600",
                       description: "text-default-500",
                     }}
-                    description={session?.user?.email || ""}
-                    name={session?.user?.name || "Guest"}
+                    description={user?.email || ""}
+                    name={user?.name || "Guest"}
                   />
                 </DropdownItem>
                 <DropdownItem key="dashboard" href="/replays">
@@ -260,8 +260,8 @@ export default function ConsoleLayout({
         <div className="flex items-center gap-3 px-3">
           {sessionAvatar()}
           <div className={cl("flex max-w-full flex-col", { hidden: isCompact })}>
-            <p className="truncate text-small font-medium text-default-600">{session?.user?.name || LoginButton()}</p>
-            <p className="truncate text-tiny text-default-400">{session?.user?.email || ""}</p>
+            <p className="truncate text-small font-medium text-default-600">{isAuthenticated && user?.name ? user.name : LoginButton()}</p>
+            <p className="truncate text-tiny text-default-400">{user?.email || ""}</p>
           </div>
         </div>
         <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">

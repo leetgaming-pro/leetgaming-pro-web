@@ -232,7 +232,9 @@ function WizardContent() {
         <div className="text-center">
           <Spinner size="lg" color="warning" />
           <p className="mt-4 text-default-500">
-            {authLoading ? "Checking authentication..." : "Redirecting to sign in..."}
+            {authLoading
+              ? "Checking authentication..."
+              : "Redirecting to sign in..."}
           </p>
         </div>
       </div>

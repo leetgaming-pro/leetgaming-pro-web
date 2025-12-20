@@ -238,7 +238,7 @@ export function Leaderboard({
         return (
           <Icon
             icon="solar:videocamera-record-bold"
-            className="text-purple-500"
+            className="text-[#FFC700]"
           />
         );
       default:

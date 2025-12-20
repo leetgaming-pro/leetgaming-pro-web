@@ -126,7 +126,7 @@ export function OnboardingFlow() {
             height={40}
             className="drop-shadow-[0_0_10px_rgba(255,199,0,0.5)]"
           />
-          <span className="text-xl font-bold text-white">
+          <span className="text-xl font-bold text-[#F5F0E1]">
             LeetGaming<span className="text-[#FFC700]">.PRO</span>
           </span>
         </div>
@@ -162,7 +162,7 @@ export function OnboardingFlow() {
                       classNames={{
                         indicator:
                           "bg-gradient-to-r from-[#FFC700] to-[#DCFF37]",
-                        track: "bg-white/10",
+                        track: "bg-[#F5F0E1]/10",
                       }}
                     />
                   </div>
@@ -187,7 +187,7 @@ export function OnboardingFlow() {
                                 ? "text-[#FFC700]"
                                 : isCompleted
                                 ? "text-[#DCFF37]"
-                                : "text-white/30"
+                                : "text-[#F5F0E1]/30"
                             }`}
                           >
                             <div
@@ -198,7 +198,7 @@ export function OnboardingFlow() {
                                   ? "bg-[#FFC700]/20 border-[#FFC700]"
                                   : isCompleted
                                   ? "bg-[#DCFF37]/20 border-[#DCFF37]"
-                                  : "bg-white/5 border-white/10"
+                                  : "bg-[#F5F0E1]/5 border-[#F5F0E1]/10"
                               }
                             `}
                               style={{

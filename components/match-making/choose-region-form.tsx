@@ -29,7 +29,7 @@ const ChooseRegionForm = React.forwardRef<HTMLFormElement, ChooseRegionFormProps
       ),
       control: "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:bg-[#DCFF37] text-white dark:text-[#1a1a1a]",
       wrapper: "group-data-[selected=true]:border-[#FF4654] dark:group-data-[selected=true]:border-[#DCFF37]",
-      label: "text-small text-default-600 dark:text-slate-300 font-medium",
+      label: "text-small text-[#34445C] dark:text-[#F5F0E1] font-medium",
       labelWrapper: "m-0",
     };
 

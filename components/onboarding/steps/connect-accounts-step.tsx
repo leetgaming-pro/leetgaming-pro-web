@@ -106,7 +106,7 @@ export function ConnectAccountsStep() {
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: account.color }}
                   >
-                    <Icon icon={account.icon} className="w-6 h-6 text-white" />
+                    <Icon icon={account.icon} className="w-6 h-6 text-[#F5F0E1]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">

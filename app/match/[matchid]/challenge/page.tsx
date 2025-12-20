@@ -70,7 +70,7 @@ const challengeTypes: {
     label: "Bug Report",
     description: "Report a game bug that affected the match outcome",
     icon: "solar:bug-bold",
-    color: "from-purple-500 to-pink-500",
+    color: "from-[#34445C] to-[#FF4654]",
   },
   {
     key: "player_dispute",

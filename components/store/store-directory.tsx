@@ -97,7 +97,7 @@ const RARITY_COLORS: Record<ProductRarity, string> = {
   common: "#9ca3af",
   uncommon: "#22c55e",
   rare: "#3b82f6",
-  epic: "#a855f7",
+  epic: "#34445C",
   legendary: "#f59e0b",
   mythic: "#ef4444",
 };

@@ -58,7 +58,7 @@ export default function Component({className}: OnboardingCardProps) {
     <Card className={`max-w-[520px] py-1 md:py-4 ${className || ''}`}>
       <CardHeader className="flex items-center gap-3 px-4 pb-0 pt-3 md:px-10 md:pt-5">
         <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-gradient-to-br from-secondary-300 to-primary-500">
-          <Icon className="text-white" icon="solar:skateboarding-line-duotone" width={30} />
+          <Icon className="text-[#F5F0E1] dark:text-[#34445C]" icon="solar:skateboarding-line-duotone" width={30} />
         </div>
         <Progress
           showValueLabel

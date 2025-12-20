@@ -40,7 +40,7 @@ export default function UserProfileExtended({ user, isLoading = false, onEditPro
     return (
       <div className="flex h-full w-full items-start justify-center overflow-scroll">
         <Card className="my-10 w-[400px]">
-          <CardHeader className="relative flex h-[100px] flex-col justify-end overflow-visible bg-gradient-to-br from-amber-300 via-purple-300 to-indigo-400">
+          <CardHeader className="relative flex h-[100px] flex-col justify-end overflow-visible bg-gradient-to-br from-[#FFC700] via-[#FF4654] to-[#34445C]">
             <Skeleton className="h-20 w-20 translate-y-12 rounded-full" />
           </CardHeader>
           <CardBody>

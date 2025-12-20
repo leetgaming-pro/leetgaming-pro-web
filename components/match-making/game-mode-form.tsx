@@ -62,7 +62,7 @@ export const CustomRadio = (props: any) => {
       <div {...getLabelWrapperProps()} className="flex-1">
         {children && <span {...getLabelProps()}>{children}</span>}
         {description && (
-          <span className="text-small text-default-500 dark:text-slate-400 block mt-1">{description}</span>
+          <span className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/50 block mt-1">{description}</span>
         )}
       </div>
     </Component>
@@ -104,15 +104,15 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
       >
         <CustomRadio value="free">
           <div className="flex items-center gap-3 w-full">
-            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-slate-100 dark:bg-[#1a1a1a]">
-              <Icon icon="solar:gamepad-minimalistic-bold-duotone" className="text-slate-500 dark:text-slate-400" width={28} />
+            <div className="flex items-center justify-center w-12 h-12 rounded-none bg-[#34445C]/10 dark:bg-[#1a1a1a]">
+              <Icon icon="solar:gamepad-minimalistic-bold-duotone" className="text-[#34445C] dark:text-[#F5F0E1]/60" width={28} />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">Casual</span>
                 <Chip size="sm" variant="flat" color="default" className="text-xs">Training</Chip>
               </div>
-              <span className="text-small text-default-500 dark:text-slate-400">Practice mode - no stakes, just fun</span>
+              <span className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/50">Practice mode - no stakes, just fun</span>
             </div>
           </div>
         </CustomRadio>
@@ -127,7 +127,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
                 <span className="font-semibold text-foreground">Elimination</span>
                 <Chip size="sm" variant="flat" color="warning" className="text-xs">Single</Chip>
               </div>
-              <span className="text-small text-default-500 dark:text-slate-400">One game decides it all - high stakes</span>
+              <span className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/50">One game decides it all - high stakes</span>
             </div>
           </div>
         </CustomRadio>
@@ -142,7 +142,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
                 <span className="font-semibold text-foreground">Best of 3</span>
                 <Chip size="sm" variant="flat" color="secondary" className="text-xs">Competitive</Chip>
               </div>
-              <span className="text-small text-default-500 dark:text-slate-400">First to 2 wins - tournament standard</span>
+              <span className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/50">First to 2 wins - tournament standard</span>
             </div>
           </div>
         </CustomRadio>
@@ -157,7 +157,7 @@ const GameModeForm = React.forwardRef<HTMLFormElement, GameModeFormProps>(
                 <span className="font-semibold text-foreground">Best of 5</span>
                 <Chip size="sm" variant="flat" color="primary" className="text-xs">Pro League</Chip>
               </div>
-              <span className="text-small text-default-500 dark:text-slate-400">First to 3 wins - championship format</span>
+              <span className="text-small text-[#34445C]/60 dark:text-[#F5F0E1]/50">First to 3 wins - championship format</span>
             </div>
           </div>
         </CustomRadio>

@@ -17,13 +17,13 @@ export interface FilmmakerFeaturedProps {
 export function FilmmakerFeatured({ className = "" }: FilmmakerFeaturedProps) {
   return (
     <Card
-      className={`bg-gradient-to-br from-purple-900/20 to-pink-900/20 ${className}`}
+      className={`bg-gradient-to-br from-[#34445C]/20 to-[#FF4654]/20 ${className}`}
     >
       <CardBody className="text-center py-8">
         <Icon
           icon="solar:clapperboard-open-play-bold"
           width={48}
-          className="mx-auto mb-4 text-purple-400"
+          className="mx-auto mb-4 text-[#FF4654] dark:text-[#DCFF37]"
         />
         <h3 className="text-lg font-semibold mb-2">Community Films</h3>
         <p className="text-sm text-default-500 mb-4">

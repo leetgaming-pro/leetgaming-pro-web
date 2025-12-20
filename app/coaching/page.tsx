@@ -279,7 +279,7 @@ export default function CoachingPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-16 overflow-hidden">
+      <section className="relative py-16 lg:py-24 xl:py-32 overflow-hidden">
         <div
           className="absolute inset-0"
           style={{
@@ -289,20 +289,20 @@ export default function CoachingPage() {
             `,
           }}
         />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] relative z-10">
+          <div className="max-w-3xl lg:max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 lg:mb-6">
               Level Up with Expert{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFC700] to-[#DCFF37]">
                 Coaching
               </span>
             </h1>
-            <p className="text-lg text-default-500 mb-8">
+            <p className="text-lg lg:text-xl xl:text-2xl text-default-500 mb-8 lg:mb-10 leading-relaxed">
               Connect with verified professional coaches to improve your
               gameplay. From aim training to strategic thinking, find the
               perfect mentor for your journey.
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 lg:gap-6 justify-center">
               <Link href="/coaching/become-a-coach">
                 <Button
                   color="warning"
@@ -325,7 +325,7 @@ export default function CoachingPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-2xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mt-12 lg:mt-16 max-w-3xl lg:max-w-4xl mx-auto">
             {[
               { value: "500+", label: "Verified Coaches" },
               { value: "50K+", label: "Sessions Completed" },
@@ -333,10 +333,10 @@ export default function CoachingPage() {
               { value: "24/7", label: "Global Availability" },
             ].map((stat, i) => (
               <div key={i} className="text-center">
-                <p className="text-2xl md:text-3xl font-bold text-[#FFC700]">
+                <p className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#FFC700]">
                   {stat.value}
                 </p>
-                <p className="text-sm text-default-500">{stat.label}</p>
+                <p className="text-sm lg:text-base text-default-500 mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -344,7 +344,7 @@ export default function CoachingPage() {
       </section>
 
       {/* Main Content */}
-      <section className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] py-8 lg:py-12">
         <Tabs
           selectedKey={activeTab}
           onSelectionChange={(key) => setActiveTab(key as string)}
@@ -415,9 +415,9 @@ export default function CoachingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold text-center mb-12">How It Works</h2>
-        <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] py-16 lg:py-24">
+        <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-center mb-12 lg:mb-16">How It Works</h2>
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-12 max-w-6xl mx-auto">
           {[
             {
               icon: "mdi:magnify",
@@ -443,11 +443,11 @@ export default function CoachingPage() {
             },
           ].map((step, i) => (
             <div key={i} className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <Icon icon={step.icon} className="text-3xl text-primary" />
+              <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto mb-4 lg:mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                <Icon icon={step.icon} className="text-3xl lg:text-4xl text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">{step.title}</h3>
-              <p className="text-sm text-default-500">{step.description}</p>
+              <h3 className="font-semibold text-base lg:text-lg mb-2 lg:mb-3">{step.title}</h3>
+              <p className="text-sm lg:text-base text-default-500">{step.description}</p>
             </div>
           ))}
         </div>

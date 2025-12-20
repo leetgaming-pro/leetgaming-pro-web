@@ -33,7 +33,6 @@ export const BRAND_COLORS = {
   success: "#10B981",
   warning: "#F59E0B",
   danger: "#EF4444",
-  purple: "#8B5CF6",
   cyan: "#06B6D4",
   pink: "#EC4899",
 } as const;
@@ -314,7 +313,7 @@ export const qualityMetrics: QualityMetric[] = [
     name: "Architecture",
     value: 100,
     target: 100,
-    color: BRAND_COLORS.purple,
+    color: BRAND_COLORS.navy,
     icon: "solar:code-square-bold",
   },
 ];

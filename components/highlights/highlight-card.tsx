@@ -61,14 +61,12 @@ export function HighlightCard({
   const typeIcon = getEventTypeIcon(highlight.type);
   const weaponIcon = weaponIcons[highlight.weapon?.toLowerCase() || "default"] || weaponIcons.default;
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleLike = () => {
     setLiked(!liked);
     onLike?.(highlight);
   };
 
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleShare = () => {
     onShare?.(highlight);
   };
 
@@ -237,8 +235,7 @@ export function HighlightCard({
                   size="sm"
                   src={highlight.primary_player?.avatar_url}
                   name={highlight.primary_player?.display_name?.[0]}
-                  className="ring-2"
-                  style={{ ringColor: typeColor }}
+                  className={`ring-2 ring-[${typeColor}]`}
                 />
                 <div>
                   <p className="text-[#F5F0E1] font-semibold">{highlight.primary_player?.display_name || "Unknown Player"}</p>
@@ -402,8 +399,7 @@ export function HighlightCard({
             size="sm"
             src={highlight.primary_player?.avatar_url}
             name={highlight.primary_player?.display_name?.[0]}
-            className="ring-1"
-            style={{ ringColor: `${typeColor}50` }}
+            className={`ring-1 ring-[${typeColor}]/50`}
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm text-[#F5F0E1]/80 truncate">{highlight.primary_player?.display_name || "Unknown"}</p>

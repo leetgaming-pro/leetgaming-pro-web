@@ -1,66 +1,73 @@
-'use client';
+"use client";
 
 /**
  * Subscription Step
  * Choose a subscription plan
  */
 
-import React from 'react';
-import { Chip, Divider } from '@nextui-org/react';
-import { EsportsButton } from '@/components/ui/esports-button';
-import { Icon } from '@iconify/react';
-import { useOnboarding } from '../onboarding-context';
+import React from "react";
+import { Chip, Divider, Link } from "@nextui-org/react";
+import { EsportsButton } from "@/components/ui/esports-button";
+import { Icon } from "@iconify/react";
+import { useOnboarding } from "../onboarding-context";
 
 const PLANS = [
   {
-    id: 'free' as const,
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    description: 'Perfect for getting started',
+    id: "free" as const,
+    name: "Free",
+    price: "$0",
+    period: "forever",
+    description: "For casual players exploring competitive gaming",
     features: [
-      '5 replay uploads/month',
-      'Basic statistics',
-      'Community features',
-      '7-day file retention',
+      "5 replay uploads/month",
+      "500 MB cloud storage",
+      "Basic analytics (K/D, ADR, Rating)",
+      "Casual matchmaking queue",
+      "Community forums & chat",
     ],
-    color: 'default',
-    icon: 'solar:gamepad-bold',
+    color: "default",
+    icon: "solar:gamepad-bold",
+    gradient: "from-[#34445C] to-[#2a3749]",
+    accent: "text-[#34445C] dark:text-[#F5F0E1]/70",
   },
   {
-    id: 'pro' as const,
-    name: 'Pro',
-    price: '$9.99',
-    period: '/month',
-    description: 'For serious competitors',
+    id: "pro" as const,
+    name: "Pro",
+    price: "$9.99",
+    period: "/month",
+    description: "For competitive players serious about improving",
     features: [
-      'Unlimited replay uploads',
-      'Advanced AI analysis',
-      'Priority matchmaking',
-      'Unlimited file retention',
-      'Custom team profiles',
-      'Tournament access',
+      "Unlimited replay uploads",
+      "25 GB cloud storage",
+      "Advanced analytics & AI insights",
+      "Priority matchmaking queue",
+      "Skill-based wager matches",
+      "Ad-free experience",
     ],
     popular: true,
-    color: 'primary',
-    icon: 'solar:crown-bold',
+    color: "primary",
+    icon: "solar:crown-bold",
+    gradient: "from-[#FF4654] to-[#FF6B7A]",
+    accent: "text-[#FF4654]",
   },
   {
-    id: 'team' as const,
-    name: 'Team',
-    price: '$29.99',
-    period: '/month',
-    description: 'For esports teams',
+    id: "team" as const,
+    name: "Team",
+    price: "$29.99",
+    period: "/month",
+    description: "For esports teams with 10 included seats",
     features: [
-      'Everything in Pro',
-      'Up to 10 team members',
-      'Team analytics dashboard',
-      'Scrim management',
-      'Coach accounts',
-      'API access',
+      "Everything in Pro, plus:",
+      "100 GB shared team storage",
+      "Team analytics dashboard",
+      "Opponent research & scouting",
+      "Scrim scheduling calendar",
+      "API access & webhooks",
     ],
-    color: 'secondary',
-    icon: 'solar:users-group-rounded-bold',
+    color: "secondary",
+    icon: "solar:users-group-rounded-bold",
+    gradient: "from-[#DCFF37] to-[#34445C]",
+    accent: "text-[#DCFF37] dark:text-[#DCFF37]",
   },
 ];
 
@@ -73,7 +80,7 @@ export function SubscriptionStep() {
     try {
       await completeOnboarding();
     } catch (error) {
-      console.error('Failed to complete onboarding:', error);
+      console.error("Failed to complete onboarding:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +92,7 @@ export function SubscriptionStep() {
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2">Choose Your Plan</h2>
         <p className="text-default-500">
-          Start free, upgrade anytime
+          Start free, upgrade anytime. Save 20% with yearly billing.
         </p>
       </div>
 
@@ -100,17 +107,22 @@ export function SubscriptionStep() {
               onClick={() => selectPlan(plan.id)}
               className={`
                 relative p-4 rounded-xl border-2 text-left transition-all
-                ${isSelected
-                  ? 'border-primary bg-primary/5 shadow-lg'
-                  : 'border-default-200 hover:border-default-400'}
+                ${
+                  isSelected
+                    ? plan.color === "primary"
+                      ? "border-[#FF4654] bg-[#FF4654]/5 shadow-lg shadow-[#FF4654]/10"
+                      : plan.color === "secondary"
+                      ? "border-[#DCFF37] bg-[#DCFF37]/5 shadow-lg shadow-[#DCFF37]/10"
+                      : "border-primary bg-primary/5 shadow-lg"
+                    : "border-default-200 hover:border-default-400 hover:shadow-md"
+                }
               `}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <Chip
                   size="sm"
-                  color="primary"
-                  className="absolute -top-2 left-1/2 -translate-x-1/2"
+                  className="absolute -top-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] font-semibold"
                 >
                   Most Popular
                 </Chip>
@@ -118,23 +130,25 @@ export function SubscriptionStep() {
 
               {/* Header */}
               <div className="pt-2">
-                <div className={`
+                <div
+                  className={`
                   w-10 h-10 rounded-lg flex items-center justify-center mb-3
-                  ${plan.color === 'primary'
-                    ? 'bg-primary/20 text-primary'
-                    : plan.color === 'secondary'
-                    ? 'bg-secondary/20 text-secondary'
-                    : 'bg-default-100 text-default-500'}
-                `}>
-                  <Icon icon={plan.icon} width={24} />
+                  bg-gradient-to-br ${plan.gradient}
+                `}
+                >
+                  <Icon icon={plan.icon} width={24} className="text-[#F5F0E1]" />
                 </div>
 
                 <h3 className="text-lg font-bold">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-2xl font-bold">{plan.price}</span>
-                  <span className="text-sm text-default-500">{plan.period}</span>
+                  <span className="text-sm text-default-500">
+                    {plan.period}
+                  </span>
                 </div>
-                <p className="text-xs text-default-500 mb-4">{plan.description}</p>
+                <p className="text-xs text-default-500 mb-4">
+                  {plan.description}
+                </p>
               </div>
 
               <Divider className="my-3" />
@@ -145,13 +159,7 @@ export function SubscriptionStep() {
                   <li key={idx} className="flex items-start gap-2 text-sm">
                     <Icon
                       icon="solar:check-circle-bold"
-                      className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                        plan.color === 'primary'
-                          ? 'text-primary'
-                          : plan.color === 'secondary'
-                          ? 'text-secondary'
-                          : 'text-success'
-                      }`}
+                      className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.accent}`}
                     />
                     <span className="text-default-600">{feature}</span>
                   </li>
@@ -161,12 +169,28 @@ export function SubscriptionStep() {
               {/* Selection Indicator */}
               {isSelected && (
                 <div className="absolute top-3 right-3">
-                  <Icon icon="solar:check-circle-bold" className="w-6 h-6 text-primary" />
+                  <Icon
+                    icon="solar:check-circle-bold"
+                    className={`w-6 h-6 ${plan.accent}`}
+                  />
                 </div>
               )}
             </button>
           );
         })}
+      </div>
+
+      {/* Organizer CTA */}
+      <div className="text-center py-2">
+        <p className="text-sm text-default-400">
+          Running tournaments?{" "}
+          <Link
+            href="/contact?plan=organizer"
+            className="text-[#F59E0B] font-medium"
+          >
+            Check out our Organizer plan at $99.99/month
+          </Link>
+        </p>
       </div>
 
       {/* Trust Badges */}
@@ -195,10 +219,10 @@ export function SubscriptionStep() {
           loading={isSubmitting}
           disabled={!state.selectedPlan}
         >
-          {state.selectedPlan === 'free' ? 'Start Free' : 'Continue to Payment'}
+          {state.selectedPlan === "free" ? "Start Free" : "Continue to Payment"}
           <Icon icon="solar:arrow-right-linear" width={20} />
         </EsportsButton>
-        {state.selectedPlan !== 'free' && (
+        {state.selectedPlan !== "free" && (
           <p className="text-center text-xs text-default-400 mt-2">
             You can change your plan at any time
           </p>

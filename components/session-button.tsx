@@ -7,17 +7,17 @@ import {
   DropdownTrigger,
 } from '@nextui-org/dropdown';
 import { Avatar, Badge, Chip } from '@nextui-org/react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from '@/hooks';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 
 export default function SessionButton() {
-  const { data: session } = useSession();
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
-  const userImage = session?.user?.image || undefined;
-  const userName = session?.user?.name || 'Player';
-  const userEmail = session?.user?.email || '';
+  const userImage = user?.image || undefined;
+  const userName = user?.name || 'Player';
+  const userEmail = user?.email || '';
 
   // Get initials for avatar fallback
   const initials = userName
@@ -79,7 +79,7 @@ export default function SessionButton() {
           }}
           onAction={(key) => {
             if (key === 'logout') {
-              signOut({ callbackUrl: '/' });
+              signOut();
             } else if (key !== 'profile-header') {
               router.push(key as string);
             }

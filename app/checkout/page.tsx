@@ -144,11 +144,11 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-8 lg:py-12 xl:py-16 px-4 sm:px-6 lg:px-8 xl:px-12 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-2">Choose your plan</h1>
-        <p className="text-default-500">
+      <div className="text-center mb-12 lg:mb-16">
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 lg:mb-4">Choose your plan</h1>
+        <p className="text-default-500 text-base lg:text-lg max-w-xl mx-auto">
           Unlock powerful features and take your gaming to the next level
         </p>
       </div>
@@ -157,17 +157,19 @@ export default function CheckoutPage() {
       <CheckoutFlow walletId={walletId} />
 
       {/* Help Section */}
-      <div className="mt-16 text-center">
-        <p className="text-default-500 mb-4">Need help with your purchase?</p>
-        <div className="flex justify-center gap-4">
+      <div className="mt-16 lg:mt-24 text-center">
+        <p className="text-default-500 mb-4 lg:mb-6 text-base lg:text-lg">Need help with your purchase?</p>
+        <div className="flex justify-center gap-4 lg:gap-6">
           <Button
             variant="light"
+            size="lg"
             startContent={<Icon icon="solar:chat-round-dots-bold" className="w-5 h-5" />}
           >
             Live Chat
           </Button>
           <Button
             variant="light"
+            size="lg"
             startContent={<Icon icon="solar:letter-bold" className="w-5 h-5" />}
           >
             Email Support

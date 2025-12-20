@@ -14,11 +14,11 @@ interface CenteredContentProps {
 
 export function CenteredContent({
   children,
-  maxWidth = '5xl',
+  maxWidth = '7xl',
   className = '',
   noPadding = false,
 }: CenteredContentProps) {
-  const maxWidthClasses = {
+  const maxWidthClasses: Record<string, string> = {
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
@@ -32,10 +32,10 @@ export function CenteredContent({
     full: 'max-w-full',
   };
 
-  const paddingClasses = noPadding ? '' : 'py-8';
+  const paddingClasses = noPadding ? '' : 'py-8 lg:py-12 xl:py-16';
 
   return (
-    <div className={`w-full ${paddingClasses} ${className}`}>
+    <div className={`w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 ${maxWidthClasses[maxWidth]} ${paddingClasses} ${className}`}>
       {children}
     </div>
   );
@@ -53,16 +53,16 @@ export function PageContainer({
   children,
   title,
   description,
-  maxWidth = '5xl',
+  maxWidth = '7xl',
   className = '',
 }: PageContainerProps) {
   return (
     <CenteredContent maxWidth={maxWidth} className={className}>
       {title && (
-        <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <h1 className="text-4xl font-bold lg:text-5xl">{title}</h1>
+        <div className="mb-8 lg:mb-12 xl:mb-16 flex flex-col items-center gap-2 lg:gap-4 text-center">
+          <h1 className="text-4xl font-bold lg:text-5xl xl:text-6xl">{title}</h1>
           {description && (
-            <p className="text-lg text-default-600 max-w-2xl">{description}</p>
+            <p className="text-lg lg:text-xl text-default-600 max-w-2xl lg:max-w-3xl">{description}</p>
           )}
         </div>
       )}

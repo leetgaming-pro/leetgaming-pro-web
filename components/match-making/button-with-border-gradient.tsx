@@ -29,10 +29,10 @@ export const ButtonWithBorderGradient = ({
 }: ButtonWithBorderGradientProps) => {
   const linearGradientBg = background?.startsWith("--") ? `hsl(var(${background}))` : background;
 
-  // E-sports inspired gradient - purple to cyan
+  // E-sports inspired gradient - orange to lime (LeetGaming brand)
   const style = {
     border: "solid 2px transparent",
-    backgroundImage: `linear-gradient(${linearGradientBg}, ${linearGradientBg}), linear-gradient(to right, #8B5CF6, #22D3EE)`,
+    backgroundImage: `linear-gradient(${linearGradientBg}, ${linearGradientBg}), linear-gradient(to right, #FF4654, #DCFF37)`,
     backgroundOrigin: "border-box",
     backgroundClip: "padding-box, border-box",
   };

@@ -19,17 +19,17 @@ const SubmitReplay: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8">
+    <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 xl:py-16">
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+      <div className="text-center mb-8 lg:mb-12">
+        <div className="inline-flex items-center gap-2 mb-4 lg:mb-6">
+          <div className="w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-            <Icon icon="solar:cloud-upload-bold" className="text-white dark:text-[#1a1a1a]" width={28} />
+            <Icon icon="solar:cloud-upload-bold" className="text-white dark:text-[#1a1a1a] w-7 h-7 lg:w-9 lg:h-9" />
           </div>
         </div>
         <h1 className={title({ color: isDark ? "battleLime" : "battleNavy" })}>Upload Replay</h1>
-        <p className="text-default-500 mt-2 max-w-md mx-auto">
+        <p className="text-default-500 mt-2 lg:mt-4 max-w-md lg:max-w-xl mx-auto text-base lg:text-lg">
           Submit your match replays for analysis, highlights, and statistics
         </p>
       </div>
@@ -39,23 +39,23 @@ const SubmitReplay: React.FC = () => {
         aria-label="Upload Options" 
         variant="solid"
         classNames={{
-          tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 rounded-none gap-1 shadow-sm w-full justify-center",
-          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a] px-6",
+          tabList: "bg-white/90 dark:bg-[#1a1a1a] p-1 lg:p-2 rounded-none gap-1 lg:gap-2 shadow-sm w-full justify-center",
+          tab: "text-sm lg:text-base font-semibold rounded-none text-[#34445C] dark:text-white/70 data-[selected=true]:bg-[#34445C] dark:data-[selected=true]:bg-[#DCFF37] data-[selected=true]:text-white dark:data-[selected=true]:text-[#1a1a1a] px-4 lg:px-8 h-10 lg:h-12",
           cursor: "bg-[#34445C] dark:bg-[#DCFF37] rounded-none",
-          panel: "pt-6",
+          panel: "pt-6 lg:pt-8",
         }}
       >
         <Tab 
           key="upload" 
           title={
             <div className="flex items-center gap-2">
-              <Icon icon="solar:cloud-upload-bold" width={18} />
+              <Icon icon="solar:cloud-upload-bold" width={18} className="lg:w-5 lg:h-5" />
               <span>Upload File</span>
             </div>
           }
         >
           <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-sm">
-            <CardBody className="p-6 md:p-8">
+            <CardBody className="p-6 md:p-8 lg:p-10 xl:p-12">
               <UploadForm />
             </CardBody>
           </Card>

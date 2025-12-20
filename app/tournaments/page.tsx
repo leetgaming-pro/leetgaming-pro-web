@@ -355,17 +355,17 @@ export default function TournamentsPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
+    <div className="w-full max-w-7xl xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 py-8 lg:py-12 xl:py-16">
       {/* Page Header - Cloud page pattern */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 lg:gap-6 mb-8 lg:mb-12">
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className="w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-            <Icon icon="solar:cup-star-bold" width={28} className="text-[#F5F0E1] dark:text-[#1a1a1a]" />
+            <Icon icon="solar:cup-star-bold" width={28} className="text-[#F5F0E1] dark:text-[#1a1a1a] lg:w-8 lg:h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Tournaments</h1>
-            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Compete in competitive tournaments and win prizes</p>
+            <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Tournaments</h1>
+            <p className="text-sm lg:text-base text-[#34445C]/60 dark:text-[#F5F0E1]/60">Compete in competitive tournaments and win prizes</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -398,7 +398,7 @@ export default function TournamentsPage() {
 
       {/* Stats Overview */}
       {!loading && (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8 lg:mb-12">
         <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
             <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
@@ -469,7 +469,7 @@ export default function TournamentsPage() {
       </Tabs>
 
       {/* Tournaments Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
         {filteredTournaments.map(renderTournamentCard)}
       </div>
 

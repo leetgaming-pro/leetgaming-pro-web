@@ -79,14 +79,13 @@ export function useAuth(): AuthState {
 
   // User is authenticated if:
   // 1. Has NextAuth session with user data AND
-  // 2. Either has RID in session OR RIDTokenManager is authenticated
+  // 2. Has RID in session (from backend onboarding)
+  // Note: We require RID in session, not just RIDTokenManager cookies which can be stale
   const isAuthenticated = useMemo(() => {
     if (!session?.user) return false;
     
-    const hasRid = !!session.user.rid;
-    const hasRidToken = isAuthenticatedSync();
-    
-    return hasRid || hasRidToken;
+    // Require session to have RID - this confirms backend onboarding completed
+    return !!session.user.rid;
   }, [session]);
 
   return {

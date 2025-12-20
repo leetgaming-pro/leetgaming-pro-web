@@ -39,7 +39,7 @@ export default function ReviewConfirmForm() {
       title: "Game Mode",
       value:
         GAME_MODE_NAMES[state.gameMode] || state.gameMode || "Not selected",
-      color: "purple",
+      color: "warning",
     },
     {
       icon: "solar:users-group-two-rounded-bold-duotone",
@@ -130,7 +130,7 @@ export default function ReviewConfirmForm() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-slate-700">
+        <Card className="bg-gradient-to-br from-[#F5F0E1] to-[#e8e3d4] dark:from-[#1a1a1a]/50 dark:to-[#0a0a0a]/50 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardHeader className="flex-col items-start gap-2 pb-2">
             <div className="flex items-center gap-2">
               <Icon
@@ -138,15 +138,15 @@ export default function ReviewConfirmForm() {
                 width={20}
                 className="text-amber-500"
               />
-              <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+              <h4 className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">
                 Match Details
               </h4>
             </div>
           </CardHeader>
-          <Divider className="bg-slate-200 dark:bg-slate-700" />
+          <Divider className="bg-[#34445C]/20 dark:bg-[#DCFF37]/20" />
           <CardBody className="gap-3 pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+              <span className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/60">
                 Expected Pool:
               </span>
               <Chip
@@ -158,7 +158,7 @@ export default function ReviewConfirmForm() {
               </Chip>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+              <span className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/60">
                 Match Type:
               </span>
               <Chip
@@ -172,7 +172,7 @@ export default function ReviewConfirmForm() {
               </Chip>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+              <span className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/60">
                 Server:
               </span>
               <Chip
@@ -228,7 +228,7 @@ export default function ReviewConfirmForm() {
                   {/* Outer glow ring */}
                   <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-r from-[#FF4654]/20 via-[#FFC700]/20 to-[#DCFF37]/20 animate-pulse" />
                   {/* Spinning ring */}
-                  <div className="w-20 h-20 border-4 border-slate-700 border-t-[#DCFF37] border-r-[#FF4654] rounded-full animate-spin" />
+                  <div className="w-20 h-20 border-4 border-[#34445C] dark:border-[#0a0a0a] border-t-[#DCFF37] border-r-[#FF4654] rounded-full animate-spin" />
                   {/* Center icon */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Icon
@@ -244,24 +244,24 @@ export default function ReviewConfirmForm() {
                   SEARCHING FOR OPPONENTS
                 </h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-[#34445C]/10 dark:bg-[#0a0a0a]/50 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                     <Icon
                       icon="solar:users-group-rounded-bold"
                       width={20}
                       className="text-[#FF4654] mb-1"
                     />
-                    <span className="text-slate-400 text-xs">Queue</span>
+                    <span className="text-[#34445C]/60 dark:text-[#F5F0E1]/50 text-xs">Queue</span>
                     <span className="font-bold text-white">
                       #{state.matchmaking.queuePosition}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-[#34445C]/10 dark:bg-[#0a0a0a]/50 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                     <Icon
                       icon="solar:clock-circle-bold"
                       width={20}
                       className="text-[#DCFF37] mb-1"
                     />
-                    <span className="text-slate-400 text-xs">Est. Wait</span>
+                    <span className="text-[#34445C]/60 dark:text-[#F5F0E1]/50 text-xs">Est. Wait</span>
                     <span className="font-bold text-white">
                       {Math.floor(state.matchmaking.estimatedWait / 60)}:
                       {String(state.matchmaking.estimatedWait % 60).padStart(
@@ -270,13 +270,13 @@ export default function ReviewConfirmForm() {
                       )}
                     </span>
                   </div>
-                  <div className="flex flex-col items-center p-3 rounded-none bg-slate-800/50 border border-[#DCFF37]/20">
+                  <div className="flex flex-col items-center p-3 rounded-none bg-[#34445C]/10 dark:bg-[#0a0a0a]/50 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                     <Icon
                       icon="solar:hourglass-bold"
                       width={20}
                       className="text-[#FFC700] mb-1"
                     />
-                    <span className="text-slate-400 text-xs">Elapsed</span>
+                    <span className="text-[#34445C]/60 dark:text-[#F5F0E1]/50 text-xs">Elapsed</span>
                     <span className="font-bold text-white">
                       {Math.floor(state.matchmaking.elapsedTime / 60)}:
                       {String(state.matchmaking.elapsedTime % 60).padStart(

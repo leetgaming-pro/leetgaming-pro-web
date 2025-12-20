@@ -5,6 +5,9 @@
 
 import { GameIDKey } from './settings';
 
+/** Game ID string type (matches backend) */
+export type GameIDString = 'cs2' | 'csgo' | 'valorant' | 'lol' | 'dota2';
+
 /** Supported highlight event types */
 export type HighlightEventType =
   | 'Clutch'           // 1vX situations
@@ -52,7 +55,7 @@ export interface HighlightStat {
 export interface GameEvent {
   id: string;
   type: HighlightEventType;
-  game_id: GameIDKey;
+  game_id: GameIDKey | GameIDString;
   match_id: string;
   tick_id: number;
   event_time: number; // Duration in milliseconds
@@ -130,7 +133,7 @@ export interface HighlightsListResponse {
 
 /** Highlight filters for searching */
 export interface HighlightFilters {
-  game_id?: GameIDKey;
+  game_id?: GameIDKey | GameIDString;
   match_id?: string;
   player_id?: string;
   event_type?: HighlightEventType | HighlightEventType[];

@@ -25,7 +25,7 @@ import {
   Switch,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks";
 
 import {
   GAME_CONFIGS,
@@ -113,7 +113,7 @@ export function MatchmakingQueue({
   className = "",
 }: MatchmakingQueueProps) {
   const game = GAME_CONFIGS[gameId];
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const {
     isOpen: isSettingsOpen,
     onOpen: onSettingsOpen,
@@ -223,7 +223,7 @@ export function MatchmakingQueue({
 
   const handleStartQueue = useCallback(async () => {
     // Validate user is authenticated
-    const userId = (session?.user as { id?: string })?.id;
+    const userId = user?.id;
     if (!userId) {
       console.error("User must be authenticated to join queue");
       return;
@@ -264,7 +264,7 @@ export function MatchmakingQueue({
       onQueueStart?.(preferences);
     }
   }, [
-    session,
+    user,
     gameId,
     selectedMode,
     selectedMaps,
@@ -277,7 +277,7 @@ export function MatchmakingQueue({
   ]);
 
   const handleAcceptMatch = useCallback(async () => {
-    const userId = (session?.user as { id?: string })?.id;
+    const userId = user?.id;
     const lobbyId = matchmakingSession?.lobby_id;
 
     if (!userId || !lobbyId) {
@@ -367,7 +367,7 @@ export function MatchmakingQueue({
       setReadyCheckAccepted(false);
     }
   }, [
-    session,
+    user,
     matchmakingSession,
     gameId,
     selectedMode,

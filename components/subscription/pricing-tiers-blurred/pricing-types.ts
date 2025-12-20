@@ -2,13 +2,14 @@ import type {ButtonProps} from "@nextui-org/react";
 
 export enum FrequencyEnum {
   Yearly = "yearly",
-  Quarterly = "quarterly",
+  Monthly = "monthly",
 }
 
 export enum TiersEnum {
   Free = "free",
   Pro = "pro",
   Team = "team",
+  Organizer = "organizer",
 }
 
 export type Frequency = {
@@ -23,7 +24,7 @@ export type Tier = {
   price:
     | {
         [FrequencyEnum.Yearly]: string;
-        [FrequencyEnum.Quarterly]: string;
+        [FrequencyEnum.Monthly]: string;
       }
     | string;
   priceSuffix?: string;
@@ -35,4 +36,6 @@ export type Tier = {
   buttonText: string;
   buttonColor?: ButtonProps["color"];
   buttonVariant: ButtonProps["variant"];
+  badge?: string;
+  targetAudience?: string;
 };

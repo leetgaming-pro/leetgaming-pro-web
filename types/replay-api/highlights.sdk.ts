@@ -12,9 +12,10 @@ import {
   HighlightResponse,
 } from './highlights.types';
 import { GameIDKey } from './settings';
+import { GameIDString } from './highlights.types';
 
 /** Default game ID */
-const DEFAULT_GAME_ID: GameIDKey = 'cs2';
+const DEFAULT_GAME_ID: GameIDString = 'cs2';
 
 /**
  * Transform API response to GameEvent
@@ -137,7 +138,7 @@ export class HighlightsAPI {
    * Get a single highlight by ID
    */
   async getHighlight(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     highlightId: string
   ): Promise<GameEvent | null> {
     const response = await this.client.get<HighlightResponse>(
@@ -155,7 +156,7 @@ export class HighlightsAPI {
    * Get highlights for a specific match
    */
   async getMatchHighlights(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     matchId: string,
     eventTypes?: HighlightEventType[]
   ): Promise<GameEvent[]> {
@@ -175,7 +176,7 @@ export class HighlightsAPI {
   async getPlayerHighlights(
     playerId: string,
     options?: {
-      gameId?: GameIDKey;
+      gameId?: GameIDKey | GameIDString;
       eventTypes?: HighlightEventType[];
       limit?: number;
     }
@@ -198,7 +199,7 @@ export class HighlightsAPI {
    */
   async getTrendingHighlights(
     options?: {
-      gameId?: GameIDKey;
+      gameId?: GameIDKey | GameIDString;
       limit?: number;
     }
   ): Promise<GameEvent[]> {
@@ -218,7 +219,7 @@ export class HighlightsAPI {
    */
   async getClutches(
     options?: {
-      gameId?: GameIDKey;
+      gameId?: GameIDKey | GameIDString;
       clutchType?: GameEvent['clutch_type'];
       limit?: number;
     }
@@ -241,7 +242,7 @@ export class HighlightsAPI {
    */
   async getAces(
     options?: {
-      gameId?: GameIDKey;
+      gameId?: GameIDKey | GameIDString;
       limit?: number;
     }
   ): Promise<GameEvent[]> {
@@ -261,7 +262,7 @@ export class HighlightsAPI {
    * Like a highlight (requires authentication)
    */
   async likeHighlight(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     highlightId: string
   ): Promise<boolean> {
     const response = await this.client.post(
@@ -274,7 +275,7 @@ export class HighlightsAPI {
    * Unlike a highlight (requires authentication)
    */
   async unlikeHighlight(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     highlightId: string
   ): Promise<boolean> {
     const response = await this.client.delete(
@@ -287,7 +288,7 @@ export class HighlightsAPI {
    * Share a highlight - returns a share URL
    */
   async shareHighlight(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     highlightId: string
   ): Promise<{ share_url: string } | null> {
     const response = await this.client.post<{ share_url: string }>(
@@ -300,7 +301,7 @@ export class HighlightsAPI {
    * Report a highlight (requires authentication)
    */
   async reportHighlight(
-    gameId: GameIDKey,
+    gameId: GameIDKey | GameIDString,
     highlightId: string,
     reason: string
   ): Promise<boolean> {

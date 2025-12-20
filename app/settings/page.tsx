@@ -195,7 +195,7 @@ function SettingsContent() {
   };
 
   return (
-    <PageContainer title="Settings" description="Manage your account and preferences" maxWidth="5xl">
+    <PageContainer title="Settings" description="Manage your account and preferences" maxWidth="7xl">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
