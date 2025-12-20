@@ -42,23 +42,9 @@ function WizardContent() {
     startMatchmaking,
     cancelMatchmaking: _cancelMatchmaking,
   } = useWizard();
-  const { isAuthenticated, isLoading: authLoading, user, isRedirecting } = useRequireAuth();
+  const { isLoading: authLoading, user, isRedirecting } = useRequireAuth();
   const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
-
-  // Show auth loading state - prevent wizard access for unauthenticated users
-  if (authLoading || isRedirecting) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] w-full">
-        <div className="text-center">
-          <Spinner size="lg" color="warning" />
-          <p className="mt-4 text-default-500">
-            {authLoading ? "Checking authentication..." : "Redirecting to sign in..."}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // Step validation - ensure required fields are completed
   const validateStep = React.useCallback(
@@ -238,6 +224,20 @@ function WizardContent() {
     state.expectedPool,
     updateState,
   ]);
+
+  // Show auth loading state - prevent wizard access for unauthenticated users
+  if (authLoading || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] w-full">
+        <div className="text-center">
+          <Spinner size="lg" color="warning" />
+          <p className="mt-4 text-default-500">
+            {authLoading ? "Checking authentication..." : "Redirecting to sign in..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <MultistepSidebar

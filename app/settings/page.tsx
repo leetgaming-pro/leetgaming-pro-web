@@ -60,32 +60,10 @@ function SettingsContent() {
     sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
   }
 
+  // All useState hooks must be declared before any conditional returns
   const [selectedTab, setSelectedTab] = useState<string>(tabParam || SettingsTab.PROFILE);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileId, setProfileId] = useState<string | null>(null);
-
-  // Show loading while checking auth or redirecting
-  if (authLoading || isRedirecting) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner size="lg" label={authLoading ? "Checking authentication..." : "Redirecting to sign in..."} />
-      </div>
-    );
-  }
-
-  // Sync tab with URL
-  useEffect(() => {
-    if (tabParam && Object.values(SettingsTab).includes(tabParam)) {
-      setSelectedTab(tabParam);
-    }
-  }, [tabParam]);
-
-  const handleTabChange = (key: React.Key) => {
-    const tab = key as string;
-    setSelectedTab(tab);
-    router.push(`/settings?tab=${tab}`, { scroll: false });
-  };
-
   const [profileData, setProfileData] = useState({
     nickname: '',
     email: '',
@@ -94,7 +72,6 @@ function SettingsContent() {
     timezone: '',
     avatarUri: '',
   });
-
   const [notifications, setNotifications] = useState({
     email_matches: true,
     email_teams: true,
@@ -104,14 +81,26 @@ function SettingsContent() {
     push_friends: true,
     push_messages: true,
   });
-
-  // Toast notification state
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  
-  const showToast = (type: 'success' | 'error', message: string) => {
+  const [saving, setSaving] = useState(false);
+
+  const showToast = useCallback((type: 'success' | 'error', message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 4000);
-  };
+  }, []);
+
+  const handleTabChange = useCallback((key: React.Key) => {
+    const tab = key as string;
+    setSelectedTab(tab);
+    router.push(`/settings?tab=${tab}`, { scroll: false });
+  }, [router]);
+
+  // Sync tab with URL
+  useEffect(() => {
+    if (tabParam && Object.values(SettingsTab).includes(tabParam)) {
+      setSelectedTab(tabParam);
+    }
+  }, [tabParam]);
 
   // Fetch user profile from API
   const fetchProfile = useCallback(async () => {
@@ -119,7 +108,7 @@ function SettingsContent() {
 
     setProfileLoading(true);
     try {
-      const profile = await sdkRef.current!.playerProfiles.getMyProfile();
+      const profile = await sdkRef.current?.playerProfiles.getMyProfile();
       if (profile) {
         setProfileId(profile.id);
         setProfileData({
@@ -161,7 +150,14 @@ function SettingsContent() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const [saving, setSaving] = useState(false);
+  // Show loading while checking auth or redirecting
+  if (authLoading || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Spinner size="lg" label={authLoading ? "Checking authentication..." : "Redirecting to sign in..."} />
+      </div>
+    );
+  }
 
   const handleProfileUpdate = async () => {
     if (!profileId) {
