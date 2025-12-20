@@ -30,7 +30,7 @@ import AvatarUploader from '@/components/avatar/avatar-uploader';
 import { ReplayAPISDK } from '@/types/replay-api/sdk';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
-import { GameTitle, PlayerVisibility, CreatePlayerRequest } from '@/types/replay-api/players.sdk';
+import { GameTitle, PlayerVisibility, CreatePlayerRequest } from '@/types/replay-api/player.types';
 
 // Initialize SDK (uses /api proxy for client-side requests)
 const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
