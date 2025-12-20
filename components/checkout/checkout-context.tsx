@@ -9,7 +9,13 @@ import {
   PaymentProvider,
   PaymentIntent,
 } from './types';
-import { paymentsSDK, CreatePaymentIntentRequest } from '@/types/replay-api/payments.sdk';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
+import type { CreatePaymentIntentRequest } from '@/types/replay-api/payment.types';
+
+// Initialize SDK (uses /api proxy for client-side requests)
+const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
 
 // ============================================================================
 // Actions
@@ -186,21 +192,27 @@ export function CheckoutProvider({ children }: CheckoutProviderProps) {
           },
         };
 
-        const response = await paymentsSDK.createPaymentIntent(request);
+        const response = await sdk.payment.createPaymentIntent(request);
 
         dispatch({ type: 'SET_PROCESSING', payload: false });
 
+        if (!response) {
+          dispatch({ type: 'SET_ERROR', payload: 'Failed to create payment intent' });
+          return null;
+        }
+
         return {
-          paymentId: response.payment_id,
+          paymentId: response.payment.id,
           clientSecret: response.client_secret,
           redirectUrl: response.redirect_url,
           cryptoAddress: response.crypto_address,
-          status: response.status as any,
+          status: response.payment.status,
           amount,
           currency: state.selectedPlan.price.currency,
         };
-      } catch (error: any) {
-        dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to create payment' });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to create payment';
+        dispatch({ type: 'SET_ERROR', payload: message });
         return null;
       }
     },

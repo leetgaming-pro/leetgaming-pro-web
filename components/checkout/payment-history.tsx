@@ -23,7 +23,13 @@ import {
   PaymentType,
   PAYMENT_STATUS_COLORS,
 } from './types';
-import { paymentsSDK, Payment } from '@/types/replay-api/payments.sdk';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
+import type { Payment } from '@/types/replay-api/payment.types';
+
+// Initialize SDK (uses /api proxy for client-side requests)
+const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
 
 // ============================================================================
 // Types
@@ -95,10 +101,15 @@ export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHis
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const result = await paymentsSDK.getUserPayments();
-        setPayments(result);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load payment history');
+        const result = await sdk.payment.getPayments({ limit: 100 });
+        if (result) {
+          setPayments(result.payments);
+        } else {
+          setError('Failed to load payment history');
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to load payment history';
+        setError(message);
       } finally {
         setIsLoading(false);
       }

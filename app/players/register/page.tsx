@@ -27,7 +27,13 @@ import {
 import { Icon } from '@iconify/react';
 import { EsportsButton } from '@/components/ui/esports-button';
 import AvatarUploader from '@/components/avatar/avatar-uploader';
-import { playersSDK, CreatePlayerRequest, GameTitle, PlayerVisibility } from '@/types/replay-api/players.sdk';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
+import { GameTitle, PlayerVisibility, CreatePlayerRequest } from '@/types/replay-api/players.sdk';
+
+// Initialize SDK (uses /api proxy for client-side requests)
+const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
 
 // ============================================================================
 // Constants
@@ -117,9 +123,9 @@ export default function PlayerRegistrationPage() {
   // Check if user already has a profile
   useEffect(() => {
     if (status === 'authenticated') {
-      playersSDK.getMyProfile().then((profile) => {
+      sdk.playerProfiles.getMyProfile().then((profile) => {
         if (profile) {
-          router.push(`/players/${profile.slug}`);
+          router.push(`/players/${profile.id}`);
         }
       }).catch(() => {
         // No profile exists, continue with registration
@@ -136,7 +142,7 @@ export default function PlayerRegistrationPage() {
 
     const timer = setTimeout(async () => {
       setIsCheckingSlug(true);
-      const available = await playersSDK.checkSlugAvailability(formData.slug);
+      const available = await sdk.playerProfiles.checkSlugAvailability(formData.slug);
       setSlugAvailable(available);
       setIsCheckingSlug(false);
     }, 500);
@@ -200,31 +206,23 @@ export default function PlayerRegistrationPage() {
       // Upload avatar if present
       let avatarUrl = formData.avatarUrl;
       if (formData.avatarFile) {
-        avatarUrl = await playersSDK.uploadAvatar(formData.avatarFile);
+        avatarUrl = await sdk.playerProfiles.uploadAvatar(formData.avatarFile) || undefined;
       }
 
-      const request: CreatePlayerRequest = {
-        display_name: formData.displayName,
-        slug: formData.slug,
-        avatar_url: avatarUrl || undefined,
-        bio: formData.bio,
-        game: formData.game as GameTitle,
-        role: formData.role,
-        rank: formData.rank || undefined,
-        country: formData.country,
-        timezone: formData.timezone,
-        looking_for_team: formData.lookingForTeam,
-        visibility: formData.visibility,
-        social_links: {
-          discord: formData.discordUsername || undefined,
-          twitch: formData.twitchUsername || undefined,
-          twitter: formData.twitterUsername || undefined,
-          steam_id: formData.steamId || undefined,
-        },
-      };
+      const profile = await sdk.playerProfiles.createPlayerProfile({
+        game_id: formData.game,
+        nickname: formData.displayName,
+        slug_uri: formData.slug,
+        avatar_uri: avatarUrl,
+        description: formData.bio,
+        roles: formData.role ? [formData.role] : undefined,
+      });
 
-      const profile = await playersSDK.createPlayer(request);
-      router.push(`/players/${profile.slug}?welcome=true`);
+      if (!profile) {
+        throw new Error('Failed to create profile');
+      }
+
+      router.push(`/players/${profile.id}?welcome=true`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
       setError(errorMessage);

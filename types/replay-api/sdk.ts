@@ -15,6 +15,77 @@ import { PaymentAPI } from './payment.sdk';
 import { MatchmakingAPI } from './matchmaking.sdk';
 import { TournamentAPI } from './tournament.sdk';
 import { MatchAnalyticsAPI } from './match-analytics.sdk';
+import { ReplayFile } from './replay-file';
+
+/**
+ * Match data structure
+ */
+export interface MatchData {
+  id?: string;
+  match_id?: string;
+  game_id?: string;
+  map?: string;
+  mode?: string;
+  status?: string;
+  title?: string;
+  played_at?: string;
+  created_at?: string;
+  duration?: number;
+  scoreboard?: MatchScoreboard;
+}
+
+export interface MatchScoreboard {
+  team_scoreboards?: TeamScoreboard[];
+}
+
+export interface TeamScoreboard {
+  name?: string;
+  score?: number;
+  players?: PlayerScoreboardEntry[];
+}
+
+export interface PlayerScoreboardEntry {
+  id?: string;
+  display_name?: string;
+  kills?: number;
+  deaths?: number;
+  assists?: number;
+}
+
+/**
+ * Replay events
+ */
+export interface ReplayEvent {
+  id: string;
+  type: string;
+  tick: number;
+  timestamp?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface ReplayEventsResponse {
+  replay_id: string;
+  match_id: string;
+  events: ReplayEvent[];
+  total_events: number;
+}
+
+export interface ReplayScoreboardResponse {
+  replay_id: string;
+  match_id: string;
+  scoreboard: MatchScoreboard;
+  teams: TeamScoreboard[];
+  mvp?: PlayerScoreboardEntry;
+}
+
+export interface ReplayTimelineResponse {
+  replay_id: string;
+  match_id: string;
+  timeline: ReplayEvent[];
+  total_rounds: number;
+  final_score: string;
+  scoreboard: MatchScoreboard;
+}
 
 /**
  * Onboarding API wrapper
@@ -32,7 +103,7 @@ export class OnboardingAPI {
     avatar: string;
     avatarmedium?: string;
     avatarfull?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }, verificationHash: string): Promise<OnboardingResponse | null> {
     const response = await this.client.post<OnboardingResponse>('/onboarding/steam', {
       v_hash: verificationHash,
@@ -49,7 +120,7 @@ export class OnboardingAPI {
     email: string;
     name?: string;
     picture?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }, verificationHash: string): Promise<OnboardingResponse | null> {
     const response = await this.client.post<OnboardingResponse>('/onboarding/google', {
       v_hash: verificationHash,
@@ -236,6 +307,52 @@ export class PlayerProfileAPI {
     const response = await this.client.get<PlayerProfile[]>(`/players?${params.toString()}`);
     return response.data || [];
   }
+
+  /**
+   * Get player profile by slug URI
+   */
+  async getPlayerBySlug(slug: string): Promise<PlayerProfile | null> {
+    const response = await this.client.get<PlayerProfile>(`/players/slug/${slug}`);
+    return response.data || null;
+  }
+
+  /**
+   * Check if a slug is available
+   */
+  async checkSlugAvailability(slug: string): Promise<boolean> {
+    const response = await this.client.get<{ available: boolean }>(`/players/check-slug?slug=${encodeURIComponent(slug)}`);
+    return response.data?.available ?? false;
+  }
+
+  /**
+   * Upload player avatar (multipart form data)
+   * Note: This requires special handling for file uploads
+   */
+  async uploadAvatar(file: File): Promise<string | null> {
+    // For file uploads, we need to bypass the JSON client and use FormData
+    // The client's base URL is private, so we use /api proxy
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const response = await fetch('/api/players/avatar', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        console.error('Failed to upload avatar:', response.statusText);
+        return null;
+      }
+
+      const result = await response.json();
+      return result.data?.avatar_url || null;
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+      return null;
+    }
+  }
 }
 
 /**
@@ -247,8 +364,8 @@ export class MatchAPI {
   /**
    * Get match by ID
    */
-  async getMatch(gameId: string, matchId: string): Promise<any | null> {
-    const response = await this.client.get(`/games/${gameId}/matches/${matchId}`);
+  async getMatch(gameId: string, matchId: string): Promise<MatchData | null> {
+    const response = await this.client.get<MatchData>(`/games/${gameId}/matches/${matchId}`);
     return response.data || null;
   }
 
@@ -260,21 +377,22 @@ export class MatchAPI {
     squad_id?: string;
     map?: string;
     status?: string;
+    search_term?: string;
     limit?: number;
     offset?: number;
-    [key: string]: any;
-  }): Promise<any[]> {
+  }): Promise<MatchData[]> {
     // Use GET with query params - backend doesn't support POST /games/{id}/matches/search
     const params = new URLSearchParams();
     if (filters.player_id) params.append('player_id', filters.player_id);
     if (filters.squad_id) params.append('squad_id', filters.squad_id);
     if (filters.map) params.append('map', filters.map);
     if (filters.status) params.append('status', filters.status);
+    if (filters.search_term) params.append('q', filters.search_term);
     if (filters.limit) params.append('limit', String(filters.limit));
     if (filters.offset) params.append('offset', String(filters.offset));
 
     const queryString = params.toString();
-    const response = await this.client.get<any[]>(`/games/${gameId}/matches${queryString ? `?${queryString}` : ''}`);
+    const response = await this.client.get<MatchData[]>(`/games/${gameId}/matches${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 }
@@ -320,10 +438,10 @@ export class ReplayFileAPI {
     squad_id?: string;
     status?: string;
     visibility?: string;
+    search_term?: string;
     limit?: number;
     offset?: number;
-    [key: string]: any;
-  }): Promise<any[]> {
+  }): Promise<ReplayFile[]> {
     // Use GET with query params - backend doesn't support POST /replays/search
     const params = new URLSearchParams();
     if (filters.game_id) params.append('game_id', filters.game_id);
@@ -331,27 +449,23 @@ export class ReplayFileAPI {
     if (filters.squad_id) params.append('squad_id', filters.squad_id);
     if (filters.status) params.append('status', filters.status);
     if (filters.visibility) params.append('visibility', filters.visibility);
+    if (filters.search_term) params.append('q', filters.search_term);
     if (filters.limit) params.append('limit', String(filters.limit));
     if (filters.offset) params.append('offset', String(filters.offset));
 
     const queryString = params.toString();
     // Use /games/{game_id}/replays endpoint which exists in backend
     const gameId = filters.game_id || 'cs2';
-    const response = await this.client.get<any[]>(`/games/${gameId}/replays${queryString ? `?${queryString}` : ''}`);
+    const response = await this.client.get<ReplayFile[]>(`/games/${gameId}/replays${queryString ? `?${queryString}` : ''}`);
     return response.data || [];
   }
 
   /**
    * Get replay events (kills, plants, defuses, etc.)
    */
-  async getReplayEvents(gameId: string, replayFileId: string, eventType?: string): Promise<{
-    replay_id: string;
-    match_id: string;
-    events: any[];
-    total_events: number;
-  } | null> {
+  async getReplayEvents(gameId: string, replayFileId: string, eventType?: string): Promise<ReplayEventsResponse | null> {
     const params = eventType ? `?type=${eventType}` : '';
-    const response = await this.client.get<any>(
+    const response = await this.client.get<ReplayEventsResponse>(
       `/games/${gameId}/replays/${replayFileId}/events${params}`
     );
     return response.data || null;
@@ -360,14 +474,8 @@ export class ReplayFileAPI {
   /**
    * Get replay scoreboard (player statistics)
    */
-  async getReplayScoreboard(gameId: string, replayFileId: string): Promise<{
-    replay_id: string;
-    match_id: string;
-    scoreboard: any;
-    teams: any[];
-    mvp: any;
-  } | null> {
-    const response = await this.client.get<any>(
+  async getReplayScoreboard(gameId: string, replayFileId: string): Promise<ReplayScoreboardResponse | null> {
+    const response = await this.client.get<ReplayScoreboardResponse>(
       `/games/${gameId}/replays/${replayFileId}/scoreboard`
     );
     return response.data || null;
@@ -376,15 +484,8 @@ export class ReplayFileAPI {
   /**
    * Get replay timeline (round-by-round data)
    */
-  async getReplayTimeline(gameId: string, replayFileId: string): Promise<{
-    replay_id: string;
-    match_id: string;
-    timeline: any[];
-    total_rounds: number;
-    final_score: string;
-    scoreboard: any;
-  } | null> {
-    const response = await this.client.get<any>(
+  async getReplayTimeline(gameId: string, replayFileId: string): Promise<ReplayTimelineResponse | null> {
+    const response = await this.client.get<ReplayTimelineResponse>(
       `/games/${gameId}/replays/${replayFileId}/timeline`
     );
     return response.data || null;

@@ -1,6 +1,20 @@
 /**
- * Players SDK for frontend-to-backend communication
- * Handles player profile CRUD operations
+ * @deprecated Use `ReplayAPISDK.playerProfiles` from `@/types/replay-api/sdk` instead.
+ * This file is kept for backwards compatibility but will be removed in a future version.
+ * 
+ * Migration:
+ * ```typescript
+ * // OLD (deprecated)
+ * import { playersSDK } from '@/types/replay-api/players.sdk';
+ * await playersSDK.getMyProfile();
+ * 
+ * // NEW (recommended)
+ * import { ReplayAPISDK } from '@/types/replay-api/sdk';
+ * import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+ * import { logger } from '@/lib/logger';
+ * const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
+ * await sdk.playerProfiles.getMyProfile();
+ * ```
  */
 
 import { Loggable } from '@/lib/logger';
@@ -165,8 +179,9 @@ export class PlayersSDK {
 
       this.logger.info('[PlayersSDK] Player profile created', { player_id: result.data.id });
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to create player', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to create player', { error: message });
       throw error;
     }
   }
@@ -192,8 +207,9 @@ export class PlayersSDK {
       }
 
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to get profile', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to get profile', { error: message });
       throw error;
     }
   }
@@ -215,8 +231,9 @@ export class PlayersSDK {
       }
 
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to get player', { error: error.message, playerId });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to get player', { error: message, playerId });
       throw error;
     }
   }
@@ -238,8 +255,9 @@ export class PlayersSDK {
       }
 
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to get player by slug', { error: error.message, slug });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to get player by slug', { error: message, slug });
       throw error;
     }
   }
@@ -266,8 +284,9 @@ export class PlayersSDK {
 
       this.logger.info('[PlayersSDK] Player profile updated', { player_id: playerId });
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to update player', { error: error.message, playerId });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to update player', { error: message, playerId });
       throw error;
     }
   }
@@ -296,8 +315,9 @@ export class PlayersSDK {
       }
 
       return result.data;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to search players', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to search players', { error: message });
       throw error;
     }
   }
@@ -315,8 +335,9 @@ export class PlayersSDK {
       const result: ApiResponse<{ available: boolean }> = await response.json();
 
       return result.data?.available ?? false;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to check slug', { error: error.message, slug });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to check slug', { error: message, slug });
       return false;
     }
   }
@@ -343,8 +364,9 @@ export class PlayersSDK {
 
       this.logger.info('[PlayersSDK] Avatar uploaded');
       return result.data.avatar_url;
-    } catch (error: any) {
-      this.logger.error('[PlayersSDK] Failed to upload avatar', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('[PlayersSDK] Failed to upload avatar', { error: message });
       throw error;
     }
   }
