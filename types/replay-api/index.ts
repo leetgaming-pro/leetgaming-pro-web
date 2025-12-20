@@ -40,6 +40,9 @@ export * from './lobby.types';
 export * from './matchmaking.types';
 export * from './stats.types';
 export * from './challenge.types';
+export * from './highlights.types';
+export * from './prize-pool.types';
+export * from './tournament.types';
 
 // Feature SDKs (all use ReplayApiClient base component)
 export * from './challenge.sdk';
@@ -51,3 +54,4 @@ export * from './prize-pool.sdk';
 export * from './tournament.sdk';
 export * from './match-analytics.sdk';
 export * from './settings.sdk';
+export * from './highlights.sdk';

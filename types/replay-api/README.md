@@ -333,6 +333,66 @@ const search = new SearchBuilder()
 const results = await sdk.client.search(search);
 ```
 
+#### Highlights
+
+```typescript
+// Get trending highlights (aces, clutches, multi-kills)
+const trending = await sdk.highlights.getTrendingHighlights({
+  gameId: 'cs2',
+  limit: 10
+});
+
+// Get clutches only
+const clutches = await sdk.highlights.getClutches({
+  gameId: 'cs2',
+  clutchType: '1v4',
+  limit: 20
+});
+
+// Get aces
+const aces = await sdk.highlights.getAces({ gameId: 'cs2' });
+
+// Get player highlights
+const playerHighlights = await sdk.highlights.getPlayerHighlights('player-uuid', {
+  gameId: 'cs2',
+  eventTypes: ['Ace', 'Clutch', 'MultiKill'],
+  limit: 50
+});
+
+// Like a highlight
+await sdk.highlights.likeHighlight('cs2', 'highlight-uuid');
+```
+
+#### Challenges
+
+```typescript
+// Report a bug
+await sdk.challenges.reportBug(
+  'match-uuid',
+  'Player clipped through wall',
+  'At round 15, enemy player walked through A site wall',
+  'cs2',
+  'high'
+);
+
+// Request VAR review
+await sdk.challenges.requestVAR(
+  'match-uuid',
+  'Suspected aim assistance',
+  'Please review kills at ticks 12000-15000',
+  'cs2',
+  15 // round number
+);
+
+// Request round restart
+await sdk.challenges.requestRoundRestart(
+  'match-uuid',
+  15,
+  'Server lag caused all players to disconnect',
+  'cs2'
+);
+```
+
 ## Contributing
 
 When extending the SDK:
@@ -340,7 +400,8 @@ When extending the SDK:
 1. Add new enums to `settings.ts`
 2. Add new entity interfaces to `entities.types.ts`
 3. Add new API methods to `sdk.ts`
-4. Update this README with usage examples
+4. Export new modules from `index.ts`
+5. Update this README with usage examples
 
 ## License
 

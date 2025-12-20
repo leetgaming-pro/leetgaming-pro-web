@@ -128,7 +128,7 @@ Successfully designed and implemented a complete TypeScript SDK for `leetgaming-
 types/replay-api/
 ├── index.ts                    # Main exports
 ├── README.md                   # Complete documentation
-├── examples.ts                 # 12 usage examples
+├── examples.ts                 # 12+ usage examples
 │
 ├── settings.ts                 # Enums, constants (extended)
 ├── replay-file.ts              # ResourceOwner class (extended)
@@ -143,7 +143,28 @@ types/replay-api/
 ├── upload-client.ts           # Specialized upload (new)
 ├── sdk.ts                     # High-level wrappers (new)
 │
-└── settings.test.ts           # Existing tests (preserved)
+├── payment.sdk.ts              # Payment API wrapper
+├── payment.types.ts            # Payment domain types
+├── wallet.sdk.ts               # Wallet API wrapper
+├── wallet.types.ts             # Wallet domain types
+├── matchmaking.sdk.ts          # Matchmaking API wrapper
+├── matchmaking.types.ts        # Matchmaking domain types
+├── lobby.sdk.ts                # Lobby API wrapper
+├── lobby.types.ts              # Lobby domain types
+├── challenge.sdk.ts            # Challenge/VAR API wrapper
+├── challenge.types.ts          # Challenge domain types
+├── highlights.sdk.ts           # Highlights API wrapper
+├── highlights.types.ts         # Highlights domain types
+├── tournament.sdk.ts           # Tournament API wrapper
+├── tournament.types.ts         # Tournament domain types
+├── prize-pool.sdk.ts           # Prize pool API wrapper
+├── prize-pool.types.ts         # Prize pool domain types
+│
+├── settings.test.ts            # Settings tests
+├── matchmaking.sdk.test.ts     # Matchmaking SDK tests
+├── payment.sdk.test.ts         # Payment SDK tests
+├── wallet.sdk.test.ts          # Wallet SDK tests
+└── highlights.sdk.test.ts      # Highlights SDK tests
 ```
 
 ## Key Features Delivered

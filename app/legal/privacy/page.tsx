@@ -7,38 +7,38 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <article className="prose prose-invert max-w-none">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-          <span className="text-2xl text-[#F5F0E1] dark:text-[#34445C]">🔒</span>
+    <article className="prose prose-invert max-w-none prose-headings:text-[#34445C] dark:prose-headings:text-[#F5F0E1] prose-p:text-default-600 prose-li:text-default-600 prose-lg lg:prose-xl">
+      <div className="flex items-center gap-4 lg:gap-6 mb-8 lg:mb-10">
+        <div className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+          <span className="text-2xl lg:text-3xl text-[#F5F0E1] dark:text-[#34445C]">🔒</span>
         </div>
         <div>
-          <h1 className="text-3xl font-bold mb-0 text-[#34445C] dark:text-[#F5F0E1]">Privacy Policy</h1>
-          <p className="text-[#FF4654] dark:text-[#DCFF37] text-sm">Last updated: December 6, 2024</p>
+          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-0 text-[#34445C] dark:text-[#F5F0E1]">Privacy Policy</h1>
+          <p className="text-[#FF4654] dark:text-[#DCFF37] text-sm lg:text-base mt-1">Last updated: December 6, 2024</p>
         </div>
       </div>
 
-      <section className="mb-8 p-6 rounded-none border-l-4 border-[#FF4654] dark:border-[#DCFF37] bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
-        <h2 className="text-xl font-semibold mb-4 text-[#34445C] dark:text-[#F5F0E1]">1. Introduction</h2>
-        <p className="text-default-600 mb-4">
+      <section className="mb-10 lg:mb-12 p-6 lg:p-8 rounded-none border-l-4 border-[#FF4654] dark:border-[#DCFF37] bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4 text-[#34445C] dark:text-[#F5F0E1]">1. Introduction</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg leading-relaxed">
           LeetGaming.PRO (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy
           explains how we collect, use, disclose, and safeguard your information when you use our competitive
           gaming platform and related services.
         </p>
-        <p className="text-default-600">
+        <p className="text-default-600 text-base lg:text-lg leading-relaxed">
           By using LeetGaming.PRO, you agree to the collection and use of information in accordance with this policy.
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">2. Information We Collect</h2>
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-6">2. Information We Collect</h2>
 
-        <h3 className="text-lg font-medium mb-2">Account Information</h3>
-        <p className="text-default-600 mb-4">
+        <h3 className="text-lg lg:text-xl font-medium mb-3 text-[#34445C] dark:text-[#F5F0E1]">Account Information</h3>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           When you create an account, we collect:
         </p>
-        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-1">
+        <ul className="list-disc pl-6 text-default-600 mb-6 space-y-2 text-base lg:text-lg">
           <li>Email address</li>
           <li>Username and display name</li>
           <li>Password (stored securely using industry-standard hashing)</li>
@@ -46,11 +46,11 @@ export default function PrivacyPolicyPage() {
           <li>Linked gaming accounts (Steam ID, Discord ID, etc.)</li>
         </ul>
 
-        <h3 className="text-lg font-medium mb-2">Gaming Data</h3>
-        <p className="text-default-600 mb-4">
+        <h3 className="text-lg lg:text-xl font-medium mb-3 text-[#34445C] dark:text-[#F5F0E1]">Gaming Data</h3>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           To provide our services, we collect:
         </p>
-        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-1">
+        <ul className="list-disc pl-6 text-default-600 mb-6 space-y-2 text-base lg:text-lg">
           <li>Match history and statistics</li>
           <li>Replay files and gameplay data</li>
           <li>Skill ratings and rankings</li>
@@ -58,11 +58,11 @@ export default function PrivacyPolicyPage() {
           <li>In-game performance metrics</li>
         </ul>
 
-        <h3 className="text-lg font-medium mb-2">Technical Information</h3>
-        <p className="text-default-600 mb-4">
+        <h3 className="text-lg lg:text-xl font-medium mb-3 text-[#34445C] dark:text-[#F5F0E1]">Technical Information</h3>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           We automatically collect:
         </p>
-        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-1">
+        <ul className="list-disc pl-6 text-default-600 mb-6 space-y-2 text-base lg:text-lg">
           <li>IP address and approximate location</li>
           <li>Browser type and version</li>
           <li>Device information and operating system</li>
@@ -70,17 +70,17 @@ export default function PrivacyPolicyPage() {
           <li>Error logs and performance data</li>
         </ul>
 
-        <h3 className="text-lg font-medium mb-2">Payment Information</h3>
-        <p className="text-default-600">
+        <h3 className="text-lg lg:text-xl font-medium mb-3 text-[#34445C] dark:text-[#F5F0E1]">Payment Information</h3>
+        <p className="text-default-600 text-base lg:text-lg">
           For premium features and transactions, we collect payment information through our secure payment
           processors. We do not store complete credit card numbers on our servers.
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">3. How We Use Your Information</h2>
-        <p className="text-default-600 mb-4">We use your information to:</p>
-        <ul className="list-disc pl-6 text-default-600 space-y-1">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">3. How We Use Your Information</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">We use your information to:</p>
+        <ul className="list-disc pl-6 text-default-600 space-y-2 text-base lg:text-lg">
           <li>Provide and maintain our gaming platform</li>
           <li>Process matchmaking and skill-based rankings</li>
           <li>Analyze gameplay for anti-cheat and fair play enforcement</li>
@@ -94,44 +94,44 @@ export default function PrivacyPolicyPage() {
         </ul>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">4. Information Sharing</h2>
-        <p className="text-default-600 mb-4">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">4. Information Sharing</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           We may share your information in the following circumstances:
         </p>
-        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-2">
+        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-3 text-base lg:text-lg">
           <li>
-            <strong>Public Profile:</strong> Your username, avatar, gaming statistics, and match history
+            <strong className="text-[#34445C] dark:text-[#F5F0E1]">Public Profile:</strong> Your username, avatar, gaming statistics, and match history
             may be visible to other users as part of the competitive gaming experience.
           </li>
           <li>
-            <strong>Team and Squad Members:</strong> Information relevant to team coordination may be shared
+            <strong className="text-[#34445C] dark:text-[#F5F0E1]">Team and Squad Members:</strong> Information relevant to team coordination may be shared
             with your teammates.
           </li>
           <li>
-            <strong>Tournament Organizers:</strong> When you participate in tournaments, relevant information
+            <strong className="text-[#34445C] dark:text-[#F5F0E1]">Tournament Organizers:</strong> When you participate in tournaments, relevant information
             may be shared with organizers.
           </li>
           <li>
-            <strong>Service Providers:</strong> We work with trusted third parties who help us operate our
+            <strong className="text-[#34445C] dark:text-[#F5F0E1]">Service Providers:</strong> We work with trusted third parties who help us operate our
             platform (hosting, analytics, payment processing).
           </li>
           <li>
-            <strong>Legal Requirements:</strong> We may disclose information when required by law or to
+            <strong className="text-[#34445C] dark:text-[#F5F0E1]">Legal Requirements:</strong> We may disclose information when required by law or to
             protect our rights and users&apos; safety.
           </li>
         </ul>
-        <p className="text-default-600">
+        <p className="text-default-600 text-base lg:text-lg font-medium">
           We do not sell your personal information to third parties.
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">5. Data Security</h2>
-        <p className="text-default-600 mb-4">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">5. Data Security</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           We implement appropriate technical and organizational measures to protect your data, including:
         </p>
-        <ul className="list-disc pl-6 text-default-600 space-y-1">
+        <ul className="list-disc pl-6 text-default-600 space-y-2 text-base lg:text-lg">
           <li>Encryption of data in transit (TLS/SSL) and at rest</li>
           <li>Secure password hashing algorithms</li>
           <li>Regular security audits and penetration testing</li>
@@ -140,34 +140,34 @@ export default function PrivacyPolicyPage() {
         </ul>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">6. Your Rights</h2>
-        <p className="text-default-600 mb-4">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">6. Your Rights</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           Depending on your location, you may have the following rights:
         </p>
-        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-1">
-          <li><strong>Access:</strong> Request a copy of your personal data</li>
-          <li><strong>Correction:</strong> Update or correct inaccurate information</li>
-          <li><strong>Deletion:</strong> Request deletion of your account and data</li>
-          <li><strong>Portability:</strong> Receive your data in a portable format</li>
-          <li><strong>Objection:</strong> Object to certain types of processing</li>
-          <li><strong>Restriction:</strong> Request limitation of processing</li>
+        <ul className="list-disc pl-6 text-default-600 mb-4 space-y-2 text-base lg:text-lg">
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Access:</strong> Request a copy of your personal data</li>
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Correction:</strong> Update or correct inaccurate information</li>
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Deletion:</strong> Request deletion of your account and data</li>
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Portability:</strong> Receive your data in a portable format</li>
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Objection:</strong> Object to certain types of processing</li>
+          <li><strong className="text-[#34445C] dark:text-[#F5F0E1]">Restriction:</strong> Request limitation of processing</li>
         </ul>
-        <p className="text-default-600">
+        <p className="text-default-600 text-base lg:text-lg">
           To exercise these rights, contact us at{' '}
-          <a href="mailto:privacy@leetgaming.pro" className="text-primary hover:underline">
+          <a href="mailto:privacy@leetgaming.pro" className="text-[#FF4654] dark:text-[#DCFF37] hover:underline">
             privacy@leetgaming.pro
           </a>
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">7. Data Retention</h2>
-        <p className="text-default-600 mb-4">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">7. Data Retention</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           We retain your data for as long as necessary to provide our services and fulfill the purposes
           described in this policy. Specifically:
         </p>
-        <ul className="list-disc pl-6 text-default-600 space-y-1">
+        <ul className="list-disc pl-6 text-default-600 space-y-2 text-base lg:text-lg">
           <li>Account data is retained while your account is active</li>
           <li>Gaming statistics may be retained for historical leaderboards</li>
           <li>Payment records are retained as required by law</li>
@@ -175,27 +175,27 @@ export default function PrivacyPolicyPage() {
         </ul>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">8. International Transfers</h2>
-        <p className="text-default-600">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">8. International Transfers</h2>
+        <p className="text-default-600 text-base lg:text-lg leading-relaxed">
           Your information may be transferred to and processed in countries other than your own. We ensure
           appropriate safeguards are in place to protect your information in accordance with applicable
           data protection laws.
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">9. Children&apos;s Privacy</h2>
-        <p className="text-default-600">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">9. Children&apos;s Privacy</h2>
+        <p className="text-default-600 text-base lg:text-lg leading-relaxed">
           LeetGaming.PRO is not intended for children under 13 years of age. We do not knowingly collect
           personal information from children under 13. If you believe we have collected information from
           a child under 13, please contact us immediately.
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">10. Changes to This Policy</h2>
-        <p className="text-default-600">
+      <section className="mb-10 lg:mb-12">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">10. Changes to This Policy</h2>
+        <p className="text-default-600 text-base lg:text-lg leading-relaxed">
           We may update this Privacy Policy periodically. We will notify you of significant changes by
           posting a notice on our platform or sending you an email. Your continued use of our services
           after changes take effect constitutes acceptance of the updated policy.
@@ -203,20 +203,20 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">11. Contact Us</h2>
-        <p className="text-default-600 mb-4">
+        <h2 className="text-xl lg:text-2xl font-semibold mb-4">11. Contact Us</h2>
+        <p className="text-default-600 mb-4 text-base lg:text-lg">
           For questions or concerns about this Privacy Policy or our data practices, contact us:
         </p>
-        <ul className="list-none text-default-600 space-y-1">
+        <ul className="list-none text-default-600 space-y-2 text-base lg:text-lg">
           <li>
             Email:{' '}
-            <a href="mailto:privacy@leetgaming.pro" className="text-primary hover:underline">
+            <a href="mailto:privacy@leetgaming.pro" className="text-[#FF4654] dark:text-[#DCFF37] hover:underline">
               privacy@leetgaming.pro
             </a>
           </li>
           <li>
             Data Protection Officer:{' '}
-            <a href="mailto:dpo@leetgaming.pro" className="text-primary hover:underline">
+            <a href="mailto:dpo@leetgaming.pro" className="text-[#FF4654] dark:text-[#DCFF37] hover:underline">
               dpo@leetgaming.pro
             </a>
           </li>

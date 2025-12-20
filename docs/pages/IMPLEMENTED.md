@@ -89,13 +89,30 @@
 | --------------- | ------- | ----------------------------- |
 | `/leaderboards` | ✅ Done | Player/Team rankings with SDK |
 
+### Highlights & Content Routes
+
+| Route             | Status  | Description                                    |
+| ----------------- | ------- | ---------------------------------------------- |
+| `/highlights`     | ✅ Done | Game highlights - clutches, aces, multi-kills  |
+| `/highlights/[id]`| 🔄 WIP  | Single highlight detail page                   |
+
+The Highlights page is a state-of-the-art showcase of epic gaming moments featuring:
+- **Infinite scroll** with intersection observer for smooth loading
+- **Category filtering** by event type (Clutch, Ace, MultiKill, Headshot, etc.)
+- **Map filtering** for all CS2 competitive maps
+- **Sorting options** - Most Recent, Most Viewed, Most Liked, Kill Count
+- **Featured highlights** section for trending content
+- **Video player modal** for viewing highlights inline
+- **Like & Share** functionality with clipboard/native share fallback
+- **Responsive design** with beautiful animations via Framer Motion
+- **Mock data fallback** when API is unavailable
+
 ### Utility Routes
 
 | Route         | Status  | Description          |
 | ------------- | ------- | -------------------- |
 | `/search`     | ✅ Done | Search results       |
 | `/supply`     | ✅ Done | Supply/inventory     |
-| `/highlights` | ✅ Done | Highlights reel      |
 | `/onboarding` | ✅ Done | User onboarding flow |
 | `/docs`       | ✅ Done | Documentation        |
 
@@ -131,3 +148,4 @@ All pages now use real SDK integration via `types/replay-api/`:
 | `/replays`          | ReplayFileAPI              | `searchReplayFiles()`                             |
 | `/cloud`            | ReplayFileAPI              | `searchReplayFiles()`                             |
 | `/match/[id]`       | MatchAPI                   | `getMatch()`                                      |
+| `/highlights`       | HighlightsAPI              | `getHighlights()`, `getTrendingHighlights()`, `getClutches()`, `getAces()` |

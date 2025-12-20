@@ -158,18 +158,21 @@ export default function HelpPage() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 space-y-8">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-12 md:py-16 lg:py-20 space-y-10 lg:space-y-14">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
-          <Icon icon="solar:question-circle-bold-duotone" className="text-primary" width={40} />
+        <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto mb-6 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)' }}>
+          <Icon icon="solar:question-circle-bold-duotone" className="text-[#F5F0E1] dark:text-[#34445C]" width={36} />
+        </div>
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
           Help & Support
         </h1>
-        <p className="text-default-500 mt-2 max-w-xl mx-auto">
+        <p className="text-default-500 mt-4 max-w-2xl mx-auto text-base lg:text-lg xl:text-xl">
           Find answers to common questions or get in touch with our support team
         </p>
       </motion.div>
@@ -179,7 +182,7 @@ export default function HelpPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6"
       >
         {supportLinks.map((link) => (
           <Card
@@ -188,41 +191,42 @@ export default function HelpPage() {
             href={link.href}
             isExternal
             isPressable
-            className="hover:scale-[1.02] transition-transform"
+            className="hover:scale-[1.02] hover:shadow-lg hover:shadow-[#FF4654]/10 dark:hover:shadow-[#DCFF37]/10 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
           >
-            <CardBody className="flex flex-row items-center gap-4 p-4">
-              <div className={`p-3 rounded-xl bg-default-100 ${link.color}`}>
-                <Icon icon={link.icon} width={24} />
+            <CardBody className="flex flex-row items-center gap-4 lg:gap-6 p-4 lg:p-6">
+              <div className={`p-3 lg:p-4 bg-default-100 ${link.color}`}
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
+                <Icon icon={link.icon} width={24} className="lg:w-7 lg:h-7" />
               </div>
-              <div>
-                <p className="font-semibold">{link.name}</p>
-                <p className="text-sm text-default-500">{link.description}</p>
+              <div className="flex-1">
+                <p className="font-semibold text-base lg:text-lg text-[#34445C] dark:text-[#F5F0E1]">{link.name}</p>
+                <p className="text-sm lg:text-base text-default-500">{link.description}</p>
               </div>
-              <Icon icon="solar:arrow-right-up-bold" className="ml-auto text-default-400" width={20} />
+              <Icon icon="solar:arrow-right-up-bold" className="text-default-400" width={20} />
             </CardBody>
           </Card>
         ))}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-10">
         {/* FAQ Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="lg:col-span-2"
+          className="xl:col-span-2"
         >
-          <Card>
-            <CardHeader className="flex flex-col items-start gap-4 px-6 py-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Icon icon="solar:chat-square-like-bold" className="text-primary" width={24} />
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="flex flex-col items-start gap-4 lg:gap-6 px-6 lg:px-8 py-6 lg:py-8">
+              <h2 className="text-xl lg:text-2xl font-semibold flex items-center gap-3 text-[#34445C] dark:text-[#F5F0E1]">
+                <Icon icon="solar:chat-square-like-bold" className="text-[#FF4654] dark:text-[#DCFF37]" width={28} />
                 Frequently Asked Questions
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 lg:gap-3">
                 <Chip
                   variant={selectedCategory === null ? 'solid' : 'flat'}
                   color="default"
-                  className="cursor-pointer"
+                  className="cursor-pointer text-sm lg:text-base"
                   onClick={() => setSelectedCategory(null)}
                 >
                   All
@@ -232,7 +236,7 @@ export default function HelpPage() {
                     key={cat}
                     variant={selectedCategory === cat ? 'solid' : 'flat'}
                     color={categoryColors[cat]}
-                    className="cursor-pointer capitalize"
+                    className="cursor-pointer capitalize text-sm lg:text-base"
                     onClick={() => setSelectedCategory(cat)}
                   >
                     {cat}
@@ -241,22 +245,23 @@ export default function HelpPage() {
               </div>
             </CardHeader>
             <Divider />
-            <CardBody className="p-6">
-              <Accordion variant="bordered" selectionMode="multiple">
+            <CardBody className="p-6 lg:p-8">
+              <Accordion variant="bordered" selectionMode="multiple" className="gap-3">
                 {filteredFAQ.map((item, index) => (
                   <AccordionItem
                     key={index}
                     aria-label={item.question}
                     title={
-                      <div className="flex items-center gap-2">
-                        <Chip size="sm" variant="flat" color={categoryColors[item.category]} className="capitalize">
+                      <div className="flex items-center gap-3">
+                        <Chip size="sm" variant="flat" color={categoryColors[item.category]} className="capitalize text-xs lg:text-sm">
                           {item.category}
                         </Chip>
-                        <span>{item.question}</span>
+                        <span className="text-sm lg:text-base">{item.question}</span>
                       </div>
                     }
+                    classNames={{ content: "py-4" }}
                   >
-                    <p className="text-default-600 leading-relaxed">{item.answer}</p>
+                    <p className="text-default-600 leading-relaxed text-sm lg:text-base">{item.answer}</p>
                   </AccordionItem>
                 ))}
               </Accordion>
@@ -269,30 +274,31 @@ export default function HelpPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          className="space-y-6"
         >
-          <Card>
-            <CardHeader className="px-6 py-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Icon icon="solar:letter-bold" className="text-primary" width={24} />
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardHeader className="px-6 lg:px-8 py-6 lg:py-8">
+              <h2 className="text-xl lg:text-2xl font-semibold flex items-center gap-3 text-[#34445C] dark:text-[#F5F0E1]">
+                <Icon icon="solar:letter-bold" className="text-[#FF4654] dark:text-[#DCFF37]" width={28} />
                 Contact Us
               </h2>
             </CardHeader>
             <Divider />
-            <CardBody className="p-6">
+            <CardBody className="p-6 lg:p-8">
               {submitSuccess ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-8"
+                  className="text-center py-8 lg:py-12"
                 >
                   <Icon icon="solar:check-circle-bold" className="text-success mx-auto" width={64} />
-                  <h3 className="text-lg font-semibold mt-4">Message Sent!</h3>
-                  <p className="text-default-500 mt-2">
+                  <h3 className="text-lg lg:text-xl font-semibold mt-4 text-[#34445C] dark:text-[#F5F0E1]">Message Sent!</h3>
+                  <p className="text-default-500 mt-2 text-sm lg:text-base">
                     We&apos;ll get back to you as soon as possible.
                   </p>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-5">
                   <Input
                     label="Name"
                     placeholder="Your name"
@@ -300,6 +306,7 @@ export default function HelpPage() {
                     onValueChange={(value) => setFormData({ ...formData, name: value })}
                     isRequired
                     startContent={<Icon icon="solar:user-bold" className="text-default-400" width={18} />}
+                    classNames={{ inputWrapper: "rounded-none" }}
                   />
                   <Input
                     type="email"
@@ -309,6 +316,7 @@ export default function HelpPage() {
                     onValueChange={(value) => setFormData({ ...formData, email: value })}
                     isRequired
                     startContent={<Icon icon="solar:letter-bold" className="text-default-400" width={18} />}
+                    classNames={{ inputWrapper: "rounded-none" }}
                   />
                   <Input
                     label="Subject"
@@ -317,6 +325,7 @@ export default function HelpPage() {
                     onValueChange={(value) => setFormData({ ...formData, subject: value })}
                     isRequired
                     startContent={<Icon icon="solar:chat-line-bold" className="text-default-400" width={18} />}
+                    classNames={{ inputWrapper: "rounded-none" }}
                   />
                   <Textarea
                     label="Message"
@@ -325,6 +334,7 @@ export default function HelpPage() {
                     onValueChange={(value) => setFormData({ ...formData, message: value })}
                     isRequired
                     minRows={4}
+                    classNames={{ inputWrapper: "rounded-none" }}
                   />
                   <Button
                     type="submit"
@@ -332,17 +342,18 @@ export default function HelpPage() {
                     fullWidth
                     isLoading={isSubmitting}
                     startContent={!isSubmitting && <Icon icon="solar:plain-bold" width={18} />}
+                    className="rounded-none h-12 text-base"
                   >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               )}
 
-              <Divider className="my-6" />
+              <Divider className="my-6 lg:my-8" />
 
-              <div className="text-center text-sm text-default-500">
+              <div className="text-center text-sm lg:text-base text-default-500">
                 <p>Or email us directly at:</p>
-                <Link href="mailto:support@leetgaming.pro" className="text-primary font-medium">
+                <Link href="mailto:support@leetgaming.pro" className="text-[#FF4654] dark:text-[#DCFF37] font-medium text-base lg:text-lg">
                   support@leetgaming.pro
                 </Link>
               </div>
@@ -350,19 +361,19 @@ export default function HelpPage() {
           </Card>
 
           {/* Additional Resources */}
-          <Card className="mt-4">
-            <CardBody className="p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardBody className="p-6 lg:p-8">
+              <h3 className="font-semibold mb-4 lg:mb-6 flex items-center gap-2 text-base lg:text-lg text-[#34445C] dark:text-[#F5F0E1]">
                 <Icon icon="solar:document-bold" className="text-default-500" width={20} />
                 Documentation
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   as={Link}
                   href="/docs"
                   variant="flat"
                   fullWidth
-                  className="justify-start"
+                  className="justify-start rounded-none h-11 text-sm lg:text-base"
                   startContent={<Icon icon="solar:book-2-bold" width={18} />}
                 >
                   Getting Started Guide
@@ -372,7 +383,7 @@ export default function HelpPage() {
                   href="/onboarding"
                   variant="flat"
                   fullWidth
-                  className="justify-start"
+                  className="justify-start rounded-none h-11 text-sm lg:text-base"
                   startContent={<Icon icon="solar:star-bold" width={18} />}
                 >
                   Onboarding Tutorial
@@ -383,7 +394,7 @@ export default function HelpPage() {
                   isExternal
                   variant="flat"
                   fullWidth
-                  className="justify-start"
+                  className="justify-start rounded-none h-11 text-sm lg:text-base"
                   startContent={<Icon icon="solar:code-bold" width={18} />}
                 >
                   Developer Docs

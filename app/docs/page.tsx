@@ -21,32 +21,32 @@ export default function DocsPage() {
   const [selectedCategory, setSelectedCategory] = useState("getting-started");
 
   return (
-    <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
+    <div className="flex w-full flex-col items-center gap-12 md:gap-16 lg:gap-20 px-4 py-12 md:py-16 lg:py-20 sm:px-6 lg:px-12 xl:px-24 2xl:px-32">
       {/* Header */}
-      <div className="flex w-full max-w-6xl flex-col items-center text-center gap-4">
-        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-          <Icon icon="solar:book-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+      <div className="flex w-full max-w-7xl flex-col items-center text-center gap-6">
+        <div className="w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)' }}>
+          <Icon icon="solar:book-bold" width={32} className="text-[#F5F0E1] dark:text-[#34445C] lg:w-10 lg:h-10" />
         </div>
-        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Knowledge Base</h2>
-        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Documentation</h1>
-        <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium text-lg lg:text-xl tracking-wide uppercase">Knowledge Base</h2>
+        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1] text-4xl md:text-5xl lg:text-6xl" })}>Documentation</h1>
+        <p className={subtitle({ class: "mt-2 max-w-3xl lg:max-w-4xl text-lg lg:text-xl leading-relaxed" })}>
           Everything you need to know about using LeetGaming PRO for competitive gaming and replay
           analysis.
         </p>
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-7xl">
         <Tabs
           selectedKey={selectedCategory}
           onSelectionChange={(key) => setSelectedCategory(key as string)}
           variant="underlined"
           classNames={{
-            tabList: "gap-6 w-full flex-wrap border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            tabList: "gap-4 lg:gap-8 w-full flex-wrap border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
             cursor: "bg-[#FF4654] dark:bg-[#DCFF37]",
-            tab: "h-12 data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]",
-            panel: "pt-6",
+            tab: "h-12 lg:h-14 text-sm lg:text-base data-[selected=true]:text-[#FF4654] dark:data-[selected=true]:text-[#DCFF37]",
+            panel: "pt-8 lg:pt-10",
           }}
         >
           {/* Getting Started */}
@@ -59,20 +59,20 @@ export default function DocsPage() {
               </div>
             }
           >
-            <div className="flex flex-col gap-6">
-              <Card>
-                <CardHeader className="p-6">
-                  <h2 className="text-2xl font-bold">Welcome to LeetGaming PRO</h2>
+            <div className="flex flex-col gap-8 lg:gap-10">
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="p-6 lg:p-8 xl:p-10">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Welcome to LeetGaming PRO</h2>
                 </CardHeader>
                 <Divider />
-                <CardBody className="p-6 gap-4">
-                  <p className="text-default-700">
+                <CardBody className="p-6 lg:p-8 xl:p-10 gap-6">
+                  <p className="text-default-700 text-base lg:text-lg leading-relaxed">
                     LeetGaming PRO is a comprehensive platform for competitive gamers to analyze
                     replays, track performance, and improve their skills.
                   </p>
 
-                  <h3 className="text-xl font-semibold mt-4">Quick Start Guide</h3>
-                  <ol className="list-decimal list-inside space-y-2 text-default-700">
+                  <h3 className="text-xl lg:text-2xl font-semibold mt-4 text-[#34445C] dark:text-[#F5F0E1]">Quick Start Guide</h3>
+                  <ol className="list-decimal list-inside space-y-3 text-default-700 text-base lg:text-lg">
                     <li>Create an account or sign in with Steam/Google</li>
                     <li>Upload your first replay via the Upload page</li>
                     <li>Wait for processing (usually takes 2-5 minutes)</li>
@@ -80,12 +80,14 @@ export default function DocsPage() {
                     <li>Share replays with your team or keep them private</li>
                   </ol>
 
-                  <div className="bg-primary-50 p-4 rounded-lg mt-4">
-                    <div className="flex items-start gap-3">
-                      <Icon icon="mdi:lightbulb" className="text-primary text-2xl flex-shrink-0" />
+                  <div className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 p-6 lg:p-8 rounded-none mt-4 border-l-4 border-[#FF4654] dark:border-[#DCFF37]">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[#FF4654] dark:bg-[#DCFF37]">
+                        <Icon icon="mdi:lightbulb" className="text-[#F5F0E1] dark:text-[#34445C]" width={20} />
+                      </div>
                       <div>
-                        <p className="font-semibold text-primary mb-1">Pro Tip</p>
-                        <p className="text-sm text-default-700">
+                        <p className="font-semibold text-[#FF4654] dark:text-[#DCFF37] mb-2 text-lg">Pro Tip</p>
+                        <p className="text-default-700 text-base lg:text-lg">
                           Enable automatic upload by installing our CLI tool. This way, all your
                           matches are automatically uploaded and analyzed.
                         </p>
@@ -95,43 +97,43 @@ export default function DocsPage() {
                 </CardBody>
               </Card>
 
-              <Card>
-                <CardHeader className="p-6">
-                  <h3 className="text-xl font-bold">System Requirements</h3>
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="p-6 lg:p-8 xl:p-10">
+                  <h3 className="text-xl lg:text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">System Requirements</h3>
                 </CardHeader>
                 <Divider />
-                <CardBody className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardBody className="p-6 lg:p-8 xl:p-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                     <div>
-                      <h4 className="font-semibold mb-2">Supported Games</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:check" className="text-success" />
+                      <h4 className="font-semibold mb-4 text-lg lg:text-xl text-[#34445C] dark:text-[#F5F0E1]">Supported Games</h4>
+                      <ul className="space-y-3 text-base lg:text-lg">
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:check" className="text-success" width={22} />
                           Counter-Strike 2
                         </li>
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:check" className="text-success" />
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:check" className="text-success" width={22} />
                           CS:GO
                         </li>
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:check" className="text-success" />
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:check" className="text-success" width={22} />
                           Valorant
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-2">File Formats</h4>
-                      <ul className="space-y-1 text-sm">
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:file" className="text-default-500" />
+                      <h4 className="font-semibold mb-4 text-lg lg:text-xl text-[#34445C] dark:text-[#F5F0E1]">File Formats</h4>
+                      <ul className="space-y-3 text-base lg:text-lg">
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:file" className="text-default-500" width={22} />
                           .dem (CS2, CS:GO)
                         </li>
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:file" className="text-default-500" />
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:file" className="text-default-500" width={22} />
                           .rofl (Valorant)
                         </li>
-                        <li className="flex items-center gap-2">
-                          <Icon icon="mdi:file" className="text-default-500" />
+                        <li className="flex items-center gap-3">
+                          <Icon icon="mdi:file" className="text-default-500" width={22} />
                           Steam Share URLs
                         </li>
                       </ul>
@@ -152,26 +154,27 @@ export default function DocsPage() {
               </div>
             }
           >
-            <Card>
-              <CardHeader className="p-6">
-                <h2 className="text-2xl font-bold">Uploading Replays</h2>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="p-6 lg:p-8 xl:p-10">
+                <h2 className="text-2xl lg:text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Uploading Replays</h2>
               </CardHeader>
               <Divider />
-              <CardBody className="p-6">
-                <Accordion variant="splitted">
+              <CardBody className="p-6 lg:p-8 xl:p-10">
+                <Accordion variant="splitted" className="gap-4">
                   <AccordionItem
                     key="1"
                     aria-label="Web Upload"
-                    title="Web Upload"
-                    startContent={<Icon icon="mdi:web" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">Web Upload</span>}
+                    startContent={<Icon icon="mdi:web" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <ol className="list-decimal list-inside space-y-3 text-base lg:text-lg">
                       <li>Navigate to the Upload page</li>
                       <li>Drag and drop your replay file or click to browse</li>
                       <li>Add optional metadata (map, team names, etc.)</li>
                       <li>Click Upload and wait for processing</li>
                     </ol>
-                    <p className="text-xs text-default-500 mt-2">
+                    <p className="text-sm lg:text-base text-default-500 mt-4">
                       Max file size: 500MB. Supported formats: .dem, .rofl
                     </p>
                   </AccordionItem>
@@ -179,17 +182,18 @@ export default function DocsPage() {
                   <AccordionItem
                     key="2"
                     aria-label="Steam URL"
-                    title="Steam Share URL"
-                    startContent={<Icon icon="mdi:steam" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">Steam Share URL</span>}
+                    startContent={<Icon icon="mdi:steam" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <ol className="list-decimal list-inside space-y-3 text-base lg:text-lg">
                       <li>Copy the Steam share URL from your CS2/CS:GO match</li>
                       <li>Paste it into the URL tab on the Upload page</li>
                       <li>Click Import</li>
                       <li>We&apos;ll fetch and process the replay automatically</li>
                     </ol>
-                    <div className="mt-3">
-                      <Snippet symbol="" className="text-xs">
+                    <div className="mt-4">
+                      <Snippet symbol="" className="text-sm lg:text-base">
                         steam://rungame/730/76561202255233023/+csgo_download_match%20...
                       </Snippet>
                     </div>
@@ -198,20 +202,25 @@ export default function DocsPage() {
                   <AccordionItem
                     key="3"
                     aria-label="CLI Tool"
-                    title="CLI Tool (Auto-Upload)"
-                    startContent={<Icon icon="mdi:console" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">CLI Tool (Auto-Upload)</span>}
+                    startContent={<Icon icon="mdi:console" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm mb-3">
+                    <p className="text-base lg:text-lg mb-4">
                       Install our CLI tool for automatic replay uploads:
                     </p>
-                    <Snippet symbol="$" className="mb-3">
-                      npm install -g @leetgaming/cli
-                    </Snippet>
-                    <Snippet symbol="$" className="mb-3">
-                      leetgaming auth login
-                    </Snippet>
-                    <Snippet symbol="$">leetgaming watch --game cs2</Snippet>
-                    <p className="text-xs text-default-500 mt-3">
+                    <div className="space-y-3">
+                      <Snippet symbol="$" className="text-sm lg:text-base">
+                        npm install -g @leetgaming/cli
+                      </Snippet>
+                      <Snippet symbol="$" className="text-sm lg:text-base">
+                        leetgaming auth login
+                      </Snippet>
+                      <Snippet symbol="$" className="text-sm lg:text-base">
+                        leetgaming watch --game cs2
+                      </Snippet>
+                    </div>
+                    <p className="text-sm lg:text-base text-default-500 mt-4">
                       The CLI will monitor your game directory and auto-upload new replays.
                     </p>
                   </AccordionItem>
@@ -219,32 +228,33 @@ export default function DocsPage() {
                   <AccordionItem
                     key="4"
                     aria-label="Analysis Features"
-                    title="What Gets Analyzed?"
-                    startContent={<Icon icon="mdi:chart-box" className="text-success" />}
+                    title={<span className="text-base lg:text-lg">What Gets Analyzed?</span>}
+                    startContent={<Icon icon="mdi:chart-box" className="text-success" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                    <ul className="space-y-3 text-base lg:text-lg">
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Player statistics (K/D/A, ADR, HS%, economy)</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Round-by-round breakdown with timelines</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Heatmaps for positioning and deaths</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Economy management tracking</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Weapon performance analytics</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <Icon icon="mdi:check-circle" className="text-success mt-0.5" />
+                      <li className="flex items-start gap-3">
+                        <Icon icon="mdi:check-circle" className="text-success mt-0.5 flex-shrink-0" width={22} />
                         <span>Team coordination metrics</span>
                       </li>
                     </ul>
@@ -264,18 +274,18 @@ export default function DocsPage() {
               </div>
             }
           >
-            <Card>
-              <CardHeader className="p-6">
-                <h2 className="text-2xl font-bold">API Documentation</h2>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="p-6 lg:p-8 xl:p-10">
+                <h2 className="text-2xl lg:text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">API Documentation</h2>
               </CardHeader>
               <Divider />
-              <CardBody className="p-6 gap-6">
+              <CardBody className="p-6 lg:p-8 xl:p-10 gap-8 lg:gap-10">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Authentication</h3>
-                  <p className="text-sm text-default-600 mb-3">
+                  <h3 className="text-lg lg:text-xl font-semibold mb-3 text-[#34445C] dark:text-[#F5F0E1]">Authentication</h3>
+                  <p className="text-base lg:text-lg text-default-600 mb-4">
                     All API requests require an API key. Generate one from your account settings.
                   </p>
-                  <Snippet symbol="" className="text-sm">
+                  <Snippet symbol="" className="text-sm lg:text-base">
                     Authorization: Bearer YOUR_API_KEY
                   </Snippet>
                 </div>
@@ -283,46 +293,46 @@ export default function DocsPage() {
                 <Divider />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Common Endpoints</h3>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-success pl-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Chip size="sm" color="success" variant="flat">
+                  <h3 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6 text-[#34445C] dark:text-[#F5F0E1]">Common Endpoints</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <div className="border-l-4 border-success pl-4 lg:pl-6 py-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Chip size="sm" color="success" variant="flat" className="text-sm">
                           GET
                         </Chip>
-                        <Code>/api/replays</Code>
+                        <Code className="text-sm lg:text-base">/api/replays</Code>
                       </div>
-                      <p className="text-sm text-default-600">List all replays</p>
+                      <p className="text-base text-default-600">List all replays</p>
                     </div>
 
-                    <div className="border-l-4 border-primary pl-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Chip size="sm" color="primary" variant="flat">
+                    <div className="border-l-4 border-primary pl-4 lg:pl-6 py-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Chip size="sm" color="primary" variant="flat" className="text-sm">
                           POST
                         </Chip>
-                        <Code>/api/upload/replay</Code>
+                        <Code className="text-sm lg:text-base">/api/upload/replay</Code>
                       </div>
-                      <p className="text-sm text-default-600">Upload a new replay</p>
+                      <p className="text-base text-default-600">Upload a new replay</p>
                     </div>
 
-                    <div className="border-l-4 border-success pl-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Chip size="sm" color="success" variant="flat">
+                    <div className="border-l-4 border-success pl-4 lg:pl-6 py-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Chip size="sm" color="success" variant="flat" className="text-sm">
                           GET
                         </Chip>
-                        <Code>/api/replays/:id</Code>
+                        <Code className="text-sm lg:text-base">/api/replays/:id</Code>
                       </div>
-                      <p className="text-sm text-default-600">Get replay details</p>
+                      <p className="text-base text-default-600">Get replay details</p>
                     </div>
 
-                    <div className="border-l-4 border-success pl-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Chip size="sm" color="success" variant="flat">
+                    <div className="border-l-4 border-success pl-4 lg:pl-6 py-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Chip size="sm" color="success" variant="flat" className="text-sm">
                           GET
                         </Chip>
-                        <Code>/api/search/profiles</Code>
+                        <Code className="text-sm lg:text-base">/api/search/profiles</Code>
                       </div>
-                      <p className="text-sm text-default-600">Search player profiles</p>
+                      <p className="text-base text-default-600">Search player profiles</p>
                     </div>
                   </div>
                 </div>
@@ -330,8 +340,8 @@ export default function DocsPage() {
                 <Divider />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Example: Upload Replay</h3>
-                  <Snippet symbol="" hideSymbol className="text-xs overflow-x-auto">
+                  <h3 className="text-lg lg:text-xl font-semibold mb-3 text-[#34445C] dark:text-[#F5F0E1]">Example: Upload Replay</h3>
+                  <Snippet symbol="" hideSymbol className="text-xs lg:text-sm overflow-x-auto">
                     {`curl -X POST https://api.leetgaming.pro/upload/replay \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -F "file=@replay.dem" \\
@@ -353,19 +363,20 @@ export default function DocsPage() {
               </div>
             }
           >
-            <Card>
-              <CardHeader className="p-6">
-                <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="p-6 lg:p-8 xl:p-10">
+                <h2 className="text-2xl lg:text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Frequently Asked Questions</h2>
               </CardHeader>
               <Divider />
-              <CardBody className="p-6">
-                <Accordion variant="splitted">
+              <CardBody className="p-6 lg:p-8 xl:p-10">
+                <Accordion variant="splitted" className="gap-4">
                   <AccordionItem
                     key="1"
-                    title="How long does replay processing take?"
-                    startContent={<Icon icon="mdi:clock" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">How long does replay processing take?</span>}
+                    startContent={<Icon icon="mdi:clock" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Most replays are processed within 2-5 minutes. Larger files or high-traffic
                       periods may take up to 10 minutes. You&apos;ll receive a notification when
                       processing is complete.
@@ -374,10 +385,11 @@ export default function DocsPage() {
 
                   <AccordionItem
                     key="2"
-                    title="Can I share replays with my team?"
-                    startContent={<Icon icon="mdi:share-variant" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">Can I share replays with my team?</span>}
+                    startContent={<Icon icon="mdi:share-variant" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Yes! You can set replays to Private, Shared (team only), or Public. Team
                       members can view and analyze shared replays together.
                     </p>
@@ -385,10 +397,11 @@ export default function DocsPage() {
 
                   <AccordionItem
                     key="3"
-                    title="What's the storage limit?"
-                    startContent={<Icon icon="mdi:database" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">What&apos;s the storage limit?</span>}
+                    startContent={<Icon icon="mdi:database" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Free tier: 50 replays / 5GB storage. Pro tier: Unlimited replays and
                       storage. Check the Pricing page for details.
                     </p>
@@ -396,10 +409,11 @@ export default function DocsPage() {
 
                   <AccordionItem
                     key="4"
-                    title="How do I delete a replay?"
-                    startContent={<Icon icon="mdi:delete" className="text-danger" />}
+                    title={<span className="text-base lg:text-lg">How do I delete a replay?</span>}
+                    startContent={<Icon icon="mdi:delete" className="text-danger" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Navigate to Cloud Dashboard, find the replay, click the options menu (...),
                       and select Delete. This action is permanent.
                     </p>
@@ -407,10 +421,11 @@ export default function DocsPage() {
 
                   <AccordionItem
                     key="5"
-                    title="Can I download the original replay file?"
-                    startContent={<Icon icon="mdi:download" className="text-primary" />}
+                    title={<span className="text-base lg:text-lg">Can I download the original replay file?</span>}
+                    startContent={<Icon icon="mdi:download" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Yes, Pro users can download original replay files. Free users can only view
                       the analysis online.
                     </p>
@@ -418,10 +433,11 @@ export default function DocsPage() {
 
                   <AccordionItem
                     key="6"
-                    title="How accurate is the analysis?"
-                    startContent={<Icon icon="mdi:chart-line" className="text-success" />}
+                    title={<span className="text-base lg:text-lg">How accurate is the analysis?</span>}
+                    startContent={<Icon icon="mdi:chart-line" className="text-success" width={24} />}
+                    classNames={{ content: "py-4 lg:py-6" }}
                   >
-                    <p className="text-sm text-default-700">
+                    <p className="text-base lg:text-lg text-default-700 leading-relaxed">
                       Our analysis is based on official game demo parsers and has been validated
                       against thousands of professional matches. Accuracy is typically 99%+ for
                       stats and events.
@@ -435,26 +451,26 @@ export default function DocsPage() {
       </div>
 
       {/* Help Card */}
-      <Card className="w-full max-w-6xl bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-        <CardBody className="p-8 text-center">
-          <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-            <Icon icon="mdi:help-circle" className="text-[#F5F0E1] dark:text-[#34445C]" width={28} />
+      <Card className="w-full max-w-7xl bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardBody className="p-8 lg:p-12 xl:p-16 text-center">
+          <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto mb-6 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
+            <Icon icon="mdi:help-circle" className="text-[#F5F0E1] dark:text-[#34445C]" width={32} />
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Need More Help?</h3>
-          <p className="text-default-600 mb-4">
+          <h3 className="text-xl lg:text-2xl xl:text-3xl font-semibold mb-4 text-[#34445C] dark:text-[#F5F0E1]">Need More Help?</h3>
+          <p className="text-default-600 mb-6 text-base lg:text-lg max-w-2xl mx-auto">
             Can&apos;t find what you&apos;re looking for? Join our Discord community or contact support.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 lg:gap-6">
             <Chip
-              startContent={<Icon icon="mdi:discord" />}
-              className="cursor-pointer rounded-none bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C]"
+              startContent={<Icon icon="mdi:discord" width={18} />}
+              className="cursor-pointer rounded-none bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C] px-4 py-2 text-sm lg:text-base hover:scale-105 transition-transform"
             >
               Join Discord
             </Chip>
             <Chip
-              startContent={<Icon icon="mdi:email" />}
-              className="cursor-pointer rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+              startContent={<Icon icon="mdi:email" width={18} />}
+              className="cursor-pointer rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30 px-4 py-2 text-sm lg:text-base hover:scale-105 transition-transform"
               variant="bordered"
             >
               Contact Support
