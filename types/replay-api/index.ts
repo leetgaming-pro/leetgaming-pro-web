@@ -44,6 +44,10 @@ export * from './highlights.types';
 export * from './prize-pool.types';
 export * from './tournament.types';
 
+// Blockchain types and SDK (multi-chain support)
+export * from './blockchain.types';
+export * from './blockchain.sdk';
+
 // Feature SDKs (all use ReplayApiClient base component)
 export * from './challenge.sdk';
 export * from './payment.sdk';

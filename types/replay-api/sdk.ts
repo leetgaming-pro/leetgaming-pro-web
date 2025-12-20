@@ -17,6 +17,7 @@ import { TournamentAPI } from './tournament.sdk';
 import { MatchAnalyticsAPI } from './match-analytics.sdk';
 import { ChallengeAPI } from './challenge.sdk';
 import { HighlightsAPI } from './highlights.sdk';
+import { BlockchainAPI } from './blockchain.sdk';
 import { ReplayFile } from './replay-file';
 
 /**
@@ -583,6 +584,7 @@ export class ReplayAPISDK {
   public matchAnalytics: MatchAnalyticsAPI;
   public challenges: ChallengeAPI;
   public highlights: HighlightsAPI;
+  public blockchain: BlockchainAPI;
 
   constructor(settings: ReplayApiSettings, logger: Loggable) {
     this.client = new ReplayApiClient(settings, logger);
@@ -602,5 +604,6 @@ export class ReplayAPISDK {
     this.matchAnalytics = new MatchAnalyticsAPI(this.client);
     this.challenges = new ChallengeAPI(this.client);
     this.highlights = new HighlightsAPI(this.client);
+    this.blockchain = new BlockchainAPI(this.client);
   }
 }
