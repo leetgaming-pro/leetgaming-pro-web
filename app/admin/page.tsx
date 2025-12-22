@@ -29,8 +29,7 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/use-auth";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
@@ -113,8 +112,9 @@ const _CHART_COLORS = [
 ];
 
 export default function AdminDashboardPage() {
-  const { status } = useSession();
-  const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting } = useRequireAuth({
+    callbackUrl: '/admin'
+  });
   const sdk = useMemo(
     () => new ReplayAPISDK(ReplayApiSettingsMock, logger),
     []
@@ -150,12 +150,7 @@ export default function AdminDashboardPage() {
     }[]
   >([]);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/signin?callbackUrl=/admin");
-    }
-  }, [status, router]);
+  // Auth redirect is handled by useRequireAuth hook
 
   // Load dashboard data
   useEffect(() => {
@@ -343,15 +338,15 @@ export default function AdminDashboardPage() {
       }
     };
 
-    if (status === "authenticated") {
+    if (isAuthenticated) {
       loadData();
       const interval = setInterval(loadData, 30000);
       return () => clearInterval(interval);
     }
     return undefined;
-  }, [status, sdk]);
+  }, [isAuthenticated, sdk]);
 
-  if (status === "loading" || loading) {
+  if (isAuthLoading || isRedirecting || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner size="lg" label="Loading dashboard..." />
@@ -359,8 +354,8 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (status === "unauthenticated") {
-    return null;
+  if (!isAuthenticated) {
+    return null; // useRequireAuth handles redirect
   }
 
   const StatCard = ({

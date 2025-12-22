@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import React, { useState } from "react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -22,20 +22,15 @@ import LaunchYourSquadButton from "@/components/teams/team-form/launch-your-squa
  * Allows users to create a new team/squad with customization options.
  */
 export default function CreateTeamPage() {
-  const { status } = useSession();
+  const { isAuthenticated, isLoading, isRedirecting } = useRequireAuth({
+    callbackUrl: '/teams/create'
+  });
   const router = useRouter();
   const [teamName, setTeamName] = useState("");
   const [teamTag, setTeamTag] = useState("");
   const [description, setDescription] = useState("");
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/signin?callbackUrl=/teams/create");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
+  if (isLoading || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
         <Spinner size="lg" color="primary" />
@@ -43,7 +38,7 @@ export default function CreateTeamPage() {
     );
   }
 
-  if (status === "unauthenticated") {
+  if (!isAuthenticated) {
     return null;
   }
 

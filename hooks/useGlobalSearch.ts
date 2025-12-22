@@ -3,9 +3,8 @@
  * Unified search across all entities: Replays, Players, Teams, Matches
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useState, useCallback, useRef } from 'react';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import { ReplayFile } from '@/types/replay-api/replay-file';
 
@@ -25,10 +24,6 @@ export interface UseGlobalSearchResult {
   search: (query: string) => Promise<void>;
   clear: () => void;
 }
-
-// Initialize SDK with real API base URL (no mock)
-const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
-const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
 
 /**
  * Transform replay files to search results
@@ -75,22 +70,17 @@ function transformPlayers(players: PlayerSearchItem[]): GlobalSearchResult[] {
   }));
 }
 
-interface TeamSearchItem {
-  id: string;
-  name?: string;
-  members?: unknown[];
-  created_at?: string;
-}
+import { Squad } from '@/types/replay-api/entities.types';
 
 /**
  * Transform squads/teams to search results
  */
-function transformTeams(teams: TeamSearchItem[]): GlobalSearchResult[] {
+function transformTeams(teams: Squad[]): GlobalSearchResult[] {
   return teams.map((team) => ({
     type: 'team' as const,
     id: team.id,
     title: team.name || 'Unnamed Team',
-    description: `${team.members?.length || 0} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
+    description: `${Object.keys(team.members || {}).length} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
     href: `/teams/${team.id}`,
     metadata: {
       members: team.members,
@@ -130,6 +120,7 @@ function transformMatches(matches: MatchSearchItem[]): GlobalSearchResult[] {
  * Global search hook
  */
 export function useGlobalSearch(): UseGlobalSearchResult {
+  const { sdk } = useSDK();
   const [results, setResults] = useState<GlobalSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -205,7 +196,7 @@ export function useGlobalSearch(): UseGlobalSearchResult {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sdk]);
 
   const clear = useCallback(() => {
     setResults([]);

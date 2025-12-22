@@ -281,6 +281,39 @@ test.describe("Protected Routes", () => {
     expect(redirected || authMessage || onMatchMakingPage).toBe(true);
   });
 
+  test("should redirect users with session but no RID from /match-making", async ({
+    page,
+  }) => {
+    // Mock session WITHOUT RID (incomplete authentication)
+    await page.route("**/api/auth/session", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          user: {
+            id: "test-user-id",
+            email: "test@example.com",
+            name: "Test User",
+            // Note: NO rid field - this simulates incomplete backend onboarding
+          },
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto("/match-making");
+    await page.waitForTimeout(2000);
+
+    // Should redirect to signin because RID is missing
+    const redirected = page.url().includes("signin") || page.url().includes("login");
+    const authMessage = await page
+      .getByText(/sign in|log in|authentication|connect/i)
+      .isVisible()
+      .catch(() => false);
+
+    expect(redirected || authMessage).toBe(true);
+  });
+
   test("should redirect unauthenticated users from /wallet", async ({
     page,
   }) => {
@@ -306,10 +339,10 @@ test.describe("Protected Routes", () => {
     expect(redirected || authMessage || onWalletPage).toBe(true);
   });
 
-  test("should allow authenticated users to access /match-making", async ({
+  test("should allow fully authenticated users (with RID) to access /match-making", async ({
     page,
   }) => {
-    // Mock authenticated session
+    // Mock fully authenticated session WITH RID
     await page.route("**/api/auth/session", async (route) => {
       await route.fulfill({
         status: 200,
@@ -317,6 +350,8 @@ test.describe("Protected Routes", () => {
         body: JSON.stringify({
           user: {
             id: "test-user-id",
+            uid: "test-uid-123",
+            rid: "rid-token-abc123", // RID present - full authentication
             email: "test@example.com",
             name: "Test User",
           },
@@ -331,6 +366,105 @@ test.describe("Protected Routes", () => {
 
     // Should stay on match-making page
     await expect(page).toHaveURL(/match-making/);
+  });
+});
+
+test.describe("RID Token Flow", () => {
+  test("signin page should detect and clear stale session (no RID)", async ({
+    page,
+  }) => {
+    // Mock stale session (has user but no RID)
+    let sessionCallCount = 0;
+    await page.route("**/api/auth/session", async (route) => {
+      sessionCallCount++;
+      if (sessionCallCount <= 2) {
+        // First calls: stale session
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            user: {
+              id: "test-user-id",
+              email: "test@example.com",
+              name: "Test User",
+              // No RID - stale session
+            },
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          }),
+        });
+      } else {
+        // After signOut: no session
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({}),
+        });
+      }
+    });
+
+    await page.goto("/signin");
+    await page.waitForTimeout(3000);
+
+    // Should show signin form after clearing stale session
+    const hasSigninForm = await page
+      .locator('input[name="email"], input[type="email"]')
+      .isVisible()
+      .catch(() => false);
+    const hasOAuthButtons = await page
+      .getByText(/steam|google/i)
+      .first()
+      .isVisible()
+      .catch(() => false);
+
+    expect(hasSigninForm || hasOAuthButtons).toBe(true);
+  });
+
+  test("signin page should redirect when fully authenticated (has RID)", async ({
+    page,
+  }) => {
+    // Mock fully authenticated session
+    await page.route("**/api/auth/session", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          user: {
+            id: "test-user-id",
+            uid: "test-uid-123",
+            rid: "rid-token-abc123", // RID present
+            email: "test@example.com",
+            name: "Test User",
+          },
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto("/signin?callbackUrl=/match-making");
+    await page.waitForTimeout(2000);
+
+    // Should redirect to match-making
+    expect(page.url()).toContain("match-making");
+  });
+
+  test("protected route should check RID before allowing access", async ({
+    page,
+  }) => {
+    // First: no session
+    await page.route("**/api/auth/session", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.goto("/wallet");
+    await page.waitForTimeout(2000);
+
+    // Should redirect to signin
+    expect(page.url()).toContain("signin");
+    expect(page.url()).toContain("callbackUrl");
   });
 });
 

@@ -26,8 +26,7 @@ import {
 import { Icon } from "@iconify/react";
 import { title, subtitle } from "@/components/primitives";
 import { SearchIcon } from "@/components/icons";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 
 interface MarketItem {
@@ -95,8 +94,7 @@ const mapAPIToMarketItem = (item: APIMarketItem): MarketItem => ({
 });
 
 export default function SupplyPage() {
-  const { data: session } = useSession();
-  const router = useRouter();
+  const { isAuthenticated, user, redirectToSignIn } = useOptionalAuth();
   const { isOpen: isListOpen, onOpen: onListOpen, onClose: onListClose } = useDisclosure();
   const { isOpen: isBuyOpen, onOpen: onBuyOpen, onClose: onBuyClose } = useDisclosure();
 
@@ -147,8 +145,8 @@ export default function SupplyPage() {
 
   // Handle listing a new item
   const handleListItem = () => {
-    if (!session) {
-      router.push('/signin?callbackUrl=/supply');
+    if (!isAuthenticated) {
+      redirectToSignIn('/supply');
       return;
     }
     onListOpen();
@@ -156,8 +154,8 @@ export default function SupplyPage() {
 
   // Handle buying an item
   const handleBuyItem = (item: MarketItem) => {
-    if (!session) {
-      router.push('/signin?callbackUrl=/supply');
+    if (!isAuthenticated) {
+      redirectToSignIn('/supply');
       return;
     }
     setSelectedItem(item);
@@ -166,7 +164,7 @@ export default function SupplyPage() {
 
   // Confirm purchase
   const handleConfirmPurchase = async () => {
-    if (!selectedItem || !session) return;
+    if (!selectedItem || !isAuthenticated || !user) return;
 
     setPurchasing(true);
     try {
@@ -177,7 +175,7 @@ export default function SupplyPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          buyer_email: session.user?.email,
+          buyer_email: user?.email,
         }),
       });
 

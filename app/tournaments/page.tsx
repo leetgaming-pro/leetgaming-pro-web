@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useOptionalAuth } from '@/hooks/use-auth';
 import {
   Card,
   CardHeader,
@@ -99,7 +99,7 @@ const mapAPITournamentToDisplay = (t: APItournament): TournamentDisplay => ({
 
 export default function TournamentsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedTab, setSelectedTab] = useState<string>('all');
   const [tournaments, setTournaments] = useState<TournamentDisplay[]>([]);
@@ -141,8 +141,7 @@ export default function TournamentsPage() {
   }, []);
 
   const handleRegister = async (tournament: TournamentDisplay) => {
-    if (!session) {
-      router.push('/signin?callbackUrl=/tournaments');
+    if (!requireAuthForAction('register for tournament')) {
       return;
     }
     setSelectedTournament(tournament);
@@ -150,14 +149,14 @@ export default function TournamentsPage() {
   };
 
   const handleConfirmRegistration = async () => {
-    if (!selectedTournament || !session) return;
+    if (!selectedTournament || !isAuthenticated || !user) return;
 
     setRegistering(true);
     try {
       const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
       const result = await sdk.tournaments.registerPlayer(selectedTournament.id, {
-        player_id: session.user?.email || '',
-        display_name: session.user?.name || 'Player',
+        player_id: user?.email || '',
+        display_name: user?.name || 'Player',
       });
 
       if (!result) {
@@ -183,8 +182,7 @@ export default function TournamentsPage() {
   };
 
   const handleSetReminder = async (tournament: TournamentDisplay) => {
-    if (!session) {
-      router.push('/signin?callbackUrl=/tournaments');
+    if (!requireAuthForAction('set a reminder')) {
       return;
     }
     // Show browser notification permission request
@@ -195,8 +193,7 @@ export default function TournamentsPage() {
   };
 
   const handleCreateTournament = () => {
-    if (!session) {
-      router.push('/signin?callbackUrl=/tournaments/create');
+    if (!requireAuthForAction('create a tournament')) {
       return;
     }
     router.push('/tournaments/create');

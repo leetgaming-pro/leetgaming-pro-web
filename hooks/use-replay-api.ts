@@ -1,31 +1,14 @@
 /**
  * Replay API Hook
  * Production-ready React hook for accessing Replay API SDK
+ *
+ * RECOMMENDED: Use useSDK() from '@/contexts/sdk-context' for new code.
+ * This hook is maintained for backward compatibility.
  */
 
 "use client";
 
-import { useMemo } from "react";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
-import { logger } from "@/lib/logger";
-
-/**
- * Get the API base URL from environment variables
- * Priority: NEXT_PUBLIC_REPLAY_API_URL > REPLAY_API_URL > default localhost
- */
-function getApiBaseUrl(): string {
-  if (typeof window !== "undefined") {
-    // Client-side: use NEXT_PUBLIC_ prefixed env var
-    return process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
-  }
-  // Server-side: can access both
-  return (
-    process.env.NEXT_PUBLIC_REPLAY_API_URL ||
-    process.env.REPLAY_API_URL ||
-    "http://localhost:8080"
-  );
-}
+import { useSDK, useSDKOptional } from "@/contexts/sdk-context";
 
 /**
  * React hook for accessing the Replay API SDK
@@ -59,21 +42,14 @@ function getApiBaseUrl(): string {
  * ```
  */
 export function useReplayApi() {
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
+  const { sdk } = useSDK();
+  return { sdk };
+}
 
-    logger.info("[useReplayApi] Initializing SDK", { baseUrl });
-
-    return new ReplayAPISDK(
-      {
-        ...ReplayApiSettingsMock,
-        baseUrl,
-      },
-      logger
-    );
-  }, []);
-
-  return {
-    sdk,
-  };
+/**
+ * Optional version that returns null if SDK provider is not available
+ */
+export function useReplayApiOptional() {
+  const context = useSDKOptional();
+  return { sdk: context?.sdk ?? null };
 }

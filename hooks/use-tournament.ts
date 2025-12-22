@@ -6,8 +6,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
   Tournament,
@@ -36,11 +35,6 @@ import {
   filterTournaments,
   getActiveTournaments,
 } from '@/types/replay-api/tournament.types';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 // --- Hook Types ---
 
@@ -88,18 +82,13 @@ export interface UseTournamentResult {
 }
 
 export function useTournament(currentPlayerId?: string): UseTournamentResult {
+  const { sdk } = useSDK();
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [myTournaments, setMyTournaments] = useState<Tournament[]>([]);
   const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    logger.info('[useTournament] Initializing SDK', { baseUrl });
-    return new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-  }, []);
 
   // Computed values using helper functions
   const canRegisterForTournament = useMemo(() => {

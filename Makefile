@@ -38,11 +38,12 @@ docker-down:
 	@echo "♻️ $(CG)Removing$(CEND) containers and volumes"
 	docker-compose down -v --remove-orphans
 
-docker-clean: docker-down ## Clean containers, volumes, and images
-	@echo "🧹 $(CC)Removing$(CEND) images and pruning..."
+docker-clean: docker-down ## Clean containers and images (safe for Docker Desktop)
+	@echo "🧹 $(CC)Removing$(CEND) images..."
 	docker rmi -f leetgaming.pro 2>/dev/null || true
 	docker rmi -f leetgaming-web:latest 2>/dev/null || true
-	docker system prune -f --volumes 2>/dev/null || true
+	docker image prune -f 2>/dev/null || true
+	docker builder prune -f --keep-storage=2GB 2>/dev/null || true
 	@echo "$(CG)✓ Clean complete$(CEND)"
 
 kill-ports: ## Kill processes on web ports (3030)

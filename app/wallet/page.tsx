@@ -30,8 +30,7 @@ import {
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRequireAuth } from '@/hooks/use-auth';
 import type { Currency } from '@/types/replay-api/wallet.types';
 import { formatAmount, formatEVMAddress, getAmountValue, getEVMAddressValue } from '@/types/replay-api/wallet.types';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -42,10 +41,11 @@ import { useWallet } from '@/hooks/use-wallet';
 import { logger } from '@/lib/logger';
 
 export default function WalletPage() {
-  const { status } = useSession();
-  const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting } = useRequireAuth({
+    callbackUrl: '/wallet'
+  });
 
-  // Use the SDK-powered wallet hook instead of direct fetch
+  // Use the SDK-powered wallet hook - only fetch when fully authenticated
   const {
     balance: wallet,
     transactions: transactionsResult,
@@ -53,10 +53,10 @@ export default function WalletPage() {
     isLoadingTransactions,
     refreshBalance,
     refreshTransactions,
-  } = useWallet(status === 'authenticated', { limit: 50, offset: 0 });
+  } = useWallet(isAuthenticated, { limit: 50, offset: 0 });
 
   const transactions = transactionsResult?.transactions || [];
-  const isLoading = isLoadingBalance || isLoadingTransactions;
+  const isLoading = isAuthLoading || isLoadingBalance || isLoadingTransactions;
 
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
   const [showCopied, setShowCopied] = useState(false);
@@ -70,21 +70,14 @@ export default function WalletPage() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
-  // Redirect if not authenticated
+  // Auto-refresh balance every 15 seconds when authenticated
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/signin?callbackUrl=/wallet');
-    }
-  }, [status, router]);
-
-  // Auto-refresh balance every 15 seconds
-  useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated) {
       const interval = setInterval(refreshBalance, 15000);
       return () => clearInterval(interval);
     }
     return undefined;
-  }, [status, refreshBalance]);
+  }, [isAuthenticated, refreshBalance]);
 
   const handleDepositSuccess = () => {
     refreshBalance();
@@ -148,7 +141,8 @@ export default function WalletPage() {
 
   const totalPages = Math.ceil(transactions.length / rowsPerPage);
 
-  if (status === 'loading' || isLoading) {
+  // Show loading state while checking auth or loading data
+  if (isLoading || isRedirecting) {
     return (
       <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -168,8 +162,9 @@ export default function WalletPage() {
     );
   }
 
-  if (status === 'unauthenticated') {
-    return null; // Will redirect
+  // If not authenticated at this point, useRequireAuth will handle redirect
+  if (!isAuthenticated) {
+    return null;
   }
 
   const currentBalance = wallet?.balances[selectedCurrency];

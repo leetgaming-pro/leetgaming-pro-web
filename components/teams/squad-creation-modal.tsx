@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import {
   Modal,
   ModalContent,
@@ -70,7 +70,7 @@ interface TeamMember {
 }
 
 export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps) {
-  const { data: session } = useSession();
+  const { isAuthenticated, user } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 

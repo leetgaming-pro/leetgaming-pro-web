@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import {
   Card,
   CardHeader,
@@ -79,7 +79,7 @@ const priorityColors: Record<ChallengePriority, "default" | "primary" | "seconda
 };
 
 export default function ChallengesPage() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { user, isAuthenticated } = useOptionalAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,8 +106,8 @@ export default function ChallengesPage() {
       if (typeFilter) filters.type = typeFilter;
       if (statusFilter) filters.status = statusFilter;
       if (searchQuery) filters.search = searchQuery;
-      if (activeTab === "my-challenges" && session?.user?.id) {
-        filters.challenger_id = session.user.id;
+      if (activeTab === "my-challenges" && user?.id) {
+        filters.challenger_id = user.id;
       }
 
       const result = await sdk.challenges.list(filters);
@@ -121,7 +121,7 @@ export default function ChallengesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, typeFilter, statusFilter, searchQuery, activeTab, session?.user?.id]);
+  }, [page, typeFilter, statusFilter, searchQuery, activeTab, user?.id]);
 
   useEffect(() => {
     fetchChallenges();

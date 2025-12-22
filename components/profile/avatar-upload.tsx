@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { Avatar, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Slider, Spinner } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface AvatarUploadProps {
   currentAvatar?: string;
@@ -32,7 +32,7 @@ export default function AvatarUpload({
   size = "lg",
   editable = true,
 }: AvatarUploadProps) {
-  const { data: session } = useSession();
+  const { isAuthenticated } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isModalOpen, setIsModalOpen] = useState(false);

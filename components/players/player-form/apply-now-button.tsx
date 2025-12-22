@@ -24,7 +24,7 @@ import { Form } from "@nextui-org/form";
 import { Icon } from "@iconify/react";
 import AvatarUploader from "@/components/avatar/avatar-uploader";
 import { UserIcon } from "@/components/icons";
-import { useSession } from "next-auth/react";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 
 const games = [
@@ -41,7 +41,7 @@ const headingClasses = "flex w-full sticky top-1 z-10 py-1.5 px-2 pt-4 bg-defaul
 export default function App() {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { data: session } = useSession();
+  const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
   const [displayName, setDisplayName] = useState("");
   const [slug, setSlug] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -52,11 +52,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   const handleOpen = () => {
-    if (!session) {
-      router.push('/signin');
-    } else {
-      onOpen();
+    if (!requireAuthForAction("create a player profile")) {
+      return; // Will redirect to sign-in
     }
+    onOpen();
   };
 
   const handleAvatarUpload = (file: File) => {
@@ -66,7 +65,7 @@ export default function App() {
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
-    if (!session) return;
+    if (!isAuthenticated) return;
 
     setSubmitting(true);
     setError(null);
@@ -80,7 +79,7 @@ export default function App() {
         game_id: selectedGame,
         role: selectedRole,
         visibility: visibility,
-        email: session.user?.email,
+        email: user?.email,
       };
 
       const response = await fetch(`${baseUrl}/api/v1/players`, {

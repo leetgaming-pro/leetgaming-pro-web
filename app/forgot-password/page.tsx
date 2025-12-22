@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button, Input, Link } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 import { AuthBackground } from "@/components/auth";
 import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
@@ -57,20 +58,26 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
-              <motion.h1
-                className="text-3xl font-bold text-white"
+              <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                LeetGaming<span className="text-[#FF4654]">.PRO</span>
-              </motion.h1>
+                <Image
+                  src="/logo-red-only-text.png"
+                  alt="LeetGaming"
+                  width={200}
+                  height={40}
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </motion.div>
             </Link>
           </div>
 
           {/* Card */}
           <motion.div
-            className="bg-black/40 backdrop-blur-xl border border-white/10 p-8"
+            className="bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10 p-8"
             style={{
               clipPath:
                 "polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))",
@@ -88,10 +95,10 @@ export default function ForgotPasswordPage() {
                       className="w-8 h-8 text-[#FF4654]"
                     />
                   </div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                     Forgot your password?
                   </h2>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-[#34445C]/60 dark:text-white/60 text-sm">
                     No worries! Enter your email and we&apos;ll send you a reset
                     link.
                   </p>
@@ -111,7 +118,7 @@ export default function ForgotPasswordPage() {
                       />
                     }
                     classNames={{
-                      input: "text-white",
+                      input: "text-[#34445C] dark:text-white",
                       inputWrapper:
                         "bg-white/5 border border-white/10 hover:bg-white/10",
                     }}
@@ -161,15 +168,15 @@ export default function ForgotPasswordPage() {
                   />
                 </motion.div>
 
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Check your email 📧
                 </h2>
-                <p className="text-white/60 text-sm mb-4">
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-4">
                   If an account exists with{" "}
-                  <span className="text-white font-medium">{email}</span>,
+                  <span className="text-[#34445C] dark:text-white font-medium">{email}</span>,
                   you&apos;ll receive a password reset link shortly.
                 </p>
-                <p className="text-white/40 text-xs mb-8">
+                <p className="text-[#34445C]/40 dark:text-white/40 text-xs mb-8">
                   The link will expire in 1 hour.
                 </p>
 
@@ -193,7 +200,7 @@ export default function ForgotPasswordPage() {
                       setFormState("form");
                       setEmail("");
                     }}
-                    className="w-full font-semibold border-white/20 text-white hover:bg-white/5"
+                    className="w-full font-semibold border-[#34445C]/20 dark:border-white/20 text-[#34445C] dark:text-white hover:bg-[#34445C]/5 dark:hover:bg-white/5"
                     size="lg"
                   >
                     Try a different email
@@ -205,7 +212,7 @@ export default function ForgotPasswordPage() {
 
           {/* Help text */}
           <motion.p
-            className="text-center text-white/40 text-sm mt-6"
+            className="text-center text-[#34445C]/40 dark:text-white/40 text-sm mt-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}

@@ -166,7 +166,7 @@ export function UploadForm() {
   const isUploading = status === 'uploading' || status === 'processing';
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}

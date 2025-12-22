@@ -6,8 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
   Payment,
@@ -19,11 +18,6 @@ import type {
   RefundPaymentRequest,
   CancelPaymentRequest,
 } from '@/types/replay-api/payment.types';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UsePaymentResult {
   // State
@@ -48,17 +42,12 @@ export function usePayment(
   autoFetch = false,
   initialFilters: PaymentFilters = { limit: 20, offset: 0 }
 ): UsePaymentResult {
+  const { sdk } = useSDK();
   const [payments, setPayments] = useState<PaymentsResult | null>(null);
   const [currentPayment, setCurrentPayment] = useState<Payment | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
-
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    logger.info('[usePayment] Initializing SDK', { baseUrl });
-    return new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-  }, []);
 
   const fetchPayments = useCallback(async (newFilters?: PaymentFilters) => {
     setIsLoading(true);

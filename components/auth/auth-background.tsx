@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 interface FloatingElement {
   id: number;
@@ -28,6 +29,8 @@ export function AuthBackground({
     []
   );
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     setMounted(true);
@@ -44,41 +47,54 @@ export function AuthBackground({
   }, []);
 
   const gradientColors = useMemo(() => {
+    // Light mode colors
+    const lightColors = {
+      from: "#f8f9fa",
+      via: "#fff5f5",
+      to: "#f5f5ff",
+      accent: "#FF4654",
+      accentAlt: "#DCFF37",
+      grid: "#34445C",
+      scanline: "#34445C",
+    };
+    
+    // Dark mode colors
+    const darkColors = {
+      from: "#0a0a0a",
+      via: "#1a0a0a",
+      to: "#0a0a1a",
+      accent: "#FF4654",
+      accentAlt: "#DCFF37",
+      grid: "#FF4654",
+      scanline: "#ffffff",
+    };
+
+    const baseColors = isDark ? darkColors : lightColors;
+
     switch (variant) {
       case "signin":
         return {
-          from: "#0a0a0a",
-          via: "#1a0a0a",
-          to: "#0a0a1a",
-          accent: "#FF4654",
-          accentAlt: "#DCFF37",
+          ...baseColors,
+          via: isDark ? "#1a0a0a" : "#fff5f5",
         };
       case "signup":
         return {
-          from: "#0a0a0a",
-          via: "#0a1a0a",
-          to: "#0a0a1a",
+          ...baseColors,
           accent: "#DCFF37",
           accentAlt: "#FF4654",
+          via: isDark ? "#0a1a0a" : "#f5fff5",
         };
       case "onboarding":
         return {
-          from: "#0a0a0a",
-          via: "#1a1a0a",
-          to: "#0a1a1a",
+          ...baseColors,
           accent: "#FFC700",
-          accentAlt: "#FF4654",
+          via: isDark ? "#1a1a0a" : "#fffef5",
+          to: isDark ? "#0a1a1a" : "#f5ffff",
         };
       default:
-        return {
-          from: "#0a0a0a",
-          via: "#1a0a0a",
-          to: "#0a0a1a",
-          accent: "#FF4654",
-          accentAlt: "#DCFF37",
-        };
+        return baseColors;
     }
-  }, [variant]);
+  }, [variant, isDark]);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
@@ -99,8 +115,8 @@ export function AuthBackground({
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            linear-gradient(${gradientColors.accent}40 1px, transparent 1px),
-            linear-gradient(90deg, ${gradientColors.accent}40 1px, transparent 1px)
+            linear-gradient(${gradientColors.grid}40 1px, transparent 1px),
+            linear-gradient(90deg, ${gradientColors.grid}40 1px, transparent 1px)
           `,
           backgroundSize: "60px 60px",
         }}
@@ -110,8 +126,7 @@ export function AuthBackground({
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.02]"
         style={{
-          background:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
+          background: `repeating-linear-gradient(0deg, transparent, transparent 2px, ${gradientColors.scanline}08 2px, ${gradientColors.scanline}08 4px)`,
         }}
       />
 

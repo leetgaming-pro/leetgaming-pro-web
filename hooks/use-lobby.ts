@@ -7,8 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import { useLobbyWebSocket } from './use-lobby-websocket';
 import type {
@@ -23,11 +22,6 @@ import type {
   LobbyStats,
   PlayerSlot,
 } from '@/types/replay-api/lobby.types';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 // --- Helper Functions ---
 // Status values aligned with backend: open, ready_check, starting, started, cancelled
@@ -119,11 +113,7 @@ export function useLobby(
   // Use WebSocket lobby state if available and WebSocket mode is enabled
   const lobby = useWebSocket && wsLobby ? wsLobby : lobbyState;
 
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    logger.info('[useLobby] Initializing SDK', { baseUrl });
-    return new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-  }, []);
+  const { sdk } = useSDK();
 
   // Computed values
   const isInLobby = useMemo(() => lobby !== null && isLobbyActive(lobby.status), [lobby]);

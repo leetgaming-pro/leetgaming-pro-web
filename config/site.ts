@@ -43,6 +43,11 @@ export const siteConfig = {
       href: '/cloud',
       icon: 'solar:cloud-bold',
     },
+    {
+      label: 'DOCS',
+      href: '/docs',
+      icon: 'solar:book-bold',
+    },
   ],
   navMenuItems: [
     {
@@ -104,6 +109,11 @@ export const siteConfig = {
       label: 'Subscription',
       href: '/checkout',
       icon: 'solar:crown-bold',
+    },
+    {
+      label: 'Documentation',
+      href: '/docs',
+      icon: 'solar:book-bold',
     },
     {
       label: 'Help & Feedback',

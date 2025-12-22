@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import {
   Card,
   CardBody,
@@ -77,7 +77,7 @@ interface RecentMatch {
 }
 
 export default function RankedPage() {
-  const { data: session } = useSession();
+  const { isAuthenticated, user } = useOptionalAuth();
   const [selectedTab, setSelectedTab] = useState("overview");
   const [stats, setStats] = useState<PlayerRankStats | null>(null);
   const [recentMatches, setRecentMatches] = useState<RecentMatch[]>([]);
@@ -116,7 +116,7 @@ export default function RankedPage() {
   useEffect(() => {
     async function fetchRankedData() {
       // Don't fetch if not logged in
-      if (!session?.user) {
+      if (!isAuthenticated || !user) {
         setLoading(false);
         setStats(null);
         return;
@@ -164,7 +164,7 @@ export default function RankedPage() {
     }
 
     fetchRankedData();
-  }, [session]);
+  }, [isAuthenticated, user]);
 
   return (
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
@@ -201,7 +201,7 @@ export default function RankedPage() {
       )}
 
       {/* Not Logged In State */}
-      {!loading && !session?.user && (
+      {!loading && !isAuthenticated && (
         <Card className="w-full max-w-6xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
@@ -226,7 +226,7 @@ export default function RankedPage() {
       )}
 
       {/* No Data State (logged in but no profile) */}
-      {!loading && session?.user && !stats && (
+      {!loading && isAuthenticated && !stats && (
         <Card className="w-full max-w-6xl">
           <CardBody className="text-center py-12">
             <Icon icon="mdi:chart-timeline-variant" className="text-6xl text-default-300 mx-auto mb-4" />

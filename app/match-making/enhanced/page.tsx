@@ -16,7 +16,7 @@ import {
   Skeleton,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
-import { useSession } from 'next-auth/react';
+import { useOptionalAuth } from '@/hooks/use-auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReplayAPISDK } from '@/types/replay-api/sdk';
 import { MatchmakingSDK } from '@/types/replay-api/matchmaking.sdk';
@@ -36,16 +36,8 @@ import {
 const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 const matchmakingSDK = sdk.matchmaking;
 
-/** Extended user type for session */
-interface ExtendedUser {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
-
 export default function EnhancedMatchmakingPage() {
-  const { data: session } = useSession();
+  const { user, isAuthenticated } = useOptionalAuth();
   const [selectedTier, setSelectedTier] = useState<MatchmakingTier>('free');
   const [selectedGameMode, setSelectedGameMode] = useState('competitive');
   const [selectedRegion, setSelectedRegion] = useState('na-east');
@@ -92,7 +84,7 @@ export default function EnhancedMatchmakingPage() {
   }, [matchmakingState.isSearching]);
 
   const handleStartMatchmaking = async () => {
-    if (!session?.user) {
+    if (!isAuthenticated || !user) {
       setMatchmakingState((prev) => ({
         ...prev,
         error: 'Please sign in to use matchmaking',
@@ -100,7 +92,6 @@ export default function EnhancedMatchmakingPage() {
       return;
     }
 
-    const user = session?.user as ExtendedUser | undefined;
     if (!user?.id) {
       setMatchmakingState((prev) => ({
         ...prev,

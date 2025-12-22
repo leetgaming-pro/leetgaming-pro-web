@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useRequireAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import {
   Card,
@@ -87,7 +87,9 @@ const COUNTRIES = [
 // ============================================================================
 
 export default function PlayerRegistrationPage() {
-  const { data: session, status } = useSession();
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth({
+    callbackUrl: '/players/register'
+  });
   const router = useRouter();
 
   const [step, setStep] = useState(1);
@@ -122,7 +124,7 @@ export default function PlayerRegistrationPage() {
 
   // Check if user already has a profile
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated) {
       sdk.playerProfiles.getMyProfile().then((profile) => {
         if (profile) {
           router.push(`/players/${profile.id}`);
@@ -131,7 +133,7 @@ export default function PlayerRegistrationPage() {
         // No profile exists, continue with registration
       });
     }
-  }, [status, router]);
+  }, [isAuthenticated, router]);
 
   // Debounced slug availability check
   useEffect(() => {
@@ -232,8 +234,8 @@ export default function PlayerRegistrationPage() {
     }
   };
 
-  // Loading/Auth checks
-  if (status === 'loading') {
+  // Loading/Auth checks - useRequireAuth handles redirect
+  if (isAuthLoading || isRedirecting) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Spinner size="lg" color="primary" />
@@ -241,28 +243,8 @@ export default function PlayerRegistrationPage() {
     );
   }
 
-  if (status === 'unauthenticated') {
-    return (
-      <div className="max-w-md mx-auto py-12 px-4">
-        <Card>
-          <CardBody className="p-8 text-center">
-            <Icon icon="solar:lock-bold" className="w-16 h-16 text-warning mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Sign in required</h2>
-            <p className="text-default-500 mb-6">
-              Please sign in to create your player profile.
-            </p>
-            <EsportsButton
-              variant="primary"
-              size="lg"
-              fullWidth
-              onClick={() => router.push('/signin?callbackUrl=/players/register')}
-            >
-              Sign in to continue
-            </EsportsButton>
-          </CardBody>
-        </Card>
-      </div>
-    );
+  if (!isAuthenticated) {
+    return null; // useRequireAuth handles redirect
   }
 
   const selectedGame = GAMES.find((g) => g.id === formData.game);

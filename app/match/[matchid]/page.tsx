@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import {
   Card,
   CardHeader,
@@ -90,7 +90,7 @@ interface MatchData {
 
 export default function MatchDetailPage() {
   const params = useParams();
-  const { data: session } = useSession();
+  const { isAuthenticated } = useOptionalAuth();
   const matchId = params.matchid as string;
 
   const [match, setMatch] = useState<MatchData | null>(null);
@@ -262,7 +262,7 @@ export default function MatchDetailPage() {
                   <Icon icon="mdi:download" width={20} />
                 </Button>
               </Tooltip>
-              {session && (
+              {isAuthenticated && (
                 <Tooltip content="Add to favorites">
                   <Button isIconOnly variant="flat" size="sm" color="danger">
                     <Icon icon="mdi:heart-outline" width={20} />

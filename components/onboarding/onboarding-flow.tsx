@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { EsportsButton } from "@/components/ui/esports-button";
 import { Icon } from "@iconify/react";
+import { useTheme } from "next-themes";
 import { useOnboarding } from "./onboarding-context";
 import { OnboardingStep } from "./types";
 import { WelcomeStep } from "./steps/welcome-step";
@@ -50,6 +51,8 @@ const STEP_CONFIG: Record<OnboardingStep, { title: string; icon: string }> = {
 export function OnboardingFlow() {
   const { currentStep, progress, isFirstStep, goToPreviousStep } =
     useOnboarding();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const renderStep = () => {
     switch (currentStep) {
@@ -72,15 +75,23 @@ export function OnboardingFlow() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Branded Background */}
+      {/* Branded Background - Theme Aware */}
       <div
         className="absolute inset-0"
         style={{
-          background: `
-            radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255, 199, 0, 0.1) 0%, transparent 50%),
-            radial-gradient(ellipse 60% 40% at 80% 60%, rgba(220, 255, 55, 0.08) 0%, transparent 50%),
-            linear-gradient(180deg, #0a0a0a 0%, #1a1a0a 50%, #0a1a1a 100%)
-          `,
+          background: isDark
+            ? `linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)`
+            : `linear-gradient(135deg, #F5F0E1 0%, #e8e3d4 50%, #F5F0E1 100%)`,
+        }}
+      />
+
+      {/* Subtle gradient accent */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: isDark
+            ? `radial-gradient(ellipse 80% 50% at 50% 0%, rgba(220, 255, 55, 0.05) 0%, transparent 50%)`
+            : `radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 70, 84, 0.05) 0%, transparent 50%)`,
         }}
       />
 
@@ -88,48 +99,22 @@ export function OnboardingFlow() {
       <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 199, 0, 0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 199, 0, 0.5) 1px, transparent 1px)
-          `,
+          backgroundImage: isDark
+            ? `linear-gradient(rgba(220, 255, 55, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(220, 255, 55, 0.3) 1px, transparent 1px)`
+            : `linear-gradient(rgba(52, 68, 92, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 68, 92, 0.2) 1px, transparent 1px)`,
           backgroundSize: "60px 60px",
         }}
       />
 
-      {/* Animated glow */}
-      <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255, 199, 0, 0.15) 0%, transparent 70%)",
-          left: "-200px",
-          top: "20%",
-        }}
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
       {/* Header with Logo */}
-      <header className="relative z-10 p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/logo-fox-mini.png"
-            alt="LeetGaming"
-            width={40}
-            height={40}
-            className="drop-shadow-[0_0_10px_rgba(255,199,0,0.5)]"
-          />
-          <span className="text-xl font-bold text-[#F5F0E1]">
-            LeetGaming<span className="text-[#FFC700]">.PRO</span>
-          </span>
-        </div>
+      <header className="relative z-10 p-8 flex items-center justify-center">
+        <Image
+          src="/logo-red-only-text.png"
+          alt="LeetGaming"
+          width={220}
+          height={50}
+          style={{ objectFit: "contain" }}
+        />
       </header>
 
       {/* Main Content */}
@@ -140,14 +125,14 @@ export function OnboardingFlow() {
           transition={{ duration: 0.5 }}
         >
           <Card
-            className="w-full max-w-3xl bg-black/60 backdrop-blur-xl border border-white/10"
+            className="w-full max-w-3xl bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10"
             style={{
               clipPath:
                 "polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)",
             }}
           >
             {/* Top accent line */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FFC700] via-[#FF4654] to-[#DCFF37]" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654]" />
 
             {/* Header with Progress */}
             <CardHeader className="flex flex-col gap-4 pb-0 pt-6">

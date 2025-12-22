@@ -6,8 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
   WalletBalance,
@@ -17,11 +16,6 @@ import type {
 } from '@/types/replay-api/wallet.types';
 import { hasMore, getAmountValue } from '@/types/replay-api/wallet.types';
 import type { DepositRequest, WithdrawRequest } from '@/types/replay-api/wallet.sdk';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UseWalletResult {
   // State
@@ -44,6 +38,7 @@ export interface UseWalletResult {
 }
 
 export function useWallet(autoFetch = true, initialFilters: TransactionFilters = { limit: 20, offset: 0 }): UseWalletResult {
+  const { sdk } = useSDK();
   const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [transactions, setTransactions] = useState<TransactionsResult | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
@@ -51,12 +46,6 @@ export function useWallet(autoFetch = true, initialFilters: TransactionFilters =
   const [balanceError, setBalanceError] = useState<string | null>(null);
   const [transactionsError, setTransactionsError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>(initialFilters);
-
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    logger.info('[useWallet] Initializing SDK', { baseUrl });
-    return new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-  }, []);
 
   const refreshBalance = useCallback(async () => {
     setIsLoadingBalance(true);

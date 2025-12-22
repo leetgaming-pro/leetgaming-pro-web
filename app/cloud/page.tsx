@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import {
     Tabs,
     Tab,
@@ -75,8 +74,7 @@ const VISIBILITY_OPTIONS = [
 ];
 
 export default function CloudPage() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
+    const { isAuthenticated, isLoading: isAuthLoading, redirectToSignIn } = useOptionalAuth();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     
@@ -99,7 +97,7 @@ export default function CloudPage() {
 
     useEffect(() => {
         async function fetchData() {
-            if (status === "unauthenticated") return;
+            if (!isAuthenticated || isAuthLoading) return;
 
             try {
                 setLoading(true);
@@ -140,7 +138,7 @@ export default function CloudPage() {
         }
 
         fetchData();
-    }, [status]);
+    }, [isAuthenticated, isAuthLoading]);
 
     const filteredFiles = useMemo(() => {
         return files.filter(file => {
@@ -178,7 +176,7 @@ export default function CloudPage() {
     const storagePercentage = (stats.storageUsed / stats.storageTotal) * 100;
 
     // Unauthenticated - Show public files browser
-    if (status === "unauthenticated") {
+    if (!isAuthenticated && !isAuthLoading) {
         return (
             <div className="w-full max-w-7xl mx-auto px-4 py-8">
                 {/* Header */}
@@ -202,7 +200,7 @@ export default function CloudPage() {
                             <Icon icon="solar:global-bold" className="text-success" width={20} />
                             <span className="font-semibold">Public Files</span>
                         </div>
-                        <EsportsButton variant="primary" size="sm" onClick={() => router.push('/signin')}>
+                        <EsportsButton variant="primary" size="sm" onClick={() => redirectToSignIn('/cloud')}>
                             <Icon icon="solar:login-bold" width={16} />
                             Sign in to Upload
                         </EsportsButton>
@@ -211,7 +209,7 @@ export default function CloudPage() {
                         <div className="text-center py-12">
                             <Icon icon="solar:cloud-bolt-bold-duotone" className="text-default-300 mx-auto mb-4" width={64} />
                             <p className="text-default-500 mb-4">Sign in to upload and manage your files</p>
-                            <EsportsButton variant="ghost" onClick={() => router.push('/signin')}>
+                            <EsportsButton variant="ghost" onClick={() => redirectToSignIn('/cloud')}>
                                 Get Started
                             </EsportsButton>
                         </div>

@@ -4,6 +4,7 @@ Complete TypeScript SDK for the leetgaming-pro replay-api, implementing hierarch
 
 ## Features
 
+- ✅ **Centralized SDK Provider** - Single SDK instance via React Context
 - ✅ **Resource Ownership Model** - Hierarchical tenant→client→group→user ownership
 - ✅ **Authentication** - RID token management with automatic header injection
 - ✅ **Full CRUD Operations** - GET, POST, PUT, DELETE, PATCH with retry logic
@@ -12,25 +13,58 @@ Complete TypeScript SDK for the leetgaming-pro replay-api, implementing hierarch
 - ✅ **Type Safety** - Complete TypeScript interfaces matching Go backend specs
 - ✅ **Error Handling** - Automatic retry with exponential backoff
 - ✅ **Visibility Controls** - Public/Private/Restricted/Custom access levels
+- ✅ **Domain Hooks** - Pre-built React hooks for wallet, matchmaking, tournaments, etc.
 
 ## Installation
 
-The SDK is already integrated into the project. Import from `@/types/replay-api`:
-
-```typescript
-import { ReplayAPISDK, getRIDTokenManager, SearchBuilder } from '@/types/replay-api';
-```
+The SDK is already integrated into the project and provided via React Context.
 
 ## Quick Start
 
-### Initialize SDK
+### Using the SDK (Recommended)
+
+The SDK is provided globally via `SDKProvider`. Use the `useSDK()` hook in any component:
 
 ```typescript
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+import { useSDK } from '@/contexts/sdk-context';
 
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+function MyComponent() {
+  const { sdk } = useSDK();
+  
+  // Use SDK methods
+  const players = await sdk.playerProfiles.searchPlayerProfiles({ game_id: 'cs2' });
+  const squads = await sdk.squads.searchSquads({ name: 'Team' });
+  const match = await sdk.matches.getMatch('cs2', 'match-uuid');
+}
+```
+
+### Using Domain Hooks (Even Easier)
+
+For common operations, use the pre-built domain hooks:
+
+```typescript
+import { useWallet } from '@/hooks/use-wallet';
+import { useMatchmaking } from '@/hooks/use-matchmaking';
+import { useTournament } from '@/hooks/use-tournament';
+import { usePayment } from '@/hooks/use-payment';
+
+function MyComponent() {
+  const { balance, refreshBalance, deposit, withdraw } = useWallet();
+  const { session, joinQueue, leaveQueue, isSearching } = useMatchmaking();
+  const { tournament, registerPlayer, listTournaments } = useTournament();
+  const { createPaymentIntent, confirmPayment } = usePayment();
+}
+```
+
+### Direct Instantiation (Server-Side / API Routes)
+
+For server-side code or API routes where React Context isn't available:
+
+```typescript
+import { getServerSDK } from '@/contexts/sdk-context';
+
+// In API route or server component
+const sdk = getServerSDK();
 ```
 
 ### Authentication
@@ -239,33 +273,85 @@ See `types/replay-api/entities.types.ts` for complete definitions.
 
 ## Architecture
 
-The SDK follows SOLID principles and DRY:
+The SDK follows a centralized provider pattern with SOLID principles:
 
 ```
-types/replay-api/
-├── index.ts              # Main entry point
-├── settings.ts           # Enums, constants, API configuration
-├── replay-file.ts        # ResourceOwner class + ReplayFile
+Application Architecture:
+========================
+
+SDKProvider (contexts/sdk-context.tsx)
+    └── Single ReplayAPISDK instance
+          ├── Authentication headers auto-injected
+          └── Shared across all components
+
+Hooks Layer (hooks/):
+=====================
+├── useSDK()              # Direct SDK access
+├── useReplayApi()        # Legacy wrapper for useSDK
+├── useWallet()           # Wallet operations with state
+├── useMatchmaking()      # Matchmaking with polling
+├── useLobby()            # Lobby management + WebSocket
+├── useTournament()       # Tournament operations
+├── usePayment()          # Payment processing
+├── useSubscription()     # Subscription management
+├── useNotifications()    # Notification handling
+└── useAuthExtensions()   # MFA, email verification, password reset
+
+SDK Types (types/replay-api/):
+==============================
+├── sdk.ts                # ReplayAPISDK main class
+├── replay-api.client.ts  # Low-level HTTP client with retry
+├── auth.ts               # RIDTokenManager
 ├── entities.types.ts     # Complete entity interfaces
-├── searchable.ts         # CSFilters (existing search types)
-├── auth.ts              # RIDTokenManager
-├── search-builder.ts    # Fluent search API
-├── replay-api.client.ts # Low-level HTTP client
-├── upload-client.ts     # Specialized upload client
-└── sdk.ts               # High-level API wrappers
+├── settings.ts           # Enums, constants, configuration
+├── wallet.sdk.ts         # Wallet API wrapper
+├── matchmaking.sdk.ts    # Matchmaking API wrapper
+├── lobby.sdk.ts          # Lobby API wrapper
+├── tournament.sdk.ts     # Tournament API wrapper
+├── payment.sdk.ts        # Payment API wrapper
+├── challenge.sdk.ts      # Challenge/VAR API wrapper
+├── highlights.sdk.ts     # Highlights API wrapper
+└── blockchain.sdk.ts     # Blockchain API wrapper
 ```
 
 ## Integration with NextAuth
 
-The SDK automatically integrates with NextAuth. RID tokens are stored when users sign in:
+The SDK integrates with NextAuth via the `AuthSync` component:
+
+1. User signs in via Steam/Google OAuth
+2. `AuthSync` component detects session changes
+3. RID token is stored in `RIDTokenManager`
+4. All SDK requests automatically include auth headers
 
 ```typescript
-// app/api/auth/[...nextauth]/route.ts
-import { getRIDTokenManager } from '@/types/replay-api/auth';
+// components/auth/auth-sync.tsx handles this automatically
+// No manual token management required in components
+```
 
-// Inside JWT callback
-const { uid, rid } = await onboardingResponse.json();
-getRIDTokenManager().setFromOnboarding({ profile, rid, user_id: uid });
+## Authentication Flow
+
+```
+NextAuth Session → AuthSync → RIDTokenManager → SDK Requests
+        ↓              ↓            ↓               ↓
+  OAuth Provider   Syncs RID    Stores Token   Auto-injects
+  (Steam/Google)   on change    in localStorage  X-Resource-Owner-ID
+```
+
+### Auth Hooks
+
+Use these hooks for consistent authentication state:
+
+```typescript
+import { useAuth, useRequireAuth, useOptionalAuth } from '@/hooks/use-auth';
+
+// For pages that require full authentication (RID token)
+const { isAuthenticated, user, isLoading } = useRequireAuth();
+
+// For pages with optional auth features
+const { isAuthenticated, user, redirectToSignIn } = useOptionalAuth();
+
+// For general auth state
+const { isAuthenticated, signOut, user } = useAuth();
 ```
 
 ## Error Handling

@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import {
   Card,
   CardHeader,
@@ -84,7 +84,7 @@ const challengeTypes: {
 export default function MatchChallengePage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session, status: sessionStatus } = useSession();
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth();
   const matchId = params?.matchid as string;
 
   // Form state
@@ -115,7 +115,7 @@ export default function MatchChallengePage() {
   };
 
   const handleSubmit = async () => {
-    if (!challengeType || !session?.user?.id) return;
+    if (!challengeType || !user?.id) return;
 
     setLoading(true);
     setError(null);
@@ -524,8 +524,8 @@ export default function MatchChallengePage() {
     </Card>
   );
 
-  // Check authentication
-  if (sessionStatus === "loading") {
+  // Check authentication - useRequireAuth handles redirect
+  if (isAuthLoading || isRedirecting) {
     return (
       <PageContainer maxWidth="xl" padding="md">
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -541,32 +541,8 @@ export default function MatchChallengePage() {
     );
   }
 
-  if (sessionStatus === "unauthenticated") {
-    return (
-      <PageContainer maxWidth="xl" padding="md">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-          <Icon
-            icon="solar:lock-keyhole-bold"
-            width={64}
-            className="text-default-300"
-          />
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-[#34445C] dark:text-[#F5F0E1]">
-              Authentication Required
-            </h2>
-            <p className="text-default-500 mt-2">
-              You must be signed in to submit a challenge.
-            </p>
-          </div>
-          <Button
-            className="bg-[#FF4654] dark:bg-[#DCFF37] text-white dark:text-[#34445C] rounded-none"
-            onPress={() => router.push("/signin")}
-          >
-            Sign In
-          </Button>
-        </div>
-      </PageContainer>
-    );
+  if (!isAuthenticated) {
+    return null; // useRequireAuth handles redirect
   }
 
   return (

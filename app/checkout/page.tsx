@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useRequireAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
@@ -11,7 +11,9 @@ import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
 
 export default function CheckoutPage() {
-  const { data: session, status } = useSession();
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth({
+    callbackUrl: '/checkout'
+  });
   const router = useRouter();
   const sdkRef = useRef<ReplayAPISDK>();
   const [walletId, setWalletId] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export default function CheckoutPage() {
 
   // Fetch wallet from API
   const fetchWallet = useCallback(async () => {
-    if (!session?.user) return;
+    if (!isAuthenticated || !user) return;
 
     setWalletLoading(true);
     setWalletError(null);
@@ -48,16 +50,16 @@ export default function CheckoutPage() {
     } finally {
       setWalletLoading(false);
     }
-  }, [session]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated) {
       fetchWallet();
     }
-  }, [status, fetchWallet]);
+  }, [isAuthenticated, fetchWallet]);
 
-  // Loading state
-  if (status === 'loading') {
+  // Loading state or redirecting
+  if (isAuthLoading || isRedirecting) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Spinner size="lg" color="primary" />
@@ -65,34 +67,9 @@ export default function CheckoutPage() {
     );
   }
 
-  // Not authenticated
-  if (status === 'unauthenticated') {
-    return (
-      <div className="max-w-md mx-auto">
-        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-          <CardBody className="p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-              <Icon icon="solar:lock-bold" className="text-[#FF4654] dark:text-[#DCFF37] w-8 h-8" />
-            </div>
-            <h2 className="text-xl font-bold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Sign in required</h2>
-            <p className="text-default-500 mb-6">
-              Please sign in to your account to continue with checkout.
-            </p>
-            <Button
-              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-              size="lg"
-              fullWidth
-              onPress={() => router.push('/signin?callbackUrl=/checkout')}
-              startContent={<Icon icon="solar:login-bold" className="w-5 h-5" />}
-            >
-              Sign in to continue
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
-    );
+  // Not authenticated - useRequireAuth handles redirect
+  if (!isAuthenticated) {
+    return null;
   }
 
   // Wallet loading state

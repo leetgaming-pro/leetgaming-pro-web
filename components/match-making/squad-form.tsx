@@ -30,8 +30,9 @@ import { SearchIcon } from "../icons";
 import { title } from "../primitives";
 import { useTheme } from "next-themes";
 import { useWizard } from "./wizard-context";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks";
 import { useReplayApi } from "@/hooks/use-replay-api";
+import { useSession } from "next-auth/react";
 
 interface TeamMember {
   nickname: string;
@@ -55,7 +56,8 @@ export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement>;
 const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
   ({ className, ...props }, ref) => {
     const { updateState } = useWizard();
-    const { data: session } = useSession();
+    const { isAuthenticated, user: authUser } = useAuth();
+    const { data: session } = useSession(); // Keep for extended profile data (steam, etc.)
     const { sdk } = useReplayApi(); // Use SDK instead of direct fetch
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
@@ -77,25 +79,25 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
 
     const [isSelected, setIsSelected] = React.useState(false);
 
-    // Get user info from session
+    // Get user info - use unified auth for state, session for extended profile data
     const user = {
-      name: session?.user?.name || "Guest",
+      name: authUser?.name || "Guest",
       avatar:
-        session?.user?.image ||
+        authUser?.image ||
         session?.user?.steam?.avatarmedium ||
         "/default-avatar.png",
       username:
         session?.user?.steam?.personaname ||
-        session?.user?.email?.split("@")[0] ||
+        authUser?.email?.split("@")[0] ||
         "player",
       url: session?.user?.steam?.profileurl || "#",
       role: "Player",
-      status: session ? "Online" : "Offline",
+      status: isAuthenticated ? "Online" : "Offline",
     };
 
     // Fetch user's teams using SDK instead of direct fetch
     const fetchTeams = useCallback(async () => {
-      if (!session?.user) {
+      if (!isAuthenticated) {
         setTeams([]);
         setLoading(false);
         return;

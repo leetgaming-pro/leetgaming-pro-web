@@ -136,7 +136,11 @@ export function SubscriptionStep() {
                   bg-gradient-to-br ${plan.gradient}
                 `}
                 >
-                  <Icon icon={plan.icon} width={24} className="text-[#F5F0E1]" />
+                  <Icon
+                    icon={plan.icon}
+                    width={24}
+                    className="text-[#F5F0E1]"
+                  />
                 </div>
 
                 <h3 className="text-lg font-bold">{plan.name}</h3>

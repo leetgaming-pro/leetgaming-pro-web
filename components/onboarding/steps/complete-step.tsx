@@ -95,10 +95,10 @@ export function CompleteStep() {
       {/* Welcome Message */}
       <div>
         <h2 className="text-2xl font-bold mb-2">
-          Welcome to LeetGaming, {state.profile.displayName || 'Player'}!
+          You&apos;re All Set, {state.profile.displayName || 'Player'}!
         </h2>
         <p className="text-default-500">
-          Your account is all set up and ready to go
+          Your account is ready. Let&apos;s dominate!
         </p>
       </div>
 

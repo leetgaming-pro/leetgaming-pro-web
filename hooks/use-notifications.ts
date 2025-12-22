@@ -7,8 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
   Notification,
@@ -17,11 +16,6 @@ import type {
   NotificationFilters,
 } from '@/types/replay-api/notifications.sdk';
 import { NotificationsAPI } from '@/types/replay-api/notifications.sdk';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UseNotificationsResult {
   // State
@@ -47,6 +41,7 @@ export function useNotifications(
   enablePolling = false,
   pollingIntervalMs = 30000
 ): UseNotificationsResult {
+  const { sdk } = useSDK();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,12 +49,8 @@ export function useNotifications(
   const [totalCount, setTotalCount] = useState(0);
   const [filters, setFilters] = useState<NotificationFilters>(initialFilters);
 
-  // Create API client - note: NotificationsAPI needs to be added to SDK
-  const api = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-    return new NotificationsAPI(sdk.client);
-  }, []);
+  // Create API client using centralized SDK
+  const api = useMemo(() => new NotificationsAPI(sdk.client), [sdk.client]);
 
   const refresh = useCallback(async (newFilters?: NotificationFilters) => {
     setIsLoading(true);

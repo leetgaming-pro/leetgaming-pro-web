@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import {
   Modal,
@@ -66,7 +66,7 @@ const RANKS = {
 
 export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreationModalProps) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { isAuthenticated, user } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);

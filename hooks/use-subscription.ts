@@ -7,8 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import {
   SubscriptionsAPI,
@@ -18,11 +17,6 @@ import {
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
 } from '@/types/replay-api/subscriptions.sdk';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UseSubscriptionResult {
   // State
@@ -51,6 +45,7 @@ export interface UseSubscriptionResult {
 }
 
 export function useSubscription(autoFetch = true): UseSubscriptionResult {
+  const { sdk } = useSDK();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
   const [isLoadingPlans, setIsLoadingPlans] = useState(false);
@@ -58,12 +53,8 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
   const [plansError, setPlansError] = useState<string | null>(null);
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
-  // Create API client
-  const api = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-    return new SubscriptionsAPI(sdk.client);
-  }, []);
+  // Create API client using centralized SDK
+  const api = useMemo(() => new SubscriptionsAPI(sdk.client), [sdk.client]);
 
   const refreshPlans = useCallback(async () => {
     setIsLoadingPlans(true);

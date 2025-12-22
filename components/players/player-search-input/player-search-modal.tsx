@@ -18,14 +18,14 @@ import SearchResults from "./player-search-results";
 import { PlayerApiClient } from "@/types/replay-api/player-api.client";
 import { PlayerProfile } from "@/types/replay-api/entities.types";
 import { logger } from "@/lib/logger";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/use-auth";
 
 // Type alias for backwards compatibility
 type Player = PlayerProfile;
 
 export default function SearchInput() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<Player[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -47,8 +47,8 @@ export default function SearchInput() {
       setHasSearched(true);
 
       try {
-        const authToken = (session as unknown as { accessToken?: string })
-          ?.accessToken;
+        // Pass RID token if available, or undefined for public search
+        const authToken = user?.rid;
         const result = await playerApiClient.searchPlayers(query, authToken);
 
         // Handle both wrapped and unwrapped response formats
@@ -64,7 +64,7 @@ export default function SearchInput() {
         setIsSearching(false);
       }
     },
-    [playerApiClient, session]
+    [playerApiClient, user?.rid]
   );
 
   // Debounced search

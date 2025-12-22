@@ -42,7 +42,7 @@ export default function BrandedSignIn() {
             : result.error
         );
       } else if (result?.ok) {
-        router.push("/match-making");
+        // Refresh the page to let signin page check for RID and redirect properly
         router.refresh();
       }
     } catch {
@@ -63,17 +63,14 @@ export default function BrandedSignIn() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center">
               <Image
-                src="/logo-fox-mini.png"
+                src="/logo-red-only-text.png"
                 alt="LeetGaming"
-                width={48}
-                height={48}
-                className="drop-shadow-[0_0_10px_rgba(255,70,84,0.5)]"
+                width={180}
+                height={40}
+                style={{ objectFit: "contain" }}
               />
-              <span className="text-2xl font-bold text-white tracking-tight">
-                LeetGaming<span className="text-[#FF4654]">.PRO</span>
-              </span>
             </Link>
           </motion.div>
 
@@ -85,14 +82,14 @@ export default function BrandedSignIn() {
             className="space-y-8"
           >
             <div>
-              <h1 className="text-5xl font-black text-white leading-tight mb-4">
+              <h1 className="text-5xl font-black text-[#34445C] dark:text-[#F5F0E1] leading-tight mb-4">
                 WELCOME BACK,
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4654] to-[#FFC700]">
                   CHAMPION
                 </span>
               </h1>
-              <p className="text-xl text-white/60 max-w-md">
+              <p className="text-xl text-[#34445C]/60 dark:text-[#F5F0E1]/60 max-w-md">
                 Your next victory awaits. Sign in to continue your competitive
                 journey.
               </p>
@@ -102,15 +99,15 @@ export default function BrandedSignIn() {
             <div className="flex gap-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-[#FF4654]">50K+</div>
-                <div className="text-sm text-white/40">Active Players</div>
+                <div className="text-sm text-[#34445C]/40 dark:text-[#F5F0E1]/40">Active Players</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#DCFF37]">1M+</div>
-                <div className="text-sm text-white/40">Matches Played</div>
+                <div className="text-3xl font-bold text-[#FF4654] dark:text-[#DCFF37]">1M+</div>
+                <div className="text-sm text-[#34445C]/40 dark:text-[#F5F0E1]/40">Matches Played</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-[#FFC700]">$100K+</div>
-                <div className="text-sm text-white/40">Prizes Awarded</div>
+                <div className="text-sm text-[#34445C]/40 dark:text-[#F5F0E1]/40">Prizes Awarded</div>
               </div>
             </div>
           </motion.div>
@@ -126,12 +123,12 @@ export default function BrandedSignIn() {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF4654] to-[#34445C] border-2 border-black"
+                  className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF4654] to-[#34445C] border-2 border-white dark:border-black"
                 />
               ))}
             </div>
-            <p className="text-sm text-white/40">
-              Join <span className="text-white">2,847</span> players online now
+            <p className="text-sm text-[#34445C]/40 dark:text-[#F5F0E1]/40">
+              Join <span className="text-[#34445C] dark:text-[#F5F0E1]">2,847</span> players online now
             </p>
           </motion.div>
         </div>
@@ -145,7 +142,7 @@ export default function BrandedSignIn() {
             className="w-full max-w-md"
           >
             <div
-              className="relative bg-black/60 backdrop-blur-xl border border-white/10 p-8 sm:p-10"
+              className="relative bg-white/80 dark:bg-black/60 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10 p-8 sm:p-10"
               style={{
                 clipPath:
                   "polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)",
@@ -155,19 +152,19 @@ export default function BrandedSignIn() {
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37]" />
 
               {/* Mobile logo */}
-              <div className="lg:hidden flex justify-center mb-6">
+              <div className="lg:hidden flex justify-center mb-8">
                 <Image
-                  src="/logo-fox-mini.png"
+                  src="/logo-red-only-text.png"
                   alt="LeetGaming"
-                  width={56}
-                  height={56}
-                  className="drop-shadow-[0_0_15px_rgba(255,70,84,0.6)]"
+                  width={200}
+                  height={45}
+                  style={{ objectFit: "contain" }}
                 />
               </div>
 
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">Sign In</h2>
-                <p className="text-white/50 text-sm">
+                <h2 className="text-2xl font-bold text-[#34445C] dark:text-white mb-2">Sign In</h2>
+                <p className="text-[#34445C]/50 dark:text-white/50 text-sm">
                   Enter your credentials to continue
                 </p>
               </div>
@@ -194,9 +191,9 @@ export default function BrandedSignIn() {
                   isDisabled={isLoading}
                   classNames={{
                     inputWrapper:
-                      "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#FF4654] data-[hover=true]:border-white/40",
-                    input: "text-white placeholder:text-white/30",
-                    label: "text-white/70",
+                      "rounded-none border-[#34445C]/20 dark:border-white/20 bg-[#34445C]/5 dark:bg-white/5 group-data-[focus=true]:border-[#FF4654] data-[hover=true]:border-[#34445C]/40 dark:data-[hover=true]:border-white/40",
+                    input: "text-[#34445C] dark:text-white placeholder:text-[#34445C]/30 dark:placeholder:text-white/30",
+                    label: "text-[#34445C]/70 dark:text-white/70",
                   }}
                 />
 
@@ -204,7 +201,7 @@ export default function BrandedSignIn() {
                   endContent={
                     <button type="button" onClick={toggleVisibility}>
                       <Icon
-                        className="text-2xl text-white/50 hover:text-white transition-colors"
+                        className="text-2xl text-[#34445C]/50 dark:text-white/50 hover:text-[#34445C] dark:hover:text-white transition-colors"
                         icon={
                           isVisible
                             ? "solar:eye-closed-linear"
@@ -223,9 +220,9 @@ export default function BrandedSignIn() {
                   isDisabled={isLoading}
                   classNames={{
                     inputWrapper:
-                      "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#FF4654] data-[hover=true]:border-white/40",
-                    input: "text-white placeholder:text-white/30",
-                    label: "text-white/70",
+                      "rounded-none border-[#34445C]/20 dark:border-white/20 bg-[#34445C]/5 dark:bg-white/5 group-data-[focus=true]:border-[#FF4654] data-[hover=true]:border-[#34445C]/40 dark:data-[hover=true]:border-white/40",
+                    input: "text-[#34445C] dark:text-white placeholder:text-[#34445C]/30 dark:placeholder:text-white/30",
+                    label: "text-[#34445C]/70 dark:text-white/70",
                   }}
                 />
 
@@ -233,8 +230,8 @@ export default function BrandedSignIn() {
                   <Checkbox
                     classNames={{
                       wrapper:
-                        "before:border-white/30 rounded-none after:bg-[#FF4654]",
-                      label: "text-white/70 text-sm",
+                        "before:border-[#34445C]/30 dark:before:border-white/30 rounded-none after:bg-[#FF4654]",
+                      label: "text-[#34445C]/70 dark:text-white/70 text-sm",
                     }}
                     size="sm"
                   >
@@ -261,11 +258,11 @@ export default function BrandedSignIn() {
               </form>
 
               <div className="flex items-center gap-4 my-6">
-                <Divider className="flex-1 bg-white/10" />
-                <span className="text-white/30 text-xs uppercase tracking-wider">
+                <Divider className="flex-1 bg-[#34445C]/10 dark:bg-white/10" />
+                <span className="text-[#34445C]/30 dark:text-white/30 text-xs uppercase tracking-wider">
                   or continue with
                 </span>
-                <Divider className="flex-1 bg-white/10" />
+                <Divider className="flex-1 bg-[#34445C]/10 dark:bg-white/10" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -274,7 +271,7 @@ export default function BrandedSignIn() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("steam", { callbackUrl: "/match-making" })
+                    signIn("steam", { callbackUrl: "/signin?callbackUrl=/match-making" })
                   }
                 >
                   <SteamIcon className="w-5 h-5" />
@@ -285,7 +282,7 @@ export default function BrandedSignIn() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("google", { callbackUrl: "/match-making" })
+                    signIn("google", { callbackUrl: "/signin?callbackUrl=/match-making" })
                   }
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />
@@ -293,11 +290,11 @@ export default function BrandedSignIn() {
                 </EsportsButton>
               </div>
 
-              <p className="text-center text-sm text-white/50 mt-6">
+              <p className="text-center text-sm text-[#34445C]/50 dark:text-white/50 mt-6">
                 New to LeetGaming?{" "}
                 <Link
                   href="/signup"
-                  className="font-semibold text-[#DCFF37] hover:text-[#FFC700] transition-colors"
+                  className="font-semibold text-[#FF4654] dark:text-[#DCFF37] hover:text-[#FFC700] transition-colors"
                 >
                   Create Account
                 </Link>
@@ -305,7 +302,7 @@ export default function BrandedSignIn() {
 
               {/* Corner cut decoration */}
               <div
-                className="absolute bottom-0 right-0 w-6 h-6 border-l border-t border-white/10"
+                className="absolute bottom-0 right-0 w-6 h-6 border-l border-t border-[#34445C]/10 dark:border-white/10"
                 style={{ transform: "translate(50%, 50%) rotate(45deg)" }}
               />
             </div>

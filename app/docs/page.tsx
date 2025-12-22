@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Card,
   CardBody,
@@ -13,12 +14,41 @@ import {
   Snippet,
   Tabs,
   Tab,
+  Input,
+  Textarea,
+  Button,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { title, subtitle } from "@/components/primitives";
 
+// Valid tab keys for hash-based navigation
+const VALID_TABS = ["getting-started", "upload", "api", "faq", "support"];
+
 export default function DocsPage() {
   const [selectedCategory, setSelectedCategory] = useState("getting-started");
+  
+  // Handle hash-based navigation on mount and hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && VALID_TABS.includes(hash)) {
+        setSelectedCategory(hash);
+      }
+    };
+    
+    // Check on mount
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+  
+  // Update URL hash when tab changes
+  const handleTabChange = (key: string) => {
+    setSelectedCategory(key);
+    window.history.replaceState(null, "", `#${key}`);
+  };
 
   return (
     <div className="flex w-full flex-col items-center gap-12 md:gap-16 lg:gap-20 px-4 py-12 md:py-16 lg:py-20 sm:px-6 lg:px-12 xl:px-24 2xl:px-32">
@@ -40,7 +70,7 @@ export default function DocsPage() {
       <div className="w-full max-w-7xl">
         <Tabs
           selectedKey={selectedCategory}
-          onSelectionChange={(key) => setSelectedCategory(key as string)}
+          onSelectionChange={(key) => handleTabChange(key as string)}
           variant="underlined"
           classNames={{
             tabList: "gap-4 lg:gap-8 w-full flex-wrap border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20",
@@ -446,6 +476,192 @@ export default function DocsPage() {
                 </Accordion>
               </CardBody>
             </Card>
+          </Tab>
+
+          {/* Support */}
+          <Tab
+            key="support"
+            title={
+              <div className="flex items-center gap-2">
+                <Icon icon="mdi:headset" width={20} />
+                <span>Support</span>
+              </div>
+            }
+          >
+            <div className="flex flex-col gap-8 lg:gap-10">
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="p-6 lg:p-8 xl:p-10">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Contact Support</h2>
+                </CardHeader>
+                <Divider />
+                <CardBody className="p-6 lg:p-8 xl:p-10 gap-8">
+                  <p className="text-default-700 text-base lg:text-lg leading-relaxed">
+                    Need help with your account, a technical issue, or have a question? Our support team is here to help.
+                  </p>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    {/* Contact Options */}
+                    <div className="space-y-6">
+                      <h3 className="text-xl lg:text-2xl font-semibold text-[#34445C] dark:text-[#F5F0E1]">Get in Touch</h3>
+                      
+                      <div className="space-y-4">
+                        <a 
+                          href="https://discord.gg/leetgaming" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <div className="w-12 h-12 flex items-center justify-center bg-[#5865F2]">
+                            <Icon icon="mdi:discord" className="text-white" width={24} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Discord Community</p>
+                            <p className="text-sm text-default-500">Fastest response - join our server</p>
+                          </div>
+                        </a>
+                        
+                        <a 
+                          href="mailto:support@leetgaming.pro"
+                          className="flex items-center gap-4 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <div className="w-12 h-12 flex items-center justify-center bg-[#FF4654] dark:bg-[#DCFF37]">
+                            <Icon icon="mdi:email" className="text-white dark:text-[#34445C]" width={24} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Email Support</p>
+                            <p className="text-sm text-default-500">support@leetgaming.pro</p>
+                          </div>
+                        </a>
+                        
+                        <a 
+                          href="https://twitter.com/leetgamingpro" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <div className="w-12 h-12 flex items-center justify-center bg-black dark:bg-white">
+                            <Icon icon="mdi:twitter" className="text-white dark:text-black" width={24} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Twitter / X</p>
+                            <p className="text-sm text-default-500">@leetgamingpro</p>
+                          </div>
+                        </a>
+                      </div>
+
+                      <div className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 p-6 border-l-4 border-[#FF4654] dark:border-[#DCFF37]">
+                        <h4 className="font-semibold text-[#FF4654] dark:text-[#DCFF37] mb-2">Response Times</h4>
+                        <ul className="text-sm text-default-700 space-y-1">
+                          <li>• Discord: Usually within 1-2 hours</li>
+                          <li>• Email: Within 24-48 hours</li>
+                          <li>• Pro subscribers get priority support</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Quick Links */}
+                    <div className="space-y-6">
+                      <h3 className="text-xl lg:text-2xl font-semibold text-[#34445C] dark:text-[#F5F0E1]">Quick Links</h3>
+                      
+                      <div className="space-y-3">
+                        <button 
+                          onClick={() => handleTabChange("faq")}
+                          className="w-full flex items-center gap-3 p-4 text-left border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <Icon icon="mdi:help-circle" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">FAQ</p>
+                            <p className="text-sm text-default-500">Find answers to common questions</p>
+                          </div>
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleTabChange("getting-started")}
+                          className="w-full flex items-center gap-3 p-4 text-left border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <Icon icon="mdi:rocket-launch" className="text-[#FF4654] dark:text-[#DCFF37]" width={24} />
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Getting Started</p>
+                            <p className="text-sm text-default-500">Learn the basics of LeetGaming</p>
+                          </div>
+                        </button>
+                        
+                        <a 
+                          href="/service-status"
+                          className="flex items-center gap-3 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <Icon icon="mdi:server" className="text-success" width={24} />
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Service Status</p>
+                            <p className="text-sm text-default-500">Check if services are operational</p>
+                          </div>
+                        </a>
+                        
+                        <a 
+                          href="/settings"
+                          className="flex items-center gap-3 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
+                        >
+                          <Icon icon="mdi:cog" className="text-default-500" width={24} />
+                          <div>
+                            <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">Account Settings</p>
+                            <p className="text-sm text-default-500">Manage your account preferences</p>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Report Issue */}
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="p-6 lg:p-8 xl:p-10">
+                  <h3 className="text-xl lg:text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Report an Issue</h3>
+                </CardHeader>
+                <Divider />
+                <CardBody className="p-6 lg:p-8 xl:p-10 gap-4">
+                  <p className="text-default-600 mb-4">
+                    Found a bug or experiencing a technical problem? Let us know and we&apos;ll look into it.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      label="Subject"
+                      placeholder="Brief description of the issue"
+                      variant="bordered"
+                      classNames={{
+                        inputWrapper: "rounded-none",
+                      }}
+                    />
+                    <Input
+                      label="Email"
+                      placeholder="your@email.com"
+                      type="email"
+                      variant="bordered"
+                      classNames={{
+                        inputWrapper: "rounded-none",
+                      }}
+                    />
+                  </div>
+                  <Textarea
+                    label="Description"
+                    placeholder="Please describe the issue in detail. Include steps to reproduce if possible."
+                    variant="bordered"
+                    minRows={4}
+                    classNames={{
+                      inputWrapper: "rounded-none",
+                    }}
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold rounded-none"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}
+                    >
+                      Submit Report
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
           </Tab>
         </Tabs>
       </div>

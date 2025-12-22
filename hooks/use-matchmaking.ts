@@ -6,8 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
   JoinQueueRequest,
@@ -17,11 +16,6 @@ import type {
   SessionStatus,
 } from '@/types/replay-api/matchmaking.types';
 import { isSessionTerminal, isSessionActive } from '@/types/replay-api/matchmaking.types';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UseMatchmakingResult {
   // State
@@ -41,6 +35,7 @@ export interface UseMatchmakingResult {
 }
 
 export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
+  const { sdk } = useSDK();
   const [session, setSession] = useState<SessionStatusResponse | null>(null);
   const [poolStats, setPoolStats] = useState<PoolStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,12 +44,6 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const elapsedRef = useRef<NodeJS.Timeout | null>(null);
-
-  const sdk = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    logger.info('[useMatchmaking] Initializing SDK', { baseUrl });
-    return new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-  }, []);
 
   const isSearching = useMemo(() => {
     return session !== null && isSessionActive(session.status as SessionStatus);

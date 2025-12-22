@@ -47,9 +47,9 @@ export function WelcomeStep() {
         >
           <Icon icon="solar:gamepad-bold" className="w-10 h-10 text-white dark:text-[#34445C]" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Welcome to LeetGaming</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome, Champion</h1>
         <p className="text-default-500 text-lg">
-          Your journey to competitive gaming greatness starts here
+          Your journey to competitive greatness starts here
         </p>
       </div>
 

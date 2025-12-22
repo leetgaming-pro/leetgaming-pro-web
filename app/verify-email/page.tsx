@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button, Progress, Spinner } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 import { AuthBackground } from "@/components/auth";
 
 type VerificationState =
@@ -85,19 +86,25 @@ function VerifyEmailContent() {
         >
           {/* Logo */}
           <div className="text-center mb-8">
-            <motion.h1
-              className="text-3xl font-bold"
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              LeetGaming<span className="text-[#FF4654]">.PRO</span>
-            </motion.h1>
+              <Image
+                src="/logo-red-only-text.png"
+                alt="LeetGaming"
+                width={200}
+                height={40}
+                style={{ objectFit: "contain" }}
+                priority
+              />
+            </motion.div>
           </div>
 
           {/* Card */}
           <motion.div
-            className="bg-black/40 backdrop-blur-xl border border-white/10 p-8"
+            className="bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10 p-8"
             style={{
               clipPath:
                 "polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))",
@@ -112,10 +119,10 @@ function VerifyEmailContent() {
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 flex items-center justify-center">
                   <Spinner size="lg" color="warning" />
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Verifying Your Email
                 </h2>
-                <p className="text-white/60 text-sm">
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm">
                   Please wait while we verify your email address...
                 </p>
                 <Progress
@@ -142,10 +149,10 @@ function VerifyEmailContent() {
                     className="w-10 h-10 text-[#DCFF37]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Email Verified! 🎉
                 </h2>
-                <p className="text-white/60 text-sm mb-8">{message}</p>
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">{message}</p>
 
                 <Button
                   onPress={handleContinue}
@@ -181,15 +188,15 @@ function VerifyEmailContent() {
                     className="w-10 h-10 text-[#FF4654]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Verification Failed
                 </h2>
-                <p className="text-white/60 text-sm mb-8">{message}</p>
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">{message}</p>
 
                 <div className="space-y-3">
                   <Button
                     onPress={handleResend}
-                    className="w-full font-bold text-white"
+                    className="w-full font-bold text-[#34445C] dark:text-white"
                     style={{
                       background:
                         "linear-gradient(135deg, #FF4654 0%, #FFC700 100%)",
@@ -204,7 +211,7 @@ function VerifyEmailContent() {
                   <Button
                     variant="bordered"
                     onPress={handleSignIn}
-                    className="w-full font-semibold border-white/20 text-white hover:bg-white/5"
+                    className="w-full font-semibold border-[#34445C]/20 dark:border-white/20 text-[#34445C] dark:text-white hover:bg-[#34445C]/5 dark:hover:bg-white/5"
                     size="lg"
                   >
                     Back to Sign In
@@ -227,10 +234,10 @@ function VerifyEmailContent() {
                     className="w-10 h-10 text-[#FFC700]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Link Expired
                 </h2>
-                <p className="text-white/60 text-sm mb-8">
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">
                   This verification link has expired. Please request a new
                   verification email.
                 </p>
@@ -253,7 +260,7 @@ function VerifyEmailContent() {
                   <Button
                     variant="bordered"
                     onPress={handleSignIn}
-                    className="w-full font-semibold border-white/20 text-white hover:bg-white/5"
+                    className="w-full font-semibold border-[#34445C]/20 dark:border-white/20 text-[#34445C] dark:text-white hover:bg-[#34445C]/5 dark:hover:bg-white/5"
                     size="lg"
                   >
                     Back to Sign In
@@ -276,14 +283,14 @@ function VerifyEmailContent() {
                     className="w-10 h-10 text-[#FF4654]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Invalid Link
                 </h2>
-                <p className="text-white/60 text-sm mb-8">{message}</p>
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">{message}</p>
 
                 <Button
                   onPress={handleSignIn}
-                  className="w-full font-bold text-white"
+                  className="w-full font-bold text-[#34445C] dark:text-white"
                   style={{
                     background:
                       "linear-gradient(135deg, #FF4654 0%, #FFC700 100%)",
@@ -300,7 +307,7 @@ function VerifyEmailContent() {
 
           {/* Help text */}
           <motion.p
-            className="text-center text-white/40 text-sm mt-6"
+            className="text-center text-[#34445C]/40 dark:text-white/40 text-sm mt-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -320,10 +327,16 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col justify-center items-center w-full h-screen bg-black">
-          <div className="text-2xl font-bold text-white mb-4">
-            LeetGaming<span className="text-[#FF4654]">.PRO</span>
-          </div>
+        <div className="flex flex-col justify-center items-center w-full h-screen bg-white dark:bg-black">
+          <Image
+            src="/logo-red-only-text.png"
+            alt="LeetGaming"
+            width={200}
+            height={40}
+            className="mb-6"
+            style={{ objectFit: "contain" }}
+            priority
+          />
           <Progress
             color="warning"
             isIndeterminate
@@ -331,7 +344,7 @@ export default function VerifyEmailPage() {
             className="max-w-md"
             size="sm"
           />
-          <span className="text-white/50 mt-4">Loading...</span>
+          <span className="text-[#34445C]/50 dark:text-white/50 mt-4">Loading...</span>
         </div>
       }
     >

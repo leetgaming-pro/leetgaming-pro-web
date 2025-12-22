@@ -160,22 +160,17 @@ export default function Onboarding() {
     <AuthBackground variant="onboarding">
       <div className="min-h-screen flex flex-col">
         {/* Header */}
-        <header className="p-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo-fox-mini.png"
-              alt="LeetGaming"
-              width={40}
-              height={40}
-              className="drop-shadow-[0_0_10px_rgba(255,199,0,0.5)]"
-            />
-            <span className="text-xl font-bold text-white">
-              LeetGaming<span className="text-[#FFC700]">.PRO</span>
-            </span>
-          </div>
+        <header className="p-8 flex flex-col items-center">
+          <Image
+            src="/logo-red-only-text.png"
+            alt="LeetGaming"
+            width={220}
+            height={50}
+            style={{ objectFit: "contain" }}
+          />
           <Button
             variant="light"
-            className="text-white/50 hover:text-white"
+            className="absolute top-4 right-4 text-[#34445C]/50 dark:text-white/50 hover:text-[#34445C] dark:hover:text-white"
             onClick={handleSkip}
           >
             Skip for now

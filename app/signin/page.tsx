@@ -1,19 +1,19 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandedSignIn } from "@/components/auth";
-import { Progress, Button } from "@nextui-org/react";
+import { Progress } from "@nextui-org/react";
 import { logger } from "@/lib/logger";
+import Image from "next/image";
 
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status, update: updateSession } = useSession();
+  const { data: session, status } = useSession();
   const [isMounted, setIsMounted] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
+  const [isClearing, setIsClearing] = useState(false);
+  const clearedStaleSession = useRef(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,45 +33,46 @@ export default function SignInPage() {
     }
   }, [isMounted, status, isFullyAuthenticated, router, searchParams]);
 
-  // Handle incomplete authentication (session exists but no RID)
+  // Reset the cleared flag when user becomes unauthenticated (allows fresh sign-in attempts)
   useEffect(() => {
-    if (isMounted && status === "authenticated" && !isFullyAuthenticated) {
-      // Session exists but RID is missing - backend onboarding may have failed
-      if (retryCount < MAX_RETRIES) {
-        // Try refreshing the session to see if RID is now available
-        const timer = setTimeout(async () => {
-          logger.info("[SignIn] Session missing RID, refreshing...", { retryCount });
-          await updateSession();
-          setRetryCount((prev) => prev + 1);
-        }, 1000 * (retryCount + 1)); // Exponential backoff: 1s, 2s, 3s
-
-        return () => clearTimeout(timer);
-      } else {
-        // Max retries reached - show error
-        logger.error("[SignIn] Backend onboarding failed after retries", {
-          hasSession: !!session,
-          hasRid: !!session?.user?.rid,
-        });
-        setAuthError(
-          "Unable to complete authentication. The backend service may be unavailable. Please try again."
-        );
-      }
+    if (status === "unauthenticated") {
+      clearedStaleSession.current = false;
     }
-  }, [isMounted, status, isFullyAuthenticated, retryCount, session, updateSession]);
+  }, [status]);
 
-  const handleRetry = useCallback(async () => {
-    setAuthError(null);
-    setRetryCount(0);
-    // Sign out and let user try again
-    await signOut({ redirect: false });
-  }, []);
+  // Handle stale session (session exists but no RID) - auto-clear and let user sign in fresh
+  useEffect(() => {
+    if (isMounted && status === "authenticated" && !isFullyAuthenticated && !isClearing && !clearedStaleSession.current) {
+      // Session exists but RID is missing - this is a stale session
+      // Auto-clear it so user can sign in fresh and get a proper RID
+      logger.warn("[SignIn] Detected stale session without RID, clearing...", {
+        hasSession: !!session,
+        hasRid: !!session?.user?.rid,
+        hasUid: !!session?.user?.uid,
+      });
+      
+      clearedStaleSession.current = true;
+      setIsClearing(true);
+      
+      signOut({ redirect: false }).then(() => {
+        logger.info("[SignIn] Stale session cleared, ready for fresh sign-in");
+        setIsClearing(false);
+      });
+    }
+  }, [isMounted, status, isFullyAuthenticated, isClearing, session]);
 
-  if (status === "loading") {
+  if (status === "loading" || isClearing) {
     return (
-      <div className="flex flex-col justify-center items-center w-full h-screen bg-black">
-        <div className="text-2xl font-bold text-white mb-4">
-          LeetGaming<span className="text-[#FF4654]">.PRO</span>
-        </div>
+      <div className="flex flex-col justify-center items-center w-full h-screen bg-white dark:bg-black">
+        <Image
+          src="/logo-red-only-text.png"
+          alt="LeetGaming"
+          width={200}
+          height={40}
+          className="mb-6"
+          style={{ objectFit: "contain" }}
+          priority
+        />
         <Progress
           color="warning"
           isIndeterminate
@@ -79,54 +80,38 @@ export default function SignInPage() {
           className="max-w-md"
           size="sm"
         />
-        <span className="text-white/50 mt-4">Loading...</span>
-      </div>
-    );
-  }
-
-  // Show error state if authentication is incomplete
-  if (authError) {
-    return (
-      <div className="flex flex-col justify-center items-center w-full h-screen bg-black">
-        <div className="text-2xl font-bold text-white mb-4">
-          LeetGaming<span className="text-[#FF4654]">.PRO</span>
-        </div>
-        <div className="max-w-md text-center">
-          <p className="text-red-400 mb-4">{authError}</p>
-          <Button
-            color="warning"
-            variant="solid"
-            onPress={handleRetry}
-          >
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "authenticated") {
-    // Waiting for RID to be available or retrying
-    return (
-      <div className="flex flex-col justify-center items-center w-full h-screen bg-black">
-        <div className="text-2xl font-bold text-white mb-4">
-          LeetGaming<span className="text-[#DCFF37]">.PRO</span>
-        </div>
-        <Progress
-          color="success"
-          isIndeterminate
-          aria-label="Completing authentication..."
-          className="max-w-md"
-          size="sm"
-        />
-        <span className="text-white/50 mt-4">
-          {isFullyAuthenticated
-            ? "Redirecting..."
-            : "Completing authentication..."}
+        <span className="text-[#34445C]/50 dark:text-white/50 mt-4">
+          {isClearing ? "Preparing sign-in..." : "Loading..."}
         </span>
       </div>
     );
   }
 
+  if (status === "authenticated" && isFullyAuthenticated) {
+    // Fully authenticated - redirecting
+    return (
+      <div className="flex flex-col justify-center items-center w-full h-screen bg-white dark:bg-black">
+        <Image
+          src="/logo-red-only-text.png"
+          alt="LeetGaming"
+          width={200}
+          height={40}
+          className="mb-6"
+          style={{ objectFit: "contain" }}
+          priority
+        />
+        <Progress
+          color="success"
+          isIndeterminate
+          aria-label="Redirecting..."
+          className="max-w-md"
+          size="sm"
+        />
+        <span className="text-[#34445C]/50 dark:text-white/50 mt-4">Redirecting...</span>
+      </div>
+    );
+  }
+
+  // Show sign-in form (either not authenticated, or stale session was just cleared)
   return <BrandedSignIn />;
 }

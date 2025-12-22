@@ -10,6 +10,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button, Input, Link, Progress } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 import { AuthBackground } from "@/components/auth";
 import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
@@ -158,20 +159,26 @@ function ResetPasswordContent() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
-              <motion.h1
-                className="text-3xl font-bold text-white"
+              <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                LeetGaming<span className="text-[#DCFF37]">.PRO</span>
-              </motion.h1>
+                <Image
+                  src="/logo-red-only-text.png"
+                  alt="LeetGaming"
+                  width={200}
+                  height={40}
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </motion.div>
             </Link>
           </div>
 
           {/* Card */}
           <motion.div
-            className="bg-black/40 backdrop-blur-xl border border-white/10 p-8"
+            className="bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10 p-8"
             style={{
               clipPath:
                 "polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))",
@@ -189,7 +196,7 @@ function ResetPasswordContent() {
                     className="w-8 h-8 text-[#DCFF37]"
                   />
                 </div>
-                <p className="text-white/60">Validating reset link...</p>
+                <p className="text-[#34445C]/60 dark:text-white/60">Validating reset link...</p>
               </div>
             )}
 
@@ -207,16 +214,16 @@ function ResetPasswordContent() {
                     className="w-10 h-10 text-[#FF4654]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Invalid Reset Link
                 </h2>
-                <p className="text-white/60 text-sm mb-8">
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">
                   {error || "This password reset link is invalid or has expired."}
                 </p>
 
                 <Button
                   onPress={() => router.push("/forgot-password")}
-                  className="w-full font-bold text-white"
+                  className="w-full font-bold text-[#34445C] dark:text-white"
                   style={{
                     background:
                       "linear-gradient(135deg, #FF4654 0%, #FFC700 100%)",
@@ -240,13 +247,13 @@ function ResetPasswordContent() {
                       className="w-8 h-8 text-[#DCFF37]"
                     />
                   </div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                     Create New Password
                   </h2>
                   {email && (
-                    <p className="text-white/60 text-sm">
+                    <p className="text-[#34445C]/60 dark:text-white/60 text-sm">
                       Resetting password for{" "}
-                      <span className="text-white font-medium">{email}</span>
+                      <span className="text-[#34445C] dark:text-white font-medium">{email}</span>
                     </p>
                   )}
                 </div>
@@ -282,7 +289,7 @@ function ResetPasswordContent() {
                         </button>
                       }
                       classNames={{
-                        input: "text-white",
+                        input: "text-[#34445C] dark:text-white",
                         inputWrapper:
                           "bg-white/5 border border-white/10 hover:bg-white/10",
                       }}
@@ -339,7 +346,7 @@ function ResetPasswordContent() {
                       </button>
                     }
                     classNames={{
-                      input: "text-white",
+                      input: "text-[#34445C] dark:text-white",
                       inputWrapper:
                         "bg-white/5 border border-white/10 hover:bg-white/10",
                     }}
@@ -379,10 +386,10 @@ function ResetPasswordContent() {
                     className="w-10 h-10 text-[#DCFF37]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Password Reset! 🎉
                 </h2>
-                <p className="text-white/60 text-sm mb-8">
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">
                   Your password has been successfully reset. You can now sign in
                   with your new password.
                 </p>
@@ -418,10 +425,10 @@ function ResetPasswordContent() {
                     className="w-10 h-10 text-[#FF4654]"
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-white mb-2">
+                <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Reset Failed
                 </h2>
-                <p className="text-white/60 text-sm mb-8">{error}</p>
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">{error}</p>
 
                 <div className="space-y-3">
                   <Button
@@ -431,7 +438,7 @@ function ResetPasswordContent() {
                       setPassword("");
                       setConfirmPassword("");
                     }}
-                    className="w-full font-bold text-white"
+                    className="w-full font-bold text-[#34445C] dark:text-white"
                     style={{
                       background:
                         "linear-gradient(135deg, #FF4654 0%, #FFC700 100%)",
@@ -445,7 +452,7 @@ function ResetPasswordContent() {
                   <Button
                     variant="bordered"
                     onPress={() => router.push("/forgot-password")}
-                    className="w-full font-semibold border-white/20 text-white hover:bg-white/5"
+                    className="w-full font-semibold border-[#34445C]/20 dark:border-white/20 text-[#34445C] dark:text-white hover:bg-[#34445C]/5 dark:hover:bg-white/5"
                     size="lg"
                   >
                     Request New Reset Link
@@ -457,7 +464,7 @@ function ResetPasswordContent() {
 
           {/* Help text */}
           <motion.p
-            className="text-center text-white/40 text-sm mt-6"
+            className="text-center text-[#34445C]/40 dark:text-white/40 text-sm mt-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -477,10 +484,16 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col justify-center items-center w-full h-screen bg-black">
-          <div className="text-2xl font-bold text-white mb-4">
-            LeetGaming<span className="text-[#DCFF37]">.PRO</span>
-          </div>
+        <div className="flex flex-col justify-center items-center w-full h-screen bg-white dark:bg-black">
+          <Image
+            src="/logo-red-only-text.png"
+            alt="LeetGaming"
+            width={200}
+            height={40}
+            className="mb-6"
+            style={{ objectFit: "contain" }}
+            priority
+          />
           <Progress
             color="success"
             isIndeterminate
@@ -488,7 +501,7 @@ export default function ResetPasswordPage() {
             className="max-w-md"
             size="sm"
           />
-          <span className="text-white/50 mt-4">Loading...</span>
+          <span className="text-[#34445C]/50 dark:text-white/50 mt-4">Loading...</span>
         </div>
       }
     >

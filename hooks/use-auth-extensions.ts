@@ -7,8 +7,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import {
   AuthAPI,
@@ -17,11 +16,6 @@ import {
   EmailVerificationResponse,
   PasswordResetResponse,
 } from '@/types/replay-api/auth.sdk';
-
-const getApiBaseUrl = (): string =>
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-    : process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
 
 export interface UseAuthExtensionsResult {
   // MFA State
@@ -51,6 +45,8 @@ export interface UseAuthExtensionsResult {
 }
 
 export function useAuthExtensions(): UseAuthExtensionsResult {
+  const { sdk } = useSDK();
+  
   // MFA State
   const [mfaSetup, setMfaSetup] = useState<MFASetupResponse | null>(null);
   const [isMFALoading, setIsMFALoading] = useState(false);
@@ -64,12 +60,8 @@ export function useAuthExtensions(): UseAuthExtensionsResult {
   const [isPasswordResetLoading, setIsPasswordResetLoading] = useState(false);
   const [passwordResetError, setPasswordResetError] = useState<string | null>(null);
 
-  // Create API client
-  const api = useMemo(() => {
-    const baseUrl = getApiBaseUrl();
-    const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
-    return new AuthAPI(sdk.client);
-  }, []);
+  // Create API client using centralized SDK
+  const api = useMemo(() => new AuthAPI(sdk.client), [sdk.client]);
 
   // ========================
   // MFA Actions

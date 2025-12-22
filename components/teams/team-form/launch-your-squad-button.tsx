@@ -25,7 +25,7 @@ import { Icon } from "@iconify/react";
 import { EsportsButton } from "@/components/ui/esports-button";
 import AvatarUploader from "@/components/avatar/avatar-uploader";
 import PlayerSearchInput from "@/components/players/player-search-input/player-search-modal";
-import { useSession } from "next-auth/react";
+import { useOptionalAuth } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
@@ -52,7 +52,7 @@ interface FormData {
 export default function LaunchYourSquadButton() {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { data: session } = useSession();
+  const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
   const [activeTab, setActiveTab] = useState("details");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,11 +67,10 @@ export default function LaunchYourSquadButton() {
   });
 
   const handleOpen = () => {
-    if (!session) {
-      router.push("/signin");
-    } else {
-      onOpen();
+    if (!requireAuthForAction("create a squad")) {
+      return; // Will redirect to sign-in
     }
+    onOpen();
   };
 
   const handleAvatarUpload = (file: File) => {
