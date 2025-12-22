@@ -29,10 +29,15 @@ NextUIProvider
         └── SessionProvider (NextAuth)
               └── AuthSync (RID token sync)
                     └── SDKProvider (API SDK)
-                          └── ToastProvider
-                                └── GlobalSearchProvider
-                                      └── Application
+                          └── GlobalSearchProvider
+                                └── ToastProvider
+                                      └── Navbar + BreadcrumbBar + Main Content + Footer
 ```
+
+**Note**: The provider hierarchy ensures:
+- SDK is available before search (GlobalSearch uses SDK)
+- Toast notifications are available everywhere
+- Auth sync happens before SDK initialization
 
 ## Core Components
 

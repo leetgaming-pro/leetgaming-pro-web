@@ -53,31 +53,51 @@ LeetGaming Pro is a competitive gaming platform with replay analysis, matchmakin
 ### SDK Architecture
 
 ```
-SDKProvider (React Context)
-    └── ReplayAPISDK (singleton per app)
-          ├── onboarding
-          ├── squads
-          ├── playerProfiles
-          ├── matches
-          ├── replayFiles
-          ├── wallet
-          ├── matchmaking
-          ├── lobbies
-          ├── tournaments
-          ├── payment
-          ├── challenges
-          ├── highlights
-          └── blockchain
+Provider Hierarchy (in order of initialization):
+================================================
+NextUIProvider (UI framework)
+  └── NextThemesProvider (dark/light mode)
+        └── SessionProvider (NextAuth.js sessions)
+              └── AuthSync (RID token synchronization)
+                    └── SDKProvider (API SDK singleton)
+                          └── GlobalSearchProvider
+                                └── ToastProvider (notifications)
+                                      └── Application
+
+ReplayAPISDK (singleton per app):
+=================================
+├── onboarding        - Steam/Google OAuth
+├── squads            - Team management
+├── playerProfiles    - Player management
+├── matches           - Match queries
+├── replayFiles       - Replay management
+├── shareTokens       - Share tokens
+├── wallet            - Financial operations
+├── matchmaking       - Queue system
+├── lobbies           - Lobby management
+├── prizePools        - Prize pool management
+├── payment           - Payment processing
+├── tournaments       - Tournament system
+├── search            - Global search
+├── matchAnalytics    - Match analytics
+├── challenges        - VAR/dispute system
+├── highlights        - Highlight extraction
+└── blockchain        - Web3 integration
 
 Domain Hooks:
+=============
 ├── useSDK()           - Direct SDK access
-├── useAuth()          - Authentication state
+├── useAuth()          - Authentication state (RID-based)
+├── useRequireAuth()   - Protected routes (auto-redirect)
+├── useOptionalAuth()  - Public pages with auth features
 ├── useWallet()        - Wallet operations
-├── useMatchmaking()   - Queue management
+├── useMatchmaking()   - Queue management + polling
 ├── useTournament()    - Tournament operations
 ├── usePayment()       - Payment processing
-├── useLobby()         - Lobby management
-└── useSubscription()  - Subscription management
+├── useLobby()         - Lobby management + WebSocket
+├── useSubscription()  - Subscription management
+├── useNotifications() - Notification handling
+└── useAuthExtensions()- MFA, email verify, password reset
 ```
 
 ---

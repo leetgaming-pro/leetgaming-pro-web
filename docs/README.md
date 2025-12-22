@@ -6,10 +6,13 @@
 
 ## Quick Links
 
+- [Architecture](./ARCHITECTURE.md) - **START HERE** - Complete technical architecture
 - [Status Report](./STATUS_REPORT.md) - Current implementation status
+- [Brand Guidelines](./BRAND-GUIDELINES.md) - Logos, colors, components
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Development roadmap
 - [UX Implementation](./UX_IMPLEMENTATION.md) - UI/UX documentation
 - [Next Steps](./NEXT_STEPS.md) - Immediate priorities
+- [SDK Documentation](../types/replay-api/README.md) - API SDK reference
 
 ---
 
@@ -19,28 +22,58 @@
 leetgaming-pro-web/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API routes (proxy to backend)
+│   ├── signin/            # Authentication pages
+│   ├── signup/            # Registration
+│   ├── onboarding/        # User onboarding flow
 │   ├── match-making/      # Matchmaking wizard
 │   ├── tournaments/       # Tournament pages
 │   ├── teams/             # Team/squad management
 │   ├── players/           # Player profiles
 │   ├── replays/           # Replay management
 │   ├── wallet/            # Wallet/payments
+│   ├── cloud/             # Cloud storage
 │   ├── ranked/            # Ranked mode
 │   ├── leaderboards/      # Global rankings
+│   ├── admin/             # Admin dashboard
 │   └── [other pages]/     # Additional routes
+│
 ├── components/            # React components
+│   ├── auth/              # Auth components (signin, signup, auth-sync)
+│   ├── default-layout/    # Layout + providers
 │   ├── match-making/      # Matchmaking wizard components
+│   ├── onboarding/        # Onboarding flow components
 │   ├── tournaments/       # Tournament components
 │   ├── teams/             # Team components
 │   ├── players/           # Player components
 │   ├── wallet/            # Wallet components
+│   ├── logo/              # Logo components
+│   ├── toast/             # Toast notifications
+│   ├── search/            # Global search
 │   └── ui/                # Base UI components
+│
+├── contexts/              # React Context providers
+│   └── sdk-context.tsx    # SDK provider
+│
 ├── hooks/                 # Custom React hooks
-├── lib/                   # Utility libraries
+│   ├── use-auth.ts        # Auth hooks (useAuth, useRequireAuth, useOptionalAuth)
+│   ├── use-wallet.ts      # Wallet operations
+│   ├── use-matchmaking.ts # Matchmaking queue
+│   ├── use-tournament.ts  # Tournament operations
+│   ├── use-payment.ts     # Payment processing
+│   ├── use-lobby.ts       # Lobby management + WebSocket
+│   ├── use-subscription.ts # Subscription management
+│   └── use-notifications.ts # Notifications
+│
 ├── types/                 # TypeScript type definitions
 │   └── replay-api/        # Backend API types & SDK
+│       ├── sdk.ts         # Main SDK class
+│       ├── auth.ts        # RID token manager
+│       ├── *.sdk.ts       # Domain SDK wrappers
+│       └── *.types.ts     # Type definitions
+│
 ├── config/               # Configuration files
-├── public/               # Static assets
+├── public/               # Static assets (logos, images)
+├── styles/               # Global CSS (globals.css)
 └── e2e/                  # Playwright E2E tests
 ```
 
@@ -77,13 +110,32 @@ leetgaming-pro-web/
 
 ### SDK Integration ✅
 
-All major pages now use real SDK integration:
+All pages use the centralized SDK via `useSDK()` hook or domain hooks:
 
-- `MatchmakingAPI` - Queue management with polling
-- `SquadAPI` - Squad CRUD operations
-- `PlayerProfileAPI` - Player management
-- `TournamentAPI` - Tournament operations
-- `WalletAPI` - Financial operations
+```typescript
+// Direct SDK access
+const { sdk } = useSDK();
+const players = await sdk.playerProfiles.searchPlayerProfiles({ game_id: 'cs2' });
+
+// Or use domain hooks
+const { balance, deposit, withdraw } = useWallet();
+const { joinQueue, leaveQueue, isSearching } = useMatchmaking();
+```
+
+**Available SDK APIs:**
+- `onboarding` - Steam/Google OAuth onboarding
+- `squads` - Squad/team CRUD operations
+- `playerProfiles` - Player management
+- `matches` - Match queries
+- `replayFiles` - Replay management
+- `wallet` - Financial operations
+- `matchmaking` - Queue management with polling
+- `lobbies` - Lobby management + WebSocket
+- `tournaments` - Tournament operations
+- `payment` - Payment processing
+- `challenges` - VAR/dispute system
+- `highlights` - Highlight extraction
+- `blockchain` - Web3 integration
 
 ---
 

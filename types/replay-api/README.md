@@ -279,7 +279,19 @@ The SDK follows a centralized provider pattern with SOLID principles:
 Application Architecture:
 ========================
 
-SDKProvider (contexts/sdk-context.tsx)
+Provider Hierarchy (components/default-layout/providers.tsx):
+=============================================================
+NextUIProvider
+  └── NextThemesProvider (light/dark mode)
+        └── SessionProvider (NextAuth.js)
+              └── AuthSync (RID token synchronization)
+                    └── SDKProvider (API SDK singleton)
+                          └── GlobalSearchProvider (search functionality)
+                                └── ToastProvider (notifications)
+                                      └── Application Content
+
+SDKProvider (contexts/sdk-context.tsx):
+=======================================
     └── Single ReplayAPISDK instance
           ├── Authentication headers auto-injected
           └── Shared across all components
