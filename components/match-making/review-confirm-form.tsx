@@ -250,9 +250,9 @@ export default function ReviewConfirmForm() {
                       width={20}
                       className="text-[#FF4654] mb-1"
                     />
-                    <span className="text-[#34445C]/60 dark:text-[#F5F0E1]/50 text-xs">Queue</span>
+                    <span className="text-[#34445C]/60 dark:text-[#F5F0E1]/50 text-xs">Position</span>
                     <span className="font-bold text-white">
-                      #{state.matchmaking.queuePosition}
+                      {state.matchmaking.queuePosition} of {state.matchmaking.totalQueueCount || '...'}
                     </span>
                   </div>
                   <div className="flex flex-col items-center p-3 rounded-none bg-[#34445C]/10 dark:bg-[#0a0a0a]/50 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">

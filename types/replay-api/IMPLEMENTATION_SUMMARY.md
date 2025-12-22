@@ -1,239 +1,313 @@
-# Replay API SDK Implementation - Complete
+# Replay API SDK Implementation - Summary
 
 ## Overview
 
-Successfully designed and implemented a complete TypeScript SDK for `leetgaming-pro-web` that mirrors the replay-api's hierarchical resource ownership model, replacing all mocks with production-ready implementations.
+The LeetGaming Pro frontend uses a comprehensive TypeScript SDK for interacting with the replay-api backend. The SDK provides type-safe access to all API endpoints with automatic authentication, retry logic, and React integration.
 
-## Implementation Summary
+## Architecture
 
-### ✅ Core Type System
-- **File**: `types/replay-api/settings.ts`
-- Added enums: `GameIDKey`, `NetworkIDKey`, `VisibilityTypeKey`, `IntendedAudienceKey`, `ShareTokenStatus`, `GrantType`
-- Constants: `RID_TOKEN_EXPIRATION_MS`
-- Extended resource type mappings
+### SDK Provider Pattern
 
-### ✅ Resource Ownership Model
-- **File**: `types/replay-api/replay-file.ts`
-- Implemented full `ResourceOwner` class with hierarchical methods:
-  - `isTenant()`, `isClient()`, `isGroup()`, `isUser()`
-  - Factory methods: `fromUser()`, `fromGroup()`, `fromClient()`, `fromTenant()`
-  - `toJSON()` / `fromJSON()` for API serialization
-  - `getLevel()`, `getPrimaryId()` helper methods
-- Default constants: `DEFAULT_TENANT_ID`, `DEFAULT_CLIENT_ID`
+The SDK is provided globally via React Context:
 
-### ✅ Entity Type System
-- **File**: `types/replay-api/entities.types.ts`
-- Complete interfaces matching Go backend:
-  - `BaseEntity` with visibility and ownership
-  - IAM: `User`, `Group`, `Profile`, `Membership`, `RIDToken`
-  - Teams: `Squad`, `SquadMembership`, `PlayerProfile`
-  - Replay: `Match`, `Round`, `ShareToken`
-- Enums: `ProfileType`, `GroupType`, `MembershipType`, `SquadMembershipType`, `MembershipStatus`
+```typescript
+// App wraps everything with SDKProvider
+<SDKProvider>
+  <App />
+</SDKProvider>
 
-### ✅ Authentication Module
-- **File**: `types/replay-api/auth.ts`
-- `RIDTokenManager` singleton class:
-  - Token lifecycle management (set, get, clear, refresh)
-  - Browser storage persistence (localStorage)
-  - Automatic header injection (`X-Resource-Owner-ID`, `X-Intended-Audience`)
-  - Expiration tracking with auto-refresh scheduling
-  - Helper functions: `getRIDTokenManager()`, `getAuthHeaders()`, `isAuthenticated()`
+// Components access SDK via hook
+const { sdk } = useSDK();
+const players = await sdk.playerProfiles.searchPlayerProfiles({ game_id: 'cs2' });
+```
 
-### ✅ Search & Filter System
-- **File**: `types/replay-api/search-builder.ts`
-- Fluent API wrapping existing `CSFilters`:
-  - Filter methods: `withGameIds()`, `withPlayerIds()`, `withDateRanges()`, etc.
-  - Pagination: `skip()`, `limit()`, `paginate()`
-  - Sorting: `sortBy()`, `sortAsc()`, `sortDesc()`
-  - Visibility controls: `withRequestSource()`, `withIntendedAudience()`
-  - `build()` returns complete `SearchRequest`
-  - Builder utilities: `reset()`, `clone()`
+### Provider Hierarchy
 
-### ✅ Extended API Client
-- **File**: `types/replay-api/replay-api.client.ts`
-- Full CRUD operations: `get()`, `post()`, `put()`, `delete()`, `patch()`, `search()`
-- Automatic authentication header injection via `RIDTokenManager`
-- Retry logic with exponential backoff:
-  - Retries on 5xx, 429, network errors
-  - Configurable: `setMaxRetries()`, `setRetryDelay()`, `setDefaultTimeout()`
-- Error handling: `ApiResponse<T>` with error details
-- Request options: custom headers, abort signals, timeouts
+```
+NextUIProvider
+  └── NextThemesProvider
+        └── SessionProvider (NextAuth)
+              └── AuthSync (RID token sync)
+                    └── SDKProvider (API SDK)
+                          └── ToastProvider
+                                └── GlobalSearchProvider
+                                      └── Application
+```
 
-### ✅ Upload Client
-- **File**: `types/replay-api/upload-client.ts`
-- Specialized `UploadClient` for replay files:
-  - Progress tracking via XMLHttpRequest with `onProgress` callbacks
-  - Phases: uploading → processing → completed/failed
-  - Status polling with configurable intervals
-  - Batch upload support: `uploadBatch()`
-  - Abort support: `cancelUpload()`, `cancelAll()`
-  - Returns `UploadResult` with `ReplayFile` entity
+## Core Components
 
-### ✅ High-Level SDK Wrappers
-- **File**: `types/replay-api/sdk.ts`
-- `ReplayAPISDK` unified interface with specialized APIs:
-  - `OnboardingAPI`: `onboardSteam()`, `onboardGoogle()`
-  - `SquadAPI`: CRUD operations for squads
-  - `PlayerProfileAPI`: CRUD operations for player profiles
-  - `MatchAPI`: Match queries
-  - `ReplayFileAPI`: Replay file management
-  - `ShareTokenAPI`: Create and revoke share tokens
+### 1. SDK Context (`/contexts/sdk-context.tsx`)
 
-### ✅ Integration Updates
+Provides a single SDK instance across the application:
 
-#### NextAuth Integration
-- **File**: `app/api/auth/[...nextauth]/route.ts`
-- Integrated `RIDTokenManager` into OAuth callbacks
-- Automatically stores RID tokens on Steam/Google sign-in
-- Tokens persist across sessions via localStorage
+```typescript
+import { useSDK } from '@/contexts/sdk-context';
 
-#### Upload Component
-- **File**: `components/replay/upload/upload.tsx`
-- Replaced axios with `UploadClient`
-- Real-time progress tracking with phase indicators
-- Authentication check before upload
-- Status chips: uploading/processing/completed/failed
-- Error handling with user feedback
+function MyComponent() {
+  const { sdk, isReady } = useSDK();
+  // SDK is memoized and consistent
+}
+```
 
-### ✅ Documentation
-- **File**: `types/replay-api/README.md` - Complete SDK documentation with examples
-- **File**: `types/replay-api/examples.ts` - 12 usage examples demonstrating all features
-- **File**: `types/replay-api/index.ts` - Main export file
+### 2. Auth Hooks (`/hooks/use-auth.ts`)
 
-## Architecture Highlights
+Three authentication hooks for different use cases:
 
-### DRY Principles Applied
-- Extended existing `CSFilters` instead of recreating
-- Wrapped `RouteBuilder` without duplicating logic
-- Used existing `ReplayApiSettings` structure
-- Built on existing `Loggable` interface
+```typescript
+// General auth state
+const { isAuthenticated, user, signOut } = useAuth();
 
-### SOLID Principles Applied
-- **Single Responsibility**: Each class has one clear purpose
-- **Open/Closed**: Extensible via inheritance and composition
-- **Liskov Substitution**: Interfaces allow polymorphic usage
-- **Interface Segregation**: Focused, minimal interfaces
-- **Dependency Inversion**: Depends on abstractions (interfaces) not implementations
+// Protected routes (auto-redirect)
+const { isAuthenticated, isLoading, isRedirecting } = useRequireAuth();
 
-### Key Design Patterns
-- **Singleton**: `RIDTokenManager` for global token management
-- **Builder**: `SearchBuilder` for fluent query construction
-- **Factory**: `ResourceOwner.fromUser()`, etc.
-- **Facade**: `ReplayAPISDK` simplifies complex subsystems
-- **Observer**: Progress callbacks in `UploadClient`
+// Public pages with optional auth
+const { isAuthenticated, redirectToSignIn } = useOptionalAuth();
+```
+
+### 3. Domain Hooks
+
+Pre-built hooks with state management for each domain:
+
+| Hook | Features |
+|------|----------|
+| `useWallet()` | Balance, transactions, deposit/withdraw |
+| `useMatchmaking()` | Queue join/leave, session polling |
+| `useLobby()` | Create/join lobbies, ready state, WebSocket |
+| `useTournament()` | List, register, brackets, prizes |
+| `usePayment()` | Payment intents, confirmation, refunds |
+| `useSubscription()` | Plans, subscribe, cancel, pause |
+| `useNotifications()` | Fetch, mark read, delete |
+| `useAuthExtensions()` | MFA setup, email verify, password reset |
+
+## SDK APIs
+
+The main `ReplayAPISDK` class provides access to all APIs:
+
+```typescript
+sdk.onboarding      // Steam/Google onboarding
+sdk.squads          // Squad/team management
+sdk.playerProfiles  // Player profile CRUD
+sdk.matches         // Match queries
+sdk.replayFiles     // Replay file management
+sdk.shareTokens     // Share token creation
+sdk.wallet          // Wallet operations
+sdk.lobbies         // Lobby management
+sdk.prizePools      // Prize pool operations
+sdk.payment         // Payment processing
+sdk.matchmaking     // Queue operations
+sdk.tournaments     // Tournament management
+sdk.search          // Global search
+sdk.matchAnalytics  // Match analytics
+sdk.challenges      // VAR/dispute system
+sdk.highlights      // Highlight clips
+sdk.blockchain      // Blockchain operations
+```
+
+## Authentication Flow
+
+```
+1. User signs in (Steam/Google/Email)
+   ↓
+2. NextAuth creates session
+   ↓
+3. AuthSync detects session change
+   ↓
+4. Backend onboarding returns RID token
+   ↓
+5. RIDTokenManager stores token
+   ↓
+6. All SDK requests include auth headers
+   ↓
+7. useAuth() hooks reflect authenticated state
+```
+
+### RID Token
+
+The Resource Identity (RID) token is crucial for backend authorization:
+
+- Stored in localStorage via `RIDTokenManager`
+- Auto-injected in `X-Resource-Owner-ID` header
+- Validated on every protected API call
+- `useRequireAuth()` ensures RID presence
+
+## Type System
+
+### Enums
+
+```typescript
+GameIDKey        // cs2, csgo, valorant, lol, dota2
+NetworkIDKey     // valve, faceit, esea, community
+VisibilityTypeKey // public, restricted, private, custom
+SessionStatus    // searching, found, starting, in_game, completed
+TournamentStatus // draft, registration_open, in_progress, completed
+```
+
+### Entities
+
+All entities extend `BaseEntity`:
+
+```typescript
+interface BaseEntity {
+  id: string;
+  visibility_level: IntendedAudienceKey;
+  visibility_type: VisibilityTypeKey;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
+}
+```
+
+Key entities:
+- `User`, `Profile`, `Group`, `Membership`
+- `Squad`, `SquadMembership`, `PlayerProfile`
+- `ReplayFile`, `Match`, `Round`
+- `Tournament`, `TournamentParticipant`
+- `WalletBalance`, `Transaction`
+- `Payment`, `Subscription`
 
 ## File Structure
 
 ```
+contexts/
+└── sdk-context.tsx       # SDK provider
+
+hooks/
+├── use-auth.ts           # Auth hooks
+├── use-replay-api.ts     # SDK wrapper (legacy)
+├── use-wallet.ts         # Wallet operations
+├── use-matchmaking.ts    # Matchmaking
+├── use-lobby.ts          # Lobby management
+├── use-tournament.ts     # Tournaments
+├── use-payment.ts        # Payments
+├── use-subscription.ts   # Subscriptions
+├── use-notifications.ts  # Notifications
+└── use-auth-extensions.ts # MFA, password reset
+
 types/replay-api/
-├── index.ts                    # Main exports
-├── README.md                   # Complete documentation
-├── examples.ts                 # 12+ usage examples
-│
-├── settings.ts                 # Enums, constants (extended)
-├── replay-file.ts              # ResourceOwner class (extended)
-├── entities.types.ts           # Complete entity interfaces (extended)
-├── searchable.ts              # Existing CSFilters (preserved)
-├── stats.types.ts             # Existing stats (preserved)
-│
-├── auth.ts                    # RIDTokenManager (new)
-├── search-builder.ts          # Fluent search API (new)
-├── replay-api.client.ts       # Extended CRUD client (extended)
-├── replay-api.route-builder.ts # Existing route builder (preserved)
-├── upload-client.ts           # Specialized upload (new)
-├── sdk.ts                     # High-level wrappers (new)
-│
-├── payment.sdk.ts              # Payment API wrapper
-├── payment.types.ts            # Payment domain types
-├── wallet.sdk.ts               # Wallet API wrapper
-├── wallet.types.ts             # Wallet domain types
-├── matchmaking.sdk.ts          # Matchmaking API wrapper
-├── matchmaking.types.ts        # Matchmaking domain types
-├── lobby.sdk.ts                # Lobby API wrapper
-├── lobby.types.ts              # Lobby domain types
-├── challenge.sdk.ts            # Challenge/VAR API wrapper
-├── challenge.types.ts          # Challenge domain types
-├── highlights.sdk.ts           # Highlights API wrapper
-├── highlights.types.ts         # Highlights domain types
-├── tournament.sdk.ts           # Tournament API wrapper
-├── tournament.types.ts         # Tournament domain types
-├── prize-pool.sdk.ts           # Prize pool API wrapper
-├── prize-pool.types.ts         # Prize pool domain types
-│
-├── settings.test.ts            # Settings tests
-├── matchmaking.sdk.test.ts     # Matchmaking SDK tests
-├── payment.sdk.test.ts         # Payment SDK tests
-├── wallet.sdk.test.ts          # Wallet SDK tests
-└── highlights.sdk.test.ts      # Highlights SDK tests
+├── sdk.ts                # Main SDK class
+├── replay-api.client.ts  # HTTP client
+├── auth.ts               # RIDTokenManager
+├── settings.ts           # Enums, config
+├── entities.types.ts     # Entity interfaces
+├── wallet.sdk.ts         # Wallet API
+├── wallet.types.ts       # Wallet types
+├── matchmaking.sdk.ts    # Matchmaking API
+├── matchmaking.types.ts  # Matchmaking types
+├── lobby.sdk.ts          # Lobby API
+├── lobby.types.ts        # Lobby types
+├── tournament.sdk.ts     # Tournament API
+├── tournament.types.ts   # Tournament types
+├── payment.sdk.ts        # Payment API
+├── payment.types.ts      # Payment types
+├── challenge.sdk.ts      # Challenge API
+├── challenge.types.ts    # Challenge types
+├── highlights.sdk.ts     # Highlights API
+├── highlights.types.ts   # Highlights types
+└── blockchain.sdk.ts     # Blockchain API
 ```
-
-## Key Features Delivered
-
-1. ✅ **Hierarchical Resource Ownership** - Full tenant→client→group→user model
-2. ✅ **Authentication Management** - RID token lifecycle with auto-injection
-3. ✅ **Full CRUD Operations** - All HTTP methods with retry logic
-4. ✅ **File Upload** - Progress tracking and status polling
-5. ✅ **Advanced Search** - Fluent API with visibility controls
-6. ✅ **Type Safety** - Complete TypeScript interfaces matching Go specs
-7. ✅ **Error Handling** - Automatic retry with exponential backoff
-8. ✅ **Mock Replacement** - All components now use real SDK
 
 ## Usage Examples
 
-### Quick Start
+### Basic SDK Usage
+
 ```typescript
-import { ReplayAPISDK } from '@/types/replay-api';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+import { useSDK } from '@/contexts/sdk-context';
 
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+function PlayerList() {
+  const { sdk } = useSDK();
+  const [players, setPlayers] = useState([]);
 
-// Upload replay
-const result = await uploadClient.uploadReplay(file, {
-  gameId: 'cs2',
-  onProgress: (progress) => console.log(progress.percentage)
-});
+  useEffect(() => {
+    sdk.playerProfiles.searchPlayerProfiles({ game_id: 'cs2' })
+      .then(setPlayers);
+  }, [sdk]);
 
-// Search replays
-const search = new SearchBuilder()
-  .withGameIds('cs2')
-  .sortDesc('created_at')
-  .paginate(1, 20)
-  .build();
-const replays = await sdk.client.search(search);
+  return <PlayerGrid players={players} />;
+}
+```
 
-// Create squad
-const squad = await sdk.squads.createSquad({
-  game_id: 'cs2',
-  name: 'My Team'
+### Domain Hook Usage
+
+```typescript
+import { useWallet } from '@/hooks/use-wallet';
+
+function WalletView() {
+  const { balance, isLoadingBalance, deposit } = useWallet();
+
+  if (isLoadingBalance) return <Spinner />;
+
+  return (
+    <div>
+      <h2>Balance: {balance?.total_usd}</h2>
+      <Button onClick={() => deposit({ amount: 100, currency: 'USDC' })}>
+        Deposit $100
+      </Button>
+    </div>
+  );
+}
+```
+
+### Protected Route
+
+```typescript
+import { useRequireAuth } from '@/hooks/use-auth';
+
+function ProtectedPage() {
+  const { isAuthenticated, isLoading, user } = useRequireAuth();
+
+  if (isLoading) return <Loading />;
+  if (!isAuthenticated) return null; // Redirecting...
+
+  return <Dashboard user={user} />;
+}
+```
+
+## Error Handling
+
+The SDK includes automatic retry with exponential backoff:
+
+```typescript
+// Retry on 5xx, 429, network errors
+// Backoff: 1s, 2s, 4s...
+
+const response = await sdk.client.get('/endpoint');
+
+if (response.error) {
+  console.error('Failed:', response.error.message);
+  console.error('Status:', response.status);
+}
+```
+
+## Testing
+
+E2E tests verify the auth flow:
+
+```typescript
+// e2e/auth.spec.ts
+test('should redirect users with session but no RID', async ({ page }) => {
+  // Mock session WITHOUT RID
+  await page.route('**/api/auth/session', ...);
+  await page.goto('/match-making');
+  // Should redirect to signin
+  expect(page.url()).toContain('signin');
 });
 ```
 
-See `types/replay-api/examples.ts` for 12 detailed examples.
+## Best Practices
 
-## Testing Recommendations
+1. **Use domain hooks** for common operations
+2. **Use `useRequireAuth()`** for protected pages
+3. **Use `useOptionalAuth()`** for public pages with auth features
+4. **Never use `useSession()` directly** in components (use auth hooks)
+5. **SDK is provided globally** - no need to instantiate
 
-1. **Authentication Flow**: Test Steam/Google OAuth → RID token storage → API calls
-2. **Upload**: Test file upload → progress tracking → status polling
-3. **Search**: Test complex queries with multiple filters
-4. **Error Handling**: Test retry logic with network failures
-5. **Resource Ownership**: Test visibility filtering with different ownership levels
+## Status
 
-## Future Enhancements (Optional)
+- ✅ SDK Provider implemented
+- ✅ All domain hooks centralized
+- ✅ Auth hooks standardized
+- ✅ Type safety complete
+- ✅ E2E tests passing
+- ✅ Documentation updated
 
-1. **WebSocket Support**: Real-time updates for replay processing status
-2. **Token Refresh**: Implement backend endpoint for automatic token refresh
-3. **Caching Layer**: Add response caching for frequently accessed resources
-4. **Stats Implementation**: Complete the empty `stats.types.ts` interfaces
-5. **Request Queuing**: Queue requests when offline, sync when online
-
-## Conclusion
-
-The SDK is **complete and production-ready**. All core features from the replay-api resource ownership specification have been implemented with proper type safety, error handling, and authentication integration. The implementation follows DRY and SOLID principles, extending existing code rather than duplicating it.
-
-**Status**: ✅ Implementation Complete
-**Files Created**: 6 new files
-**Files Extended**: 4 existing files  
-**Lines of Code**: ~2,500+ lines
-**Compilation Errors**: 0
-**Test Coverage**: Ready for integration testing
+**Last Updated**: 2025-12-22

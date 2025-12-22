@@ -1,5 +1,48 @@
 # LeetGaming.PRO Brand Guidelines
 
+**Last Updated**: December 22, 2025
+
+---
+
+## 🦊 Logo Usage
+
+### Primary Logos
+
+| Logo | File | Usage |
+|------|------|-------|
+| **Text Only** | `/logo-red-only-text.png` | Navbar, auth pages, mobile headers |
+| **Full Logo** | `/logo-red-full.png` | Footer, about pages, marketing |
+| **Fox Only** | `/logo-fox-mini.png` | Favicons, small icons |
+
+### Logo Guidelines
+
+- ✅ **Use `/logo-red-only-text.png`** for:
+  - Sign-in / Sign-up pages
+  - Onboarding flow header
+  - Navbar (desktop and mobile)
+  - Loading states
+  - Password reset / email verification pages
+
+- ✅ **Use `/logo-red-full.png`** for:
+  - Footer (larger format with fox)
+  - About/landing pages
+  - Marketing materials
+
+- ❌ **Never**:
+  - Add glow/shadow effects to logos
+  - Use separate fox + text combinations (use the combined logos)
+  - Combine logo text with "LeetGaming" or "LeetGaming.PRO" text
+
+### Logo Components
+
+```tsx
+import { DefaultLogo } from '@/components/logo/logo-default';    // For navbar
+import { LogoGrayscale } from '@/components/logo/logo-grayscale'; // For footer
+import { FullLogo } from '@/components/logo/logo-full';           // For full display
+```
+
+---
+
 ## 🎨 Color Palette
 
 ### Primary Colors

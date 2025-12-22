@@ -8,6 +8,7 @@ import { ThemeProviderProps } from "next-themes/dist/types";
 import { SessionProvider } from 'next-auth/react'
 import { AuthSync } from '@/components/auth/auth-sync';
 import { SDKProvider } from '@/contexts/sdk-context';
+import { GlobalSearchProvider } from '@/components/search/global-search-provider';
 
 export interface ProvidersProps {
 	children: React.ReactNode;
@@ -23,7 +24,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 				<NextThemesProvider {...themeProps}>
 					<SessionProvider basePath='/api/auth'>
 						<AuthSync>
-							<SDKProvider>{children}</SDKProvider>
+							<SDKProvider>
+								<GlobalSearchProvider>
+									{children}
+								</GlobalSearchProvider>
+							</SDKProvider>
 						</AuthSync>
 					</SessionProvider>
 				</NextThemesProvider>

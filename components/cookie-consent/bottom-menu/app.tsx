@@ -3,30 +3,57 @@ import { Link } from "@nextui-org/react";
 import { EsportsButton } from "@/components/ui/esports-button";
 import CookieSettingsModal from "./CookieSettingsModal";
 
+/**
+ * Cookie utility functions for proper consent management
+ * Uses actual cookies instead of localStorage for:
+ * 1. Server-side access to consent status
+ * 2. Proper expiration (1 year)
+ * 3. GDPR compliance
+ */
+const COOKIE_CONSENT_NAME = "leetgaming_cookie_consent";
+const COOKIE_EXPIRY_DAYS = 365;
+
+function setCookieConsent(value: string) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + COOKIE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  document.cookie = `${COOKIE_CONSENT_NAME}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax; Secure`;
+}
+
+function getCookieConsent(): string | null {
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === COOKIE_CONSENT_NAME) {
+      return value;
+    }
+  }
+  return null;
+}
+
 export default function CookieBottomMenu() {
   const [showCookieSettings, setShowCookieSettings] = React.useState(false);
   const [showCookieMenu, setShowCookieMenu] = React.useState(true);
 
   const handleRejectAll = () => {
-    localStorage.setItem("cookieConsent", "rejected");
+    setCookieConsent("rejected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptAll = () => {
-    localStorage.setItem("cookieConsent", "accepted");
+    setCookieConsent("accepted");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   const handleAcceptSelected = () => {
-    localStorage.setItem("cookieConsent", "selected");
+    setCookieConsent("selected");
     setShowCookieSettings(false);
     setShowCookieMenu(false);
   };
 
   React.useEffect(() => {
-    const cookieConsent = localStorage.getItem("cookieConsent");
+    const cookieConsent = getCookieConsent();
     if (cookieConsent) {
       setShowCookieMenu(false);
     }

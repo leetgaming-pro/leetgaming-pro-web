@@ -134,6 +134,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           isSearching: false,
           sessionId: null,
           queuePosition: 0,
+          totalQueueCount: 0,
           estimatedWait: 0,
           elapsedTime: 0,
           poolStats: null,
@@ -151,6 +152,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           isSearching: true,
           sessionId: null,
           queuePosition: 0,
+          totalQueueCount: 0,
           estimatedWait: 0,
           elapsedTime: 0,
           poolStats: null,
@@ -184,6 +186,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           isSearching: true,
           sessionId: response.session_id,
           queuePosition: response.queue_position,
+          totalQueueCount: response.queue_position, // Initial estimate, updated by polling
           estimatedWait: response.estimated_wait_seconds,
           elapsedTime: 0,
           poolStats: null,
@@ -200,6 +203,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
                 ...prev.matchmaking,
                 queuePosition:
                   status.queue_position || prev.matchmaking.queuePosition,
+                totalQueueCount:
+                  status.total_queue_count || prev.matchmaking.totalQueueCount,
                 estimatedWait: status.estimated_wait,
                 elapsedTime: status.elapsed_time,
               }
@@ -215,6 +220,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           isSearching: false,
           sessionId: null,
           queuePosition: 0,
+          totalQueueCount: 0,
           estimatedWait: 0,
           elapsedTime: 0,
           poolStats: null,
@@ -239,6 +245,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             isSearching: false,
             sessionId: null,
             queuePosition: 0,
+            totalQueueCount: 0,
             estimatedWait: 0,
             elapsedTime: 0,
             poolStats: null,

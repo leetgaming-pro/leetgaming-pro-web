@@ -71,30 +71,50 @@ make local-up
 ```
 leetgaming-pro-web/
 ├── app/                    # Next.js App Router
-│   ├── (auth)/             # Auth routes (signin, signup)
+│   ├── signin/             # Sign in page
+│   ├── signup/             # Registration page
 │   ├── api/                # API routes
 │   │   └── auth/           # NextAuth.js
-│   ├── dashboard/          # User dashboard
 │   ├── match-making/       # Matchmaking wizard
-│   ├── teams/              # Team management
 │   ├── tournaments/        # Tournament system
-│   ├── replays/            # Replay library
+│   ├── players/            # Player profiles
+│   ├── teams/              # Team management
 │   ├── wallet/             # Financial operations
+│   ├── cloud/              # Cloud storage
+│   ├── ranked/             # Ranked statistics
+│   ├── admin/              # Admin dashboard
 │   └── ...
 ├── components/             # React components
+│   ├── auth/               # Auth components (signin, signup, etc.)
 │   ├── ui/                 # UI primitives
 │   ├── match-making/       # Matchmaking components
-│   ├── teams/              # Team components
-│   ├── replay/             # Replay viewer
+│   ├── tournament/         # Tournament components
+│   ├── wallet/             # Wallet components
+│   ├── onboarding/         # Onboarding flow
+│   ├── logo/               # Logo components
 │   └── ...
+├── contexts/               # React contexts
+│   └── sdk-context.tsx     # SDK provider (central SDK instance)
 ├── hooks/                  # Custom React hooks
+│   ├── use-auth.ts         # Auth hooks (useAuth, useRequireAuth, useOptionalAuth)
+│   ├── use-wallet.ts       # Wallet operations
+│   ├── use-matchmaking.ts  # Matchmaking operations
+│   ├── use-tournament.ts   # Tournament operations
+│   ├── use-lobby.ts        # Lobby management
+│   ├── use-payment.ts      # Payment processing
+│   └── ...                 # Domain-specific hooks
 ├── types/                  # TypeScript definitions
-│   └── replay-api/         # API SDK
+│   └── replay-api/         # API SDK and types
+│       ├── sdk.ts          # Main SDK class
+│       ├── auth.ts         # RID token manager
+│       ├── *.sdk.ts        # Domain SDK wrappers
+│       └── *.types.ts      # Type definitions
 ├── lib/                    # Utilities
-│   ├── api/                # API client
-│   └── design/             # Design system
-├── e2e/                    # Playwright tests
+│   └── logger.ts           # Logging utility
+├── e2e/                    # Playwright E2E tests
+│   └── auth.spec.ts        # Auth flow tests
 └── styles/                 # Global styles
+    └── globals.css         # Brand colors, themes
 ```
 
 ---
@@ -144,28 +164,67 @@ SENTRY_DSN=https://xxxxx@sentry.io/xxxxx
 
 ## API SDK
 
-The `types/replay-api/` directory contains a typed SDK:
+The SDK is provided globally via React Context. Use hooks to access it:
+
+### Using the SDK Hook
 
 ```typescript
-import { sdk } from '@/lib/api/client';
+import { useSDK } from '@/contexts/sdk-context';
 
-// Players
-const players = await sdk.players.list();
-const player = await sdk.players.get(playerId);
+function MyComponent() {
+  const { sdk } = useSDK();
 
-// Squads
-const squads = await sdk.squads.list();
-const squad = await sdk.squads.create({ name, tag });
+  // Players
+  const players = await sdk.playerProfiles.searchPlayerProfiles({ game_id: 'cs2' });
+  const player = await sdk.playerProfiles.getPlayerProfile(playerId);
 
-// Matchmaking
-const session = await sdk.matchmaking.join(gameId);
+  // Squads
+  const squads = await sdk.squads.searchSquads({ name: 'Team' });
+  const squad = await sdk.squads.createSquad({ game_id: 'cs2', name, symbol });
+
+  // Matchmaking
+  const session = await sdk.matchmaking.joinQueue(request);
+}
 ```
 
-**Never use hardcoded API routes:**
+### Using Domain Hooks (Recommended)
 
 ```typescript
-// ✅ Correct
-const data = await sdk.players.get(id);
+import { useWallet } from '@/hooks/use-wallet';
+import { useMatchmaking } from '@/hooks/use-matchmaking';
+import { useTournament } from '@/hooks/use-tournament';
+
+function DashboardComponent() {
+  const { balance, deposit, withdraw } = useWallet();
+  const { session, joinQueue, leaveQueue, isSearching } = useMatchmaking();
+  const { tournaments, registerPlayer } = useTournament();
+}
+```
+
+### Auth Hooks
+
+```typescript
+import { useAuth, useRequireAuth, useOptionalAuth } from '@/hooks/use-auth';
+
+// Protected pages (auto-redirect if not authenticated)
+const { isAuthenticated, user, isLoading } = useRequireAuth();
+
+// Public pages with optional auth features
+const { isAuthenticated, redirectToSignIn } = useOptionalAuth();
+
+// General auth state
+const { isAuthenticated, signOut } = useAuth();
+```
+
+**Never use hardcoded API routes or direct fetch:**
+
+```typescript
+// ✅ Correct - use SDK
+const { sdk } = useSDK();
+const data = await sdk.playerProfiles.getPlayerProfile(id);
+
+// ✅ Correct - use domain hook
+const { player } = usePlayer(id);
 
 // ❌ Wrong - never do this
 const data = await fetch('/api/v1/players');
@@ -275,19 +334,49 @@ export function TeamCard({ team, onClick }: TeamCardProps) {
 ### Hook Pattern
 
 ```typescript
-// SWR-based data fetching
-export function usePlayer(playerId: string) {
-  const { data, error, isLoading, mutate } = useSWR(
-    playerId ? `/players/${playerId}` : null,
-    () => sdk.players.get(playerId)
-  );
+// Domain hooks use centralized SDK
+import { useSDK } from '@/contexts/sdk-context';
 
-  return {
-    player: data,
-    isLoading,
-    isError: !!error,
-    refresh: mutate,
-  };
+export function usePlayer(playerId: string) {
+  const { sdk } = useSDK();
+  const [player, setPlayer] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchPlayer = useCallback(async () => {
+    if (!playerId) return;
+    setIsLoading(true);
+    try {
+      const data = await sdk.playerProfiles.getPlayerProfile(playerId);
+      setPlayer(data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sdk, playerId]);
+
+  useEffect(() => {
+    fetchPlayer();
+  }, [fetchPlayer]);
+
+  return { player, isLoading, error, refresh: fetchPlayer };
+}
+```
+
+### Auth Hook Usage
+
+```typescript
+// Protected page - auto-redirects if not authenticated
+import { useRequireAuth } from '@/hooks/use-auth';
+
+function ProtectedPage() {
+  const { isAuthenticated, isLoading, user } = useRequireAuth();
+
+  if (isLoading) return <Loading />;
+  if (!isAuthenticated) return null; // Redirecting...
+
+  return <Dashboard user={user} />;
 }
 ```
 
@@ -351,4 +440,4 @@ Proprietary - © 2025 LeetGaming Pro. All rights reserved.
 ---
 
 *Maintained by the LeetGaming Platform Engineering Team*  
-*Last Updated: December 19, 2025*
+*Last Updated: December 22, 2025*

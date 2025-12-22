@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Checkbox, Input, Link, LinkIcon, Kbd } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Checkbox, Input, Link, LinkIcon, Kbd } from "@nextui-org/react";
 import { CopyDocumentIcon, DeleteDocumentIcon, EditDocumentIcon, Logo, PlusIcon, SearchIcon, ServerIcon } from '@/components/icons';
 import { ChevronDownIcon } from '@/components/files/replays-table/ChevronDownIcon';
 import SearchResults from "./search-results";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
+import { useGlobalSearchContext } from "@/components/search/global-search-provider";
 
 export default function SearchInput() {
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    // Use global search context for keyboard shortcut integration (Cmd+K / Ctrl+K)
+    const { isOpen, openSearch, closeSearch } = useGlobalSearchContext();
     const [query, setQuery] = useState("");
     const { results, loading, error, search, clear } = useGlobalSearch();
     const debounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -37,8 +39,8 @@ export default function SearchInput() {
         if (!open) {
             setQuery("");
             clear();
+            closeSearch();
         }
-        onOpenChange();
     };
 
     const handleKey = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -56,7 +58,7 @@ export default function SearchInput() {
                     input: "text-sm text-[#34445C] dark:text-[#F5F0E1]",
                 }}
                 size="sm"
-                onClick={onOpen}
+                onClick={openSearch}
                 endContent={
                     <div className="flex items-center gap-1">
                     <Kbd className="hidden lg:inline-block bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] rounded-none">

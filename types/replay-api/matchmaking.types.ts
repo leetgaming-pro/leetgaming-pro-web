@@ -53,6 +53,7 @@ export interface SessionStatusResponse {
   elapsed_time: number;
   estimated_wait: number;
   queue_position?: number;
+  total_queue_count?: number;
   match_id?: string;
   lobby_id?: string;
 }
@@ -75,6 +76,7 @@ export interface MatchmakingUIState {
   isSearching: boolean;
   sessionId: string | null;
   queuePosition: number;
+  totalQueueCount: number;
   estimatedWait: number;
   elapsedTime: number;
   poolStats: PoolStatsResponse | null;
