@@ -7,6 +7,9 @@ import { Progress } from "@nextui-org/react";
 import { logger } from "@/lib/logger";
 import Image from "next/image";
 
+// Force runtime rendering for client-side session management
+export const runtime = 'edge';
+
 // Force dynamic rendering since this page uses session management and client-side features
 export const dynamic = 'force-dynamic';
 

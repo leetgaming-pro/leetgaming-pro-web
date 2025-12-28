@@ -13,6 +13,9 @@ import {
 import { Icon } from '@iconify/react';
 import { Payment, PaymentStatus } from '@/components/checkout/types';
 
+// Force runtime rendering for client-side features
+export const runtime = 'edge';
+
 // Force dynamic rendering since this page depends on search params and API calls
 export const dynamic = 'force-dynamic';
 
