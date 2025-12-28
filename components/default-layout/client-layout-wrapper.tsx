@@ -17,7 +17,6 @@
  *                                       └── Application Content
  */
 
-import { useState, useEffect } from 'react';
 import { Providers } from './providers';
 import { Navbar } from '@/components/navbar';
 import { BreadcrumbBar } from '@/components/breadcrumb';
@@ -30,23 +29,6 @@ interface ClientLayoutWrapperProps {
 }
 
 export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
-  const [domLoaded, setDomLoaded] = useState(false);
-
-  useEffect(() => {
-    setDomLoaded(true);
-  }, []);
-
-  if (!domLoaded) {
-    // Return a minimal loading state to prevent flash
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="w-32 h-8 bg-default-200 rounded" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Box>
       <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
