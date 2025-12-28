@@ -23,6 +23,7 @@ import { Navbar } from '@/components/navbar';
 import { BreadcrumbBar } from '@/components/breadcrumb';
 import FooterColumns from '../footer-columns/app';
 import Box from './box';
+import { DevelopmentNotice } from '@/components/development-notice';
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
@@ -52,6 +53,7 @@ export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
         <div className="relative flex flex-col h-screen w-full">
           <Navbar />
           <BreadcrumbBar />
+          <DevelopmentNotice />
           <main className="flex w-full flex-col items-center flex-grow">
             <div className="w-full max-w-[1400px] mx-auto px-4 lg:px-6">
               {children}
