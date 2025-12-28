@@ -61,7 +61,7 @@ interface UseLobbyWebSocketResult {
 }
 
 const getWebSocketUrl = (): string => {
-  const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+  const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
   // Convert http(s) to ws(s)
   const wsUrl = apiUrl.replace(/^http/, 'ws');
   return `${wsUrl}/ws`;

@@ -29,7 +29,7 @@ export function UploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadClient = useMemo(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
+    const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'https://api.leetgaming.pro';
     return new UploadClient({ ...ReplayApiSettingsMock, baseUrl }, logger);
   }, []);
 

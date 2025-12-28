@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 const REPLAY_API_URL =
   process.env.REPLAY_API_URL ||
   process.env.NEXT_PUBLIC_REPLAY_API_URL ||
-  "http://localhost:8080";
+  "https://api.leetgaming.pro";
 
 export default async function handler(
   req: NextApiRequest,

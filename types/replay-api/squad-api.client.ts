@@ -27,7 +27,7 @@ export class SquadApiClient {
       baseUrl:
         process.env.NEXT_PUBLIC_REPLAY_API_URL ||
         process.env.REPLAY_API_URL ||
-        "http://localhost:8080",
+        "https://api.leetgaming.pro",
     };
     this.logger = config.logger;
     this.routeBuilder = new RouteBuilder(this.settings, this.logger);

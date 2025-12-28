@@ -161,8 +161,8 @@ export function PrivacySettings() {
   // Initialize SDK
   const settingsApi = useMemo(() => {
     const baseUrl = typeof window !== 'undefined' 
-      ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080'
-      : 'http://localhost:8080';
+      ? process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro'
+      : 'https://api.leetgaming.pro';
     const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
     return new UserSettingsAPI(sdk.client);
   }, []);

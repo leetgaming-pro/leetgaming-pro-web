@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 
-const BACKEND_URL = process.env.REPLAY_API_URL || "http://localhost:8080";
+const BACKEND_URL = process.env.REPLAY_API_URL || "https://api.leetgaming.pro";
 
 /**
  * GET /api/auth/password-reset/validate?token=xxx

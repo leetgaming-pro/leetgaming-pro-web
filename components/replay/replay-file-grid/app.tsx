@@ -8,7 +8,7 @@ import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
 import { ReplayFile } from '@/types/replay-api/replay-file';
 
-const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
+const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'https://api.leetgaming.pro';
 const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl }, logger);
 
 export type ProductGridProps = React.HTMLAttributes<HTMLDivElement> & {

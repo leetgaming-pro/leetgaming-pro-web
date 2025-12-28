@@ -26,13 +26,13 @@ import { logger } from "@/lib/logger";
 function getApiBaseUrl(): string {
   if (typeof window !== "undefined") {
     // Client-side: use NEXT_PUBLIC_ prefixed env var
-    return process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
+    return process.env.NEXT_PUBLIC_REPLAY_API_URL || "https://api.leetgaming.pro";
   }
   // Server-side: can access both
   return (
     process.env.NEXT_PUBLIC_REPLAY_API_URL ||
     process.env.REPLAY_API_URL ||
-    "http://localhost:8080"
+    "https://api.leetgaming.pro"
   );
 }
 

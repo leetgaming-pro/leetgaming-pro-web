@@ -17,7 +17,7 @@ const securityHeaders = {
     "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
     "img-src 'self' data: https: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' http://localhost:8080 https://api.leetgaming.pro http://replay.leetgaming.pro https://steamcommunity.com https://accounts.google.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
+    "connect-src 'self' https://api.leetgaming.pro http://replay.leetgaming.pro https://steamcommunity.com https://accounts.google.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
     "frame-ancestors 'none'", // Prevent clickjacking
     "base-uri 'self'",
     "form-action 'self'",

@@ -71,7 +71,7 @@ export default function App() {
     setError(null);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+      const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
 
       const playerData = {
         display_name: displayName,

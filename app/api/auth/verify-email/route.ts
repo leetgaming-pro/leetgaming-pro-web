@@ -11,7 +11,7 @@ import { authOptions } from "../[...nextauth]/options";
 import { forwardAuthenticatedRequest } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
 
-const BACKEND_URL = process.env.REPLAY_API_URL || "http://localhost:8080";
+const BACKEND_URL = process.env.REPLAY_API_URL || "https://api.leetgaming.pro";
 
 /**
  * GET /api/auth/verify-email?token=xxx

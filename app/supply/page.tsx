@@ -115,7 +115,7 @@ export default function SupplyPage() {
         setLoading(true);
         setError(null);
 
-        const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+        const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
         const params = new URLSearchParams();
         if (selectedCategory !== 'all') params.append('category', selectedCategory);
         if (selectedRarity !== 'all') params.append('rarity', selectedRarity);
@@ -168,7 +168,7 @@ export default function SupplyPage() {
 
     setPurchasing(true);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+      const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
       const response = await fetch(`${baseUrl}/api/v1/marketplace/items/${selectedItem.id}/purchase`, {
         method: 'POST',
         headers: {
