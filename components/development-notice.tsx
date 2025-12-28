@@ -7,8 +7,11 @@ export function DevelopmentNotice() {
   const [isVisible, setIsVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Only show in non-production environments
-  if (process.env.NODE_ENV === 'production' || !isVisible) {
+  // Show development notice in production for beta/pre-alpha launch
+  // Can be controlled via NEXT_PUBLIC_SHOW_DEV_NOTICE environment variable
+  const shouldShowNotice = process.env.NEXT_PUBLIC_SHOW_DEV_NOTICE !== 'false' && isVisible;
+
+  if (!shouldShowNotice) {
     return null;
   }
 
