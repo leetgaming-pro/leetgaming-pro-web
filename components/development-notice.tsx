@@ -5,7 +5,6 @@ import { X, AlertTriangle, Sparkles, Zap, Trophy } from 'lucide-react';
 
 export function DevelopmentNotice() {
   const [isVisible, setIsVisible] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   // Show development notice in production for beta/pre-alpha launch
   // Can be controlled via NEXT_PUBLIC_SHOW_DEV_NOTICE environment variable
@@ -21,15 +20,10 @@ export function DevelopmentNotice() {
     return null;
   }
 
-  useEffect(() => {
-    // Add subtle entrance animation
-    setIsAnimating(true);
-  }, []);
-
   return (
-    <div className={`relative w-full bg-gradient-to-r from-leet-navy via-leet-navy-dark to-leet-navy border-b-2 border-leet-gold shadow-lg transition-all duration-500 ${isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+    <div className="relative w-full bg-gradient-to-r from-leet-navy via-leet-navy-dark to-leet-navy border-b-2 border-leet-gold shadow-lg">
       {/* Animated background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-leet-gold/5 via-transparent to-leet-gold/5 animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-r from-leet-gold/5 via-transparent to-leet-gold/5" />
 
       <div className="relative max-w-[1400px] mx-auto px-4 lg:px-6 py-4">
         <div className="flex items-center justify-between">
@@ -39,13 +33,13 @@ export function DevelopmentNotice() {
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-leet-gold to-leet-orange rounded-full shadow-lg">
                 <Trophy className="w-5 h-5 text-leet-navy" />
               </div>
-              <div className="absolute -inset-1 bg-leet-gold/20 rounded-full blur-sm animate-pulse" />
+              <div className="absolute -inset-1 bg-leet-gold/20 rounded-full blur-sm" />
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-3 mb-1">
                 <div className="flex items-center space-x-2">
-                  <Zap className="w-4 h-4 text-leet-gold animate-pulse" />
+                  <Zap className="w-4 h-4 text-leet-gold" />
                   <span className="text-sm font-bold text-leet-gold uppercase tracking-wider bg-leet-gold/10 px-2 py-1 rounded-full">
                     Pre-Alpha Access
                   </span>
@@ -75,7 +69,9 @@ export function DevelopmentNotice() {
           </div>
 
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={() => {
+              setIsVisible(false);
+            }}
             className="flex-shrink-0 ml-4 p-2 rounded-lg hover:bg-leet-gold/10 transition-all duration-200 group hover:scale-105"
             aria-label="Dismiss pre-alpha notice"
           >
@@ -84,8 +80,8 @@ export function DevelopmentNotice() {
         </div>
 
         {/* Enhanced animated border */}
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-leet-gold via-leet-lime to-transparent animate-pulse" />
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-leet-gold/50 animate-pulse delay-100" />
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-leet-gold via-leet-lime to-transparent" />
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-leet-gold/50" />
       </div>
     </div>
   );
