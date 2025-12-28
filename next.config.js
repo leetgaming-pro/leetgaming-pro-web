@@ -23,15 +23,6 @@ const nextConfig = {
       }
     ]
   },
-  // Sentry webpack plugin options
-  sentry: {
-    // Use `hidden-source-map` rather than `source-map` as the Webpack `devtool`
-    // to not leak sourcemaps to the browser
-    hideSourceMaps: true,
-    // Disable the Sentry webpack plugin in development
-    disableServerWebpackPlugin: process.env.NODE_ENV !== 'production',
-    disableClientWebpackPlugin: process.env.NODE_ENV !== 'production',
-  },
 }
 
 const sentryWebpackPluginOptions = {
@@ -40,21 +31,15 @@ const sentryWebpackPluginOptions = {
 
   // Only upload source maps in production
   silent: true,
-  
+
   // Suppresses source map uploading logs during build
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
 
   // An auth token is required for uploading source maps.
   authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // Automatically associate commits with releases
-  setCommits: {
-    auto: true,
-  },
 };
 
-// Conditionally wrap with Sentry
 module.exports = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
   ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
   : nextConfig;

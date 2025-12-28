@@ -13,6 +13,9 @@ import {
 import { Icon } from '@iconify/react';
 import { Payment, PaymentStatus } from '@/components/checkout/types';
 
+// Force dynamic rendering since this page depends on search params and API calls
+export const dynamic = 'force-dynamic';
+
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();

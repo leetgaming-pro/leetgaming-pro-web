@@ -7,6 +7,9 @@ import { Progress } from "@nextui-org/react";
 import { logger } from "@/lib/logger";
 import Image from "next/image";
 
+// Force dynamic rendering since this page uses session management and client-side features
+export const dynamic = 'force-dynamic';
+
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();

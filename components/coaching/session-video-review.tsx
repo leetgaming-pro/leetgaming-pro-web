@@ -342,6 +342,7 @@ export function SessionVideoReview({
               <button
                 className="absolute inset-0 flex items-center justify-center bg-black/30"
                 onClick={handlePlayPause}
+                aria-label="Play video"
               >
                 <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
                   <Icon
@@ -376,8 +377,7 @@ export function SessionVideoReview({
                         left: `${(marker.timestamp / duration) * 100}%`,
                         backgroundColor: getMarkerColor(marker.type),
                       }}
-                      onClick={() => jumpToMarker(marker)}
-                    />
+                      onClick={() => jumpToMarker(marker)}                      aria-label={`Jump to marker: ${marker.title}`}                    />
                   </Tooltip>
                 ))}
               </div>
