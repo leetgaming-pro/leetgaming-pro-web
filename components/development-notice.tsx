@@ -9,9 +9,15 @@ export function DevelopmentNotice() {
 
   // Show development notice in production for beta/pre-alpha launch
   // Can be controlled via NEXT_PUBLIC_SHOW_DEV_NOTICE environment variable
-  const shouldShowNotice = process.env.NEXT_PUBLIC_SHOW_DEV_NOTICE !== 'false' && isVisible;
+  // Default: show in production, hide in development unless explicitly enabled
+  const isProduction = process.env.NODE_ENV === 'production';
+  const envSetting = process.env.NEXT_PUBLIC_SHOW_DEV_NOTICE;
+  const shouldShowNotice =
+    (isProduction && envSetting !== 'false') || // Show in production unless explicitly disabled
+    (!isProduction && envSetting === 'true') || // Show in development only if explicitly enabled
+    false; // Default fallback
 
-  if (!shouldShowNotice) {
+  if (!shouldShowNotice || !isVisible) {
     return null;
   }
 
