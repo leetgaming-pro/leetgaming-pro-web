@@ -114,7 +114,7 @@ export default function ChallengesPage() {
         filters.challenger_id = user.id;
       }
 
-      const result = await sdk.challenges.list(filters);
+      const result = await sdk.challenges.listChallenges(filters);
       if (result) {
         setChallenges(result.items);
         setTotalPages(Math.ceil(result.total / ITEMS_PER_PAGE));
@@ -475,7 +475,7 @@ export default function ChallengesPage() {
                                 <Icon icon="solar:eye-bold" width={18} />
                               </Button>
                             </Tooltip>
-                            {challenge.status === "voting" && (
+                            {challenge.status === "vote_pending" && (
                               <Tooltip content="Cast Vote">
                                 <Button
                                   isIconOnly
@@ -726,7 +726,7 @@ export default function ChallengesPage() {
                   >
                     Close
                   </Button>
-                  {selectedChallenge?.status === "voting" && (
+                  {selectedChallenge?.status === "vote_pending" && (
                     <>
                       <Button
                         color="danger"
