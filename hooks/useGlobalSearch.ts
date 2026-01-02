@@ -80,10 +80,10 @@ function transformTeams(teams: Squad[]): GlobalSearchResult[] {
     type: 'team' as const,
     id: team.id,
     title: team.name || 'Unnamed Team',
-    description: `${Object.keys(team.members || {}).length} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
+    description: `${team.membership?.length || 0} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
     href: `/teams/${team.id}`,
     metadata: {
-      members: team.members,
+      membership: team.membership,
       createdAt: team.created_at,
     },
   }));

@@ -10,6 +10,7 @@ export { default as MatchmakingWizard } from "./App";
 export { WizardProvider, useWizard, type WizardState } from "./wizard-context";
 
 // Step forms
+export { default as TierSelectionForm } from "./tier-selection-form";
 export { default as ChooseRegionForm } from "./choose-region-form";
 export { default as GameModeForm } from "./game-mode-form";
 export { default as SquadForm } from "./squad-form";

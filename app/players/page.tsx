@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useOptionalAuth } from "@/hooks";
+import { useReplayApi } from "@/hooks/use-replay-api";
 import {
   Card,
   CardBody,
@@ -18,15 +19,13 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { title, subtitle } from "@/components/primitives";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { PlayerProfile } from "@/types/replay-api/entities.types";
 import { logger } from "@/lib/logger";
 import { PlayerCreationModal } from "@/components/players/player-creation-modal";
 import { useDisclosure } from "@nextui-org/react";
 import { PageContainer } from "@/components/layout/page-container";
-
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+import { GameSelect } from "@/components/ui/game-select";
+import { GameId } from "@/types/games";
 
 /** Extended player profile with stats from API */
 interface PlayerProfileWithStats extends PlayerProfile {
@@ -70,13 +69,18 @@ interface Player {
 }
 
 export default function PlayersPage() {
-  const { isAuthenticated, isLoading: authLoading, requireAuthForAction } = useOptionalAuth();
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    requireAuthForAction,
+  } = useOptionalAuth();
+  const { sdk } = useReplayApi();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedGame, setSelectedGame] = useState("all");
+  const [selectedGame, setSelectedGame] = useState<GameId | null>(null);
   const [selectedRole, setSelectedRole] = useState("all");
   const [showOnlyLFT, setShowOnlyLFT] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -84,26 +88,29 @@ export default function PlayersPage() {
 
   // Handle create profile click - requires auth
   const handleCreateProfile = () => {
-    if (requireAuthForAction('create a player profile')) {
+    if (requireAuthForAction("create a player profile")) {
       onOpen();
     }
   };
 
-  useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        setLoading(true);
-        setError(null);
+  // Fetch players using SDK with proper auth headers
+  const fetchPlayers = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const filters: PlayerSearchFilters = {};
-        if (selectedGame !== "all") {
-          filters.game_id = selectedGame;
-        }
+      const filters: PlayerSearchFilters = {};
+      if (selectedGame) {
+        filters.game_id = selectedGame;
+      }
 
-        const playersData = await sdk.playerProfiles.searchPlayerProfiles(filters);
+      const playersData = await sdk.playerProfiles.searchPlayerProfiles(
+        filters
+      );
 
-        // Convert API data to Player interface
-        const mappedPlayers: Player[] = (playersData || []).map((p: PlayerProfileWithStats) => ({
+      // Convert API data to Player interface
+      const mappedPlayers: Player[] = (playersData || []).map(
+        (p: PlayerProfileWithStats) => ({
           id: p.id,
           name: p.nickname || "Unknown",
           avatar: p.avatar_uri || `https://i.pravatar.cc/150?u=${p.id}`,
@@ -120,30 +127,37 @@ export default function PlayersPage() {
           achievements: p.achievements?.length || 0,
           isVerified: p.verified || false,
           isLookingForTeam: p.looking_for_team || false,
-        }));
+        })
+      );
 
-        // Use real data from API
-        setPlayers(mappedPlayers);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load players";
-        logger.error("Failed to fetch players", err);
-        setError(errorMessage);
-        // Don't use mock data - show empty state when API fails
-        setPlayers([]);
-      } finally {
-        setLoading(false);
-      }
+      // Use real data from API
+      setPlayers(mappedPlayers);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load players";
+      logger.error("Failed to fetch players", err);
+      setError(errorMessage);
+      // Don't use mock data - show empty state when API fails
+      setPlayers([]);
+    } finally {
+      setLoading(false);
     }
+  }, [sdk, selectedGame]);
 
+  useEffect(() => {
     fetchPlayers();
-  }, [selectedGame]);
+  }, [fetchPlayers]);
 
   // Memoize filtered players to avoid re-computing on every render
   // Global search (navbar) handles text search - page only filters by dropdowns
   const filteredPlayers = React.useMemo(() => {
     return players.filter((player) => {
-      const matchesGame = selectedGame === "all" || player.game.toLowerCase() === selectedGame.toLowerCase();
-      const matchesRole = selectedRole === "all" || player.role.toLowerCase() === selectedRole.toLowerCase();
+      const matchesGame =
+        !selectedGame ||
+        player.game.toLowerCase() === selectedGame.toLowerCase();
+      const matchesRole =
+        selectedRole === "all" ||
+        player.role.toLowerCase() === selectedRole.toLowerCase();
       const matchesLFT = !showOnlyLFT || player.isLookingForTeam;
 
       return matchesGame && matchesRole && matchesLFT;
@@ -167,312 +181,443 @@ export default function PlayersPage() {
       <div className="flex w-full flex-col items-center gap-8 py-8">
         {/* Header */}
         <div className="flex w-full flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-            <Icon icon="solar:user-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+          <div
+            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+            style={{
+              clipPath:
+                "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+            }}
+          >
+            <Icon
+              icon="solar:user-bold"
+              width={28}
+              className="text-[#F5F0E1] dark:text-[#34445C]"
+            />
           </div>
-          <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Competitive Community</h2>
-          <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Player Profiles</h1>
+          <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">
+            Competitive Community
+          </h2>
+          <h1
+            className={title({
+              size: "lg",
+              class: "text-[#34445C] dark:text-[#F5F0E1]",
+            })}
+          >
+            Player Profiles
+          </h1>
           <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
-            Discover talented players, find teammates, and connect with the competitive gaming community.
+            Discover talented players, find teammates, and connect with the
+            competitive gaming community.
           </p>
         </div>
 
         {/* Filters */}
         <Card className="w-full max-w-7xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-        <CardBody>
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
-            <Select
-              label="Game"
-              selectedKeys={[selectedGame]}
-              onSelectionChange={(keys) => setSelectedGame(Array.from(keys)[0] as string)}
-              className="w-full md:w-48"
-              variant="bordered"
-              classNames={{
-                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
-                popoverContent: "rounded-none",
-              }}
-            >
-              <SelectItem key="all" value="all">All Games</SelectItem>
-              <SelectItem key="cs2" value="cs2">CS2</SelectItem>
-              <SelectItem key="valorant" value="valorant">Valorant</SelectItem>
-              <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
-            </Select>
-            <Select
-              label="Role"
-              selectedKeys={[selectedRole]}
-              onSelectionChange={(keys) => setSelectedRole(Array.from(keys)[0] as string)}
-              className="w-full md:w-48"
-              variant="bordered"
-              classNames={{
-                trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
-                popoverContent: "rounded-none",
-              }}
-            >
-              <SelectItem key="all" value="all">All Roles</SelectItem>
-              <SelectItem key="awper" value="awper">AWPer</SelectItem>
-              <SelectItem key="rifler" value="rifler">Rifler</SelectItem>
-              <SelectItem key="support" value="support">Support</SelectItem>
-              <SelectItem key="entry fragger" value="entry fragger">Entry Fragger</SelectItem>
-              <SelectItem key="duelist" value="duelist">Duelist</SelectItem>
-              <SelectItem key="controller" value="controller">Controller</SelectItem>
-            </Select>
-            <Button
-              className={showOnlyLFT 
-                ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] rounded-none w-full md:w-auto" 
-                : "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 w-full md:w-auto"}
-              variant={showOnlyLFT ? "shadow" : "bordered"}
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-              onPress={() => setShowOnlyLFT(!showOnlyLFT)}
-              startContent={<Icon icon="mdi:account-search" width={20} />}
-            >
-              Looking for Team
-            </Button>
-            <p className="text-tiny text-default-400 hidden md:block">
-              Use ⌘+` to search players
-            </p>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Loading State */}
-      {loading && (
-        <div className="w-full max-w-7xl flex justify-center py-12">
-          <Spinner size="lg" label="Loading players..." color="primary" />
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !loading && (
-        <Card className="w-full max-w-md">
-          <CardBody className="text-center">
-            <Icon icon="mdi:alert-circle" className="text-danger mx-auto mb-4" width={48} />
-            <p className="text-danger font-semibold mb-2">Error loading players</p>
-            <p className="text-default-500 mb-4">{error}</p>
-            <p className="text-xs text-default-400 mb-4">Showing cached data</p>
+          <CardBody>
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
+              <GameSelect
+                selectedGame={selectedGame}
+                onSelectionChange={setSelectedGame}
+                label="Game"
+                placeholder="Select game"
+                showAllOption={true}
+                allOptionLabel="All Games"
+                variant="bordered"
+                size="md"
+                className="w-full md:w-56"
+              />
+              <Select
+                label="Role"
+                selectedKeys={[selectedRole]}
+                onSelectionChange={(keys) =>
+                  setSelectedRole(Array.from(keys)[0] as string)
+                }
+                className="w-full md:w-48"
+                variant="bordered"
+                classNames={{
+                  trigger:
+                    "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                  popoverContent: "rounded-none",
+                }}
+              >
+                <SelectItem key="all" value="all">
+                  All Roles
+                </SelectItem>
+                <SelectItem key="awper" value="awper">
+                  AWPer
+                </SelectItem>
+                <SelectItem key="rifler" value="rifler">
+                  Rifler
+                </SelectItem>
+                <SelectItem key="support" value="support">
+                  Support
+                </SelectItem>
+                <SelectItem key="entry fragger" value="entry fragger">
+                  Entry Fragger
+                </SelectItem>
+                <SelectItem key="duelist" value="duelist">
+                  Duelist
+                </SelectItem>
+                <SelectItem key="controller" value="controller">
+                  Controller
+                </SelectItem>
+              </Select>
+              <Button
+                className={
+                  showOnlyLFT
+                    ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] rounded-none w-full md:w-auto"
+                    : "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 w-full md:w-auto"
+                }
+                variant={showOnlyLFT ? "shadow" : "bordered"}
+                style={{
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                }}
+                onPress={() => setShowOnlyLFT(!showOnlyLFT)}
+                startContent={<Icon icon="mdi:account-search" width={20} />}
+              >
+                Looking for Team
+              </Button>
+              <p className="text-tiny text-default-400 hidden md:block">
+                Use ⌘+` to search players
+              </p>
+            </div>
           </CardBody>
         </Card>
-      )}
 
-      {/* Players Grid */}
-      {!loading && (
-        <div className="w-full max-w-7xl">
-          <div className="flex justify-between items-center mb-4">
-            <p className="text-default-500">
-              Showing {filteredPlayers.length} player{filteredPlayers.length !== 1 ? "s" : ""}
-            </p>
+        {/* Loading State */}
+        {loading && (
+          <div className="w-full max-w-7xl flex justify-center py-12">
+            <Spinner size="lg" label="Loading players..." color="primary" />
           </div>
+        )}
 
-          {filteredPlayers.length === 0 ? (
-          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <CardBody className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-                <Icon icon="mdi:account-off" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No players found</h3>
-              <p className="text-default-500">
-                Try adjusting your filters or search query
+        {/* Error State */}
+        {error && !loading && (
+          <Card className="w-full max-w-md">
+            <CardBody className="text-center">
+              <Icon
+                icon="mdi:alert-circle"
+                className="text-danger mx-auto mb-4"
+                width={48}
+              />
+              <p className="text-danger font-semibold mb-2">
+                Error loading players
+              </p>
+              <p className="text-default-500 mb-4">{error}</p>
+              <p className="text-xs text-default-400 mb-4">
+                Showing cached data
               </p>
             </CardBody>
           </Card>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedPlayers.map((player) => (
-              <Card key={player.id} className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-                <CardHeader className="flex flex-col gap-3 p-6">
-                  <div className="flex w-full justify-between items-start">
-                    <div className="w-20 h-20 overflow-hidden border-2 border-[#FF4654] dark:border-[#DCFF37]"
-                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-                      <Avatar
-                        src={player.avatar}
-                        className="w-full h-full"
-                        isBordered={false}
-                      />
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      {player.isVerified && (
-                        <Chip
-                          size="sm"
-                          variant="flat"
-                          className="rounded-none bg-[#34445C]/10 dark:bg-[#DCFF37]/10 text-[#34445C] dark:text-[#DCFF37]"
-                          startContent={<Icon icon="mdi:check-decagram" width={16} />}
-                        >
-                          Verified
-                        </Chip>
-                      )}
-                      {player.isLookingForTeam && (
-                        <Chip
-                          size="sm"
-                          variant="flat"
-                          color="success"
-                          className="rounded-none"
-                          startContent={<Icon icon="mdi:account-search" width={16} />}
-                        >
-                          LFT
-                        </Chip>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1 w-full">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">{player.name}</h3>
-                      <span className="text-xs text-default-500">{player.country}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Chip size="sm" variant="flat" className="rounded-none bg-[#FFC700]/20 text-[#FFC700]">
-                        {player.rank}
-                      </Chip>
-                      <Chip size="sm" variant="flat" className="rounded-none">
-                        {player.rating}
-                      </Chip>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <Divider />
-
-                <CardBody className="p-6 gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">Game</span>
-                      <span className="font-semibold">{player.game}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">Role</span>
-                      <span className="font-semibold">{player.role}</span>
-                    </div>
-                    {player.team && (
-                      <div className="flex flex-col col-span-2">
-                        <span className="text-xs text-default-500">Team</span>
-                        <span className="font-semibold">{player.team}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Divider />
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">Win Rate</span>
-                      <span className="font-bold text-success">{player.winRate.toFixed(1)}%</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">K/D Ratio</span>
-                      <span className="font-bold">{player.kd.toFixed(2)}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">Matches</span>
-                      <span className="font-semibold">{player.wins + player.losses}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-default-500">Achievements</span>
-                      <span className="font-semibold">{player.achievements}</span>
-                    </div>
-                  </div>
-                </CardBody>
-
-                <Divider />
-
-                <CardFooter className="p-4 gap-2">
-                  <Button
-                    className="flex-1 bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-                    startContent={<Icon icon="mdi:account" width={18} />}
-                  >
-                    View Profile
-                  </Button>
-                  <Button
-                    variant="bordered"
-                    isIconOnly
-                    className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
-                  >
-                    <Icon icon="mdi:message" width={20} />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              <Button
-                isIconOnly
-                variant="flat"
-                isDisabled={currentPage === 1}
-                onPress={() => setCurrentPage(p => Math.max(1, p - 1))}
-              >
-                <Icon icon="mdi:chevron-left" width={20} />
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  // Show first page, current page, and last page with ellipsis
-                  let pageNum: number;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <Button
-                      key={pageNum}
-                      size="sm"
-                      variant={currentPage === pageNum ? "solid" : "flat"}
-                      color={currentPage === pageNum ? "primary" : "default"}
-                      onPress={() => setCurrentPage(pageNum)}
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-              </div>
-
-              <Button
-                isIconOnly
-                variant="flat"
-                isDisabled={currentPage === totalPages}
-                onPress={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              >
-                <Icon icon="mdi:chevron-right" width={20} />
-              </Button>
-            </div>
-          )}
-        </>
         )}
-        </div>
-      )}
 
-      {/* CTA Card */}
-      <Card className="w-full bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none overflow-hidden relative">
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FFC700]/30 to-transparent dark:from-[#DCFF37]/20 pointer-events-none" />
-        <CardBody className="text-center py-8">
-          <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-[#F5F0E1]/20 dark:bg-[#DCFF37]/20"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-            <Icon icon="mdi:account-plus" width={28} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
+        {/* Players Grid */}
+        {!loading && (
+          <div className="w-full max-w-7xl">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-default-500">
+                Showing {filteredPlayers.length} player
+                {filteredPlayers.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+
+            {filteredPlayers.length === 0 ? (
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardBody className="text-center py-12">
+                  <div
+                    className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+                    }}
+                  >
+                    <Icon
+                      icon="mdi:account-off"
+                      className="text-[#34445C] dark:text-[#DCFF37]"
+                      width={32}
+                    />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">
+                    No players found
+                  </h3>
+                  <p className="text-default-500">
+                    Try adjusting your filters or search query
+                  </p>
+                </CardBody>
+              </Card>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {paginatedPlayers.map((player) => (
+                    <Card
+                      key={player.id}
+                      className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
+                    >
+                      <CardHeader className="flex flex-col gap-3 p-6">
+                        <div className="flex w-full justify-between items-start">
+                          <div
+                            className="w-20 h-20 overflow-hidden border-2 border-[#FF4654] dark:border-[#DCFF37]"
+                            style={{
+                              clipPath:
+                                "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+                            }}
+                          >
+                            <Avatar
+                              src={player.avatar}
+                              className="w-full h-full"
+                              isBordered={false}
+                            />
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            {player.isVerified && (
+                              <Chip
+                                size="sm"
+                                variant="flat"
+                                className="rounded-none bg-[#34445C]/10 dark:bg-[#DCFF37]/10 text-[#34445C] dark:text-[#DCFF37]"
+                                startContent={
+                                  <Icon icon="mdi:check-decagram" width={16} />
+                                }
+                              >
+                                Verified
+                              </Chip>
+                            )}
+                            {player.isLookingForTeam && (
+                              <Chip
+                                size="sm"
+                                variant="flat"
+                                color="success"
+                                className="rounded-none"
+                                startContent={
+                                  <Icon icon="mdi:account-search" width={16} />
+                                }
+                              >
+                                LFT
+                              </Chip>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1 w-full">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                              {player.name}
+                            </h3>
+                            <span className="text-xs text-default-500">
+                              {player.country}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Chip
+                              size="sm"
+                              variant="flat"
+                              className="rounded-none bg-[#FFC700]/20 text-[#FFC700]"
+                            >
+                              {player.rank}
+                            </Chip>
+                            <Chip
+                              size="sm"
+                              variant="flat"
+                              className="rounded-none"
+                            >
+                              {player.rating}
+                            </Chip>
+                          </div>
+                        </div>
+                      </CardHeader>
+
+                      <Divider />
+
+                      <CardBody className="p-6 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              Game
+                            </span>
+                            <span className="font-semibold">{player.game}</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              Role
+                            </span>
+                            <span className="font-semibold">{player.role}</span>
+                          </div>
+                          {player.team && (
+                            <div className="flex flex-col col-span-2">
+                              <span className="text-xs text-default-500">
+                                Team
+                              </span>
+                              <span className="font-semibold">
+                                {player.team}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <Divider />
+
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              Win Rate
+                            </span>
+                            <span className="font-bold text-success">
+                              {player.winRate.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              K/D Ratio
+                            </span>
+                            <span className="font-bold">
+                              {player.kd.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              Matches
+                            </span>
+                            <span className="font-semibold">
+                              {player.wins + player.losses}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-default-500">
+                              Achievements
+                            </span>
+                            <span className="font-semibold">
+                              {player.achievements}
+                            </span>
+                          </div>
+                        </div>
+                      </CardBody>
+
+                      <Divider />
+
+                      <CardFooter className="p-4 gap-2">
+                        <Button
+                          className="flex-1 bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                          }}
+                          startContent={<Icon icon="mdi:account" width={18} />}
+                        >
+                          View Profile
+                        </Button>
+                        <Button
+                          variant="bordered"
+                          isIconOnly
+                          className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+                        >
+                          <Icon icon="mdi:message" width={20} />
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    <Button
+                      isIconOnly
+                      variant="flat"
+                      isDisabled={currentPage === 1}
+                      onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    >
+                      <Icon icon="mdi:chevron-left" width={20} />
+                    </Button>
+
+                    <div className="flex items-center gap-2">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          // Show first page, current page, and last page with ellipsis
+                          let pageNum: number;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <Button
+                              key={pageNum}
+                              size="sm"
+                              variant={
+                                currentPage === pageNum ? "solid" : "flat"
+                              }
+                              color={
+                                currentPage === pageNum ? "primary" : "default"
+                              }
+                              onPress={() => setCurrentPage(pageNum)}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <Button
+                      isIconOnly
+                      variant="flat"
+                      isDisabled={currentPage === totalPages}
+                      onPress={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                    >
+                      <Icon icon="mdi:chevron-right" width={20} />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-          <h3 className="text-lg font-semibold mb-2 text-[#F5F0E1]">Create Your Player Profile</h3>
-          <p className="text-[#F5F0E1]/80 mb-4">
-            Join our community and showcase your skills to teams and players worldwide
-          </p>
-          <Button 
-            className="bg-[#F5F0E1] text-[#34445C] font-semibold rounded-none"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-            size="lg" 
-            onPress={handleCreateProfile}
-          >
-            {isAuthenticated ? 'Create Profile' : 'Sign in to Create Profile'}
-          </Button>
-        </CardBody>
-      </Card>
+        )}
+
+        {/* CTA Card */}
+        <Card className="w-full bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#34445C] dark:to-[#1e2a38] rounded-none overflow-hidden relative">
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FFC700]/30 to-transparent dark:from-[#DCFF37]/20 pointer-events-none" />
+          <CardBody className="text-center py-8">
+            <div
+              className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-[#F5F0E1]/20 dark:bg-[#DCFF37]/20"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="mdi:account-plus"
+                width={28}
+                className="text-[#F5F0E1] dark:text-[#DCFF37]"
+              />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-[#F5F0E1]">
+              Create Your Player Profile
+            </h3>
+            <p className="text-[#F5F0E1]/80 mb-4">
+              Join our community and showcase your skills to teams and players
+              worldwide
+            </p>
+            <Button
+              className="bg-[#F5F0E1] text-[#34445C] font-semibold rounded-none"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
+              size="lg"
+              onPress={handleCreateProfile}
+            >
+              {isAuthenticated ? "Create Profile" : "Sign in to Create Profile"}
+            </Button>
+          </CardBody>
+        </Card>
 
         {/* Player Creation Modal */}
         <PlayerCreationModal isOpen={isOpen} onClose={onClose} />

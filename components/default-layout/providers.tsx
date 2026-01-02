@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * Application Providers
- * Central location for all React Context providers
- *
- * Provider Hierarchy (ORDER MATTERS):
- * ===================================
- * NextUIProvider (UI framework)
- *   └── NextThemesProvider (dark/light mode)
- *         └── SessionProvider (NextAuth.js sessions)
- *               └── AuthSync (RID token synchronization)
- *                     └── SDKProvider (API SDK singleton)
- *                           └── GlobalSearchProvider (search uses SDK)
- *                                 └── ToastProvider (notifications)
- *                                       └── Children
- */
-
 import * as React from "react";
 import { NextUIProvider } from "@nextui-org/system";
 import { useRouter } from 'next/navigation'
@@ -36,21 +20,23 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 	const router = useRouter();
 
 	return (
-		<NextUIProvider navigate={router.push}>
-			<NextThemesProvider {...themeProps}>
-				<SessionProvider basePath='/api/auth'>
-					<AuthSync>
-						<SDKProvider>
-							<GlobalSearchProvider>
-								<ToastProvider>
-									{children}
-								</ToastProvider>
-							</GlobalSearchProvider>
-						</SDKProvider>
-					</AuthSync>
-				</SessionProvider>
-			</NextThemesProvider>
-		</NextUIProvider>
+		<>
+			<NextUIProvider navigate={router.push}>
+				<NextThemesProvider {...themeProps}>
+					<SessionProvider basePath='/api/auth'>
+						<AuthSync>
+							<SDKProvider>
+								<GlobalSearchProvider>
+									<ToastProvider>
+										{children}
+									</ToastProvider>
+								</GlobalSearchProvider>
+							</SDKProvider>
+						</AuthSync>
+					</SessionProvider>
+				</NextThemesProvider>
+			</NextUIProvider>
+		</>
 	);
 }
 

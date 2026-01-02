@@ -14,7 +14,7 @@ import type {
 export class MatchmakingAPI {
   private pollingInterval: NodeJS.Timeout | null = null;
 
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Join the matchmaking queue
@@ -32,7 +32,12 @@ export class MatchmakingAPI {
       player_mmr: request.player_mmr,
       max_ping: request.preferences.max_ping,
       priority_boost: request.preferences.priority_boost,
-      team_format: "5v5", // Default, can be extended
+      team_format: request.preferences.team_format || "5v5", // Default to 5v5
+      player_role: request.preferences.player_role,
+      map_preferences: request.preferences.map_preferences,
+      skill_range_min: request.preferences.skill_range.min_mmr,
+      skill_range_max: request.preferences.skill_range.max_mmr,
+      allow_cross_platform: request.preferences.allow_cross_platform,
     };
 
     const response = await this.client.post<JoinQueueResponse>('/match-making/queue', backendRequest);

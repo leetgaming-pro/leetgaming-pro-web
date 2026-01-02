@@ -3,12 +3,16 @@
 /**
  * Prize Distribution Selector Component
  * Beautiful cards for choosing how prize money is distributed
+ * Implements award-winning LeetGaming branding patterns
  */
 
 import React, { useState } from "react";
 import { Card, CardBody, CardHeader, Chip, Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import { cn } from "@nextui-org/react";
+import { useTheme } from "next-themes";
+import { title } from "../primitives";
 
 export type DistributionRule =
   | "winner_takes_all"
@@ -89,31 +93,36 @@ export function PrizeDistributionSelector({
   currency = "$",
 }: PrizeDistributionSelectorProps) {
   const [hoveredRule, setHoveredRule] = useState<DistributionRule | null>(null);
+  let { theme } = useTheme();
+
+  if (!theme || theme === "system") {
+    theme = "light";
+  }
 
   const calculatePayout = (percent: number) => {
     return ((currentPool * percent) / 100).toFixed(2);
   };
 
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case "high":
-        return "danger";
-      case "medium":
-        return "warning";
-      case "low":
-        return "success";
-      default:
-        return "default";
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="text-center space-y-2">
-        <h3 className="text-2xl font-bold">Choose Prize Distribution</h3>
-        <p className="text-default-600">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Icon
+            icon="solar:wallet-money-bold-duotone"
+            className="text-[#FF4654] dark:text-[#DCFF37]"
+            width={32}
+          />
+          <h3
+            className={title({
+              color: theme === "dark" ? "battleLime" : "battleNavy",
+            })}
+          >
+            Prize Distribution
+          </h3>
+        </div>
+        <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">
           Select how the{" "}
-          <span className="font-semibold text-warning">
+          <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">
             {currency}
             {currentPool.toFixed(2)}
           </span>{" "}
@@ -139,13 +148,20 @@ export function PrizeDistributionSelector({
               <Card
                 isPressable
                 isHoverable
-                className={`h-full transition-all duration-300 ${
+                className={cn(
+                  "h-full transition-all duration-300 rounded-none",
+                  "bg-[#F5F0E1] dark:bg-[#111111]",
                   isSelected
-                    ? "border-2 border-warning-500 shadow-xl scale-105 bg-warning-50/50 dark:bg-warning-900/20"
+                    ? "border-2 border-[#FF4654] dark:border-[#DCFF37] shadow-xl scale-105 bg-[#FF4654]/10 dark:bg-[#DCFF37]/10"
                     : isHovered
-                    ? "border-2 border-default-300 shadow-lg scale-102"
-                    : "border-2 border-transparent shadow-md"
-                }`}
+                    ? "border-2 border-[#FF4654]/50 dark:border-[#DCFF37]/50 shadow-lg scale-102"
+                    : "border-2 border-[#34445C]/20 dark:border-[#DCFF37]/20 shadow-md"
+                )}
+                style={{
+                  clipPath: isSelected
+                    ? "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)"
+                    : undefined,
+                }}
                 onPress={() => onSelectRule(option.id)}
               >
                 <CardHeader className="flex-col items-start gap-2 pb-4">
@@ -161,38 +177,50 @@ export function PrizeDistributionSelector({
                       <Icon
                         icon={option.icon}
                         width={40}
-                        className={`${
-                          isSelected ? "text-warning-600" : "text-default-400"
-                        } transition-colors`}
+                        className={cn(
+                          "transition-colors",
+                          isSelected
+                            ? "text-[#FF4654] dark:text-[#DCFF37]"
+                            : "text-[#34445C]/50 dark:text-[#F5F0E1]/50"
+                        )}
                       />
                     </motion.div>
 
                     <Chip
                       size="sm"
                       variant="flat"
-                      color={getRiskColor(option.risk)}
-                      className="uppercase text-xs font-semibold"
+                      classNames={{
+                        base: cn(
+                          "uppercase text-xs font-semibold rounded-none",
+                          option.risk === "high" &&
+                            "bg-[#FF4654]/20 text-[#FF4654] dark:bg-[#FF4654]/30 dark:text-[#FF4654]",
+                          option.risk === "medium" &&
+                            "bg-[#FFC700]/20 text-[#FFC700] dark:bg-[#FFC700]/30 dark:text-[#FFC700]",
+                          option.risk === "low" &&
+                            "bg-[#DCFF37]/20 text-[#34445C] dark:bg-[#DCFF37]/30 dark:text-[#DCFF37]"
+                        ),
+                      }}
                     >
                       {option.risk} risk
                     </Chip>
                   </div>
 
                   <div className="w-full">
-                    <h4 className="text-lg font-bold text-foreground">
+                    <h4 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
                       {option.name}
                     </h4>
-                    <p className="text-sm text-default-600 mt-1">
+                    <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60 mt-1">
                       {option.description}
                     </p>
                   </div>
                 </CardHeader>
 
-                <Divider />
+                <Divider className="bg-[#34445C]/10 dark:bg-[#DCFF37]/10" />
 
                 <CardBody className="gap-4 pt-4">
                   {/* Prize Breakdown */}
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold text-default-600 uppercase tracking-wide">
+                    <p className="text-xs font-semibold text-[#34445C]/60 dark:text-[#DCFF37]/70 uppercase tracking-wide">
                       Prize Breakdown
                     </p>
                     {option.percentages.map((payout, idx) => (
@@ -201,28 +229,33 @@ export function PrizeDistributionSelector({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * idx }}
-                        className="flex items-center justify-between p-2 rounded-none bg-default-100/50 dark:bg-default-50/5 border-l-2 border-[#FF4654] dark:border-[#DCFF37]"
+                        className="flex items-center justify-between p-2 rounded-none bg-[#34445C]/5 dark:bg-[#DCFF37]/5"
                       >
                         <div className="flex items-center gap-2">
                           <div
-                            className={`w-2 h-2 rounded-full ${
+                            className={cn(
+                              "w-2 h-2",
                               payout.color === "warning"
-                                ? "bg-warning-500"
+                                ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:bg-[#DCFF37]"
                                 : payout.color === "secondary"
-                                ? "bg-secondary-500"
-                                : "bg-default-400"
-                            }`}
+                                ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                                : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                            )}
+                            style={{
+                              clipPath:
+                                "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                            }}
                           />
-                          <span className="text-sm font-medium">
+                          <span className="text-sm font-medium text-[#34445C] dark:text-[#F5F0E1]">
                             {payout.label}
                           </span>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-warning-600">
+                          <p className="text-sm font-bold text-[#FF4654] dark:text-[#DCFF37]">
                             {currency}
                             {calculatePayout(payout.percent)}
                           </p>
-                          <p className="text-xs text-default-500">
+                          <p className="text-xs text-[#34445C]/50 dark:text-[#F5F0E1]/50">
                             {payout.percent}%
                           </p>
                         </div>
@@ -230,11 +263,11 @@ export function PrizeDistributionSelector({
                     ))}
                   </div>
 
-                  <Divider />
+                  <Divider className="bg-[#34445C]/10 dark:bg-[#DCFF37]/10" />
 
                   {/* Benefits */}
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold text-default-600 uppercase tracking-wide">
+                    <p className="text-xs font-semibold text-[#34445C]/60 dark:text-[#DCFF37]/70 uppercase tracking-wide">
                       Benefits
                     </p>
                     <ul className="space-y-1">
@@ -244,16 +277,17 @@ export function PrizeDistributionSelector({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.2 + 0.1 * idx }}
-                          className="flex items-start gap-2 text-xs text-default-600"
+                          className="flex items-start gap-2 text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70"
                         >
                           <Icon
                             icon="solar:check-circle-bold"
                             width={14}
-                            className={`flex-shrink-0 mt-0.5 ${
+                            className={cn(
+                              "flex-shrink-0 mt-0.5",
                               isSelected
-                                ? "text-success-500"
-                                : "text-default-400"
-                            }`}
+                                ? "text-[#FF4654] dark:text-[#DCFF37]"
+                                : "text-[#34445C]/40 dark:text-[#F5F0E1]/40"
+                            )}
                           />
                           <span>{benefit}</span>
                         </motion.li>
@@ -266,14 +300,14 @@ export function PrizeDistributionSelector({
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="flex items-center justify-center gap-2 p-2 rounded-lg bg-warning-100 dark:bg-warning-900/30 border border-warning-300 dark:border-warning-700"
+                      className="flex items-center justify-center gap-2 p-2 rounded-none bg-gradient-to-r from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
                     >
                       <Icon
                         icon="solar:check-circle-bold"
                         width={16}
-                        className="text-warning-600"
+                        className="text-[#FF4654] dark:text-[#DCFF37]"
                       />
-                      <span className="text-xs font-semibold text-warning-700 dark:text-warning-400">
+                      <span className="text-xs font-semibold text-[#FF4654] dark:text-[#DCFF37]">
                         Selected
                       </span>
                     </motion.div>
@@ -285,18 +319,44 @@ export function PrizeDistributionSelector({
         })}
       </div>
 
-      {/* Visual Preview of Distribution */}
-      <Card className="bg-gradient-to-br from-default-50 to-default-100 dark:from-default-900/20 dark:to-default-800/20 rounded-none border-l-4 border-l-[#FF4654] dark:border-l-[#DCFF37]">
+      {/* Visual Preview of Distribution - Award-winning branding */}
+      <Card
+        className="bg-gradient-to-br from-[#F5F0E1] to-[#F5F0E1]/90 dark:from-[#111111] dark:to-[#0a0a0a] border-2 border-[#FF4654]/20 dark:border-[#DCFF37]/20 rounded-none relative overflow-hidden"
+        style={{
+          clipPath:
+            "polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)",
+        }}
+      >
+        {/* Corner accent */}
+        <div className="absolute bottom-0 right-0 w-10 h-10 bg-gradient-to-tl from-[#FF4654] dark:from-[#DCFF37] to-transparent" />
+
         <CardBody className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-default-700">
-              Distribution Preview
-            </h4>
-            <Chip size="sm" variant="flat" color="warning">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="solar:chart-square-bold-duotone"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={20}
+              />
+              <h4 className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                Distribution Preview
+              </h4>
+            </div>
+            <Chip
+              size="sm"
+              variant="flat"
+              classNames={{
+                base: "rounded-none bg-gradient-to-r from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 border border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                content:
+                  "text-[#FF4654] dark:text-[#DCFF37] font-semibold text-xs",
+              }}
+            >
               {DISTRIBUTION_OPTIONS.find((o) => o.id === selectedRule)?.name}
             </Chip>
           </div>
-          <div className="relative h-12 bg-default-200 dark:bg-default-800 rounded-none overflow-hidden">
+
+          {/* Progress bar with brand gradient */}
+          <div className="relative h-12 bg-[#34445C]/10 dark:bg-[#DCFF37]/10 rounded-none overflow-hidden border border-[#34445C]/20 dark:border-[#DCFF37]/20">
             {DISTRIBUTION_OPTIONS.find(
               (o) => o.id === selectedRule
             )?.percentages.map((payout, idx) => {
@@ -311,21 +371,52 @@ export function PrizeDistributionSelector({
                   initial={{ width: 0 }}
                   animate={{ width: `${payout.percent}%` }}
                   transition={{ duration: 0.8, delay: idx * 0.2 }}
-                  className={`absolute h-full ${
+                  className={cn(
+                    "absolute h-full",
                     payout.color === "warning"
-                      ? "bg-warning-500"
+                      ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
                       : payout.color === "secondary"
-                      ? "bg-secondary-500"
-                      : "bg-default-400"
-                  }`}
+                      ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                      : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                  )}
                   style={{ left: `${previousPercent}%` }}
                 >
-                  <div className="flex items-center justify-center h-full text-white font-semibold text-sm">
+                  <div className="flex items-center justify-center h-full text-white dark:text-[#1a1a1a] font-bold text-sm">
                     {payout.percent >= 20 && `${payout.percent}%`}
                   </div>
                 </motion.div>
               );
             })}
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap gap-4 mt-4">
+            {DISTRIBUTION_OPTIONS.find(
+              (o) => o.id === selectedRule
+            )?.percentages.map((payout, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "w-3 h-3",
+                    payout.color === "warning"
+                      ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      : payout.color === "secondary"
+                      ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                      : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                  )}
+                  style={{
+                    clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                  }}
+                />
+                <span className="text-xs text-[#34445C]/70 dark:text-[#F5F0E1]/70">
+                  {payout.label}:{" "}
+                  <span className="font-semibold text-[#FF4654] dark:text-[#DCFF37]">
+                    {currency}
+                    {calculatePayout(payout.percent)}
+                  </span>
+                </span>
+              </div>
+            ))}
           </div>
         </CardBody>
       </Card>

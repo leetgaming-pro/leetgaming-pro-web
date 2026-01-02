@@ -7,8 +7,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useMemo, useCallback, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useMemo, useCallback } from "react";
 import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth";
 import { logger } from "@/lib/logger";
 
@@ -68,24 +67,25 @@ export function useAuth(): AuthState {
     if (!session?.user) return null;
     
     return {
-      id: session.user.uid || session.user.id,
+      id: (session.user as any).uid || session.user.id,
       name: session.user.name,
       email: session.user.email,
       image: session.user.image,
-      rid: session.user.rid,
-      uid: session.user.uid,
+      rid: (session.user as any).rid,
+      uid: (session.user as any).uid,
     };
   }, [session]);
 
   // User is authenticated if:
   // 1. Has NextAuth session with user data AND
-  // 2. Has RID in session (from backend onboarding)
-  // Note: We require RID in session, not just RIDTokenManager cookies which can be stale
+  // 2. Either has RID in session OR RIDTokenManager is authenticated
   const isAuthenticated = useMemo(() => {
     if (!session?.user) return false;
     
-    // Require session to have RID - this confirms backend onboarding completed
-    return !!session.user.rid;
+    const hasRid = !!(session.user as any).rid;
+    const hasRidToken = isAuthenticatedSync();
+    
+    return hasRid || hasRidToken;
   }, [session]);
 
   return {
@@ -103,59 +103,49 @@ export function useAuth(): AuthState {
 export { isAuthenticatedSync };
 
 /**
- * Options for useRequireAuth hook
- */
-export interface RequireAuthOptions {
-  /** Path to redirect to when unauthenticated (default: '/signin') */
-  redirectTo?: string;
-  /** Whether to include callback URL for post-login redirect (default: true) */
-  includeCallback?: boolean;
-  /** Custom callback URL (defaults to current path) */
-  callbackUrl?: string;
-}
-
-/**
- * Hook for pages that require authentication
- * Automatically redirects unauthenticated users to sign-in page
+ * React hook for protected routes that requires authentication
+ * Automatically redirects to sign-in if user is not authenticated
+ * 
+ * @param options Configuration options
+ * @param options.callbackUrl URL to redirect to after successful sign-in
+ * @returns AuthState with redirecting status
  * 
  * @example
  * ```tsx
- * export default function ProtectedPage() {
- *   const { isAuthenticated, isLoading, user } = useRequireAuth();
- *   
- *   if (isLoading) return <PageLoader />;
- *   // At this point, user is guaranteed to be authenticated
- *   // (or being redirected to sign-in)
- *   
- *   return <ProtectedContent user={user} />;
- * }
+ * const { isAuthenticated, isLoading, isRedirecting } = useRequireAuth({
+ *   callbackUrl: '/protected-page'
+ * });
+ * 
+ * if (isLoading || isRedirecting) return <Loading />;
+ * if (!isAuthenticated) return null; // Should not reach here due to redirect
+ * 
+ * return <ProtectedContent />;
  * ```
  */
-export function useRequireAuth(options: RequireAuthOptions = {}): AuthState & { isRedirecting: boolean } {
-  const { redirectTo = '/signin', includeCallback = true, callbackUrl } = options;
+export function useRequireAuth(options: { callbackUrl?: string } = {}): AuthState & { isRedirecting: boolean } {
   const auth = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const isRedirecting = !auth.isLoading && !auth.isAuthenticated;
-
-  useEffect(() => {
-    if (auth.isLoading) return;
-    
-    if (!auth.isAuthenticated) {
-      const targetCallback = callbackUrl || pathname;
-      const redirectPath = includeCallback 
-        ? `${redirectTo}?callbackUrl=${encodeURIComponent(targetCallback)}`
-        : redirectTo;
-      
-      logger.info('[useRequireAuth] Redirecting unauthenticated user', { 
-        from: pathname, 
-        to: redirectPath 
-      });
-      
-      router.push(redirectPath);
+  const router = useMemo(() => {
+    // Dynamic import to avoid SSR issues
+    try {
+      return require('next/navigation').useRouter();
+    } catch {
+      return null;
     }
-  }, [auth.isLoading, auth.isAuthenticated, router, pathname, redirectTo, includeCallback, callbackUrl]);
+  }, []);
+
+  const isRedirecting = useMemo(() => {
+    if (auth.isLoading) return false;
+    if (auth.isAuthenticated) return false;
+    
+    // Redirect to sign-in if not authenticated
+    if (router) {
+      const signInUrl = `/signin${options.callbackUrl ? `?callbackUrl=${encodeURIComponent(options.callbackUrl)}` : ''}`;
+      router.push(signInUrl);
+      return true;
+    }
+    
+    return false;
+  }, [auth.isLoading, auth.isAuthenticated, router, options.callbackUrl]);
 
   return {
     ...auth,
@@ -164,47 +154,51 @@ export function useRequireAuth(options: RequireAuthOptions = {}): AuthState & { 
 }
 
 /**
- * Hook that provides auth state for pages with mixed access
- * (public viewing but authenticated actions)
+ * React hook for pages that support optional authentication
+ * Provides authentication state without automatic redirects
+ * Includes helper function for requiring auth on specific actions
+ * 
+ * @returns AuthState with requireAuthForAction helper
  * 
  * @example
  * ```tsx
  * const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
  * 
- * const handleCreate = () => {
- *   if (!requireAuthForAction('create a team')) return;
- *   // User is authenticated, proceed
+ * const handleAction = () => {
+ *   if (!requireAuthForAction("perform this action")) {
+ *     return; // User was redirected to sign-in
+ *   }
+ *   
+ *   // Perform authenticated action
  * };
  * ```
  */
 export function useOptionalAuth(): AuthState & { 
-  requireAuthForAction: (actionDescription: string) => boolean;
-  redirectToSignIn: (callbackPath?: string) => void;
+  requireAuthForAction: (action: string) => boolean 
 } {
   const auth = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useMemo(() => {
+    // Dynamic import to avoid SSR issues
+    try {
+      return require('next/navigation').useRouter();
+    } catch {
+      return null;
+    }
+  }, []);
 
-  const redirectToSignIn = useCallback((callbackPath?: string) => {
-    const callback = callbackPath || pathname;
-    router.push(`/signin?callbackUrl=${encodeURIComponent(callback)}`);
-  }, [router, pathname]);
-
-  const requireAuthForAction = useCallback((actionDescription: string): boolean => {
+  const requireAuthForAction = useCallback((action: string): boolean => {
     if (auth.isAuthenticated) return true;
     
-    logger.info('[useOptionalAuth] Action requires authentication', { 
-      action: actionDescription,
-      path: pathname 
-    });
+    if (router) {
+      const signInUrl = `/signin?action=${encodeURIComponent(action)}`;
+      router.push(signInUrl);
+    }
     
-    redirectToSignIn();
     return false;
-  }, [auth.isAuthenticated, pathname, redirectToSignIn]);
+  }, [auth.isAuthenticated, router]);
 
   return {
     ...auth,
     requireAuthForAction,
-    redirectToSignIn,
   };
 }

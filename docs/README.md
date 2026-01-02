@@ -179,8 +179,8 @@ Required variables in `.env.local`:
 # Backend API
 NEXT_PUBLIC_REPLAY_API_URL=http://localhost:8080
 
-# Authentication
-NEXTAUTH_URL=http://localhost:3000
+# Authentication (use 3030, NEVER use 3000)
+NEXTAUTH_URL=http://localhost:3030
 NEXTAUTH_SECRET=your-secret-key
 ```
 

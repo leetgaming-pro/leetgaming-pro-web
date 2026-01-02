@@ -1027,6 +1027,259 @@ export const GAME_CONFIGS: Record<GameId, GameConfig> = {
     active: true,
     launchDate: new Date("2024-05-01"),
   },
+
+  apex: {
+    id: "apex",
+    name: "Apex Legends",
+    shortName: "APEX",
+    slug: "apex-legends",
+    category: "battle-royale",
+    icon: "simple-icons:ea",
+    logo: "/games/apex/logo.svg",
+    banner: "/games/apex/banner.svg",
+    color: {
+      primary: "#DA292A",
+      secondary: "#1A1A1A",
+      accent: "#FF5C00",
+    },
+    description: "Squad-based battle royale with unique legends",
+
+    integration: {
+      platform: "steam",
+      appId: "1172470",
+      apiEnabled: true,
+      replaySupport: false,
+      rankingSupport: true,
+      statsApiUrl: "",
+    },
+
+    replay: {
+      formats: ["mp4"],
+      maxFileSize: 500 * 1024 * 1024,
+      parser: "vod-vision-ai",
+      features: ["kill-feed", "legend-tracking", "team-composition"],
+    },
+
+    matchmaking: {
+      teamSize: 3,
+      modes: [
+        { id: "trios", name: "Trios", teamSize: 3, ranked: true },
+        { id: "duos", name: "Duos", teamSize: 2, ranked: false },
+        { id: "arenas", name: "Arenas", teamSize: 3, ranked: true },
+      ],
+      maps: [
+        { id: "worlds_edge", name: "World's Edge", active: true, competitive: true },
+        { id: "storm_point", name: "Storm Point", active: true, competitive: true },
+        { id: "kings_canyon", name: "King's Canyon", active: true, competitive: true },
+      ],
+      mapVetoEnabled: false,
+      mapVetoFormat: "",
+      anticheatRequired: true,
+      anticheatProviders: ["eac"],
+    },
+
+    ranking: {
+      system: "tiered",
+      tiers: [
+        { id: "bronze", name: "Bronze", minRating: 0, icon: "🥉" },
+        { id: "silver", name: "Silver", minRating: 1200, icon: "🥈" },
+        { id: "gold", name: "Gold", minRating: 2800, icon: "🥇" },
+        { id: "platinum", name: "Platinum", minRating: 4800, icon: "💠" },
+        { id: "diamond", name: "Diamond", minRating: 7200, icon: "💎" },
+        { id: "master", name: "Master", minRating: 10000, icon: "🎖️" },
+        { id: "predator", name: "Apex Predator", minRating: 15000, icon: "👑" },
+      ],
+      placements: 10,
+      decayEnabled: true,
+      decayDays: 14,
+    },
+
+    stats: ["kills", "damage", "assists", "placement", "revives"],
+
+    features: {
+      tournaments: true,
+      coaching: true,
+      teamFinder: true,
+      replayAnalysis: false,
+      liveMatches: true,
+      betting: false,
+      trading: false,
+    },
+
+    priority: 9,
+    active: true,
+    launchDate: new Date("2024-06-01"),
+  },
+
+  fortnite: {
+    id: "fortnite",
+    name: "Fortnite",
+    shortName: "FN",
+    slug: "fortnite",
+    category: "battle-royale",
+    icon: "simple-icons:epicgames",
+    logo: "/games/fortnite/logo.svg",
+    banner: "/games/fortnite/banner.svg",
+    color: {
+      primary: "#9D4DFF",
+      secondary: "#1A1A1A",
+      accent: "#00D4FF",
+    },
+    description: "Build and battle in this massive multiplayer experience",
+
+    integration: {
+      platform: "epic",
+      appId: "fortnite",
+      apiEnabled: true,
+      replaySupport: true,
+      rankingSupport: true,
+      statsApiUrl: "",
+    },
+
+    replay: {
+      formats: ["replay"],
+      maxFileSize: 200 * 1024 * 1024,
+      parser: "fortnite-replay",
+      features: ["building-analysis", "elimination-tracking", "material-usage"],
+    },
+
+    matchmaking: {
+      teamSize: 4,
+      modes: [
+        { id: "solo", name: "Solo", teamSize: 1, ranked: true },
+        { id: "duos", name: "Duos", teamSize: 2, ranked: true },
+        { id: "trios", name: "Trios", teamSize: 3, ranked: false },
+        { id: "squads", name: "Squads", teamSize: 4, ranked: true },
+        { id: "zero_build", name: "Zero Build", teamSize: 4, ranked: true },
+      ],
+      maps: [
+        { id: "br_island", name: "Battle Royale Island", active: true, competitive: true },
+      ],
+      mapVetoEnabled: false,
+      mapVetoFormat: "",
+      anticheatRequired: true,
+      anticheatProviders: ["eac"],
+    },
+
+    ranking: {
+      system: "tiered",
+      tiers: [
+        { id: "bronze", name: "Bronze", minRating: 0, icon: "🥉" },
+        { id: "silver", name: "Silver", minRating: 500, icon: "🥈" },
+        { id: "gold", name: "Gold", minRating: 1500, icon: "🥇" },
+        { id: "platinum", name: "Platinum", minRating: 3000, icon: "💠" },
+        { id: "diamond", name: "Diamond", minRating: 5000, icon: "💎" },
+        { id: "elite", name: "Elite", minRating: 7500, icon: "⭐" },
+        { id: "champion", name: "Champion", minRating: 10000, icon: "🏆" },
+        { id: "unreal", name: "Unreal", minRating: 15000, icon: "👑" },
+      ],
+      placements: 0,
+      decayEnabled: false,
+      decayDays: 0,
+    },
+
+    stats: ["eliminations", "placement", "damage", "builds", "materials"],
+
+    features: {
+      tournaments: true,
+      coaching: true,
+      teamFinder: true,
+      replayAnalysis: true,
+      liveMatches: true,
+      betting: false,
+      trading: false,
+    },
+
+    priority: 10,
+    active: true,
+    launchDate: new Date("2024-06-01"),
+  },
+
+  overwatch2: {
+    id: "overwatch2",
+    name: "Overwatch 2",
+    shortName: "OW2",
+    slug: "overwatch-2",
+    category: "tactical-fps",
+    icon: "simple-icons:overwatch",
+    logo: "/games/overwatch2/logo.svg",
+    banner: "/games/overwatch2/banner.svg",
+    color: {
+      primary: "#F99E1A",
+      secondary: "#1A1A1A",
+      accent: "#FFFFFF",
+    },
+    description: "Team-based hero shooter with diverse characters",
+
+    integration: {
+      platform: "battlenet",
+      appId: "overwatch2",
+      apiEnabled: true,
+      replaySupport: true,
+      rankingSupport: true,
+      statsApiUrl: "",
+    },
+
+    replay: {
+      formats: ["replay"],
+      maxFileSize: 100 * 1024 * 1024,
+      parser: "overwatch-replay",
+      features: ["hero-swaps", "ultimate-tracking", "team-fights", "healing-stats"],
+    },
+
+    matchmaking: {
+      teamSize: 5,
+      modes: [
+        { id: "competitive", name: "Competitive", teamSize: 5, ranked: true },
+        { id: "quickplay", name: "Quick Play", teamSize: 5, ranked: false },
+        { id: "arcade", name: "Arcade", teamSize: 6, ranked: false },
+      ],
+      maps: [
+        { id: "kings_row", name: "King's Row", active: true, competitive: true },
+        { id: "dorado", name: "Dorado", active: true, competitive: true },
+        { id: "ilios", name: "Ilios", active: true, competitive: true },
+        { id: "nepal", name: "Nepal", active: true, competitive: true },
+        { id: "lijiang", name: "Lijiang Tower", active: true, competitive: true },
+      ],
+      mapVetoEnabled: false,
+      mapVetoFormat: "",
+      anticheatRequired: true,
+      anticheatProviders: ["battleye"],
+    },
+
+    ranking: {
+      system: "tiered",
+      tiers: [
+        { id: "bronze", name: "Bronze", minRating: 0, icon: "🥉" },
+        { id: "silver", name: "Silver", minRating: 1500, icon: "🥈" },
+        { id: "gold", name: "Gold", minRating: 2000, icon: "🥇" },
+        { id: "platinum", name: "Platinum", minRating: 2500, icon: "💠" },
+        { id: "diamond", name: "Diamond", minRating: 3000, icon: "💎" },
+        { id: "master", name: "Master", minRating: 3500, icon: "🎖️" },
+        { id: "grandmaster", name: "Grandmaster", minRating: 4000, icon: "⚡" },
+        { id: "champion", name: "Champion", minRating: 4500, icon: "👑" },
+      ],
+      placements: 5,
+      decayEnabled: true,
+      decayDays: 14,
+    },
+
+    stats: ["eliminations", "deaths", "healing", "damage", "hero_time"],
+
+    features: {
+      tournaments: true,
+      coaching: true,
+      teamFinder: true,
+      replayAnalysis: true,
+      liveMatches: true,
+      betting: false,
+      trading: false,
+    },
+
+    priority: 11,
+    active: true,
+    launchDate: new Date("2024-06-01"),
+  },
 };
 
 /**

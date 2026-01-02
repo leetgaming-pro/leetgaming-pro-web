@@ -37,7 +37,7 @@ import {
 import { logo, title } from './primitives';
 import { LoginButton } from './login-button';
 import SessionButton from './session-button';
-import { useAuth } from '@/hooks';
+import { useSession, signOut } from 'next-auth/react';
 import SearchInput from "./search/search-modal/search-modal";
 
 import DefaultLogo from './logo/logo-default';
@@ -64,17 +64,22 @@ export const Navbar = () => {
     theme = "dark";
   }
 
-  // Use unified auth hook for consistent authentication state
-  const { isAuthenticated, isLoading: authLoading, signOut } = useAuth();
+  let SessionArea;
 
+  const { data: session } = useSession()
+  
   // Helper to check if path is active
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
 
-  // Show SessionButton only when fully authenticated (session + RID)
-  const SessionArea = isAuthenticated ? SessionButton : LoginButton;
+  // console.log('##session##', JSON.stringify(session))
+  if (session) {
+    SessionArea = SessionButton;
+  } else {
+    SessionArea = LoginButton;
+  }
 
   const searchInput = <SearchInput />;
 
@@ -176,8 +181,8 @@ export const Navbar = () => {
               return <Divider key={`divider-${index}`} className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />;
             }
 
-            const isHighlight = item.highlight;
-            const itemIcon = item.icon;
+            const isHighlight = (item as any).highlight;
+            const itemIcon = (item as any).icon;
             const active = isActive(item.href);
 
             return (
@@ -214,8 +219,8 @@ export const Navbar = () => {
             );
           })}
 
-          {/* Logout button - only show if fully authenticated */}
-          {isAuthenticated && (
+          {/* Logout button - only show if logged in */}
+          {session && (
             <>
               <Divider className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />
               <NavbarMenuItem>
@@ -227,7 +232,7 @@ export const Navbar = () => {
                   startContent={<Icon icon="solar:logout-2-bold" className="w-5 h-5" />}
                   onPress={() => {
                     setIsMenuOpen(false);
-                    signOut();
+                    signOut({ callbackUrl: '/' });
                   }}
                 >
                   Log Out

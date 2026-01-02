@@ -421,3 +421,73 @@ export async function isAuthenticated(): Promise<boolean> {
 export function isAuthenticatedSync(): boolean {
   return getRIDTokenManager().isAuthenticatedSync();
 }
+
+/**
+ * Guest token response from the API
+ */
+interface GuestTokenResponse {
+  success: boolean;
+  token_id?: string;
+  user_id?: string;
+  expires_at?: string;
+  message?: string;
+}
+
+/**
+ * Create a guest token for unauthenticated users
+ * This allows guests to have a session and potentially convert to full accounts later
+ */
+export async function createGuestToken(): Promise<GuestTokenResponse | null> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+
+    const response = await fetch(`${apiUrl}/auth/guest`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Failed to create guest token:', response.statusText);
+      return null;
+    }
+
+    const data: GuestTokenResponse = await response.json();
+
+    if (data.success && data.token_id) {
+      // Store the guest token in the session
+      const manager = getRIDTokenManager();
+      await manager.setToken(
+        data.token_id,
+        {
+          tenant_id: 'default',
+          client_id: 'web',
+          group_id: null,
+          user_id: data.user_id || null,
+        } as any, // ResourceOwner requires specific format
+        IntendedAudienceKey.UserAudienceIDKey
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error creating guest token:', error);
+    return null;
+  }
+}
+
+/**
+ * Ensure user has a session token (either authenticated or guest)
+ * Call this before making API requests that need a token
+ */
+export async function ensureSession(): Promise<boolean> {
+  // Check if already authenticated
+  if (isAuthenticatedSync()) {
+    return true;
+  }
+
+  // Try to create a guest token
+  const guestToken = await createGuestToken();
+  return guestToken?.success === true;
+}

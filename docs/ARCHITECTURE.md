@@ -462,8 +462,7 @@ app/api/
 | Logo | File | Usage |
 |------|------|-------|
 | Text Only | `/logo-red-only-text.png` | Navbar, auth pages |
-| Full Logo | `/logo-red-full.png` | Footer, marketing |
-| Fox Only | `/logo-fox-mini.png` | Favicons |
+| Full Logo | `/logo-red-full.png` | Footer, marketing, favicons |
 
 ---
 
