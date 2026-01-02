@@ -16,6 +16,7 @@ import {
   SelectItem,
   Divider,
   Spinner,
+  Tooltip,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { title, subtitle } from "@/components/primitives";
@@ -352,7 +353,9 @@ export default function PlayersPage() {
                   {paginatedPlayers.map((player) => (
                     <Card
                       key={player.id}
-                      className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
+                      isPressable
+                      onPress={() => router.push(`/players/${player.id}`)}
+                      className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 cursor-pointer"
                     >
                       <CardHeader className="flex flex-col gap-3 p-6">
                         <div className="flex w-full justify-between items-start">
@@ -502,16 +505,33 @@ export default function PlayersPage() {
                               "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
                           }}
                           startContent={<Icon icon="mdi:account" width={18} />}
+                          onPress={() => router.push(`/players/${player.id}`)}
                         >
                           View Profile
                         </Button>
-                        <Button
-                          variant="bordered"
-                          isIconOnly
-                          className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+                        <Tooltip
+                          content={isAuthenticated ? "Send Message" : "Sign in to message"}
+                          placement="top"
+                          classNames={{
+                            content: "bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none",
+                          }}
                         >
-                          <Icon icon="mdi:message" width={20} />
-                        </Button>
+                          <Button
+                            variant="bordered"
+                            isIconOnly
+                            className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 hover:border-[#FF4654] dark:hover:border-[#DCFF37] hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-all"
+                            onPress={() => {
+                              if (!isAuthenticated) {
+                                router.push(`/signin?callbackUrl=/players/${player.id}`);
+                              } else {
+                                // TODO: Open message modal or navigate to messaging
+                                router.push(`/players/${player.id}?action=message`);
+                              }
+                            }}
+                          >
+                            <Icon icon="mdi:message" width={20} />
+                          </Button>
+                        </Tooltip>
                       </CardFooter>
                     </Card>
                   ))}

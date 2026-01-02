@@ -275,6 +275,14 @@ export class PlayerProfileAPI {
   }
 
   /**
+   * Delete player profile
+   */
+  async deletePlayerProfile(profileId: string): Promise<boolean> {
+    const response = await this.client.delete(`/players/${profileId}`);
+    return response.status === 204 || response.status === 200;
+  }
+
+  /**
    * Search player profiles
    */
   async searchPlayerProfiles(filters: {

@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Card,
   CardHeader,
@@ -21,15 +21,20 @@ import {
   Skeleton,
   Image,
   Divider,
+  Tooltip,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { PageContainer } from '@/components/layouts/centered-content';
 import { ShareButton } from '@/components/share/share-button';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useReplayApi } from '@/hooks/use-replay-api';
+import { useOptionalAuth } from '@/hooks';
 import { logger } from '@/lib/logger';
-
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
 import { PlayerProfile as PlayerProfileBase } from '@/types/replay-api/entities.types';
 
@@ -99,10 +104,18 @@ interface PlayerProfile {
 
 export default function PlayerDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const playerId = params.id as string;
+  const { sdk } = useReplayApi();
+  const { isAuthenticated, user } = useOptionalAuth();
   const [player, setPlayer] = useState<PlayerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Delete confirmation modal
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
   useEffect(() => {
     async function fetchPlayerProfile() {
@@ -146,10 +159,19 @@ export default function PlayerDetailPage() {
             recent_matches: [], // Match history needs separate API - empty for now
           };
           setPlayer(apiPlayer);
+          
+          // Check resource ownership - user owns this profile if their user_id matches resource_owner
+          if (isAuthenticated && user && playerData.resource_owner) {
+            const ownerUserId = playerData.resource_owner.userId;
+            setIsOwner(ownerUserId === user.id);
+          } else {
+            setIsOwner(false);
+          }
         } else {
           // Player not found - show error state
           setError('Player not found');
           setPlayer(null);
+          setIsOwner(false);
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load player profile';
@@ -157,13 +179,30 @@ export default function PlayerDetailPage() {
         setError(errorMessage);
         // No fallback to mock data - show error state instead
         setPlayer(null);
+        setIsOwner(false);
       } finally {
         setLoading(false);
       }
     }
 
     fetchPlayerProfile();
-  }, [playerId]);
+  }, [playerId, sdk, isAuthenticated, user]);
+  
+  // Handle profile deletion
+  const handleDeleteProfile = async () => {
+    try {
+      setIsDeleting(true);
+      await sdk.playerProfiles.deletePlayerProfile(playerId);
+      logger.info('Player profile deleted', { playerId });
+      onDeleteClose();
+      router.push('/players');
+    } catch (err) {
+      logger.error('Failed to delete player profile', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete profile');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -259,20 +298,66 @@ export default function PlayerDetailPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-                startContent={<Icon icon="solar:user-plus-bold" width={20} />}
-              >
-                Add Friend
-              </Button>
-              <Button 
-                variant="bordered" 
-                className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1]"
-                startContent={<Icon icon="solar:chat-round-bold" width={20} />}>
-                Message
-              </Button>
+            <div className="flex gap-2 flex-wrap">
+              {/* Owner controls - Edit and Delete */}
+              {isOwner && (
+                <>
+                  <Tooltip content="Edit your profile" placement="bottom">
+                    <Button 
+                      className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                      startContent={<Icon icon="solar:pen-bold" width={20} />}
+                      onPress={() => router.push(`/players/${playerId}/edit`)}
+                    >
+                      Edit Profile
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Delete this profile" placement="bottom" color="danger">
+                    <Button 
+                      variant="bordered" 
+                      className="rounded-none border-danger/50 text-danger hover:bg-danger/10"
+                      isIconOnly
+                      onPress={onDeleteOpen}
+                    >
+                      <Icon icon="solar:trash-bin-minimalistic-bold" width={20} />
+                    </Button>
+                  </Tooltip>
+                </>
+              )}
+              
+              {/* Public actions - only show if not owner */}
+              {!isOwner && (
+                <>
+                  <Button 
+                    className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                    startContent={<Icon icon="solar:user-plus-bold" width={20} />}
+                    onPress={() => {
+                      if (!isAuthenticated) {
+                        router.push(`/signin?callbackUrl=/players/${playerId}`);
+                      }
+                      // TODO: Send friend request via API
+                    }}
+                  >
+                    Add Friend
+                  </Button>
+                  <Tooltip content={isAuthenticated ? "Send a message" : "Sign in to message"} placement="bottom">
+                    <Button 
+                      variant="bordered" 
+                      className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1] hover:border-[#FF4654] dark:hover:border-[#DCFF37]"
+                      startContent={<Icon icon="solar:chat-round-bold" width={20} />}
+                      onPress={() => {
+                        if (!isAuthenticated) {
+                          router.push(`/signin?callbackUrl=/players/${playerId}`);
+                        }
+                        // TODO: Open message modal
+                      }}
+                    >
+                      Message
+                    </Button>
+                  </Tooltip>
+                </>
+              )}
               <ShareButton
                 contentType="player"
                 contentId={playerId}
@@ -447,6 +532,54 @@ export default function PlayerDetailPage() {
           </Card>
         </Tab>
       </Tabs>
+
+      {/* Delete Confirmation Modal */}
+      <Modal 
+        isOpen={isDeleteOpen} 
+        onClose={onDeleteClose}
+        classNames={{
+          base: "rounded-none border border-danger/30",
+          header: "border-b border-danger/20",
+          footer: "border-t border-danger/20",
+        }}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-danger">
+              <Icon icon="solar:danger-triangle-bold" width={24} />
+              <span>Delete Player Profile</span>
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-default-600">
+              Are you sure you want to delete <strong>{player.nickname}</strong>? This action cannot be undone.
+            </p>
+            <p className="text-sm text-default-500 mt-2">
+              All associated data including match history and achievements will be permanently removed.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="flat"
+              className="rounded-none"
+              onPress={onDeleteClose}
+              isDisabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              className="rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onPress={handleDeleteProfile}
+              isLoading={isDeleting}
+              startContent={!isDeleting && <Icon icon="solar:trash-bin-minimalistic-bold" width={18} />}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Profile'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </PageContainer>
   );
 }

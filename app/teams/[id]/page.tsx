@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Card,
   CardHeader,
@@ -27,15 +27,20 @@ import {
   Skeleton,
   Divider,
   Progress,
+  Tooltip,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { PageContainer } from '@/components/layouts/centered-content';
 import { ShareButton } from '@/components/share/share-button';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useReplayApi } from '@/hooks/use-replay-api';
+import { useOptionalAuth } from '@/hooks';
 import { logger } from '@/lib/logger';
-
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
 import { Squad as SquadBase, SquadMembership } from '@/types/replay-api/entities.types';
 
@@ -113,10 +118,18 @@ interface TeamProfile {
 
 export default function TeamDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const teamId = params.id as string;
+  const { sdk } = useReplayApi();
+  const { isAuthenticated, user } = useOptionalAuth();
   const [team, setTeam] = useState<TeamProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Delete confirmation modal
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
   useEffect(() => {
     async function fetchTeamProfile() {
@@ -176,10 +189,22 @@ export default function TeamDetailPage() {
             recent_matches: [], // Match history needs separate API - empty for now
           };
           setTeam(apiTeam);
+          
+          // Check resource ownership
+          if (isAuthenticated && user && squadData.resource_owner) {
+            const ownerUserId = squadData.resource_owner.userId;
+            // Also check if user is a member with owner/admin role
+            const userMembership = user?.id ? squadData.members?.[user.id] : undefined;
+            const isTeamOwner = ownerUserId === user.id || userMembership?.roles?.includes('owner');
+            setIsOwner(isTeamOwner);
+          } else {
+            setIsOwner(false);
+          }
         } else {
           // Team not found - show error state
           setError('Team not found');
           setTeam(null);
+          setIsOwner(false);
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load team profile';
@@ -187,13 +212,30 @@ export default function TeamDetailPage() {
         setError(errorMessage);
         // No fallback to mock data - show error state instead
         setTeam(null);
+        setIsOwner(false);
       } finally {
         setLoading(false);
       }
     }
 
     fetchTeamProfile();
-  }, [teamId]);
+  }, [teamId, sdk, isAuthenticated, user]);
+  
+  // Handle team deletion
+  const handleDeleteTeam = async () => {
+    try {
+      setIsDeleting(true);
+      await sdk.squads.deleteSquad(teamId);
+      logger.info('Team deleted', { teamId });
+      onDeleteClose();
+      router.push('/teams');
+    } catch (err) {
+      logger.error('Failed to delete team', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete team');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -286,13 +328,61 @@ export default function TeamDetailPage() {
                   Apply to Join
                 </Button>
               )}
-              <Button 
-                variant="bordered" 
-                className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1]"
-                startContent={<Icon icon="solar:chat-round-bold" width={20} />}
-              >
-                Contact
-              </Button>
+              
+              {/* Owner controls - Edit and Delete */}
+              {isOwner && (
+                <>
+                  <Tooltip content="Edit team settings" placement="bottom">
+                    <Button 
+                      className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                      startContent={<Icon icon="solar:pen-bold" width={20} />}
+                      onPress={() => router.push(`/teams/${teamId}/edit`)}
+                    >
+                      Edit Team
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Manage team members" placement="bottom">
+                    <Button 
+                      variant="bordered"
+                      className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1]"
+                      startContent={<Icon icon="solar:users-group-rounded-bold" width={20} />}
+                      onPress={() => router.push(`/teams/${teamId}/members`)}
+                    >
+                      Manage
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Delete this team" placement="bottom" color="danger">
+                    <Button 
+                      variant="bordered" 
+                      className="rounded-none border-danger/50 text-danger hover:bg-danger/10"
+                      isIconOnly
+                      onPress={onDeleteOpen}
+                    >
+                      <Icon icon="solar:trash-bin-minimalistic-bold" width={20} />
+                    </Button>
+                  </Tooltip>
+                </>
+              )}
+              
+              {/* Public actions - only show if not owner */}
+              {!isOwner && (
+                <Tooltip content={isAuthenticated ? "Contact team" : "Sign in to contact"} placement="bottom">
+                  <Button 
+                    variant="bordered" 
+                    className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1] hover:border-[#FF4654] dark:hover:border-[#DCFF37]"
+                    startContent={<Icon icon="solar:chat-round-bold" width={20} />}
+                    onPress={() => {
+                      if (!isAuthenticated) {
+                        router.push(`/signin?callbackUrl=/teams/${teamId}`);
+                      }
+                      // TODO: Open contact modal
+                    }}
+                  >
+                    Contact
+                  </Button>
+                </Tooltip>
+              )}
               <ShareButton
                 contentType="team"
                 contentId={teamId}
@@ -474,6 +564,54 @@ export default function TeamDetailPage() {
           </Card>
         </Tab>
       </Tabs>
+
+      {/* Delete Confirmation Modal */}
+      <Modal 
+        isOpen={isDeleteOpen} 
+        onClose={onDeleteClose}
+        classNames={{
+          base: "rounded-none border border-danger/30",
+          header: "border-b border-danger/20",
+          footer: "border-t border-danger/20",
+        }}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-danger">
+              <Icon icon="solar:danger-triangle-bold" width={24} />
+              <span>Delete Team</span>
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-default-600">
+              Are you sure you want to delete <strong>{team.tag} {team.name}</strong>? This action cannot be undone.
+            </p>
+            <p className="text-sm text-default-500 mt-2">
+              All team data including members, match history, and statistics will be permanently removed.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="flat"
+              className="rounded-none"
+              onPress={onDeleteClose}
+              isDisabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              className="rounded-none"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              onPress={handleDeleteTeam}
+              isLoading={isDeleting}
+              startContent={!isDeleting && <Icon icon="solar:trash-bin-minimalistic-bold" width={18} />}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Team'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </PageContainer>
   );
 }

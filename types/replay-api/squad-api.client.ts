@@ -45,14 +45,25 @@ export class SquadApiClient {
   }
 
   async searchSquads(
-    query: string,
+    query?: string | object,
     authToken?: string
-  ): Promise<SquadSearchResult | undefined> {
-    return this.routeBuilder.search<SquadSearchResult>(
+  ): Promise<SquadSearchResult[] | undefined> {
+    // Convert object to JSON string if needed
+    const queryString = typeof query === 'object' ? JSON.stringify(query) : (query || '{}');
+    
+    const result = await this.routeBuilder.search<SquadSearchResult[] | SquadSearchResult>(
       ReplayApiResourceType.Squad,
-      query,
+      queryString,
       authToken
     );
+    
+    // Normalize to array
+    if (Array.isArray(result)) {
+      return result;
+    } else if (result) {
+      return [result];
+    }
+    return [];
   }
 
   async getSquad(

@@ -162,10 +162,16 @@ export enum SquadMembershipStatus {
  */
 export interface SquadMembership {
   user_id: string;
-  player_profile_id?: string;
-  type: SquadMembershipType;
-  status: SquadMembershipStatus;
-  roles: string[];
+  player_id?: string; // Player profile ID reference (from seed data)
+  player_profile_id?: string; // Alternative player profile ID field
+  type?: SquadMembershipType;
+  status?: SquadMembershipStatus;
+  role?: string; // Single role (from seed data)
+  roles?: string[]; // Array of roles
+  joined_at?: Date;
+  // Denormalized fields for display (populated in seed/API responses)
+  nickname?: string;
+  avatar?: string;
 }
 
 export interface SquadHistory {

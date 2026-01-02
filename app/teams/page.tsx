@@ -108,27 +108,39 @@ export default function TeamsPage() {
   }, [fetchSquads]);
 
   // Convert SDK squads to Team format for existing components
-  const teamsFromSquads: Team[] = squads.map((squad: Squad) => ({
-    name: squad.name,
-    avatar:
-      squad.logo_uri || "https://avatars.githubusercontent.com/u/168373383",
-    tag: squad.symbol || squad.name?.slice(0, 4).toUpperCase(),
-    slug: squad.slug_uri || "",
-    squad: {
-      title: getGameTitle(squad.game_id),
-      description: squad.description || "",
-      members: Object.values(squad.members || {}).map((m: SquadMembership) => ({
-        nickname: m.roles?.[0] || "Player",
-        avatar: "https://i.pravatar.cc/150",
-      })),
-    },
-    bio: squad.description || "",
-    social: {
-      twitter: `@${squad.symbol || squad.name}`,
-      linkedin: squad.slug_uri || "",
-      github: `@${squad.symbol || squad.name}`,
-    },
-  }));
+  const teamsFromSquads: Team[] = squads.map((squad: Squad) => {
+    // Handle both membership array (new format) and members Record (legacy format)
+    const membersList = squad.membership || Object.values(squad.members || {});
+    
+    return {
+      id: squad.id,
+      name: squad.name,
+      avatar:
+        squad.logo_uri || "https://avatars.githubusercontent.com/u/168373383",
+      tag: squad.symbol || squad.name?.slice(0, 4).toUpperCase(),
+      slug: squad.slug_uri || "",
+      squad: {
+        title: getGameTitle(squad.game_id),
+        description: squad.description || "",
+        members: membersList.map((m: SquadMembership, index: number) => {
+          // Generate unique seed for avatar from squad name + member position
+          const avatarSeed = m.nickname || `${squad.symbol || squad.name}-${index + 1}`;
+          const memberRole = m.type || m.role || m.roles?.[0] || (index === 0 ? 'captain' : 'member');
+          
+          return {
+            nickname: m.nickname || `Player ${index + 1}`,
+            avatar: m.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${avatarSeed}`,
+          };
+        }),
+      },
+      bio: squad.description || "",
+      social: {
+        twitter: `@${squad.symbol || squad.name}`,
+        linkedin: squad.slug_uri || "",
+        github: `@${squad.symbol || squad.name}`,
+      },
+    };
+  });
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-8">

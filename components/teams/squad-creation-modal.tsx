@@ -6,7 +6,9 @@
  */
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { useReplayApi } from '@/hooks/use-replay-api';
 import {
   Modal,
   ModalContent,
@@ -32,6 +34,7 @@ import {
 import { Icon } from '@iconify/react';
 import AvatarUploader from '@/components/avatar/avatar-uploader';
 import { logger } from '@/lib/logger';
+import { GameIDKey } from '@/types/replay-api/settings';
 
 interface SquadCreationModalProps {
   isOpen: boolean;
@@ -71,8 +74,11 @@ interface TeamMember {
 
 export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps) {
   const { isAuthenticated, user } = useAuth();
+  const { sdk } = useReplayApi();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -153,12 +159,38 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
     if (!validateStep(step)) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
+    
     try {
-      // TODO: Submit to API
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      // Map form game ID to API GameIDKey
+      const gameIdMap: Record<string, GameIDKey> = {
+        'cs2': 'cs2',
+        'valorant': 'vlrnt',
+        'csgo': 'csgo',
+        'lol': 'lol',
+        'dota2': 'dota2',
+      };
 
-      logger.info('Squad created', { teamName: formData.teamName, slug: formData.slug });
+      // Create squad via API
+      const squadData = {
+        game_id: gameIdMap[formData.game] || formData.game as GameIDKey,
+        name: formData.teamName,
+        symbol: formData.teamTag,
+        description: formData.bio,
+        slug_uri: formData.slug,
+        logo_uri: formData.logo ? URL.createObjectURL(formData.logo) : undefined,
+      };
+
+      const createdSquad = await sdk.squads.createSquad(squadData);
+
+      logger.info('Squad created successfully', { 
+        squadId: createdSquad.id,
+        teamName: formData.teamName, 
+        slug: formData.slug 
+      });
+      
       onClose();
+      
       // Reset form
       setStep(1);
       setFormData({
@@ -177,8 +209,19 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
         twitterHandle: '',
         members: [],
       });
+      
+      // Navigate to the new squad page
+      if (createdSquad.slug_uri) {
+        router.push(`/teams/${createdSquad.slug_uri}`);
+      } else if (createdSquad.id) {
+        router.push(`/teams/${createdSquad.id}`);
+      } else {
+        router.refresh();
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create squad';
       logger.error('Failed to create squad', error);
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -642,6 +685,19 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                       </div>
                     </CardBody>
                   </Card>
+
+                  {/* Error Display */}
+                  {submitError && (
+                    <Card className="bg-danger-50/50 border border-danger/30">
+                      <CardBody className="flex-row gap-3 items-start">
+                        <Icon icon="solar:danger-triangle-bold-duotone" width={24} className="text-danger flex-shrink-0" />
+                        <div className="text-sm">
+                          <p className="font-semibold text-danger-700 mb-1">Failed to Create Squad</p>
+                          <p className="text-default-600">{submitError}</p>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  )}
                 </div>
               )}
             </ModalBody>
