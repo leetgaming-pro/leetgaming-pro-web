@@ -13,6 +13,10 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Set environment variables for client-side code (baked into bundle at build time)
+ENV NEXT_PUBLIC_REPLAY_API_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_URL=http://localhost:8080
+
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
