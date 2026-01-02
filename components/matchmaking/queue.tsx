@@ -126,12 +126,18 @@ export function MatchmakingQueue({
     poolStats,
     isSearching,
     isLoading: _isLoading,
-    error: _matchmakingError,
+    error: matchmakingError,
     elapsedTime,
+    lobbyId,
+    matchId,
     joinQueue,
     leaveQueue,
     fetchPoolStats,
-    clearError: _clearError,
+    joinLobby,
+    acceptMatch,
+    declineMatch,
+    clearError,
+    retryLastAction,
   } = useMatchmaking();
 
   // Local UI state for queue status mapping
@@ -143,14 +149,17 @@ export function MatchmakingQueue({
     if (isSearching) {
       setQueueStatus("queuing");
       setQueueTime(elapsedTime);
-    } else if (matchmakingSession?.status === "matched") {
+    } else if (matchmakingSession?.status === "matched" && lobbyId) {
       setQueueStatus("ready-check");
-    } else if (matchmakingSession?.status === "ready") {
+    } else if (matchmakingSession?.status === "ready" && matchId) {
       setQueueStatus("match-found");
+    } else if (matchmakingSession?.status === "matched") {
+      // Waiting for lobby assignment
+      setQueueStatus("connecting");
     } else {
       setQueueStatus("idle");
     }
-  }, [isSearching, matchmakingSession, elapsedTime]);
+  }, [isSearching, matchmakingSession, elapsedTime, lobbyId, matchId]);
 
   // Fetch pool stats on mount and periodically
   useEffect(() => {
@@ -182,6 +191,15 @@ export function MatchmakingQueue({
   const [selectedRegions, setSelectedRegions] = useState<string[]>(["auto"]);
   const [maxPing, setMaxPing] = useState(100);
   const [acceptCrossPlatform, setAcceptCrossPlatform] = useState(true);
+
+  // Advanced matchmaking state
+  const [selectedSquadId, setSelectedSquadId] = useState<string | undefined>();
+  const [selectedPlayerRole, setSelectedPlayerRole] = useState<
+    string | undefined
+  >();
+  const [selectedTeamFormat, setSelectedTeamFormat] = useState<
+    string | undefined
+  >();
 
   // Ready check state
   const [readyCheckAccepted, setReadyCheckAccepted] = useState(false);
@@ -240,13 +258,15 @@ export function MatchmakingQueue({
       maxRankDiff: 2,
     };
 
-    // Call the real SDK
+    // Call the real SDK with enhanced parameters
     const result = await joinQueue({
       player_id: userId,
+      squad_id: selectedSquadId, // New: squad support
       preferences: {
         game_id: gameId as string,
         game_mode: selectedMode,
         region: selectedRegions[0] || "auto",
+        map_preferences: selectedMaps,
         skill_range: {
           min_mmr: playerRating - 200,
           max_mmr: playerRating + 200,
@@ -255,6 +275,8 @@ export function MatchmakingQueue({
         allow_cross_platform: acceptCrossPlatform,
         tier: "free",
         priority_boost: false,
+        player_role: selectedPlayerRole, // New: role support
+        team_format: selectedTeamFormat, // New: team format support
       },
       player_mmr: playerRating,
     });
@@ -272,116 +294,52 @@ export function MatchmakingQueue({
     acceptCrossPlatform,
     maxPing,
     playerRating,
+    selectedSquadId,
+    selectedPlayerRole,
+    selectedTeamFormat,
     joinQueue,
     onQueueStart,
   ]);
 
   const handleAcceptMatch = useCallback(async () => {
     const userId = user?.id;
-    const lobbyId = matchmakingSession?.lobby_id;
-
-    if (!userId || !lobbyId) {
-      console.error("Cannot accept match: missing user ID or lobby ID");
+    if (!userId) {
+      console.error("Cannot accept match: missing user ID");
       return;
     }
 
     setReadyCheckAccepted(true);
 
     try {
-      // Use SDK to set player ready status on the lobby
-      const { ReplayAPISDK } = await import("@/types/replay-api/sdk");
-      const { ReplayApiSettingsMock } = await import(
-        "@/types/replay-api/settings"
-      );
-      const { logger } = await import("@/lib/logger");
-      const apiSdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
-
-      await apiSdk.lobbies.setPlayerReady(lobbyId, {
-        player_id: userId,
-        is_ready: true,
-      });
-
-      // Poll for lobby status updates until match starts or is cancelled
-      const stopPolling = await apiSdk.lobbies.pollLobbyStatus(
-        lobbyId,
-        (lobby) => {
-          if (
-            (lobby.status === "started" || lobby.status === "starting") &&
-            lobby.match_id
-          ) {
-            // Match has started - build teams from lobby slots
-            interface TeamData {
-              id: string;
-              players: Array<{
-                id: string;
-                name: string;
-                avatar?: string;
-                rating: number;
-              }>;
-            }
-
-            const teams = (lobby.player_slots || []).reduce(
-              (acc: TeamData[], slot, index: number) => {
-                const teamIndex = Math.floor(index / 5);
-                if (!acc[teamIndex]) {
-                  acc[teamIndex] = { id: `team${teamIndex + 1}`, players: [] };
-                }
-                const playerId = slot.player_id;
-                if (playerId) {
-                  acc[teamIndex].players.push({
-                    id: playerId,
-                    name: `Player${index + 1}`,
-                    avatar: undefined,
-                    rating: slot.mmr || playerRating,
-                  });
-                }
-                return acc;
-              },
-              []
-            );
-
-            const matchData: MatchFoundData = {
-              matchId: lobby.match_id,
-              gameId,
-              mode: selectedMode,
-              map: selectedMaps[0] || "unknown",
-              teams,
-              estimatedDuration: 45,
-            };
-
-            setFoundMatch(matchData);
-            setQueueStatus("match-found");
-            onMatchFound?.(matchData);
-            stopPolling();
-          } else if (lobby.status === "cancelled") {
-            setQueueStatus("idle");
-            setQueueTime(0);
-            onQueueCancel?.();
-            stopPolling();
-          }
-        },
-        1500 // Poll every 1.5 seconds during ready check
-      );
+      // Use the new SDK acceptMatch function
+      const success = await acceptMatch();
+      if (success) {
+        // Match accepted successfully - the hook will handle status updates
+        console.log("Match accepted successfully");
+      } else {
+        console.error("Failed to accept match");
+        setReadyCheckAccepted(false);
+      }
     } catch (error) {
-      console.error("Failed to accept match:", error);
+      console.error("Error accepting match:", error);
       setReadyCheckAccepted(false);
     }
-  }, [
-    user,
-    matchmakingSession,
-    gameId,
-    selectedMode,
-    selectedMaps,
-    playerRating,
-    onMatchFound,
-    onQueueCancel,
-  ]);
+  }, [user, acceptMatch]);
 
-  const handleDeclineMatch = () => {
-    setQueueStatus("idle");
-    setQueueTime(0);
-    setReadyCheckAccepted(false);
-  };
+  const handleDeclineMatch = useCallback(async () => {
+    try {
+      const success = await declineMatch();
+      if (success) {
+        setQueueStatus("idle");
+        setQueueTime(0);
+        setReadyCheckAccepted(false);
+      } else {
+        console.error("Failed to decline match");
+      }
+    } catch (error) {
+      console.error("Error declining match:", error);
+    }
+  }, [declineMatch]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -461,6 +419,52 @@ export function MatchmakingQueue({
         </CardHeader>
 
         <CardBody className="p-4 space-y-4">
+          {/* Error display */}
+          {matchmakingError && (
+            <div className="bg-danger-50 border border-danger-200 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Icon
+                    icon="solar:danger-triangle-bold"
+                    className="text-danger-500"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-danger-700">
+                      {matchmakingError.type === "network"
+                        ? "Connection Error"
+                        : matchmakingError.type === "validation"
+                        ? "Invalid Settings"
+                        : matchmakingError.type === "rate_limit"
+                        ? "Rate Limited"
+                        : matchmakingError.type === "server"
+                        ? "Server Error"
+                        : "Matchmaking Error"}
+                    </p>
+                    <p className="text-xs text-danger-600 mt-1">
+                      {matchmakingError.message}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {matchmakingError.canRetry && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="danger"
+                      onPress={retryLastAction}
+                      isLoading={isSearching}
+                    >
+                      Retry
+                    </Button>
+                  )}
+                  <Button size="sm" variant="light" onPress={clearError}>
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Mode selector */}
           <div>
             <p className="text-sm font-semibold text-default-600 mb-2">
@@ -739,17 +743,89 @@ export function MatchmakingQueue({
         </CardBody>
       </Card>
 
-      {/* Settings modal */}
-      <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} size="lg">
+      {/* Advanced Matchmaking Settings Modal */}
+      <Modal
+        isOpen={isSettingsOpen}
+        onOpenChange={onSettingsClose}
+        size="2xl"
+        scrollBehavior="inside"
+      >
         <ModalContent>
-          <ModalHeader className="font-gaming">Queue Settings</ModalHeader>
-          <ModalBody className="space-y-4">
+          <ModalHeader>
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:settings-bold" className="text-xl" />
+              Advanced Matchmaking Settings
+            </div>
+          </ModalHeader>
+          <ModalBody className="space-y-6">
+            {/* Squad Selection */}
+            <div>
+              <p className="text-sm font-semibold mb-3">Squad Matchmaking</p>
+              <RadioGroup
+                value={selectedSquadId || "solo"}
+                onValueChange={(value) =>
+                  setSelectedSquadId(value === "solo" ? undefined : value)
+                }
+                orientation="horizontal"
+                className="gap-4"
+              >
+                <Radio value="solo">Solo Queue</Radio>
+                <Radio value="squad1" isDisabled>
+                  Squad Queue (Coming Soon)
+                </Radio>
+              </RadioGroup>
+            </div>
+
+            {/* Player Role Selection */}
+            <div>
+              <p className="text-sm font-semibold mb-3">Preferred Role</p>
+              <RadioGroup
+                value={selectedPlayerRole || "any"}
+                onValueChange={(value) =>
+                  setSelectedPlayerRole(value === "any" ? undefined : value)
+                }
+                orientation="horizontal"
+                className="gap-4"
+              >
+                <Radio value="any">Any Role</Radio>
+                <Radio value="tank">Tank</Radio>
+                <Radio value="dps">DPS</Radio>
+                <Radio value="support">Support</Radio>
+              </RadioGroup>
+            </div>
+
+            {/* Team Format Selection */}
+            <div>
+              <p className="text-sm font-semibold mb-3">Team Format</p>
+              <RadioGroup
+                value={selectedTeamFormat || "standard"}
+                onValueChange={(value) =>
+                  setSelectedTeamFormat(
+                    value === "standard" ? undefined : value
+                  )
+                }
+                orientation="horizontal"
+                className="gap-4"
+              >
+                <Radio value="standard">Standard (5v5)</Radio>
+                <Radio value="ranked" isDisabled>
+                  Ranked (Coming Soon)
+                </Radio>
+                <Radio value="casual" isDisabled>
+                  Casual (Coming Soon)
+                </Radio>
+              </RadioGroup>
+            </div>
+
+            {/* Existing settings */}
             {/* Region selection */}
             <div>
               <p className="text-sm font-semibold mb-2">Region</p>
               <RadioGroup
-                value={selectedRegions[0]}
+                value={selectedRegions[0] || "auto"}
                 onValueChange={(value) => setSelectedRegions([value])}
+                orientation="horizontal"
+                className="gap-4"
               >
                 <Radio value="auto">Auto (Best ping)</Radio>
                 <Radio value="na">North America</Radio>

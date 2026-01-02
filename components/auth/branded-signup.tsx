@@ -6,11 +6,11 @@ import { Icon } from "@iconify/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 import { SteamIcon } from "../icons";
 import { EsportsButton } from "../ui/esports-button";
 import { AuthBackground } from "./auth-background";
+import DefaultLogo from "../logo/logo-default";
 
 export default function BrandedSignUp() {
   const router = useRouter();
@@ -121,13 +121,7 @@ export default function BrandedSignUp() {
             transition={{ duration: 0.6 }}
           >
             <Link href="/" className="flex items-center">
-              <Image
-                src="/logo-red-only-text.png"
-                alt="LeetGaming"
-                width={180}
-                height={40}
-                style={{ objectFit: "contain" }}
-              />
+              <DefaultLogo />
             </Link>
           </motion.div>
 
@@ -139,14 +133,14 @@ export default function BrandedSignUp() {
             className="space-y-8"
           >
             <div>
-              <h1 className="text-5xl font-black text-[#34445C] dark:text-[#F5F0E1] leading-tight mb-4">
+              <h1 className="text-5xl font-black text-white leading-tight mb-4">
                 BEGIN YOUR
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4654] dark:from-[#DCFF37] to-[#FFC700]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DCFF37] to-[#FFC700]">
                   LEGEND
                 </span>
               </h1>
-              <p className="text-xl text-[#34445C]/60 dark:text-[#F5F0E1]/60 max-w-md">
+              <p className="text-xl text-white/60 max-w-md">
                 Create your account and join the most competitive gaming
                 community.
               </p>
@@ -167,13 +161,13 @@ export default function BrandedSignUp() {
                   transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 flex items-center justify-center bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
+                  <div className="w-10 h-10 flex items-center justify-center bg-[#DCFF37]/10 border border-[#DCFF37]/30">
                     <Icon
                       icon={feature.icon}
-                      className="text-[#FF4654] dark:text-[#DCFF37] text-xl"
+                      className="text-[#DCFF37] text-xl"
                     />
                   </div>
-                  <span className="text-[#34445C]/80 dark:text-[#F5F0E1]/80">{feature.text}</span>
+                  <span className="text-white/80">{feature.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -184,17 +178,17 @@ export default function BrandedSignUp() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="bg-[#34445C]/5 dark:bg-white/5 border border-[#34445C]/10 dark:border-white/10 p-4"
+            className="bg-white/5 border border-white/10 p-4"
           >
-            <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/70 italic mb-3">
+            <p className="text-white/70 italic mb-3">
               &ldquo;LeetGaming transformed how I compete. The platform is
               insane!&rdquo;
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF4654] dark:from-[#DCFF37] to-[#34445C]" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#DCFF37] to-[#34445C]" />
               <div>
-                <div className="text-[#34445C] dark:text-[#F5F0E1] font-semibold">ProPlayer_X</div>
-                <div className="text-[#34445C]/40 dark:text-[#F5F0E1]/40 text-sm">Global Elite</div>
+                <div className="text-white font-semibold">ProPlayer_X</div>
+                <div className="text-white/40 text-sm">Global Elite</div>
               </div>
             </div>
           </motion.div>
@@ -209,31 +203,25 @@ export default function BrandedSignUp() {
             className="w-full max-w-md"
           >
             <div
-              className="relative bg-white/80 dark:bg-black/60 backdrop-blur-xl border border-[#34445C]/10 dark:border-white/10 p-8 sm:p-10"
+              className="relative bg-black/60 backdrop-blur-xl border border-white/10 p-8 sm:p-10"
               style={{
                 clipPath:
                   "polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)",
               }}
             >
               {/* Top accent line */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37]" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#DCFF37] via-[#FFC700] to-[#FF4654]" />
 
               {/* Mobile logo */}
-              <div className="lg:hidden flex justify-center mb-8">
-                <Image
-                  src="/logo-red-only-text.png"
-                  alt="LeetGaming"
-                  width={200}
-                  height={45}
-                  style={{ objectFit: "contain" }}
-                />
+              <div className="lg:hidden flex justify-center mb-6">
+                <DefaultLogo />
               </div>
 
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1] mb-2">
+                <h2 className="text-2xl font-bold text-white mb-2">
                   Create Account
                 </h2>
-                <p className="text-[#34445C]/50 dark:text-[#F5F0E1]/50 text-sm">
+                <p className="text-white/50 text-sm">
                   Start your competitive journey today
                 </p>
               </div>
@@ -259,13 +247,13 @@ export default function BrandedSignUp() {
                   onChange={(e) => setUsername(e.target.value)}
                   isDisabled={isLoading}
                   startContent={
-                    <Icon icon="solar:user-bold" className="text-[#34445C]/30 dark:text-white/30" />
+                    <Icon icon="solar:user-bold" className="text-white/30" />
                   }
                   classNames={{
                     inputWrapper:
-                      "rounded-none border-[#34445C]/20 dark:border-white/20 bg-[#34445C]/5 dark:bg-white/5 group-data-[focus=true]:border-[#FF4654] dark:group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-[#34445C]/40 dark:data-[hover=true]:border-white/40",
-                    input: "text-[#34445C] dark:text-white placeholder:text-[#34445C]/30 dark:placeholder:text-white/30",
-                    label: "text-[#34445C]/70 dark:text-white/70",
+                      "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-white/40",
+                    input: "text-white placeholder:text-white/30",
+                    label: "text-white/70",
                   }}
                 />
 
@@ -279,13 +267,13 @@ export default function BrandedSignUp() {
                   onChange={(e) => setEmail(e.target.value)}
                   isDisabled={isLoading}
                   startContent={
-                    <Icon icon="solar:letter-bold" className="text-[#34445C]/30 dark:text-white/30" />
+                    <Icon icon="solar:letter-bold" className="text-white/30" />
                   }
                   classNames={{
                     inputWrapper:
-                      "rounded-none border-[#34445C]/20 dark:border-white/20 bg-[#34445C]/5 dark:bg-white/5 group-data-[focus=true]:border-[#FF4654] dark:group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-[#34445C]/40 dark:data-[hover=true]:border-white/40",
-                    input: "text-[#34445C] dark:text-white placeholder:text-[#34445C]/30 dark:placeholder:text-white/30",
-                    label: "text-[#34445C]/70 dark:text-white/70",
+                      "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-white/40",
+                    input: "text-white placeholder:text-white/30",
+                    label: "text-white/70",
                   }}
                 />
 
@@ -294,7 +282,7 @@ export default function BrandedSignUp() {
                     endContent={
                       <button type="button" onClick={toggleVisibility}>
                         <Icon
-                          className="text-2xl text-[#34445C]/50 dark:text-white/50 hover:text-[#34445C] dark:hover:text-white transition-colors"
+                          className="text-2xl text-white/50 hover:text-white transition-colors"
                           icon={
                             isVisible
                               ? "solar:eye-closed-linear"
@@ -312,7 +300,7 @@ export default function BrandedSignUp() {
                     onChange={(e) => setPassword(e.target.value)}
                     isDisabled={isLoading}
                     startContent={
-                      <Icon icon="solar:lock-bold" className="text-[#34445C]/30 dark:text-white/30" />
+                      <Icon icon="solar:lock-bold" className="text-white/30" />
                     }
                     classNames={{
                       inputWrapper:
@@ -329,7 +317,7 @@ export default function BrandedSignUp() {
                         size="sm"
                         className="h-1"
                       />
-                      <p className="text-xs text-[#34445C]/40 dark:text-white/40">
+                      <p className="text-xs text-white/40">
                         Password strength:{" "}
                         <span
                           className={`font-medium ${
@@ -351,7 +339,7 @@ export default function BrandedSignUp() {
                   endContent={
                     <button type="button" onClick={toggleConfirmVisibility}>
                       <Icon
-                        className="text-2xl text-[#34445C]/50 dark:text-white/50 hover:text-[#34445C] dark:hover:text-white transition-colors"
+                        className="text-2xl text-white/50 hover:text-white transition-colors"
                         icon={
                           isConfirmVisible
                             ? "solar:eye-closed-linear"
@@ -369,13 +357,13 @@ export default function BrandedSignUp() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   isDisabled={isLoading}
                   startContent={
-                    <Icon icon="solar:lock-bold" className="text-[#34445C]/30 dark:text-white/30" />
+                    <Icon icon="solar:lock-bold" className="text-white/30" />
                   }
                   classNames={{
                     inputWrapper:
-                      "rounded-none border-[#34445C]/20 dark:border-white/20 bg-[#34445C]/5 dark:bg-white/5 group-data-[focus=true]:border-[#FF4654] dark:group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-[#34445C]/40 dark:data-[hover=true]:border-white/40",
-                    input: "text-[#34445C] dark:text-white placeholder:text-[#34445C]/30 dark:placeholder:text-white/30",
-                    label: "text-[#34445C]/70 dark:text-white/70",
+                      "rounded-none border-white/20 bg-white/5 group-data-[focus=true]:border-[#DCFF37] data-[hover=true]:border-white/40",
+                    input: "text-white placeholder:text-white/30",
+                    label: "text-white/70",
                   }}
                 />
 
@@ -386,8 +374,8 @@ export default function BrandedSignUp() {
                   isDisabled={isLoading}
                   classNames={{
                     wrapper:
-                      "before:border-[#34445C]/30 dark:before:border-white/30 rounded-none after:bg-[#FF4654] dark:after:bg-[#DCFF37]",
-                    label: "text-[#34445C]/70 dark:text-white/70 text-sm",
+                      "before:border-white/30 rounded-none after:bg-[#DCFF37]",
+                    label: "text-white/70 text-sm",
                   }}
                 >
                   I agree to the{" "}
@@ -420,11 +408,11 @@ export default function BrandedSignUp() {
               </form>
 
               <div className="flex items-center gap-4 my-6">
-                <Divider className="flex-1 bg-[#34445C]/10 dark:bg-white/10" />
-                <span className="text-[#34445C]/30 dark:text-white/30 text-xs uppercase tracking-wider">
+                <Divider className="flex-1 bg-white/10" />
+                <span className="text-white/30 text-xs uppercase tracking-wider">
                   or sign up with
                 </span>
-                <Divider className="flex-1 bg-[#34445C]/10 dark:bg-white/10" />
+                <Divider className="flex-1 bg-white/10" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -452,7 +440,7 @@ export default function BrandedSignUp() {
                 </EsportsButton>
               </div>
 
-              <p className="text-center text-sm text-[#34445C]/50 dark:text-white/50 mt-6">
+              <p className="text-center text-sm text-white/50 mt-6">
                 Already have an account?{" "}
                 <Link
                   href="/signin"
@@ -464,7 +452,7 @@ export default function BrandedSignUp() {
 
               {/* Corner cut decoration */}
               <div
-                className="absolute bottom-0 right-0 w-6 h-6 border-l border-t border-[#34445C]/10 dark:border-white/10"
+                className="absolute bottom-0 right-0 w-6 h-6 border-l border-t border-white/10"
                 style={{ transform: "translate(50%, 50%) rotate(45deg)" }}
               />
             </div>

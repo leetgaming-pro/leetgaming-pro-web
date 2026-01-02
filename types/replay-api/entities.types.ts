@@ -162,6 +162,7 @@ export enum SquadMembershipStatus {
  */
 export interface SquadMembership {
   user_id: string;
+  player_profile_id?: string;
   type: SquadMembershipType;
   status: SquadMembershipStatus;
   roles: string[];
@@ -185,7 +186,8 @@ export interface Squad extends BaseEntity {
   description: string;
   logo_uri?: string;
   slug_uri?: string;
-  members: Record<string, SquadMembership>;
+  membership?: SquadMembership[]; // Matches backend JSON field
+  members?: Record<string, SquadMembership>; // Legacy field for backward compatibility
   profiles?: Record<string, ProfileDetails>;
   history?: SquadHistory[];
 }

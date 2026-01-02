@@ -18,7 +18,11 @@ import { MatchmakingAPI } from "@/types/replay-api/matchmaking.sdk";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
-import type { MatchmakingUIState } from "@/types/replay-api/matchmaking.types";
+import type {
+  MatchmakingUIState,
+  MatchmakingError,
+} from "@/types/replay-api/matchmaking.types";
+import { ensureSession, createGuestToken } from "@/types/replay-api/auth";
 
 export interface WizardState {
   // Step 0: Region
@@ -34,7 +38,6 @@ export interface WizardState {
   selectedFriends?: string[];
 
   // Step 3: Schedule (optional for instant matchmaking)
-  scheduleType?: "now" | "time-frames" | "weekly-routine";
   scheduleStart?: Date;
   scheduleEnd?: Date;
   weeklyRoutine?: string[];
@@ -122,30 +125,21 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   };
 
   const startMatchmaking = async (playerId: string) => {
-    // Validate player ID - no mock IDs allowed
-    if (
-      !playerId ||
-      playerId === "mock-player-id" ||
-      playerId.startsWith("mock-")
-    ) {
-      setState((prev) => ({
-        ...prev,
-        matchmaking: {
-          isSearching: false,
-          sessionId: null,
-          queuePosition: 0,
-          totalQueueCount: 0,
-          estimatedWait: 0,
-          elapsedTime: 0,
-          poolStats: null,
-          error:
-            "Authentication required. Please sign in to start matchmaking.",
-        },
-      }));
-      return;
-    }
-
     try {
+      // Ensure user has a valid session (authenticated or guest)
+      const hasSession = await ensureSession();
+      if (!hasSession) {
+        // Try to create a guest token if no session exists
+        const guestToken = await createGuestToken();
+        if (!guestToken?.success) {
+          throw new Error("Failed to create session. Please try again.");
+        }
+        // Use guest user_id if playerId not provided
+        if (!playerId && guestToken.user_id) {
+          playerId = guestToken.user_id;
+        }
+      }
+
       setState((prev) => ({
         ...prev,
         matchmaking: {
@@ -186,7 +180,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           isSearching: true,
           sessionId: response.session_id,
           queuePosition: response.queue_position,
-          totalQueueCount: response.queue_position, // Initial estimate, updated by polling
+          totalQueueCount: 0,
           estimatedWait: response.estimated_wait_seconds,
           elapsedTime: 0,
           poolStats: null,
@@ -211,9 +205,20 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             : prev.matchmaking,
         }));
       });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to start matchmaking";
+    } catch (error: unknown) {
+      // Map error to appropriate MatchmakingError type
+      let matchmakingErrorType: MatchmakingError = "NETWORK_ERROR";
+      if (error instanceof Error) {
+        if (error.message.includes("auth"))
+          matchmakingErrorType = "AUTHENTICATION_FAILED";
+        else if (error.message.includes("session"))
+          matchmakingErrorType = "SESSION_EXPIRED";
+        else if (error.message.includes("rate"))
+          matchmakingErrorType = "RATE_LIMITED";
+        else if (error.message.includes("queue"))
+          matchmakingErrorType = "QUEUE_FULL";
+      }
+
       setState((prev) => ({
         ...prev,
         matchmaking: {
@@ -224,7 +229,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           estimatedWait: 0,
           elapsedTime: 0,
           poolStats: null,
-          error: errorMessage,
+          error: matchmakingErrorType,
         },
       }));
     }
@@ -252,17 +257,20 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             error: null,
           },
         }));
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to cancel matchmaking";
+      } catch (error: unknown) {
+        // Map cancel error to appropriate MatchmakingError type
+        let cancelErrorType: MatchmakingError = "NETWORK_ERROR";
+        if (error instanceof Error) {
+          if (error.message.includes("session"))
+            cancelErrorType = "SESSION_EXPIRED";
+        }
+
         setState((prev) => ({
           ...prev,
           matchmaking: prev.matchmaking
             ? {
                 ...prev.matchmaking,
-                error: errorMessage,
+                error: cancelErrorType,
               }
             : prev.matchmaking,
         }));

@@ -30,6 +30,9 @@ export interface MatchPreferences {
   allow_cross_platform: boolean;
   tier: MatchmakingTier;
   priority_boost: boolean;
+  player_role?: string;
+  team_format?: string;
+  squad_id?: string;
 }
 
 export interface JoinQueueRequest {
@@ -71,6 +74,29 @@ export interface PoolStatsResponse {
   timestamp: string;
 }
 
+// Comprehensive error types for matchmaking operations
+export type MatchmakingError =
+  | "INVALID_GAME_MODE"
+  | "REGION_FULL"
+  | "TIER_RESTRICTED"
+  | "ANTICHEAT_REQUIRED"
+  | "CONCURRENT_SESSION"
+  | "LOBBY_ERROR"
+  | "NETWORK_ERROR"
+  | "AUTHENTICATION_FAILED"
+  | "SESSION_EXPIRED"
+  | "QUEUE_FULL"
+  | "INVALID_PREFERENCES"
+  | "RATE_LIMITED";
+
+export interface MatchmakingErrorResponse {
+  error: MatchmakingError;
+  message: string;
+  details?: Record<string, unknown>;
+  retryable?: boolean;
+  retryAfter?: number;
+}
+
 // UI-specific types
 export interface MatchmakingUIState {
   isSearching: boolean;
@@ -80,7 +106,9 @@ export interface MatchmakingUIState {
   estimatedWait: number;
   elapsedTime: number;
   poolStats: PoolStatsResponse | null;
-  error: string | null;
+  error: MatchmakingError | null;
+  lobbyId?: string;
+  matchId?: string;
 }
 
 // Tier benefits for display
@@ -253,6 +281,99 @@ export const REGIONS: Record<string, RegionOption> = {
   },
 };
 
+// Player role options for role-based matchmaking
+export interface PlayerRoleOption {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  gameSpecific?: boolean;
+}
+
+export const PLAYER_ROLES: Record<string, PlayerRoleOption> = {
+  any: {
+    id: "any",
+    name: "Any Role",
+    description: "No preference",
+    icon: "solar:user-bold",
+  },
+  carry: {
+    id: "carry",
+    name: "Carry",
+    description: "High damage output",
+    icon: "solar:target-bold",
+    gameSpecific: true,
+  },
+  support: {
+    id: "support",
+    name: "Support",
+    description: "Team utility and healing",
+    icon: "solar:heart-bold",
+    gameSpecific: true,
+  },
+  tank: {
+    id: "tank",
+    name: "Tank",
+    description: "Damage mitigation",
+    icon: "solar:shield-bold",
+    gameSpecific: true,
+  },
+  assassin: {
+    id: "assassin",
+    name: "Assassin",
+    description: "Burst damage and mobility",
+    icon: "solar:flash-bold",
+    gameSpecific: true,
+  },
+};
+
+// Team format options
+export interface TeamFormatOption {
+  id: string;
+  name: string;
+  description: string;
+  playerCount: number;
+  icon: string;
+}
+
+export const TEAM_FORMATS: Record<string, TeamFormatOption> = {
+  "1v1": {
+    id: "1v1",
+    name: "1v1",
+    description: "Single player vs single player",
+    playerCount: 2,
+    icon: "solar:user-bold",
+  },
+  "2v2": {
+    id: "2v2",
+    name: "2v2",
+    description: "Two player teams",
+    playerCount: 4,
+    icon: "solar:users-group-two-rounded-bold",
+  },
+  "3v3": {
+    id: "3v3",
+    name: "3v3",
+    description: "Three player teams",
+    playerCount: 6,
+    icon: "solar:users-group-rounded-bold",
+  },
+  "5v5": {
+    id: "5v5",
+    name: "5v5",
+    description: "Standard competitive teams",
+    playerCount: 10,
+    icon: "solar:users-group-rounded-bold",
+  },
+  "6v6": {
+    id: "6v6",
+    name: "6v6",
+    description: "Large team matches",
+    playerCount: 12,
+    icon: "solar:users-group-rounded-bold",
+  },
+};
+
 // --- Helper Functions (reduce code bloat in components) ---
 
 /**
@@ -390,10 +511,46 @@ export const getGameMode = (modeId: string): GameModeOption | undefined => {
 };
 
 /**
- * Get region by ID
+ * Get player role by ID
  */
-export const getRegion = (regionId: string): RegionOption | undefined => {
-  return REGIONS[regionId];
+export const getPlayerRole = (roleId: string): PlayerRoleOption | undefined => {
+  return PLAYER_ROLES[roleId];
+};
+
+/**
+ * Get team format by ID
+ */
+export const getTeamFormat = (formatId: string): TeamFormatOption | undefined => {
+  return TEAM_FORMATS[formatId];
+};
+
+/**
+ * Get all available player roles
+ */
+export const getAvailablePlayerRoles = (): PlayerRoleOption[] => {
+  return Object.values(PLAYER_ROLES);
+};
+
+/**
+ * Get all available team formats
+ */
+export const getAvailableTeamFormats = (): TeamFormatOption[] => {
+  return Object.values(TEAM_FORMATS);
+};
+
+/**
+ * Get team formats for a specific player count
+ */
+export const getTeamFormatsForPlayerCount = (playerCount: number): TeamFormatOption[] => {
+  return Object.values(TEAM_FORMATS).filter(format => format.playerCount === playerCount);
+};
+
+/**
+ * Calculate pair size from team format
+ */
+export const getPairSizeFromTeamFormat = (teamFormat: string): number => {
+  const format = TEAM_FORMATS[teamFormat];
+  return format ? format.playerCount / 2 : 2; // Default to 2 if not found
 };
 
 /**

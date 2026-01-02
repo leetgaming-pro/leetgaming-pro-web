@@ -10,6 +10,7 @@ export { SuccessConfetti } from "./success-confetti";
 // Game-specific
 export { GameLogo, GameLogoGrid } from "./game-logo";
 export type { GameLogoSize, GameLogoVariant } from "./game-logo";
+export { GameSelect, GameChip, GameBanner, GameIcon } from "./game-select";
 
 // Buttons
 export { EsportsButton } from "./esports-button";

@@ -11,8 +11,7 @@
 | Logo | File | Usage |
 |------|------|-------|
 | **Text Only** | `/logo-red-only-text.png` | Navbar, auth pages, mobile headers |
-| **Full Logo** | `/logo-red-full.png` | Footer, about pages, marketing |
-| **Fox Only** | `/logo-fox-mini.png` | Favicons, small icons |
+| **Full Logo** | `/logo-red-full.png` | Footer, about pages, marketing, favicons |
 
 ### Logo Guidelines
 

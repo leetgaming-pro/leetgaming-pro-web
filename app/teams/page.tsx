@@ -1,33 +1,34 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { Team, Squad as TeamCardSquad } from "@/components/teams/team-card/App";
+import type {
+  Team,
+  Squad as TeamCardSquad,
+} from "@/components/teams/team-card/App";
 import { useOptionalAuth } from "@/hooks";
+import { useReplayApi } from "@/hooks/use-replay-api";
 
 import {
   Button,
   Spacer,
   Input,
-  Select,
-  SelectItem,
   Spinner,
   Card,
   CardBody,
   Chip,
+  useDisclosure,
 } from "@nextui-org/react";
 
 import TeamCard from "@/components/teams/team-card/App";
 import { SearchIcon } from "@/components/icons";
 import { Icon } from "@iconify/react";
-import LaunchYourSquadButton from "@/components/teams/team-form/launch-your-squad-button";
-import ApplyNowButton from "@/components/players/player-form/apply-now-button";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { SquadCreationModal } from "@/components/teams/squad-creation-modal";
+import { PlayerCreationModal } from "@/components/players/player-creation-modal";
 import { Squad, SquadMembership } from "@/types/replay-api/entities.types";
 import { logger } from "@/lib/logger";
-
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+import { GameSelect } from "@/components/ui/game-select";
+import { GameId } from "@/types/games";
 
 /** Search filters for squads */
 interface SquadSearchFilters {
@@ -36,46 +37,81 @@ interface SquadSearchFilters {
 }
 
 export default function TeamsPage() {
-  const { isAuthenticated, isLoading: authLoading, requireAuthForAction } = useOptionalAuth();
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    requireAuthForAction,
+  } = useOptionalAuth();
+  const { sdk } = useReplayApi();
   const router = useRouter();
   const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [gameFilter, setGameFilter] = useState("all");
+  const [gameFilter, setGameFilter] = useState<GameId | null>(null);
+
+  // Modal state for squad creation
+  const {
+    isOpen: isSquadModalOpen,
+    onOpen: onSquadModalOpen,
+    onClose: onSquadModalClose,
+  } = useDisclosure();
+  // Modal state for player profile creation
+  const {
+    isOpen: isPlayerModalOpen,
+    onOpen: onPlayerModalOpen,
+    onClose: onPlayerModalClose,
+  } = useDisclosure();
+
+  const handleCreateSquad = () => {
+    if (!requireAuthForAction("create a squad")) {
+      return;
+    }
+    onSquadModalOpen();
+  };
+
+  const handleCreateProfile = () => {
+    if (!requireAuthForAction("create a player profile")) {
+      return;
+    }
+    onPlayerModalOpen();
+  };
+
+  // Fetch squads using SDK with proper auth headers
+  const fetchSquads = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const filters: SquadSearchFilters = {};
+      if (gameFilter) {
+        filters.game_id = gameFilter;
+      }
+      if (searchQuery) {
+        filters.name = searchQuery;
+      }
+
+      const squadsData = await sdk.squads.searchSquads(filters);
+      setSquads(squadsData || []);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load squads";
+      logger.error("Failed to fetch squads", err);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [sdk, gameFilter, searchQuery]);
 
   useEffect(() => {
-    async function fetchSquads() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const filters: SquadSearchFilters = {};
-        if (gameFilter !== "all") {
-          filters.game_id = gameFilter;
-        }
-        if (searchQuery) {
-          filters.name = searchQuery;
-        }
-
-        const squadsData = await sdk.squads.searchSquads(filters);
-        setSquads(squadsData || []);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load squads";
-        logger.error("Failed to fetch squads", err);
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchSquads();
-  }, [gameFilter, searchQuery]);
+  }, [fetchSquads]);
 
   // Convert SDK squads to Team format for existing components
   const teamsFromSquads: Team[] = squads.map((squad: Squad) => ({
     name: squad.name,
-    avatar: squad.logo_uri || "https://avatars.githubusercontent.com/u/168373383",
+    avatar:
+      squad.logo_uri || "https://avatars.githubusercontent.com/u/168373383",
     tag: squad.symbol || squad.name?.slice(0, 4).toUpperCase(),
     slug: squad.slug_uri || "",
     squad: {
@@ -99,27 +135,55 @@ export default function TeamsPage() {
       {/* Header - Cloud page pattern */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-            <Icon icon="solar:users-group-two-rounded-bold" width={28} className="text-[#F5F0E1] dark:text-[#1a1a1a]" />
+          <div
+            className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+            style={{
+              clipPath:
+                "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+            }}
+          >
+            <Icon
+              icon="solar:users-group-two-rounded-bold"
+              width={28}
+              className="text-[#F5F0E1] dark:text-[#1a1a1a]"
+            />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Competitive Teams</h1>
-            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">Discover professional esports teams and find your squad</p>
+            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+              Competitive Teams
+            </h1>
+            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">
+              Discover professional esports teams and find your squad
+            </p>
           </div>
         </div>
         {isAuthenticated && (
           <div className="flex gap-2">
-            <LaunchYourSquadButton />
+            <Button
+              className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none font-semibold"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
+              startContent={
+                <Icon icon="solar:users-group-rounded-bold" width={18} />
+              }
+              onPress={handleCreateSquad}
+            >
+              Launch Your Squad
+            </Button>
           </div>
         )}
         {!isAuthenticated && !authLoading && (
           <div className="flex gap-2">
             <Button
               className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
               startContent={<Icon icon="solar:login-bold" width={18} />}
-              onPress={() => router.push('/signin?callbackUrl=/teams')}
+              onPress={() => router.push("/signin?callbackUrl=/teams")}
             >
               Sign in to create team
             </Button>
@@ -136,34 +200,44 @@ export default function TeamsPage() {
                 placeholder="Search teams..."
                 value={searchQuery}
                 onValueChange={setSearchQuery}
-                startContent={<SearchIcon size={16} className="text-[#FF4654] dark:text-[#DCFF37]" />}
+                startContent={
+                  <SearchIcon
+                    size={16}
+                    className="text-[#FF4654] dark:text-[#DCFF37]"
+                  />
+                }
                 className="w-full sm:w-64"
                 variant="bordered"
                 classNames={{
-                  inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60 h-10",
+                  inputWrapper:
+                    "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60 h-10",
                 }}
               />
-              <Select
+              <GameSelect
+                selectedGame={gameFilter}
+                onSelectionChange={setGameFilter}
+                label=""
                 placeholder="Select game"
-                selectedKeys={[gameFilter]}
-                onChange={(e) => setGameFilter(e.target.value)}
-                className="w-full sm:w-48"
+                showAllOption={true}
+                allOptionLabel="All Games"
                 variant="bordered"
-                startContent={<Icon icon="solar:gamepad-bold-duotone" width={18} className="text-[#FF4654] dark:text-[#DCFF37]" />}
-                classNames={{
-                  trigger: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 data-[hover=true]:border-[#FF4654]/60 dark:data-[hover=true]:border-[#DCFF37]/60 h-10",
-                  popoverContent: "rounded-none",
-                }}
-              >
-                <SelectItem key="all" value="all">All Games</SelectItem>
-                <SelectItem key="cs2" value="cs2">Counter-Strike 2</SelectItem>
-                <SelectItem key="vlrnt" value="vlrnt">Valorant</SelectItem>
-                <SelectItem key="csgo" value="csgo">CS:GO</SelectItem>
-              </Select>
+                size="md"
+                className="w-full sm:w-56"
+              />
             </div>
             {isAuthenticated && (
               <div className="flex gap-2">
-                <ApplyNowButton />
+                <Button
+                  className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                  }}
+                  startContent={<Icon icon="solar:user-plus-bold" width={18} />}
+                  onPress={handleCreateProfile}
+                >
+                  Create Profile
+                </Button>
               </div>
             )}
           </div>
@@ -182,15 +256,29 @@ export default function TeamsPage() {
       {error && !loading && (
         <Card className="max-w-md mx-auto rounded-none border border-danger/30">
           <CardBody className="text-center py-8">
-            <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-danger/20"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}>
-              <Icon icon="solar:danger-triangle-bold-duotone" className="text-danger" width={28} />
+            <div
+              className="w-14 h-14 mx-auto mb-4 flex items-center justify-center bg-danger/20"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="solar:danger-triangle-bold-duotone"
+                className="text-danger"
+                width={28}
+              />
             </div>
-            <h3 className="text-lg font-semibold text-danger mb-2">Unable to load teams</h3>
+            <h3 className="text-lg font-semibold text-danger mb-2">
+              Unable to load teams
+            </h3>
             <p className="text-default-500 mb-6">{error}</p>
             <Button
               className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
               onPress={() => router.refresh()}
               startContent={<Icon icon="solar:refresh-bold" width={18} />}
             >
@@ -204,23 +292,49 @@ export default function TeamsPage() {
       {!loading && !error && teamsFromSquads.length === 0 && (
         <Card className="max-w-lg mx-auto rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-              <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+            <div
+              className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="solar:users-group-two-rounded-bold-duotone"
+                className="text-[#34445C] dark:text-[#DCFF37]"
+                width={32}
+              />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">No teams found</h3>
+            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">
+              No teams found
+            </h3>
             <p className="text-default-500 mb-6">
               Be the first to create a team and start competing!
             </p>
             <div className="flex gap-3 justify-center">
               {isAuthenticated ? (
-                <LaunchYourSquadButton />
+                <Button
+                  className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none font-semibold"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                  }}
+                  startContent={
+                    <Icon icon="solar:users-group-rounded-bold" width={18} />
+                  }
+                  onPress={handleCreateSquad}
+                >
+                  Launch Your Squad
+                </Button>
               ) : (
                 <Button
                   className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                  }}
                   startContent={<Icon icon="solar:login-bold" width={18} />}
-                  onPress={() => router.push('/signin?callbackUrl=/teams')}
+                  onPress={() => router.push("/signin?callbackUrl=/teams")}
                 >
                   Sign in to create a team
                 </Button>
@@ -235,7 +349,10 @@ export default function TeamsPage() {
         <>
           <div className="w-full flex justify-between items-center mb-6 max-w-7xl">
             <p className="text-default-500">
-              <span className="font-semibold text-foreground">{teamsFromSquads.length}</span> teams found
+              <span className="font-semibold text-foreground">
+                {teamsFromSquads.length}
+              </span>{" "}
+              teams found
             </p>
           </div>
           <div className="grid w-full max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -245,6 +362,18 @@ export default function TeamsPage() {
           </div>
         </>
       )}
+
+      {/* Squad Creation Modal */}
+      <SquadCreationModal
+        isOpen={isSquadModalOpen}
+        onClose={onSquadModalClose}
+      />
+
+      {/* Player Profile Creation Modal */}
+      <PlayerCreationModal
+        isOpen={isPlayerModalOpen}
+        onClose={onPlayerModalClose}
+      />
     </section>
   );
 }

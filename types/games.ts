@@ -10,14 +10,17 @@
  * Unique identifier for each supported game
  */
 export type GameId =
+  | "apex"
   | "cs2"
-  | "valorant"
+  | "dota2"
+  | "fortnite"
   | "freefire"
+  | "lol"
+  | "overwatch2"
   | "pubg"
   | "r6"
   | "tibia"
-  | "dota2"
-  | "lol";
+  | "valorant";
 
 /**
  * Game category classification

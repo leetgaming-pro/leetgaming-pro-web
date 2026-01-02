@@ -95,17 +95,15 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
       status: isAuthenticated ? "Online" : "Offline",
     };
 
-    // Fetch user's teams using SDK instead of direct fetch
+    // Fetch teams using SDK - works for both authenticated users and guests (public teams)
     const fetchTeams = useCallback(async () => {
-      if (!isAuthenticated) {
-        setTeams([]);
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Use SDK to search squads instead of direct fetch
-        const squads = await sdk.squads.searchSquads({});
+        // Use SDK to search squads - this will return:
+        // - For authenticated users: their own teams + public teams
+        // - For guests: only public teams
+        const squads = await sdk.squads.searchSquads({
+          visibility: "public", // Request public teams - accessible by anyone including guests
+        });
         if (squads && squads.length > 0) {
           const formattedTeams: Team[] = squads.map((squad) => ({
             id: squad.id || "",
@@ -113,24 +111,27 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
             tag: squad.symbol || "TEAM",
             url: `/teams/${squad.id}`,
             avatar: squad.logo_uri || "/team-default.png",
-            members: squad.members
-              ? Object.entries(squad.members).map(([userId, membership]) => ({
-                  nickname: userId.substring(0, 8),
+            members: squad.membership
+              ? squad.membership.map((member) => ({
+                  nickname: member.user_id?.substring(0, 8) || "Member",
                   avatar: "/default-avatar.png",
-                  type: membership.type || "Member",
-                  role: membership.roles?.[0] || "Player",
+                  type: member.type || "Member",
+                  role: member.roles?.[0] || "Player",
                 }))
               : [],
             description: squad.description || "",
           }));
           setTeams(formattedTeams);
+        } else {
+          setTeams([]);
         }
       } catch (error) {
         console.error("Failed to fetch teams:", error);
+        setTeams([]);
       } finally {
         setLoading(false);
       }
-    }, [session, sdk]);
+    }, [sdk]);
 
     useEffect(() => {
       fetchTeams();
@@ -251,12 +252,15 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
             </Card>
           </Tab>
 
-          <Tab key="your-teams" title="Your Teams">
+          <Tab
+            key="your-teams"
+            title={isAuthenticated ? "Your Teams" : "Browse Teams"}
+          >
             <Card className="w-[580px]">
               <CardBody>
                 {loading ? (
                   <div className="flex items-center justify-center p-8">
-                    <Spinner size="lg" label="Loading your teams..." />
+                    <Spinner size="lg" label="Loading teams..." />
                   </div>
                 ) : teams.length === 0 ? (
                   <div className="text-center p-8">
@@ -265,14 +269,18 @@ const SignUpForm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                       className="w-16 h-16 mx-auto text-default-300 mb-4"
                     />
                     <p className="text-default-500 mb-4">
-                      You haven&apos;t joined any teams yet.
+                      {isAuthenticated
+                        ? "You haven't joined any teams yet."
+                        : "No public teams found. Sign in to create or join a team!"}
                     </p>
-                    <Link
-                      href="/teams/create"
-                      className="text-primary underline"
-                    >
-                      Create your first team
-                    </Link>
+                    {isAuthenticated && (
+                      <Link
+                        href="/teams/create"
+                        className="text-primary underline"
+                      >
+                        Create your first team
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   teams.map((team) => (

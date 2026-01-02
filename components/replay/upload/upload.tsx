@@ -29,7 +29,7 @@ export function UploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadClient = useMemo(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'https://api.leetgaming.pro';
+    const baseUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || process.env.REPLAY_API_URL || 'http://localhost:8080';
     return new UploadClient({ ...ReplayApiSettingsMock, baseUrl }, logger);
   }, []);
 
@@ -166,7 +166,7 @@ export function UploadForm() {
   const isUploading = status === 'uploading' || status === 'processing';
 
   return (
-    <div className="w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto">
+    <div className="w-full max-w-lg mx-auto">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}

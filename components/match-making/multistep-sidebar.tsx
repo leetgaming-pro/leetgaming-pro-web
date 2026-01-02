@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import {Button} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
-import {cn} from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { cn } from "@nextui-org/react";
 
 import SupportCard from "./support-card";
 import VerticalSteps from "./vertical-steps";
@@ -35,15 +35,32 @@ const stepperClasses = cn(
   "dark:[--active-border-color:rgba(220,255,55,0.8)]",
   "dark:[--inactive-border-color:rgba(220,255,55,0.3)]",
   "dark:[--inactive-bar-color:rgba(220,255,55,0.2)]",
-  "dark:[--inactive-color:rgba(255,255,255,0.4)]",
+  "dark:[--inactive-color:rgba(255,255,255,0.4)]"
 );
 
-const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>(
-  ({children, className, currentPage, onBack, onNext, onChangePage, ...props}, ref) => {
+const MultiStepSidebar = React.forwardRef<
+  HTMLDivElement,
+  MultiStepSidebarProps
+>(
+  (
+    {
+      children,
+      className,
+      currentPage,
+      onBack,
+      onNext,
+      onChangePage,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <div
         ref={ref}
-        className={cn("flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden", className)}
+        className={cn(
+          "flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden",
+          className
+        )}
         {...props}
       >
         {/* Sidebar - LeetGaming brand: navy base with lime accent in dark, navy base with orange in light */}
@@ -64,7 +81,11 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
 
           <div className="z-10">
             <div className="flex items-center gap-2">
-              <Icon icon="solar:gamepad-bold" className="text-[#FF4654] dark:text-[#DCFF37]" width={28} />
+              <Icon
+                icon="solar:gamepad-bold"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={28}
+              />
               <div className="text-xl font-bold leading-7 text-white tracking-tight uppercase">
                 Matchmaker
               </div>
@@ -80,6 +101,10 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
             color="secondary"
             currentStep={currentPage}
             steps={[
+              {
+                title: "Choose Tier",
+                description: "Select your competitive level.",
+              },
               {
                 title: "Select Region",
                 description: "Choose your battleground server location.",
@@ -121,6 +146,9 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
                 currentStep={currentPage}
                 steps={[
                   {
+                    title: "Tier",
+                  },
+                  {
                     title: "Region",
                   },
                   {
@@ -146,13 +174,10 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
           <div className="h-full w-full p-4 sm:max-w-md md:max-w-lg">
             {children}
             <MultistepNavigationButtons
-              backButtonProps={{isDisabled: currentPage === 0}}
+              backButtonProps={{ isDisabled: currentPage === 0 }}
               className="lg:hidden"
               nextButtonProps={{
-                children:
-                  currentPage === 5
-                    ? "FIND MATCH"
-                    : "CONTINUE",
+                children: currentPage === 6 ? "FIND MATCH" : "CONTINUE",
               }}
               onBack={onBack}
               onNext={onNext}
@@ -162,7 +187,7 @@ const MultiStepSidebar = React.forwardRef<HTMLDivElement, MultiStepSidebarProps>
         </div>
       </div>
     );
-  },
+  }
 );
 
 MultiStepSidebar.displayName = "MultiStepSidebar";

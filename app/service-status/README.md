@@ -344,7 +344,7 @@ npm run build
 
 # Dev server
 npm run dev
-# Visit http://localhost:3000/service-status
+# Visit http://localhost:3030/service-status (NEVER use port 3000)
 ```
 
 ---
