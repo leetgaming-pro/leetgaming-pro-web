@@ -401,7 +401,7 @@ export default function ChallengesPage() {
                     {challenges.map((challenge) => (
                       <TableRow key={challenge.id}>
                         <TableCell>
-                          <Tooltip content={getTypeLabel(challenge.type)}>
+                          <Tooltip content={getTypeLabel(challenge.type as ChallengeType)}>
                             <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10">
                               <Icon
                                 icon={typeIcons[challenge.type as ChallengeType]}
