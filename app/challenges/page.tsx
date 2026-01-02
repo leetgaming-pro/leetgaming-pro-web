@@ -47,6 +47,7 @@ import {
   ChallengeStatus,
   ChallengeType,
   ChallengePriority,
+  ChallengeResponse,
 } from "@/types/replay-api/challenge.types";
 
 const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
@@ -84,7 +85,7 @@ const priorityColors: Record<ChallengePriority, "default" | "primary" | "seconda
 
 export default function ChallengesPage() {
   const { user, isAuthenticated } = useOptionalAuth();
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [challenges, setChallenges] = useState<ChallengeResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -131,9 +132,13 @@ export default function ChallengesPage() {
     fetchChallenges();
   }, [fetchChallenges]);
 
-  const handleViewChallenge = (challenge: Challenge) => {
-    setSelectedChallenge(challenge);
-    onOpen();
+  const handleViewChallenge = async (challenge: ChallengeResponse) => {
+    // Fetch full challenge details for the modal
+    const details = await sdk.challenges.getChallengeDetails(challenge.id);
+    if (details) {
+      setSelectedChallenge(details);
+      onOpen();
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -399,7 +404,7 @@ export default function ChallengesPage() {
                           <Tooltip content={getTypeLabel(challenge.type)}>
                             <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10">
                               <Icon
-                                icon={typeIcons[challenge.type]}
+                                icon={typeIcons[challenge.type as ChallengeType]}
                                 width={24}
                                 className="text-[#FF4654] dark:text-[#DCFF37]"
                               />
@@ -428,7 +433,7 @@ export default function ChallengesPage() {
                         <TableCell>
                           <Chip
                             size="sm"
-                            color={statusColors[challenge.status]}
+                            color={statusColors[challenge.status as ChallengeStatus]}
                             variant="flat"
                             className="rounded-none capitalize"
                           >
@@ -438,7 +443,7 @@ export default function ChallengesPage() {
                         <TableCell>
                           <Chip
                             size="sm"
-                            color={priorityColors[challenge.priority]}
+                            color={priorityColors[challenge.priority as ChallengePriority]}
                             variant="dot"
                             className="rounded-none capitalize"
                           >
@@ -453,7 +458,7 @@ export default function ChallengesPage() {
                               width={16}
                             />
                             <span className="text-sm">
-                              {challenge.votes?.length || 0}
+                              {challenge.vote_count || 0}
                             </span>
                           </div>
                         </TableCell>
