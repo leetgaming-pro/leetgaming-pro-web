@@ -7,6 +7,30 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
+ * Get CSP connect-src from environment variable or use defaults
+ * Env var format: space-separated list of allowed origins
+ */
+const getConnectSrc = (): string => {
+  const envConnectSrc = process.env.NEXT_PUBLIC_CSP_CONNECT_SRC;
+  if (envConnectSrc) {
+    return `connect-src 'self' ${envConnectSrc}`;
+  }
+  // Default allowed origins for development and production
+  const defaultOrigins = [
+    'http://localhost:8080',
+    'http://localhost:4991',
+    'https://api.leetgaming.pro',
+    'http://replay.leetgaming.pro',
+    'https://steamcommunity.com',
+    'https://accounts.google.com',
+    'https://api.iconify.design',
+    'https://api.unisvg.com',
+    'https://api.simplesvg.com',
+  ].join(' ');
+  return `connect-src 'self' ${defaultOrigins}`;
+};
+
+/**
  * Security headers to prevent common attacks
  */
 const securityHeaders = {
@@ -17,7 +41,7 @@ const securityHeaders = {
     "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
     "img-src 'self' data: https: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' http://localhost:8080 http://localhost:4991 https://api.leetgaming.pro http://replay.leetgaming.pro https://steamcommunity.com https://accounts.google.com https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com",
+    getConnectSrc(),
     "frame-ancestors 'none'", // Prevent clickjacking
     "base-uri 'self'",
     "form-action 'self'",
