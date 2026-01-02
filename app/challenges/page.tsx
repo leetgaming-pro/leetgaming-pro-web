@@ -54,20 +54,24 @@ const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 // Status colors for visual feedback
 const statusColors: Record<ChallengeStatus, "default" | "primary" | "secondary" | "success" | "warning" | "danger"> = {
   pending: "warning",
-  under_review: "primary",
-  voting: "secondary",
+  in_review: "primary",
+  vote_pending: "secondary",
+  approved: "success",
+  rejected: "danger",
   resolved: "success",
+  expired: "default",
   cancelled: "default",
-  escalated: "danger",
 };
 
 // Type icons for challenge types
 const typeIcons: Record<ChallengeType, string> = {
-  var_review: "solar:video-frame-play-vertical-bold",
+  var: "solar:video-frame-play-vertical-bold",
   round_restart: "solar:refresh-circle-bold",
+  match_restart: "solar:refresh-bold",
   bug_report: "solar:bug-bold",
-  admin_decision: "solar:shield-user-bold",
-  player_dispute: "solar:users-group-rounded-bold",
+  technical_issue: "solar:server-bold",
+  rule_violation: "solar:shield-warning-bold",
+  score_dispute: "solar:calculator-bold",
 };
 
 // Priority colors
@@ -144,11 +148,13 @@ export default function ChallengesPage() {
 
   const getTypeLabel = (type: ChallengeType) => {
     const labels: Record<ChallengeType, string> = {
-      var_review: "VAR Review",
+      var: "VAR Review",
       round_restart: "Round Restart",
+      match_restart: "Match Restart",
       bug_report: "Bug Report",
-      admin_decision: "Admin Decision",
-      player_dispute: "Player Dispute",
+      technical_issue: "Technical Issue",
+      rule_violation: "Rule Violation",
+      score_dispute: "Score Dispute",
     };
     return labels[type] || type;
   };
@@ -293,11 +299,13 @@ export default function ChallengesPage() {
                   }}
                 >
                   <SelectItem key="pending">Pending</SelectItem>
-                  <SelectItem key="under_review">Under Review</SelectItem>
-                  <SelectItem key="voting">Voting</SelectItem>
+                  <SelectItem key="in_review">In Review</SelectItem>
+                  <SelectItem key="vote_pending">Vote Pending</SelectItem>
+                  <SelectItem key="approved">Approved</SelectItem>
+                  <SelectItem key="rejected">Rejected</SelectItem>
                   <SelectItem key="resolved">Resolved</SelectItem>
+                  <SelectItem key="expired">Expired</SelectItem>
                   <SelectItem key="cancelled">Cancelled</SelectItem>
-                  <SelectItem key="escalated">Escalated</SelectItem>
                 </Select>
                 <Button
                   className="bg-[#FF4654] dark:bg-[#DCFF37] text-white dark:text-[#34445C] rounded-none font-medium"
@@ -685,7 +693,7 @@ export default function ChallengesPage() {
                                 <span className="text-success font-medium">
                                   {
                                     selectedChallenge.votes.filter(
-                                      (v) => v.approved
+                                      (v) => v.vote_type === 'approve'
                                     ).length
                                   }
                                 </span>
@@ -699,7 +707,7 @@ export default function ChallengesPage() {
                                 <span className="text-danger font-medium">
                                   {
                                     selectedChallenge.votes.filter(
-                                      (v) => !v.approved
+                                      (v) => v.vote_type === 'reject'
                                     ).length
                                   }
                                 </span>

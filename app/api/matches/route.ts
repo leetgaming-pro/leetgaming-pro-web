@@ -103,12 +103,12 @@ export async function GET(request: NextRequest) {
     const matches = (data.data || data || []).map((match: BackendMatch) => ({
       id: match.id || match._id,
       game: match.game_id || 'Counter-Strike 2',
-      gameIcon: getGameIcon(match.game_id),
+      gameIcon: getGameIcon(match.game_id || 'cs2'),
       map: match.map || 'Unknown',
       mode: match.mode || 'Competitive',
       teams: transformTeams(match),
       status: getMatchStatus(match),
-      timestamp: new Date(match.created_at || match.timestamp),
+      timestamp: new Date(match.created_at || match.timestamp || Date.now()),
       duration: match.duration,
       tournament: match.tournament?.name,
     }));
@@ -180,7 +180,7 @@ function getMatchStatus(match: BackendMatch): 'live' | 'completed' | 'upcoming' 
   
   // Infer from match data
   const now = new Date();
-  const matchTime = new Date(match.created_at || match.timestamp);
+  const matchTime = new Date(match.created_at || match.timestamp || Date.now());
   
   if (match.winner || match.final_score) return 'completed';
   if (matchTime > now) return 'upcoming';
