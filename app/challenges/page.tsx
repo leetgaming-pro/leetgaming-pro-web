@@ -116,7 +116,7 @@ export default function ChallengesPage() {
 
       const result = await sdk.challenges.listChallenges(filters);
       if (result) {
-        setChallenges(result.items);
+        setChallenges(result.challenges);
         setTotalPages(Math.ceil(result.total / ITEMS_PER_PAGE));
       }
     } catch (err) {
