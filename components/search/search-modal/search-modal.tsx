@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Checkbox, Input, Link, LinkIcon, Kbd } from "@nextui-org/react";
-import { CopyDocumentIcon, DeleteDocumentIcon, EditDocumentIcon, Logo, PlusIcon, SearchIcon, ServerIcon } from '@/components/icons';
-import { ChevronDownIcon } from '@/components/files/replays-table/ChevronDownIcon';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Kbd, Chip } from "@nextui-org/react";
+import { SearchIcon } from '@/components/icons';
 import SearchResults from "./search-results";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { useGlobalSearchContext } from "@/components/search/global-search-provider";
+import { Icon } from "@iconify/react";
+import { GAME_DISPLAY_CONFIG } from "@/lib/search/query-parser";
+import type { GameId } from "@/types/games";
+
+// Quick filter games
+const QUICK_FILTER_GAMES: GameId[] = ['cs2', 'valorant', 'lol', 'apex'];
 
 export default function SearchInput() {
     // Use global search context for keyboard shortcut integration (Cmd+K / Ctrl+K)
     const { isOpen, openSearch, closeSearch } = useGlobalSearchContext();
     const [query, setQuery] = useState("");
-    const { results, loading, error, search, clear } = useGlobalSearch();
+    const { results, loading, error, parsedQuery, search, clear } = useGlobalSearch();
     const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
     // Debounced search
@@ -35,19 +40,34 @@ export default function SearchInput() {
     }, [query, search, clear]);
 
     // Clear search when modal closes
-    const handleOpenChange = (open: boolean) => {
+    const handleOpenChange = useCallback((open: boolean) => {
         if (!open) {
             setQuery("");
             clear();
             closeSearch();
         }
-    };
+    }, [clear, closeSearch]);
 
     const handleKey = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Escape') {
             handleOpenChange(false);
         }
-    }, []);
+    }, [handleOpenChange]);
+
+    // Quick filter click handler
+    const handleQuickFilter = useCallback((gameId: GameId) => {
+        const gameConfig = GAME_DISPLAY_CONFIG[gameId];
+        if (gameConfig) {
+            // If query already has this game, remove it; otherwise add it
+            const currentLower = query.toLowerCase();
+            const gameKeyword = gameId.toLowerCase();
+            if (currentLower.includes(gameKeyword)) {
+                setQuery(query.replace(new RegExp(gameKeyword + '\\s*', 'gi'), '').trim());
+            } else {
+                setQuery(`${gameKeyword} ${query}`.trim());
+            }
+        }
+    }, [query]);
 
     return (
         <div className="w-full">
@@ -144,11 +164,72 @@ export default function SearchInput() {
                                 />
                             </ModalHeader>
                             <ModalBody>
+                                {/* Quick game filters */}
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <span className="text-xs text-[#34445C]/60 dark:text-[#F5F0E1]/60">Quick filters:</span>
+                                    {QUICK_FILTER_GAMES.map((gameId) => {
+                                        const gameConfig = GAME_DISPLAY_CONFIG[gameId];
+                                        const isActive = parsedQuery?.gameId === gameId;
+                                        return (
+                                            <Chip
+                                                key={gameId}
+                                                size="sm"
+                                                variant={isActive ? "solid" : "flat"}
+                                                className="rounded-none cursor-pointer hover:opacity-80 transition-opacity"
+                                                style={{
+                                                    backgroundColor: isActive ? gameConfig.color : `${gameConfig.color}15`,
+                                                    color: isActive ? 'white' : gameConfig.color,
+                                                }}
+                                                startContent={
+                                                    <Icon icon={gameConfig.icon} width={14} />
+                                                }
+                                                onClick={() => handleQuickFilter(gameId)}
+                                            >
+                                                {gameConfig.shortName}
+                                            </Chip>
+                                        );
+                                    })}
+                                    <Chip
+                                        size="sm"
+                                        variant={parsedQuery?.entityType === 'player' ? "solid" : "flat"}
+                                        className="rounded-none cursor-pointer hover:opacity-80 transition-opacity"
+                                        color="primary"
+                                        startContent={<Icon icon="mdi:account" width={14} />}
+                                        onClick={() => {
+                                            const keyword = 'players';
+                                            if (query.toLowerCase().includes(keyword)) {
+                                                setQuery(query.replace(new RegExp(keyword + '\\s*', 'gi'), '').trim());
+                                            } else {
+                                                setQuery(`${query} ${keyword}`.trim());
+                                            }
+                                        }}
+                                    >
+                                        Players
+                                    </Chip>
+                                    <Chip
+                                        size="sm"
+                                        variant={parsedQuery?.entityType === 'team' ? "solid" : "flat"}
+                                        className="rounded-none cursor-pointer hover:opacity-80 transition-opacity"
+                                        color="secondary"
+                                        startContent={<Icon icon="mdi:account-group" width={14} />}
+                                        onClick={() => {
+                                            const keyword = 'teams';
+                                            if (query.toLowerCase().includes(keyword)) {
+                                                setQuery(query.replace(new RegExp(keyword + '\\s*', 'gi'), '').trim());
+                                            } else {
+                                                setQuery(`${query} ${keyword}`.trim());
+                                            }
+                                        }}
+                                    >
+                                        Teams
+                                    </Chip>
+                                </div>
                                 <SearchResults
                                     results={results}
                                     loading={loading}
                                     error={error}
                                     query={query}
+                                    parsedQuery={parsedQuery}
                                     onPress={onClose}
                                 />
                             </ModalBody>
