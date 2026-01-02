@@ -70,7 +70,8 @@ export async function GET(request: NextRequest) {
     const search = searchBuilder.build();
     
     // Fetch replays
-    const replays = await sdk.replayFiles.searchReplayFiles(search.filters);
+    // TODO: Implement replay search when ReplayFileAPI is available
+    const replays: any[] = []; // Mock empty array for now
     
     // Return response with caching headers
     return NextResponse.json({
