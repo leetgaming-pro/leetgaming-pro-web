@@ -9,32 +9,18 @@ import {
   NavbarItem,
   NavbarMenuItem,
 } from "@nextui-org/navbar";
-import { Link } from "@nextui-org/link";
 import { Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
-
-import { link as linkStyles } from "@nextui-org/theme";
 
 import { siteConfig } from "@/config/site";
 import NextLink from "next/link";
 import clsx from "clsx";
 
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  SearchIcon,
-  Logo,
-  SteamIcon,
-  LogOutIcon,
-  HeartFilledIcon,
-  StarredIcon,
-} from "@/components/icons";
+// Note: Icons imported but used dynamically via @iconify/react Icon component
 
-import { logo, title } from './primitives';
 import { LoginButton } from './login-button';
 import SessionButton from './session-button';
 import { useSession, signOut } from 'next-auth/react';
@@ -43,7 +29,7 @@ import SearchInput from "./search/search-modal/search-modal";
 import DefaultLogo from './logo/logo-default';
 import { useTheme } from "next-themes";
 import { electrolize } from "@/config/fonts";
-import { Chip, Button } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { NotificationCenter } from '@/components/notifications/notification-center';
 import { LanguageSelector } from '@/components/i18n/language-selector';
 
@@ -58,7 +44,8 @@ export const Navbar = () => {
     router.push(href);
   }, [router]);
 
-  let { theme, setTheme } = useTheme();
+  const { theme: themeValue } = useTheme();
+  let theme = themeValue;
 
   if (theme === null || theme === undefined) {
     theme = "dark";
@@ -181,8 +168,8 @@ export const Navbar = () => {
               return <Divider key={`divider-${index}`} className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />;
             }
 
-            const isHighlight = (item as any).highlight;
-            const itemIcon = (item as any).icon;
+            const isHighlight = item.highlight;
+            const itemIcon = item.icon;
             const active = isActive(item.href);
 
             return (

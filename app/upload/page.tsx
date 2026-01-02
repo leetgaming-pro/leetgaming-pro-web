@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { Card, Input, Spacer, Snippet, Chip, Tabs, Tab, CardBody, CardHeader, Divider } from '@nextui-org/react';
+import { Card, Input, Spacer, Snippet, Tabs, Tab, CardBody, Divider } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { EsportsButton } from '@/components/ui/esports-button';
 import { CopyDocumentIcon, SteamIcon } from '@/components/icons';

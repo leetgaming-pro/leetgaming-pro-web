@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Sparkles, Zap, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { X, AlertTriangle, Zap, Trophy } from 'lucide-react';
 
 export function DevelopmentNotice() {
   const [isVisible, setIsVisible] = useState(true);

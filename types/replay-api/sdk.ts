@@ -190,10 +190,15 @@ export class SquadAPI {
     limit?: number;
   }): Promise<Squad[]> {
     // Use GET with query params - backend doesn't support POST /squads/search
+    // Field names must be PascalCase to match Go struct fields
     const params = new URLSearchParams();
-    if (filters.game_id) params.append('game_id', filters.game_id);
-    if (filters.name) params.append('q', filters.name);
-    if (filters.visibility) params.append('visibility', filters.visibility);
+    if (filters.game_id) params.append('GameID', filters.game_id);
+    if (filters.name) {
+      params.append('q', filters.name);
+      // Specify which fields to search for squads (PascalCase)
+      params.append('search_fields', 'Name,Symbol');
+    }
+    if (filters.visibility) params.append('Visibility', filters.visibility);
     if (filters.page) params.append('page', String(filters.page));
     if (filters.limit) params.append('limit', String(filters.limit));
 
@@ -279,9 +284,14 @@ export class PlayerProfileAPI {
     offset?: number;
   }): Promise<PlayerProfile[]> {
     // Use GET with query params - backend doesn't support POST /players/search
+    // Field names must be PascalCase to match Go struct fields
     const params = new URLSearchParams();
-    if (filters.game_id) params.append('game_id', filters.game_id);
-    if (filters.nickname) params.append('q', filters.nickname);
+    if (filters.game_id) params.append('GameID', filters.game_id);
+    if (filters.nickname) {
+      params.append('q', filters.nickname);
+      // Specify which fields to search for players (PascalCase)
+      params.append('search_fields', 'Nickname');
+    }
     if (filters.limit) params.append('limit', String(filters.limit));
     if (filters.offset) params.append('offset', String(filters.offset));
 
@@ -374,23 +384,29 @@ export class MatchAPI {
 
   /**
    * Search matches
+   * Field names must be PascalCase to match Go struct fields.
+   * Text search uses 'q' + 'search_fields' for OR logic.
+   * 
+   * Valid queryable fields for Match:
+   * - ID, GameID, NetworkID, Status, Header.*, ResourceOwner, CreatedAt, UpdatedAt
    */
   async searchMatches(gameId: string, filters: {
-    player_id?: string;
-    squad_id?: string;
-    map?: string;
+    network_id?: string;
     status?: string;
     search_term?: string;
     limit?: number;
     offset?: number;
   }): Promise<MatchData[]> {
     // Use GET with query params - backend doesn't support POST /games/{id}/matches/search
+    // Field names must be PascalCase to match Go struct fields
     const params = new URLSearchParams();
-    if (filters.player_id) params.append('player_id', filters.player_id);
-    if (filters.squad_id) params.append('squad_id', filters.squad_id);
-    if (filters.map) params.append('map', filters.map);
-    if (filters.status) params.append('status', filters.status);
-    if (filters.search_term) params.append('q', filters.search_term);
+    if (filters.network_id) params.append('NetworkID', filters.network_id);
+    if (filters.status) params.append('Status', filters.status);
+    if (filters.search_term) {
+      params.append('q', filters.search_term);
+      // Search in NetworkID for matches
+      params.append('search_fields', 'NetworkID');
+    }
     if (filters.limit) params.append('limit', String(filters.limit));
     if (filters.offset) params.append('offset', String(filters.offset));
 
@@ -434,25 +450,33 @@ export class ReplayFileAPI {
 
   /**
    * Search replay files
+   * Field names must be PascalCase to match Go struct fields.
+   * Text search uses 'q' + 'search_fields' for OR logic.
+   * 
+   * Valid queryable fields for ReplayFile:
+   * - ID, GameID, NetworkID, Size, Status, Header.*, ResourceOwner, CreatedAt, UpdatedAt
    */
   async searchReplayFiles(filters: {
+    id?: string;
     game_id?: string;
-    player_id?: string;
-    squad_id?: string;
+    network_id?: string;
     status?: string;
-    visibility?: string;
     search_term?: string;
     limit?: number;
     offset?: number;
   }): Promise<ReplayFile[]> {
     // Use GET with query params - backend doesn't support POST /replays/search
+    // Field names must be PascalCase to match Go struct fields
     const params = new URLSearchParams();
-    if (filters.game_id) params.append('game_id', filters.game_id);
-    if (filters.player_id) params.append('player_id', filters.player_id);
-    if (filters.squad_id) params.append('squad_id', filters.squad_id);
-    if (filters.status) params.append('status', filters.status);
-    if (filters.visibility) params.append('visibility', filters.visibility);
-    if (filters.search_term) params.append('q', filters.search_term);
+    if (filters.id) params.append('ID', filters.id);
+    if (filters.game_id) params.append('GameID', filters.game_id);
+    if (filters.network_id) params.append('NetworkID', filters.network_id);
+    if (filters.status) params.append('Status', filters.status);
+    if (filters.search_term) {
+      params.append('q', filters.search_term);
+      // Search in NetworkID for replay files
+      params.append('search_fields', 'NetworkID');
+    }
     if (filters.limit) params.append('limit', String(filters.limit));
     if (filters.offset) params.append('offset', String(filters.offset));
 

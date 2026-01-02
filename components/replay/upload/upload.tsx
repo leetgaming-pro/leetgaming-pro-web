@@ -2,7 +2,7 @@
 
 import { Button } from '@nextui-org/button'
 import { useState, useMemo, useCallback, useRef } from 'react'
-import { Chip, Progress, Spacer, Card, CardBody } from '@nextui-org/react';
+import { Chip, Progress, Card, CardBody } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { UploadClient, UploadProgress } from '@/types/replay-api/upload-client';
 import { ReplayApiSettingsMock, GameIDKey } from '@/types/replay-api/settings';
@@ -146,10 +146,11 @@ export function UploadForm() {
         setStatus('failed');
         setError(result.error || 'Upload failed');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       logger.error('Error uploading file', error);
       setStatus('failed');
-      setError(error.message || 'Upload failed');
+      setError(errorMessage);
     }
   };
 

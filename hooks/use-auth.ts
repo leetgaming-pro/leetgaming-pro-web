@@ -11,6 +11,16 @@ import { useMemo, useCallback } from "react";
 import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth";
 import { logger } from "@/lib/logger";
 
+/** Extended session user with RID fields */
+interface SessionUserWithRID {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  rid?: string;
+  uid?: string;
+}
+
 export interface AuthState {
   /** Whether the user is authenticated (has valid session with RID) */
   isAuthenticated: boolean;
@@ -66,13 +76,14 @@ export function useAuth(): AuthState {
   const user = useMemo(() => {
     if (!session?.user) return null;
     
+    const sessionUser = session.user as SessionUserWithRID;
     return {
-      id: (session.user as any).uid || session.user.id,
+      id: sessionUser.uid || sessionUser.id,
       name: session.user.name,
       email: session.user.email,
       image: session.user.image,
-      rid: (session.user as any).rid,
-      uid: (session.user as any).uid,
+      rid: sessionUser.rid,
+      uid: sessionUser.uid,
     };
   }, [session]);
 
@@ -82,7 +93,8 @@ export function useAuth(): AuthState {
   const isAuthenticated = useMemo(() => {
     if (!session?.user) return false;
     
-    const hasRid = !!(session.user as any).rid;
+    const sessionUser = session.user as SessionUserWithRID;
+    const hasRid = !!sessionUser.rid;
     const hasRidToken = isAuthenticatedSync();
     
     return hasRid || hasRidToken;
@@ -124,14 +136,10 @@ export { isAuthenticatedSync };
  */
 export function useRequireAuth(options: { callbackUrl?: string } = {}): AuthState & { isRedirecting: boolean } {
   const auth = useAuth();
-  const router = useMemo(() => {
-    // Dynamic import to avoid SSR issues
-    try {
-      return require('next/navigation').useRouter();
-    } catch {
-      return null;
-    }
-  }, []);
+  // Import useRouter at module level - hooks must be called unconditionally
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { useRouter } = require('next/navigation') as { useRouter: () => { push: (url: string) => void } | null };
+  const router = useRouter();
 
   const isRedirecting = useMemo(() => {
     if (auth.isLoading) return false;
@@ -177,14 +185,10 @@ export function useOptionalAuth(): AuthState & {
   requireAuthForAction: (action: string) => boolean 
 } {
   const auth = useAuth();
-  const router = useMemo(() => {
-    // Dynamic import to avoid SSR issues
-    try {
-      return require('next/navigation').useRouter();
-    } catch {
-      return null;
-    }
-  }, []);
+  // Import useRouter at module level - hooks must be called unconditionally
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { useRouter } = require('next/navigation') as { useRouter: () => { push: (url: string) => void } | null };
+  const router = useRouter();
 
   const requireAuthForAction = useCallback((action: string): boolean => {
     if (auth.isAuthenticated) return true;

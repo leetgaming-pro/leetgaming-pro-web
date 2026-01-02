@@ -11,6 +11,24 @@ import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth
 import { IdentifierSourceType } from "@/types/replay-api/entities.types";
 import { logger } from "@/lib/logger";
 
+/** Extended session user type with RID and provider data */
+interface SessionUserExtended {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  rid?: string;
+  uid?: string;
+  steam?: {
+    steamid: string;
+    personaname: string;
+  };
+  google?: {
+    sub: string;
+    email: string;
+  };
+}
+
 interface AuthSyncProps {
   children: React.ReactNode;
 }
@@ -31,8 +49,9 @@ export function AuthSync({ children }: AuthSyncProps) {
         return;
       }
 
-      const sessionRid = (session?.user as any)?.rid;
-      const sessionUid = (session?.user as any)?.uid;
+      const sessionUser = session?.user as SessionUserExtended | undefined;
+      const sessionRid = sessionUser?.rid;
+      const sessionUid = sessionUser?.uid;
 
       // If no session, clear the RID token
       if (!session?.user) {
@@ -72,15 +91,15 @@ export function AuthSync({ children }: AuthSyncProps) {
         let sourceKey = session.user.email || "";
 
         // Check if user logged in via Steam
-        if ((session.user as any).steam?.steamid) {
+        if (sessionUser?.steam?.steamid) {
           sourceType = IdentifierSourceType.Steam;
-          sourceKey = (session.user as any).steam.steamid;
+          sourceKey = sessionUser.steam.steamid;
         }
         // Check if user logged in via Google
-        else if ((session.user as any).google?.sub) {
+        else if (sessionUser?.google?.sub) {
           sourceType = IdentifierSourceType.Google;
           sourceKey =
-            (session.user as any).google.email || session.user.email || "";
+            sessionUser.google.email || session.user.email || "";
         }
         // Email-password login defaults to Google type (email-based)
 

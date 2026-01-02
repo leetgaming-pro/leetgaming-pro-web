@@ -153,6 +153,19 @@ export class ReplayFile {
   resourceOwner: ResourceOwner;
   createdAt: Date;
   updatedAt: Date;
+  // Extended metadata from Header field
+  matchId?: string;
+  duration?: number;
+  map?: string;
+  mode?: string;
+  players?: string[];
+  title?: string;
+  description?: string;
+  tags?: string[];
+  visibility?: 'public' | 'private' | 'unlisted';
+  views?: number;
+  likes?: number;
+  error?: string;
 
   constructor(
     gameId: string,
