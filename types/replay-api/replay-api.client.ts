@@ -10,6 +10,14 @@ export interface ApiResponse<T> {
   nextOffset?: number | string;
   status?: number;
   message?: string;
+  rateLimitInfo?: RateLimitInfo;
+}
+
+export interface RateLimitInfo {
+  limit: number;
+  remaining: number;
+  resetAt: number;
+  retryAfterSeconds?: number;
 }
 
 export interface ApiError {
@@ -17,6 +25,11 @@ export interface ApiError {
   status?: number;
   code?: string;
   details?: unknown;
+  retryAfterSeconds?: number;
+  isRateLimited?: boolean;
+  isValidationError?: boolean;
+  isAuthError?: boolean;
+  isNotFound?: boolean;
 }
 
 export interface RequestOptions {
@@ -162,11 +175,22 @@ export class ReplayApiClient {
       const response = await fetch(url, fetchOptions);
       clearTimeout(timeoutId);
 
+      // Extract rate limit info from headers (always present on successful or failed requests)
+      const rateLimitInfo = this.extractRateLimitInfo(response);
+
       // Handle non-OK responses
       if (!response.ok) {
         const errorData = await this.parseErrorResponse(response);
         
-        // Retry on specific status codes
+        // For rate limiting, use exponential backoff with Retry-After header
+        if (response.status === 429 && retryCount < this.maxRetries) {
+          const retryAfter = errorData.retryAfterSeconds || (this.retryDelay / 1000) * Math.pow(2, retryCount);
+          this.logger.warn(`[ReplayApiClient] Rate limited, retrying ${method} ${url} after ${retryAfter}s (attempt ${retryCount + 1}/${this.maxRetries})`);
+          await this.delay(retryAfter * 1000);
+          return this.request<T>(method, path, data, options, retryCount + 1);
+        }
+        
+        // Retry on server errors (5xx)
         if (this.shouldRetry(response.status) && retryCount < this.maxRetries) {
           this.logger.warn(`[ReplayApiClient] Retrying ${method} ${url} (attempt ${retryCount + 1}/${this.maxRetries})`);
           await this.delay(this.retryDelay * Math.pow(2, retryCount)); // Exponential backoff
@@ -177,6 +201,7 @@ export class ReplayApiClient {
         return {
           error: errorData,
           status: response.status,
+          rateLimitInfo,
         };
       }
 
@@ -188,6 +213,7 @@ export class ReplayApiClient {
       return {
         data: responseData,
         status: response.status,
+        rateLimitInfo,
       };
     } catch (error: unknown) {
       clearTimeout(timeoutId);
@@ -224,23 +250,91 @@ export class ReplayApiClient {
   }
 
   /**
-   * Parse error response
+   * Parse error response with enhanced error categorization
    */
   private async parseErrorResponse(response: Response): Promise<ApiError> {
+    const status = response.status;
+    
     try {
       const errorData = await response.json();
+      
+      // Extract rate limit specific info from structured error response
+      const error = errorData.error || errorData;
+      const retryAfterHeader = response.headers.get('Retry-After');
+      const retryAfterSeconds = error.retry_after_seconds || 
+        (retryAfterHeader ? parseInt(retryAfterHeader, 10) : undefined);
+
       return {
-        message: errorData.message || errorData.error || response.statusText,
-        status: response.status,
-        code: errorData.code,
-        details: errorData,
+        message: this.getUserFriendlyMessage(status, error.message || errorData.message || response.statusText),
+        status,
+        code: error.code || errorData.code,
+        details: error.details || errorData.details || errorData,
+        retryAfterSeconds,
+        isRateLimited: status === 429,
+        isValidationError: status === 400 || status === 422,
+        isAuthError: status === 401 || status === 403,
+        isNotFound: status === 404,
       };
     } catch {
       return {
-        message: response.statusText || 'Request failed',
-        status: response.status,
+        message: this.getUserFriendlyMessage(status, response.statusText),
+        status,
+        isRateLimited: status === 429,
+        isValidationError: status === 400 || status === 422,
+        isAuthError: status === 401 || status === 403,
+        isNotFound: status === 404,
       };
     }
+  }
+
+  /**
+   * Get user-friendly error message based on status code
+   */
+  private getUserFriendlyMessage(status: number, fallbackMessage: string): string {
+    switch (status) {
+      case 400:
+        return fallbackMessage || 'Invalid request. Please check your input and try again.';
+      case 401:
+        return 'Please sign in to continue.';
+      case 403:
+        return 'You do not have permission to perform this action.';
+      case 404:
+        return 'The requested resource was not found.';
+      case 409:
+        return fallbackMessage || 'This action conflicts with existing data.';
+      case 422:
+        return fallbackMessage || 'The provided data is invalid. Please check and try again.';
+      case 429:
+        return 'Too many requests. Please wait a moment and try again.';
+      case 500:
+        return 'Something went wrong on our end. Please try again later.';
+      case 502:
+      case 503:
+      case 504:
+        return 'Service temporarily unavailable. Please try again in a few moments.';
+      default:
+        return fallbackMessage || 'An unexpected error occurred.';
+    }
+  }
+
+  /**
+   * Extract rate limit info from response headers
+   */
+  private extractRateLimitInfo(response: Response): RateLimitInfo | undefined {
+    const limit = response.headers.get('X-RateLimit-Limit');
+    const remaining = response.headers.get('X-RateLimit-Remaining');
+    const reset = response.headers.get('X-RateLimit-Reset');
+    const retryAfter = response.headers.get('Retry-After');
+
+    if (limit || remaining || reset) {
+      return {
+        limit: limit ? parseInt(limit, 10) : 0,
+        remaining: remaining ? parseInt(remaining, 10) : 0,
+        resetAt: reset ? parseInt(reset, 10) : 0,
+        retryAfterSeconds: retryAfter ? parseInt(retryAfter, 10) : undefined,
+      };
+    }
+    return undefined;
   }
 
   /**
@@ -267,8 +361,8 @@ export class ReplayApiClient {
    * Check if status code should trigger retry
    */
   private shouldRetry(status: number): boolean {
-    // Retry on server errors and rate limiting
-    return status >= 500 || status === 429;
+    // Retry on server errors only (not rate limiting - that's handled separately)
+    return status >= 500;
   }
 
   /**

@@ -14,6 +14,7 @@ import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import { ReplayFile } from '@/types/replay-api/replay-file';
 import { EntitySearchSchema, EntityTypes } from '@/types/replay-api/search-schema.sdk';
+import { ApiError } from '@/types/replay-api/replay-api.client';
 
 export interface GlobalSearchResult {
   type: 'replay' | 'player' | 'team' | 'match';
@@ -209,6 +210,8 @@ export function useGlobalSearch(): UseGlobalSearchResult {
 
     const searchTerm = query.trim();
     let completedCount = 0;
+    let rateLimitHit = false;
+    let rateLimitRetryAfter = 0;
     const totalSearches = 4; // players, teams, replays, matches
 
     // Helper to add results progressively
@@ -220,11 +223,40 @@ export function useGlobalSearch(): UseGlobalSearchResult {
       }
     };
 
+    // Helper to handle API errors with proper user feedback
+    const handleError = (err: ApiError | Error | unknown, entityType: string) => {
+      if ((err as Error)?.name === 'AbortError') return;
+      
+      const apiError = err as ApiError;
+      
+      // Check for rate limiting
+      if (apiError?.isRateLimited || apiError?.status === 429) {
+        rateLimitHit = true;
+        rateLimitRetryAfter = apiError?.retryAfterSeconds || 60;
+        logger.warn(`[useGlobalSearch] Rate limited on ${entityType}, retry after ${rateLimitRetryAfter}s`);
+        return;
+      }
+      
+      // Log other errors but don't show to user (partial search results are still useful)
+      if (apiError?.isValidationError) {
+        logger.warn(`[useGlobalSearch] Validation error for ${entityType}:`, apiError.message);
+      } else if (apiError?.isAuthError) {
+        logger.warn(`[useGlobalSearch] Auth error for ${entityType}:`, apiError.message);
+      } else {
+        logger.warn(`[useGlobalSearch] Search failed for ${entityType}:`, err);
+      }
+    };
+
     // Helper to mark a search as complete
     const markComplete = () => {
       completedCount++;
       if (completedCount >= totalSearches && currentSearchId === searchIdRef.current) {
         setLoading(false);
+        
+        // Show rate limit error to user if any search was rate limited
+        if (rateLimitHit) {
+          setError(`Too many searches. Please wait ${rateLimitRetryAfter} seconds before searching again.`);
+        }
       }
     };
 
@@ -246,57 +278,57 @@ export function useGlobalSearch(): UseGlobalSearchResult {
     // Search players - using dynamic fields
     sdk.client.get<PlayerSearchItem[]>(`/players?${buildParams(EntityTypes.PLAYERS)}`)
       .then((response) => {
+        if (response.error) {
+          handleError(response.error, 'players');
+          return;
+        }
         if (response.data?.length) {
           addResults(transformPlayers(response.data.slice(0, 5)));
         }
       })
-      .catch((err) => {
-        if (err?.name !== 'AbortError') {
-          logger.warn('[useGlobalSearch] Player search failed:', err);
-        }
-      })
+      .catch((err) => handleError(err, 'players'))
       .finally(markComplete);
 
     // Search teams/squads - using dynamic fields
     sdk.client.get<Squad[]>(`/teams?${buildParams(EntityTypes.TEAMS)}`)
       .then((response) => {
+        if (response.error) {
+          handleError(response.error, 'teams');
+          return;
+        }
         if (response.data?.length) {
           addResults(transformTeams(response.data.slice(0, 5)));
         }
       })
-      .catch((err) => {
-        if (err?.name !== 'AbortError') {
-          logger.warn('[useGlobalSearch] Team search failed:', err);
-        }
-      })
+      .catch((err) => handleError(err, 'teams'))
       .finally(markComplete);
 
     // Search replays - using dynamic fields from schema
     sdk.client.get<ReplayFile[]>(`/games/cs2/replays?${buildParams(EntityTypes.REPLAYS)}`)
       .then((response) => {
+        if (response.error) {
+          handleError(response.error, 'replays');
+          return;
+        }
         if (response.data?.length) {
           addResults(transformReplays(response.data.slice(0, 5)));
         }
       })
-      .catch((err) => {
-        if (err?.name !== 'AbortError') {
-          logger.warn('[useGlobalSearch] Replay search failed:', err);
-        }
-      })
+      .catch((err) => handleError(err, 'replays'))
       .finally(markComplete);
 
     // Search matches - using dynamic fields from schema
     sdk.client.get<MatchSearchItem[]>(`/games/cs2/matches?${buildParams(EntityTypes.MATCHES)}`)
       .then((response) => {
+        if (response.error) {
+          handleError(response.error, 'matches');
+          return;
+        }
         if (response.data?.length) {
           addResults(transformMatches(response.data.slice(0, 5)));
         }
       })
-      .catch((err) => {
-        if (err?.name !== 'AbortError') {
-          logger.warn('[useGlobalSearch] Match search failed:', err);
-        }
-      })
+      .catch((err) => handleError(err, 'matches'))
       .finally(markComplete);
 
   }, [sdk, getSearchFields]);
