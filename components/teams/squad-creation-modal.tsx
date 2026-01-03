@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 /**
  * Award-Winning Squad/Team Creation Modal
  * Multi-step form with member management, team customization, and preview
  */
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
-import { useReplayApi } from '@/hooks/use-replay-api';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { useReplayApi } from "@/hooks/use-replay-api";
 import {
   Modal,
   ModalContent,
@@ -30,11 +30,11 @@ import {
   User,
   Autocomplete,
   AutocompleteItem,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import AvatarUploader from '@/components/avatar/avatar-uploader';
-import { logger } from '@/lib/logger';
-import { GameIDKey } from '@/types/replay-api/settings';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import AvatarUploader from "@/components/avatar/avatar-uploader";
+import { logger } from "@/lib/logger";
+import { GameIDKey } from "@/types/replay-api/settings";
 
 interface SquadCreationModalProps {
   isOpen: boolean;
@@ -42,27 +42,35 @@ interface SquadCreationModalProps {
 }
 
 const GAMES = [
-  { id: 'cs2', name: 'Counter-Strike 2', icon: '🎮', maxTeamSize: 5 },
-  { id: 'valorant', name: 'Valorant', icon: '🎯', maxTeamSize: 5 },
-  { id: 'csgo', name: 'CS:GO', icon: '🔫', maxTeamSize: 5 },
-  { id: 'lol', name: 'League of Legends', icon: '⚔️', maxTeamSize: 5 },
-  { id: 'dota2', name: 'Dota 2', icon: '🏰', maxTeamSize: 5 },
+  { id: "cs2", name: "Counter-Strike 2", icon: "🎮", maxTeamSize: 5 },
+  { id: "valorant", name: "Valorant", icon: "🎯", maxTeamSize: 5 },
+  { id: "csgo", name: "CS:GO", icon: "🔫", maxTeamSize: 5 },
+  { id: "lol", name: "League of Legends", icon: "⚔️", maxTeamSize: 5 },
+  { id: "dota2", name: "Dota 2", icon: "🏰", maxTeamSize: 5 },
 ];
 
 const COMPETITIVE_LEVELS = [
-  { id: 'casual', name: 'Casual', description: 'Playing for fun' },
-  { id: 'semi-pro', name: 'Semi-Pro', description: 'Regular practice and tournaments' },
-  { id: 'professional', name: 'Professional', description: 'Full-time competitive' },
+  { id: "casual", name: "Casual", description: "Playing for fun" },
+  {
+    id: "semi-pro",
+    name: "Semi-Pro",
+    description: "Regular practice and tournaments",
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    description: "Full-time competitive",
+  },
 ];
 
 const REGIONS = [
-  'North America',
-  'Europe',
-  'Asia',
-  'South America',
-  'Oceania',
-  'Middle East',
-  'Africa',
+  "North America",
+  "Europe",
+  "Asia",
+  "South America",
+  "Oceania",
+  "Middle East",
+  "Africa",
 ];
 
 interface TeamMember {
@@ -72,7 +80,10 @@ interface TeamMember {
   avatar?: string;
 }
 
-export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps) {
+export function SquadCreationModal({
+  isOpen,
+  onClose,
+}: SquadCreationModalProps) {
   const { isAuthenticated, user } = useAuth();
   const { sdk } = useReplayApi();
   const router = useRouter();
@@ -82,24 +93,24 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
   // Form data
   const [formData, setFormData] = useState({
-    game: '',
-    teamName: '',
-    teamTag: '',
-    slug: '',
+    game: "",
+    teamName: "",
+    teamTag: "",
+    slug: "",
     logo: null as File | null,
-    bio: '',
-    region: 'North America',
-    competitiveLevel: 'semi-pro',
+    bio: "",
+    region: "North America",
+    competitiveLevel: "semi-pro",
     lookingForPlayers: true,
     requiredRoles: [] as string[],
-    discordServer: '',
-    website: '',
-    twitterHandle: '',
+    discordServer: "",
+    website: "",
+    twitterHandle: "",
     members: [] as TeamMember[],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
@@ -108,17 +119,17 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
   const handleTeamNameChange = (value: string) => {
     const slug = value
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     const tag = value
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase()
       .slice(0, 4);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       teamName: value,
       slug,
@@ -130,15 +141,18 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
     const newErrors: Record<string, string> = {};
 
     if (currentStep === 1) {
-      if (!formData.game) newErrors.game = 'Please select a game';
-      if (!formData.teamName) newErrors.teamName = 'Team name is required';
-      if (formData.teamName.length < 3) newErrors.teamName = 'Team name must be at least 3 characters';
-      if (!formData.teamTag) newErrors.teamTag = 'Team tag is required';
-      if (formData.teamTag.length > 5) newErrors.teamTag = 'Team tag must be 5 characters or less';
+      if (!formData.game) newErrors.game = "Please select a game";
+      if (!formData.teamName) newErrors.teamName = "Team name is required";
+      if (formData.teamName.length < 3)
+        newErrors.teamName = "Team name must be at least 3 characters";
+      if (!formData.teamTag) newErrors.teamTag = "Team tag is required";
+      if (formData.teamTag.length > 5)
+        newErrors.teamTag = "Team tag must be 5 characters or less";
     }
 
     if (currentStep === 2) {
-      if (!formData.bio || formData.bio.length < 30) newErrors.bio = 'Team bio must be at least 30 characters';
+      if (!formData.bio || formData.bio.length < 30)
+        newErrors.bio = "Team bio must be at least 30 characters";
     }
 
     setErrors(newErrors);
@@ -147,12 +161,12 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
   const handleNext = () => {
     if (validateStep(step)) {
-      setStep(prev => Math.min(totalSteps, prev + 1));
+      setStep((prev) => Math.min(totalSteps, prev + 1));
     }
   };
 
   const handleBack = () => {
-    setStep(prev => Math.max(1, prev - 1));
+    setStep((prev) => Math.max(1, prev - 1));
   };
 
   const handleSubmit = async () => {
@@ -160,56 +174,58 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
     setIsSubmitting(true);
     setSubmitError(null);
-    
+
     try {
       // Map form game ID to API GameIDKey
       const gameIdMap: Record<string, GameIDKey> = {
-        'cs2': 'cs2',
-        'valorant': 'vlrnt',
-        'csgo': 'csgo',
-        'lol': 'lol',
-        'dota2': 'dota2',
+        cs2: "cs2",
+        valorant: "vlrnt",
+        csgo: "csgo",
+        lol: "lol",
+        dota2: "dota2",
       };
 
       // Create squad via API
       const squadData = {
-        game_id: gameIdMap[formData.game] || formData.game as GameIDKey,
+        game_id: gameIdMap[formData.game] || (formData.game as GameIDKey),
         name: formData.teamName,
         symbol: formData.teamTag,
         description: formData.bio,
         slug_uri: formData.slug,
-        logo_uri: formData.logo ? URL.createObjectURL(formData.logo) : undefined,
+        logo_uri: formData.logo
+          ? URL.createObjectURL(formData.logo)
+          : undefined,
       };
 
       const createdSquad = await sdk.squads.createSquad(squadData);
 
-      logger.info('Squad created successfully', { 
+      logger.info("Squad created successfully", {
         squadId: createdSquad.id,
-        teamName: formData.teamName, 
-        slug: formData.slug 
+        teamName: formData.teamName,
+        slug: formData.slug,
       });
-      
+
       onClose();
-      
+
       // Reset form
       setStep(1);
       setFormData({
-        game: '',
-        teamName: '',
-        teamTag: '',
-        slug: '',
+        game: "",
+        teamName: "",
+        teamTag: "",
+        slug: "",
         logo: null,
-        bio: '',
-        region: 'North America',
-        competitiveLevel: 'semi-pro',
+        bio: "",
+        region: "North America",
+        competitiveLevel: "semi-pro",
         lookingForPlayers: true,
         requiredRoles: [],
-        discordServer: '',
-        website: '',
-        twitterHandle: '',
+        discordServer: "",
+        website: "",
+        twitterHandle: "",
         members: [],
       });
-      
+
       // Navigate to the new squad page
       if (createdSquad.slug_uri) {
         router.push(`/teams/${createdSquad.slug_uri}`);
@@ -219,8 +235,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
         router.refresh();
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create squad';
-      logger.error('Failed to create squad', error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create squad";
+      logger.error("Failed to create squad", error);
       setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -233,26 +250,28 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
     const newMember: TeamMember = {
       id: Date.now().toString(),
       name: searchQuery,
-      role: 'Player',
+      role: "Player",
       avatar: `https://i.pravatar.cc/150?u=${Date.now()}`,
     };
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       members: [...prev.members, newMember],
     }));
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const removeMember = (id: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      members: prev.members.filter(m => m.id !== id),
+      members: prev.members.filter((m) => m.id !== id),
     }));
   };
 
-  const selectedGame = GAMES.find(g => g.id === formData.game);
-  const selectedLevel = COMPETITIVE_LEVELS.find(l => l.id === formData.competitiveLevel);
+  const selectedGame = GAMES.find((g) => g.id === formData.game);
+  const selectedLevel = COMPETITIVE_LEVELS.find(
+    (l) => l.id === formData.competitiveLevel
+  );
 
   return (
     <Modal
@@ -288,24 +307,34 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
             <ModalHeader className="leet-modal-header flex flex-col gap-2">
               <div className="leet-modal-title">
                 <div className="leet-modal-icon">
-                  <Icon icon="solar:users-group-two-rounded-bold-duotone" width={20} />
+                  <Icon
+                    icon="solar:users-group-two-rounded-bold-duotone"
+                    width={20}
+                  />
                 </div>
                 <h2 className="text-2xl font-bold">Launch Your Squad</h2>
               </div>
               <p className="text-sm text-default-500 font-normal">
-                {step === 1 && 'Set up your team identity'}
-                {step === 2 && 'Build your team and define your goals'}
-                {step === 3 && 'Review and launch your squad'}
+                {step === 1 && "Set up your team identity"}
+                {step === 2 && "Build your team and define your goals"}
+                {step === 3 && "Review and launch your squad"}
               </p>
               <div className="leet-modal-progress">
-                <div className="leet-modal-progress-bar" style={{ width: `${progress}%` }} />
+                <div
+                  className="leet-modal-progress-bar"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
               <div className="leet-modal-steps">
                 {Array.from({ length: totalSteps }).map((_, i) => (
                   <div
                     key={i}
                     className={`leet-modal-step ${
-                      i + 1 === step ? 'leet-modal-step-active' : i + 1 < step ? 'leet-modal-step-complete' : ''
+                      i + 1 === step
+                        ? "leet-modal-step-active"
+                        : i + 1 < step
+                        ? "leet-modal-step-complete"
+                        : ""
                     }`}
                   />
                 ))}
@@ -323,9 +352,20 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                         label="Select Game"
                         placeholder="Choose your game"
                         selectedKeys={formData.game ? [formData.game] : []}
-                        onSelectionChange={(keys) => setFormData(prev => ({ ...prev, game: Array.from(keys)[0] as string }))}
+                        onSelectionChange={(keys) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            game: Array.from(keys)[0] as string,
+                          }))
+                        }
                         variant="bordered"
-                        startContent={selectedGame && <span className="text-2xl">{selectedGame.icon}</span>}
+                        startContent={
+                          selectedGame && (
+                            <span className="text-2xl">
+                              {selectedGame.icon}
+                            </span>
+                          )
+                        }
                         isInvalid={!!errors.game}
                         errorMessage={errors.game}
                         classNames={{
@@ -337,7 +377,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                           <SelectItem
                             key={game.id}
                             value={game.id}
-                            startContent={<span className="text-2xl">{game.icon}</span>}
+                            startContent={
+                              <span className="text-2xl">{game.icon}</span>
+                            }
                             description={`Max ${game.maxTeamSize} players`}
                           >
                             {game.name}
@@ -349,11 +391,17 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     {/* Logo Upload */}
                     <div className="flex justify-center md:col-span-2">
                       <div className="flex flex-col items-center gap-3">
-                        <p className="text-sm text-default-600 font-medium">Team Logo</p>
+                        <p className="text-sm text-default-600 font-medium">
+                          Team Logo
+                        </p>
                         <AvatarUploader
-                          onUpload={(file) => setFormData(prev => ({ ...prev, logo: file }))}
+                          onUpload={(file) =>
+                            setFormData((prev) => ({ ...prev, logo: file }))
+                          }
                         />
-                        <p className="text-xs text-default-400">Recommended: 400x400px, max 2MB</p>
+                        <p className="text-xs text-default-400">
+                          Recommended: 400x400px, max 2MB
+                        </p>
                       </div>
                     </div>
 
@@ -364,7 +412,12 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                       value={formData.teamName}
                       onValueChange={handleTeamNameChange}
                       variant="bordered"
-                      startContent={<Icon icon="solar:users-group-rounded-bold-duotone" className="text-default-400" />}
+                      startContent={
+                        <Icon
+                          icon="solar:users-group-rounded-bold-duotone"
+                          className="text-default-400"
+                        />
+                      }
                       isInvalid={!!errors.teamName}
                       errorMessage={errors.teamName}
                       isRequired
@@ -375,7 +428,12 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                       label="Team Tag"
                       placeholder="TAG"
                       value={formData.teamTag}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, teamTag: value.toUpperCase().slice(0, 5) }))}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          teamTag: value.toUpperCase().slice(0, 5),
+                        }))
+                      }
                       variant="bordered"
                       startContent={<span className="text-default-400">[</span>}
                       endContent={<span className="text-default-400">]</span>}
@@ -392,9 +450,15 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                         label="Team URL"
                         placeholder="your-team-name"
                         value={formData.slug}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, slug: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, slug: value }))
+                        }
                         variant="bordered"
-                        startContent={<span className="text-xs text-default-400">leetgaming.pro/teams/</span>}
+                        startContent={
+                          <span className="text-xs text-default-400">
+                            leetgaming.pro/teams/
+                          </span>
+                        }
                         isRequired
                       />
                     </div>
@@ -403,9 +467,19 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     <Select
                       label="Region"
                       selectedKeys={[formData.region]}
-                      onSelectionChange={(keys) => setFormData(prev => ({ ...prev, region: Array.from(keys)[0] as string }))}
+                      onSelectionChange={(keys) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          region: Array.from(keys)[0] as string,
+                        }))
+                      }
                       variant="bordered"
-                      startContent={<Icon icon="solar:map-point-bold-duotone" className="text-default-400" />}
+                      startContent={
+                        <Icon
+                          icon="solar:map-point-bold-duotone"
+                          className="text-default-400"
+                        />
+                      }
                     >
                       {REGIONS.map((region) => (
                         <SelectItem key={region} value={region}>
@@ -418,9 +492,19 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     <Select
                       label="Competitive Level"
                       selectedKeys={[formData.competitiveLevel]}
-                      onSelectionChange={(keys) => setFormData(prev => ({ ...prev, competitiveLevel: Array.from(keys)[0] as string }))}
+                      onSelectionChange={(keys) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          competitiveLevel: Array.from(keys)[0] as string,
+                        }))
+                      }
                       variant="bordered"
-                      startContent={<Icon icon="solar:cup-star-bold-duotone" className="text-warning" />}
+                      startContent={
+                        <Icon
+                          icon="solar:cup-star-bold-duotone"
+                          className="text-warning"
+                        />
+                      }
                       description={selectedLevel?.description}
                     >
                       {COMPETITIVE_LEVELS.map((level) => (
@@ -433,11 +517,18 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
                   <Card className="bg-primary-50/50">
                     <CardBody className="flex-row gap-3 items-start">
-                      <Icon icon="solar:lightbulb-bolt-bold-duotone" width={24} className="text-primary flex-shrink-0" />
+                      <Icon
+                        icon="solar:lightbulb-bolt-bold-duotone"
+                        width={24}
+                        className="text-primary flex-shrink-0"
+                      />
                       <div className="text-sm">
-                        <p className="font-semibold text-primary mb-1">Pro Tip</p>
+                        <p className="font-semibold text-primary mb-1">
+                          Pro Tip
+                        </p>
                         <p className="text-default-600">
-                          Choose a memorable team name and tag. These will represent your squad in tournaments and matches.
+                          Choose a memorable team name and tag. These will
+                          represent your squad in tournaments and matches.
                         </p>
                       </div>
                     </CardBody>
@@ -453,7 +544,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     label="Team Bio"
                     placeholder="Describe your team's playstyle, goals, and what makes you unique..."
                     value={formData.bio}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, bio: value }))}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, bio: value }))
+                    }
                     variant="bordered"
                     minRows={4}
                     maxLength={500}
@@ -468,7 +561,12 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     <CardBody>
                       <Switch
                         isSelected={formData.lookingForPlayers}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, lookingForPlayers: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            lookingForPlayers: value,
+                          }))
+                        }
                         classNames={{
                           wrapper: "group-data-[selected=true]:bg-success",
                         }}
@@ -476,7 +574,8 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                         <div className="flex flex-col gap-1">
                           <p className="font-semibold">Looking for Players</p>
                           <p className="text-xs text-default-500">
-                            Show that your team is recruiting. Your team will appear in &quot;Recruiting&quot; searches.
+                            Show that your team is recruiting. Your team will
+                            appear in &quot;Recruiting&quot; searches.
                           </p>
                         </div>
                       </Switch>
@@ -488,7 +587,8 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-semibold">Team Members</h3>
                       <Chip size="sm" variant="flat">
-                        {formData.members.length}/{selectedGame?.maxTeamSize || 5}
+                        {formData.members.length}/
+                        {selectedGame?.maxTeamSize || 5}
                       </Chip>
                     </div>
 
@@ -499,13 +599,22 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                         value={searchQuery}
                         onValueChange={setSearchQuery}
                         variant="bordered"
-                        startContent={<Icon icon="solar:magnifer-linear" className="text-default-400" />}
-                        onKeyPress={(e) => e.key === 'Enter' && addMember()}
+                        startContent={
+                          <Icon
+                            icon="solar:magnifer-linear"
+                            className="text-default-400"
+                          />
+                        }
+                        onKeyPress={(e) => e.key === "Enter" && addMember()}
                       />
                       <Button
                         color="primary"
                         onPress={addMember}
-                        isDisabled={!searchQuery.trim() || formData.members.length >= (selectedGame?.maxTeamSize || 5)}
+                        isDisabled={
+                          !searchQuery.trim() ||
+                          formData.members.length >=
+                            (selectedGame?.maxTeamSize || 5)
+                        }
                       >
                         Add
                       </Button>
@@ -516,9 +625,17 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                       {formData.members.length === 0 ? (
                         <Card className="bg-default-100">
                           <CardBody className="text-center py-8">
-                            <Icon icon="solar:users-group-rounded-linear" width={48} className="mx-auto mb-2 text-default-400" />
-                            <p className="text-sm text-default-500">No members added yet</p>
-                            <p className="text-xs text-default-400 mt-1">Add players to build your squad</p>
+                            <Icon
+                              icon="solar:users-group-rounded-linear"
+                              width={48}
+                              className="mx-auto mb-2 text-default-400"
+                            />
+                            <p className="text-sm text-default-500">
+                              No members added yet
+                            </p>
+                            <p className="text-xs text-default-400 mt-1">
+                              Add players to build your squad
+                            </p>
                           </CardBody>
                         </Card>
                       ) : (
@@ -540,7 +657,10 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                                   isIconOnly
                                   onPress={() => removeMember(member.id)}
                                 >
-                                  <Icon icon="solar:trash-bin-minimalistic-linear" width={18} />
+                                  <Icon
+                                    icon="solar:trash-bin-minimalistic-linear"
+                                    width={18}
+                                  />
                                 </Button>
                               </div>
                             </CardBody>
@@ -552,11 +672,18 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
                   <Card className="bg-warning-50/50">
                     <CardBody className="flex-row gap-3 items-start">
-                      <Icon icon="solar:info-circle-bold-duotone" width={24} className="text-warning flex-shrink-0" />
+                      <Icon
+                        icon="solar:info-circle-bold-duotone"
+                        width={24}
+                        className="text-warning flex-shrink-0"
+                      />
                       <div className="text-sm">
-                        <p className="font-semibold text-warning-700 mb-1">Member Management</p>
+                        <p className="font-semibold text-warning-700 mb-1">
+                          Member Management
+                        </p>
                         <p className="text-default-600">
-                          You can add members now or invite them later. Team members will receive invitations via the platform.
+                          You can add members now or invite them later. Team
+                          members will receive invitations via the platform.
                         </p>
                       </div>
                     </CardBody>
@@ -568,7 +695,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
               {step === 3 && (
                 <div className="flex flex-col gap-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-1">Social & Communication</h3>
+                    <h3 className="text-lg font-semibold mb-1">
+                      Social & Communication
+                    </h3>
                     <p className="text-sm text-default-500 mb-4">
                       Help players find and connect with your team
                     </p>
@@ -577,25 +706,55 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                         label="Discord Server"
                         placeholder="discord.gg/yourserver"
                         value={formData.discordServer}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, discordServer: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            discordServer: value,
+                          }))
+                        }
                         variant="bordered"
-                        startContent={<Icon icon="ic:baseline-discord" className="text-[#5865F2]" width={20} />}
+                        startContent={
+                          <Icon
+                            icon="ic:baseline-discord"
+                            className="text-[#5865F2]"
+                            width={20}
+                          />
+                        }
                       />
                       <Input
                         label="Website"
                         placeholder="https://yourteam.com"
                         value={formData.website}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, website: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, website: value }))
+                        }
                         variant="bordered"
-                        startContent={<Icon icon="solar:link-bold-duotone" className="text-default-400" width={20} />}
+                        startContent={
+                          <Icon
+                            icon="solar:link-bold-duotone"
+                            className="text-default-400"
+                            width={20}
+                          />
+                        }
                       />
                       <Input
                         label="Twitter/X Handle"
                         placeholder="@yourteam"
                         value={formData.twitterHandle}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, twitterHandle: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            twitterHandle: value,
+                          }))
+                        }
                         variant="bordered"
-                        startContent={<Icon icon="mdi:twitter" className="text-[#1DA1F2]" width={20} />}
+                        startContent={
+                          <Icon
+                            icon="mdi:twitter"
+                            className="text-[#1DA1F2]"
+                            width={20}
+                          />
+                        }
                       />
                     </div>
                   </div>
@@ -609,7 +768,11 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                       <CardBody className="gap-4">
                         <div className="flex items-start gap-4">
                           <Avatar
-                            src={formData.logo ? URL.createObjectURL(formData.logo) : undefined}
+                            src={
+                              formData.logo
+                                ? URL.createObjectURL(formData.logo)
+                                : undefined
+                            }
                             showFallback
                             name={formData.teamTag || formData.teamName}
                             size="lg"
@@ -619,13 +782,16 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-bold text-lg truncate">
                                 {formData.teamTag && `[${formData.teamTag}] `}
-                                {formData.teamName || 'Your Team Name'}
+                                {formData.teamName || "Your Team Name"}
                               </h4>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-2">
                               {formData.game && (
                                 <Chip size="sm" variant="flat">
-                                  {GAMES.find(g => g.id === formData.game)?.name}
+                                  {
+                                    GAMES.find((g) => g.id === formData.game)
+                                      ?.name
+                                  }
                                 </Chip>
                               )}
                               <Chip size="sm" variant="flat" color="warning">
@@ -650,7 +816,9 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
                         {formData.members.length > 0 && (
                           <div className="pt-3 border-t border-divider">
-                            <p className="text-xs text-default-500 mb-2">Team Members ({formData.members.length})</p>
+                            <p className="text-xs text-default-500 mb-2">
+                              Team Members ({formData.members.length})
+                            </p>
                             <div className="flex -space-x-2">
                               {formData.members.slice(0, 5).map((member) => (
                                 <Avatar
@@ -676,11 +844,18 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
 
                   <Card className="bg-success-50/50">
                     <CardBody className="flex-row gap-3 items-start">
-                      <Icon icon="solar:check-circle-bold-duotone" width={24} className="text-success flex-shrink-0" />
+                      <Icon
+                        icon="solar:check-circle-bold-duotone"
+                        width={24}
+                        className="text-success flex-shrink-0"
+                      />
                       <div className="text-sm">
-                        <p className="font-semibold text-success-700 mb-1">Ready to Launch!</p>
+                        <p className="font-semibold text-success-700 mb-1">
+                          Ready to Launch!
+                        </p>
                         <p className="text-default-600">
-                          Your squad will be visible to players and can start competing immediately after creation.
+                          Your squad will be visible to players and can start
+                          competing immediately after creation.
                         </p>
                       </div>
                     </CardBody>
@@ -690,9 +865,15 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                   {submitError && (
                     <Card className="bg-danger-50/50 border border-danger/30">
                       <CardBody className="flex-row gap-3 items-start">
-                        <Icon icon="solar:danger-triangle-bold-duotone" width={24} className="text-danger flex-shrink-0" />
+                        <Icon
+                          icon="solar:danger-triangle-bold-duotone"
+                          width={24}
+                          className="text-danger flex-shrink-0"
+                        />
                         <div className="text-sm">
-                          <p className="font-semibold text-danger-700 mb-1">Failed to Create Squad</p>
+                          <p className="font-semibold text-danger-700 mb-1">
+                            Failed to Create Squad
+                          </p>
                           <p className="text-default-600">{submitError}</p>
                         </div>
                       </CardBody>
@@ -708,14 +889,16 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                 onPress={step === 1 ? onCloseModal : handleBack}
                 isDisabled={isSubmitting}
               >
-                {step === 1 ? 'Cancel' : 'Back'}
+                {step === 1 ? "Cancel" : "Back"}
               </Button>
 
               {step < totalSteps ? (
                 <Button
                   className="leet-modal-btn leet-modal-btn-primary"
                   onPress={handleNext}
-                  endContent={<Icon icon="solar:arrow-right-linear" width={20} />}
+                  endContent={
+                    <Icon icon="solar:arrow-right-linear" width={20} />
+                  }
                 >
                   Next Step
                 </Button>
@@ -724,9 +907,13 @@ export function SquadCreationModal({ isOpen, onClose }: SquadCreationModalProps)
                   className="leet-modal-btn leet-modal-btn-success"
                   onPress={handleSubmit}
                   isLoading={isSubmitting}
-                  startContent={!isSubmitting && <Icon icon="solar:rocket-2-bold-duotone" width={20} />}
+                  startContent={
+                    !isSubmitting && (
+                      <Icon icon="solar:rocket-2-bold-duotone" width={20} />
+                    )
+                  }
                 >
-                  {isSubmitting ? 'Launching Squad...' : 'Launch Squad'}
+                  {isSubmitting ? "Launching Squad..." : "Launch Squad"}
                 </Button>
               )}
             </ModalFooter>

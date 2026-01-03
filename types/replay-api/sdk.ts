@@ -94,7 +94,7 @@ export interface ReplayTimelineResponse {
  * Onboarding API wrapper
  */
 export class OnboardingAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Onboard a Steam user
@@ -138,7 +138,7 @@ export class OnboardingAPI {
  * Squad/Team API wrapper
  */
 export class SquadAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Create a new squad
@@ -233,7 +233,7 @@ export class SquadAPI {
  * Player Profile API wrapper
  */
 export class PlayerProfileAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Create a new player profile
@@ -380,7 +380,7 @@ export class PlayerProfileAPI {
  * Match API wrapper
  */
 export class MatchAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Get match by ID
@@ -428,7 +428,7 @@ export class MatchAPI {
  * Replay File API wrapper
  */
 export class ReplayFileAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Get replay file metadata
@@ -531,7 +531,7 @@ export class ReplayFileAPI {
  * Share Token API wrapper
  */
 export class ShareTokenAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Create share token for a resource
@@ -575,7 +575,7 @@ interface SearchResultGroup {
  * Global Search API wrapper
  */
 export class SearchAPI {
-  constructor(private client: ReplayApiClient) {}
+  constructor(private client: ReplayApiClient) { }
 
   /**
    * Global search across all entities

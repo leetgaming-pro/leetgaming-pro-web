@@ -61,21 +61,21 @@ export function useAuth(): AuthState {
 
   const signOut = useCallback(async () => {
     const { signOut: nextAuthSignOut } = await import("next-auth/react");
-    
+
     // Clear RID token first
     try {
       await getRIDTokenManager().clearToken();
     } catch (error) {
       logger.warn("[useAuth] Failed to clear RID token on sign out:", error);
     }
-    
+
     // Then sign out from NextAuth
     await nextAuthSignOut({ callbackUrl: "/" });
   }, []);
 
   const user = useMemo(() => {
     if (!session?.user) return null;
-    
+
     const sessionUser = session.user as SessionUserWithRID;
     return {
       id: sessionUser.uid || sessionUser.id,
@@ -92,11 +92,11 @@ export function useAuth(): AuthState {
   // 2. Either has RID in session OR RIDTokenManager is authenticated
   const isAuthenticated = useMemo(() => {
     if (!session?.user) return false;
-    
+
     const sessionUser = session.user as SessionUserWithRID;
     const hasRid = !!sessionUser.rid;
     const hasRidToken = isAuthenticatedSync();
-    
+
     return hasRid || hasRidToken;
   }, [session]);
 
@@ -144,14 +144,14 @@ export function useRequireAuth(options: { callbackUrl?: string } = {}): AuthStat
   const isRedirecting = useMemo(() => {
     if (auth.isLoading) return false;
     if (auth.isAuthenticated) return false;
-    
+
     // Redirect to sign-in if not authenticated
     if (router) {
       const signInUrl = `/signin${options.callbackUrl ? `?callbackUrl=${encodeURIComponent(options.callbackUrl)}` : ''}`;
       router.push(signInUrl);
       return true;
     }
-    
+
     return false;
   }, [auth.isLoading, auth.isAuthenticated, router, options.callbackUrl]);
 
@@ -181,8 +181,8 @@ export function useRequireAuth(options: { callbackUrl?: string } = {}): AuthStat
  * };
  * ```
  */
-export function useOptionalAuth(): AuthState & { 
-  requireAuthForAction: (action: string) => boolean 
+export function useOptionalAuth(): AuthState & {
+  requireAuthForAction: (action: string) => boolean
 } {
   const auth = useAuth();
   // Import useRouter at module level - hooks must be called unconditionally
@@ -192,12 +192,12 @@ export function useOptionalAuth(): AuthState & {
 
   const requireAuthForAction = useCallback((action: string): boolean => {
     if (auth.isAuthenticated) return true;
-    
+
     if (router) {
       const signInUrl = `/signin?action=${encodeURIComponent(action)}`;
       router.push(signInUrl);
     }
-    
+
     return false;
   }, [auth.isAuthenticated, router]);
 

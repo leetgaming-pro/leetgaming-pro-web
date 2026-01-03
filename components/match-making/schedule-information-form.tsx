@@ -445,8 +445,8 @@ const ScheduleInformationForm = React.forwardRef<
                   }}
                 >
                   <Icon
-                    icon="solar:bolt-bold"
-                    className="text-white dark:text-[#1a1a1a]"
+                    icon="solar:bolt-bold-duotone"
+                    className="text-white dark:text-[#111111]"
                     width={40}
                   />
                 </motion.div>
@@ -788,12 +788,16 @@ const ScheduleInformationForm = React.forwardRef<
                             className={cn(
                               "w-full h-8 rounded-none flex items-center justify-center transition-all",
                               isActive
-                                ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#1a1a1a]"
+                                ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
                                 : "bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
                             )}
                           >
                             {isActive ? (
-                              <Icon icon="solar:check-circle-bold" width={20} />
+                              <Icon 
+                                icon="solar:check-circle-bold" 
+                                width={20} 
+                                className="text-white dark:text-[#111111]"
+                              />
                             ) : (
                               <Icon
                                 icon="solar:add-circle-linear"

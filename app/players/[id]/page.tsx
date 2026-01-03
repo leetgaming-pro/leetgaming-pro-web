@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 /**
  * Player Profile Detail Page
  * Comprehensive player statistics, match history, and achievements
  */
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   Card,
   CardHeader,
@@ -28,18 +28,19 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { PageContainer } from '@/components/layouts/centered-content';
-import { ShareButton } from '@/components/share/share-button';
-import { useReplayApi } from '@/hooks/use-replay-api';
-import { useOptionalAuth } from '@/hooks';
-import { logger } from '@/lib/logger';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { PageContainer } from "@/components/layouts/centered-content";
+import { ShareButton } from "@/components/share/share-button";
+import { useReplayApi } from "@/hooks/use-replay-api";
+import { useOptionalAuth } from "@/hooks";
+import { logger } from "@/lib/logger";
 
-import { PlayerProfile as PlayerProfileBase } from '@/types/replay-api/entities.types';
+import { PlayerProfile as PlayerProfileBase } from "@/types/replay-api/entities.types";
 
 /** Extended player profile from API response - uses Omit to avoid type conflicts with base Date properties */
-interface PlayerAPIResponse extends Omit<PlayerProfileBase, 'created_at' | 'updated_at'> {
+interface PlayerAPIResponse
+  extends Omit<PlayerProfileBase, "created_at" | "updated_at"> {
   player_id?: string;
   name?: string;
   steam_id?: string;
@@ -94,7 +95,7 @@ interface PlayerProfile {
     id: string;
     date: string;
     map: string;
-    result: 'win' | 'loss' | 'tie';
+    result: "win" | "loss" | "tie";
     score: string;
     kills: number;
     deaths: number;
@@ -113,9 +114,13 @@ export default function PlayerDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Delete confirmation modal
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
 
   useEffect(() => {
     async function fetchPlayerProfile() {
@@ -130,18 +135,24 @@ export default function PlayerDetailPage() {
         if (playerData) {
           // Map API response to PlayerProfile interface
           const createdAt = playerData.created_at
-            ? (typeof playerData.created_at === 'string' ? playerData.created_at : new Date(playerData.created_at).toISOString())
+            ? typeof playerData.created_at === "string"
+              ? playerData.created_at
+              : new Date(playerData.created_at).toISOString()
             : new Date().toISOString();
 
           const apiPlayer: PlayerProfile = {
             id: playerData.player_id || playerId,
-            nickname: playerData.nickname || playerData.name || 'Unknown Player',
-            avatar: playerData.avatar_uri || `https://i.pravatar.cc/150?u=${playerId}`,
-            description: playerData.description || 'A competitive esports player.',
-            roles: playerData.roles || ['Player'],
+            nickname:
+              playerData.nickname || playerData.name || "Unknown Player",
+            avatar:
+              playerData.avatar_uri ||
+              `https://i.pravatar.cc/150?u=${playerId}`,
+            description:
+              playerData.description || "A competitive esports player.",
+            roles: playerData.roles || ["Player"],
             steam_id: playerData.steam_id,
             discord_id: playerData.discord_id,
-            country: playerData.country || 'Global',
+            country: playerData.country || "Global",
             join_date: createdAt,
             stats: {
               matches_played: playerData.stats?.matches_played || 0,
@@ -159,7 +170,7 @@ export default function PlayerDetailPage() {
             recent_matches: [], // Match history needs separate API - empty for now
           };
           setPlayer(apiPlayer);
-          
+
           // Check resource ownership - user owns this profile if their user_id matches resource_owner
           if (isAuthenticated && user && playerData.resource_owner) {
             const ownerUserId = playerData.resource_owner.userId;
@@ -169,13 +180,14 @@ export default function PlayerDetailPage() {
           }
         } else {
           // Player not found - show error state
-          setError('Player not found');
+          setError("Player not found");
           setPlayer(null);
           setIsOwner(false);
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load player profile';
-        logger.error('Failed to load player profile', err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load player profile";
+        logger.error("Failed to load player profile", err);
         setError(errorMessage);
         // No fallback to mock data - show error state instead
         setPlayer(null);
@@ -187,18 +199,18 @@ export default function PlayerDetailPage() {
 
     fetchPlayerProfile();
   }, [playerId, sdk, isAuthenticated, user]);
-  
+
   // Handle profile deletion
   const handleDeleteProfile = async () => {
     try {
       setIsDeleting(true);
       await sdk.playerProfiles.deletePlayerProfile(playerId);
-      logger.info('Player profile deleted', { playerId });
+      logger.info("Player profile deleted", { playerId });
       onDeleteClose();
-      router.push('/players');
+      router.push("/players");
     } catch (err) {
-      logger.error('Failed to delete player profile', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete profile');
+      logger.error("Failed to delete player profile", err);
+      setError(err instanceof Error ? err.message : "Failed to delete profile");
     } finally {
       setIsDeleting(false);
     }
@@ -224,15 +236,27 @@ export default function PlayerDetailPage() {
       <PageContainer maxWidth="7xl">
         <Card className="rounded-none border border-danger/30">
           <CardBody className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-              <Icon icon="solar:ghost-linear" width={32} className="text-danger" />
+            <div
+              className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="solar:ghost-linear"
+                width={32}
+                className="text-danger"
+              />
             </div>
-            <p className="text-lg text-danger">{error || 'Player not found'}</p>
-            <Button 
+            <p className="text-lg text-danger">{error || "Player not found"}</p>
+            <Button
               className="mt-4 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-              onClick={() => (window.location.href = '/players')}
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
+              onClick={() => (window.location.href = "/players")}
             >
               Back to Players
             </Button>
@@ -242,7 +266,10 @@ export default function PlayerDetailPage() {
     );
   }
 
-  const winRate = ((player.stats.wins / player.stats.matches_played) * 100).toFixed(1);
+  const winRate = (
+    (player.stats.wins / player.stats.matches_played) *
+    100
+  ).toFixed(1);
   const kd = (player.stats.kills / player.stats.deaths).toFixed(2);
 
   return (
@@ -252,21 +279,40 @@ export default function PlayerDetailPage() {
         <CardBody className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
             <div className="relative">
-              <Avatar 
-                src={player.avatar} 
+              <Avatar
+                src={player.avatar}
                 className="w-32 h-32 ring-4 ring-[#FF4654]/30 dark:ring-[#DCFF37]/30"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)' }}
+                style={{
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
+                }}
               />
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}>
-                <Icon icon="solar:verified-check-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+              <div
+                className="absolute -bottom-2 -right-2 w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
+                style={{
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                }}
+              >
+                <Icon
+                  icon="solar:verified-check-bold"
+                  width={16}
+                  className="text-[#F5F0E1] dark:text-[#34445C]"
+                />
               </div>
             </div>
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">{player.nickname}</h1>
+                <h1 className="text-3xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                  {player.nickname}
+                </h1>
                 {player.country && (
-                  <Chip size="sm" variant="flat" className="rounded-none" startContent={<span className="text-lg">🇺🇸</span>}>
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    className="rounded-none"
+                    startContent={<span className="text-lg">🇺🇸</span>}
+                  >
                     {player.country}
                   </Chip>
                 )}
@@ -274,7 +320,10 @@ export default function PlayerDetailPage() {
               <p className="text-default-600 mb-4">{player.description}</p>
               <div className="flex flex-wrap gap-2 mb-4">
                 {player.roles.map((role) => (
-                  <Chip key={role} className="bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C] rounded-none">
+                  <Chip
+                    key={role}
+                    className="bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#34445C] rounded-none"
+                  >
                     {role}
                   </Chip>
                 ))}
@@ -294,7 +343,9 @@ export default function PlayerDetailPage() {
                 )}
                 <div className="flex items-center gap-1">
                   <Icon icon="solar:calendar-bold" width={16} />
-                  <span>Joined {new Date(player.join_date).toLocaleDateString()}</span>
+                  <span>
+                    Joined {new Date(player.join_date).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -303,35 +354,50 @@ export default function PlayerDetailPage() {
               {isOwner && (
                 <>
                   <Tooltip content="Edit your profile" placement="bottom">
-                    <Button 
+                    <Button
                       className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                      }}
                       startContent={<Icon icon="solar:pen-bold" width={20} />}
                       onPress={() => router.push(`/players/${playerId}/edit`)}
                     >
                       Edit Profile
                     </Button>
                   </Tooltip>
-                  <Tooltip content="Delete this profile" placement="bottom" color="danger">
-                    <Button 
-                      variant="bordered" 
+                  <Tooltip
+                    content="Delete this profile"
+                    placement="bottom"
+                    color="danger"
+                  >
+                    <Button
+                      variant="bordered"
                       className="rounded-none border-danger/50 text-danger hover:bg-danger/10"
                       isIconOnly
                       onPress={onDeleteOpen}
                     >
-                      <Icon icon="solar:trash-bin-minimalistic-bold" width={20} />
+                      <Icon
+                        icon="solar:trash-bin-minimalistic-bold"
+                        width={20}
+                      />
                     </Button>
                   </Tooltip>
                 </>
               )}
-              
+
               {/* Public actions - only show if not owner */}
               {!isOwner && (
                 <>
-                  <Button 
+                  <Button
                     className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-                    startContent={<Icon icon="solar:user-plus-bold" width={20} />}
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                    }}
+                    startContent={
+                      <Icon icon="solar:user-plus-bold" width={20} />
+                    }
                     onPress={() => {
                       if (!isAuthenticated) {
                         router.push(`/signin?callbackUrl=/players/${playerId}`);
@@ -341,14 +407,23 @@ export default function PlayerDetailPage() {
                   >
                     Add Friend
                   </Button>
-                  <Tooltip content={isAuthenticated ? "Send a message" : "Sign in to message"} placement="bottom">
-                    <Button 
-                      variant="bordered" 
+                  <Tooltip
+                    content={
+                      isAuthenticated ? "Send a message" : "Sign in to message"
+                    }
+                    placement="bottom"
+                  >
+                    <Button
+                      variant="bordered"
                       className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1] hover:border-[#FF4654] dark:hover:border-[#DCFF37]"
-                      startContent={<Icon icon="solar:chat-round-bold" width={20} />}
+                      startContent={
+                        <Icon icon="solar:chat-round-bold" width={20} />
+                      }
                       onPress={() => {
                         if (!isAuthenticated) {
-                          router.push(`/signin?callbackUrl=/players/${playerId}`);
+                          router.push(
+                            `/signin?callbackUrl=/players/${playerId}`
+                          );
                         }
                         // TODO: Open message modal
                       }}
@@ -374,7 +449,9 @@ export default function PlayerDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-primary">{player.stats.matches_played}</div>
+            <div className="text-3xl font-bold text-primary">
+              {player.stats.matches_played}
+            </div>
             <div className="text-sm text-default-500">Matches</div>
           </CardBody>
         </Card>
@@ -392,7 +469,9 @@ export default function PlayerDetailPage() {
         </Card>
         <Card>
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-secondary">{player.stats.rating}</div>
+            <div className="text-3xl font-bold text-secondary">
+              {player.stats.rating}
+            </div>
             <div className="text-sm text-default-500">Rating</div>
           </CardBody>
         </Card>
@@ -412,36 +491,51 @@ export default function PlayerDetailPage() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span>Headshot %</span>
-                    <span className="font-semibold">{player.stats.headshot_percentage}%</span>
+                    <span className="font-semibold">
+                      {player.stats.headshot_percentage}%
+                    </span>
                   </div>
-                  <Progress value={player.stats.headshot_percentage} color="danger" />
+                  <Progress
+                    value={player.stats.headshot_percentage}
+                    color="danger"
+                  />
                 </div>
                 <div>
                   <div className="flex justify-between mb-2">
                     <span>Accuracy</span>
-                    <span className="font-semibold">{player.stats.accuracy}%</span>
+                    <span className="font-semibold">
+                      {player.stats.accuracy}%
+                    </span>
                   </div>
                   <Progress value={player.stats.accuracy} color="warning" />
                 </div>
                 <Divider />
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-success">{player.stats.kills}</div>
+                    <div className="text-2xl font-bold text-success">
+                      {player.stats.kills}
+                    </div>
                     <div className="text-xs text-default-500">Kills</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-danger">{player.stats.deaths}</div>
+                    <div className="text-2xl font-bold text-danger">
+                      {player.stats.deaths}
+                    </div>
                     <div className="text-xs text-default-500">Deaths</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-primary">{player.stats.assists}</div>
+                    <div className="text-2xl font-bold text-primary">
+                      {player.stats.assists}
+                    </div>
                     <div className="text-xs text-default-500">Assists</div>
                   </div>
                 </div>
                 <Divider />
                 <div className="flex justify-between">
                   <span>ADR (Avg Damage/Round)</span>
-                  <span className="font-semibold text-primary">{player.stats.adr}</span>
+                  <span className="font-semibold text-primary">
+                    {player.stats.adr}
+                  </span>
                 </div>
               </CardBody>
             </Card>
@@ -454,13 +548,22 @@ export default function PlayerDetailPage() {
               <Divider />
               <CardBody className="space-y-3">
                 {player.achievements.map((achievement) => (
-                  <div key={achievement.id} className="flex items-center gap-3 p-3 bg-default-100 rounded-lg">
+                  <div
+                    key={achievement.id}
+                    className="flex items-center gap-3 p-3 bg-default-100 rounded-lg"
+                  >
                     <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                      <Icon icon={achievement.icon} width={24} className="text-primary" />
+                      <Icon
+                        icon={achievement.icon}
+                        width={24}
+                        className="text-primary"
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="font-semibold">{achievement.name}</div>
-                      <div className="text-xs text-default-500">{achievement.description}</div>
+                      <div className="text-xs text-default-500">
+                        {achievement.description}
+                      </div>
                     </div>
                     <div className="text-xs text-default-400">
                       {new Date(achievement.earned_at).toLocaleDateString()}
@@ -482,11 +585,21 @@ export default function PlayerDetailPage() {
             <CardBody>
               <div className="space-y-3">
                 {player.recent_matches.map((match) => (
-                  <Card key={match.id} isPressable className="hover:bg-default-100">
+                  <Card
+                    key={match.id}
+                    isPressable
+                    className="hover:bg-default-100"
+                  >
                     <CardBody>
                       <div className="flex items-center gap-4">
                         <Chip
-                          color={match.result === 'win' ? 'success' : match.result === 'loss' ? 'danger' : 'default'}
+                          color={
+                            match.result === "win"
+                              ? "success"
+                              : match.result === "loss"
+                              ? "danger"
+                              : "default"
+                          }
                           variant="flat"
                           size="lg"
                         >
@@ -495,16 +608,27 @@ export default function PlayerDetailPage() {
                         <div className="flex-1">
                           <div className="font-semibold">{match.map}</div>
                           <div className="text-sm text-default-500">
-                            {new Date(match.date).toLocaleDateString()} • Score: {match.score}
+                            {new Date(match.date).toLocaleDateString()} • Score:{" "}
+                            {match.score}
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-sm">
-                            <span className="text-success font-semibold">{match.kills}</span> /{' '}
-                            <span className="text-danger font-semibold">{match.deaths}</span> /{' '}
-                            <span className="text-primary font-semibold">{match.assists}</span>
+                            <span className="text-success font-semibold">
+                              {match.kills}
+                            </span>{" "}
+                            /{" "}
+                            <span className="text-danger font-semibold">
+                              {match.deaths}
+                            </span>{" "}
+                            /{" "}
+                            <span className="text-primary font-semibold">
+                              {match.assists}
+                            </span>
                           </div>
-                          <div className="text-xs text-default-500">K / D / A</div>
+                          <div className="text-xs text-default-500">
+                            K / D / A
+                          </div>
                         </div>
                       </div>
                     </CardBody>
@@ -523,8 +647,14 @@ export default function PlayerDetailPage() {
         <Tab key="stats" title="Detailed Stats">
           <Card>
             <CardBody className="text-center py-12">
-              <Icon icon="solar:chart-2-bold" width={64} className="mx-auto mb-4 text-default-400" />
-              <p className="text-lg text-default-600">Advanced statistics coming soon</p>
+              <Icon
+                icon="solar:chart-2-bold"
+                width={64}
+                className="mx-auto mb-4 text-default-400"
+              />
+              <p className="text-lg text-default-600">
+                Advanced statistics coming soon
+              </p>
               <p className="text-sm text-default-400 mt-2">
                 Heatmaps, weapon stats, performance trends, and more
               </p>
@@ -534,8 +664,8 @@ export default function PlayerDetailPage() {
       </Tabs>
 
       {/* Delete Confirmation Modal */}
-      <Modal 
-        isOpen={isDeleteOpen} 
+      <Modal
+        isOpen={isDeleteOpen}
         onClose={onDeleteClose}
         classNames={{
           base: "rounded-none border border-danger/30",
@@ -552,10 +682,12 @@ export default function PlayerDetailPage() {
           </ModalHeader>
           <ModalBody>
             <p className="text-default-600">
-              Are you sure you want to delete <strong>{player.nickname}</strong>? This action cannot be undone.
+              Are you sure you want to delete <strong>{player.nickname}</strong>
+              ? This action cannot be undone.
             </p>
             <p className="text-sm text-default-500 mt-2">
-              All associated data including match history and achievements will be permanently removed.
+              All associated data including match history and achievements will
+              be permanently removed.
             </p>
           </ModalBody>
           <ModalFooter>
@@ -570,12 +702,19 @@ export default function PlayerDetailPage() {
             <Button
               color="danger"
               className="rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
               onPress={handleDeleteProfile}
               isLoading={isDeleting}
-              startContent={!isDeleting && <Icon icon="solar:trash-bin-minimalistic-bold" width={18} />}
+              startContent={
+                !isDeleting && (
+                  <Icon icon="solar:trash-bin-minimalistic-bold" width={18} />
+                )
+              }
             >
-              {isDeleting ? 'Deleting...' : 'Delete Profile'}
+              {isDeleting ? "Deleting..." : "Delete Profile"}
             </Button>
           </ModalFooter>
         </ModalContent>

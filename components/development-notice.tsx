@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { X, AlertTriangle, Zap, Trophy } from 'lucide-react';
+import { useState } from "react";
+import { X, AlertTriangle, Zap, Trophy } from "lucide-react";
 
 export function DevelopmentNotice() {
   const [isVisible, setIsVisible] = useState(true);
@@ -9,11 +9,11 @@ export function DevelopmentNotice() {
   // Show development notice in production for beta/pre-alpha launch
   // Can be controlled via NEXT_PUBLIC_SHOW_DEV_NOTICE environment variable
   // Default: show in production, hide in development unless explicitly enabled
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === "production";
   const envSetting = process.env.NEXT_PUBLIC_SHOW_DEV_NOTICE;
   const shouldShowNotice =
-    (isProduction && envSetting !== 'false') || // Show in production unless explicitly disabled
-    (!isProduction && envSetting === 'true') || // Show in development only if explicitly enabled
+    (isProduction && envSetting !== "false") || // Show in production unless explicitly disabled
+    (!isProduction && envSetting === "true") || // Show in development only if explicitly enabled
     false; // Default fallback
 
   if (!shouldShowNotice || !isVisible) {
@@ -53,17 +53,28 @@ export function DevelopmentNotice() {
               </div>
 
               <p className="text-sm text-leet-cream leading-relaxed">
-                <span className="font-semibold text-leet-gold">Welcome to LeetGaming.PRO&apos;s exclusive pre-alpha program!</span>
-                <span className="hidden sm:inline"> 🎮 As a pioneering early adopter, you&apos;re experiencing cutting-edge competitive gaming technology before the official launch.</span>
+                <span className="font-semibold text-leet-gold">
+                  Welcome to LeetGaming.PRO&apos;s exclusive pre-alpha program!
+                </span>
+                <span className="hidden sm:inline">
+                  {" "}
+                  🎮 As a pioneering early adopter, you&apos;re experiencing
+                  cutting-edge competitive gaming technology before the official
+                  launch.
+                </span>
                 <span className="block mt-1 text-leet-cream/80">
-                  Features may be experimental. Your feedback shapes our award-winning platform.
-                  <span className="font-medium text-leet-lime ml-1">Thank you for being part of our journey! 🚀</span>
+                  Features may be experimental. Your feedback shapes our
+                  award-winning platform.
+                  <span className="font-medium text-leet-lime ml-1">
+                    Thank you for being part of our journey! 🚀
+                  </span>
                 </span>
               </p>
 
               {/* Legal disclaimer */}
               <p className="mt-2 text-xs text-leet-cream/60 italic">
-                By using this pre-alpha version, you acknowledge that some features may be incomplete or subject to change.
+                By using this pre-alpha version, you acknowledge that some
+                features may be incomplete or subject to change.
               </p>
             </div>
           </div>

@@ -2,19 +2,19 @@
 
 import React from "react";
 import { EsportsButton } from "@/components/ui/esports-button";
-import {Icon} from "@iconify/react";
-import {cn} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { cn } from "@nextui-org/react";
 
 export type SupportCardProps = React.HTMLAttributes<HTMLDivElement>;
 
 const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
-  ({className, ...props}, ref) => (
+  ({ className, ...props }, ref) => (
     <div
       {...props}
       ref={ref}
       className={cn(
         "align-center my-2 flex shrink-0 items-center justify-center gap-3 self-stretch rounded-none bg-content1 px-3 py-3 shadow-small",
-        className,
+        className
       )}
     >
       <div className="flex items-center justify-center w-[32px] h-[32px] rounded-none bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]">
@@ -39,7 +39,7 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
         />
       </EsportsButton>
     </div>
-  ),
+  )
 );
 
 SupportCard.displayName = "SupportCard";

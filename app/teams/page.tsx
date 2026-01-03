@@ -111,7 +111,7 @@ export default function TeamsPage() {
   const teamsFromSquads: Team[] = squads.map((squad: Squad) => {
     // Handle both membership array (new format) and members Record (legacy format)
     const membersList = squad.membership || Object.values(squad.members || {});
-    
+
     return {
       id: squad.id,
       name: squad.name,
@@ -124,12 +124,19 @@ export default function TeamsPage() {
         description: squad.description || "",
         members: membersList.map((m: SquadMembership, index: number) => {
           // Generate unique seed for avatar from squad name + member position
-          const avatarSeed = m.nickname || `${squad.symbol || squad.name}-${index + 1}`;
-          const memberRole = m.type || m.role || m.roles?.[0] || (index === 0 ? 'captain' : 'member');
-          
+          const avatarSeed =
+            m.nickname || `${squad.symbol || squad.name}-${index + 1}`;
+          const memberRole =
+            m.type ||
+            m.role ||
+            m.roles?.[0] ||
+            (index === 0 ? "captain" : "member");
+
           return {
             nickname: m.nickname || `Player ${index + 1}`,
-            avatar: m.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${avatarSeed}`,
+            avatar:
+              m.avatar ||
+              `https://api.dicebear.com/7.x/identicon/svg?seed=${avatarSeed}`,
           };
         }),
       },

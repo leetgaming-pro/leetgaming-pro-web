@@ -106,9 +106,18 @@ export default function ReplayDetailPage() {
           id: found.id,
           gameId: found.gameId || "cs2",
           matchId: found.matchId,
-          status: (found.status?.toLowerCase() as ReplayMeta["status"]) || "ready",
-          createdAt: found.createdAt instanceof Date ? found.createdAt.toISOString() : String(found.createdAt),
-          updatedAt: found.updatedAt instanceof Date ? found.updatedAt.toISOString() : found.updatedAt ? String(found.updatedAt) : undefined,
+          status:
+            (found.status?.toLowerCase() as ReplayMeta["status"]) || "ready",
+          createdAt:
+            found.createdAt instanceof Date
+              ? found.createdAt.toISOString()
+              : String(found.createdAt),
+          updatedAt:
+            found.updatedAt instanceof Date
+              ? found.updatedAt.toISOString()
+              : found.updatedAt
+              ? String(found.updatedAt)
+              : undefined,
           size: found.size,
           duration: found.duration,
           map: found.map,

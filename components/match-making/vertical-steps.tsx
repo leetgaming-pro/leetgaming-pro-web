@@ -165,7 +165,7 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
       <nav aria-label="Progress" className="max-w-fit">
         <ol className={cn("flex flex-col gap-y-3", colors, className)}>
           {steps?.map((step, stepIdx) => {
-            let status =
+            const status =
               currentStep === stepIdx ? "active" : currentStep < stepIdx ? "inactive" : "complete";
 
             return (

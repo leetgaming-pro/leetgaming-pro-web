@@ -21,17 +21,17 @@ import clsx from "clsx";
 import { ThemeSwitch } from "@/components/theme-switch";
 // Note: Icons imported but used dynamically via @iconify/react Icon component
 
-import { LoginButton } from './login-button';
-import SessionButton from './session-button';
-import { useSession, signOut } from 'next-auth/react';
+import { LoginButton } from "./login-button";
+import SessionButton from "./session-button";
+import { useSession, signOut } from "next-auth/react";
 import SearchInput from "./search/search-modal/search-modal";
 
-import DefaultLogo from './logo/logo-default';
+import DefaultLogo from "./logo/logo-default";
 import { useTheme } from "next-themes";
 import { electrolize } from "@/config/fonts";
 import { Button } from "@nextui-org/react";
-import { NotificationCenter } from '@/components/notifications/notification-center';
-import { LanguageSelector } from '@/components/i18n/language-selector';
+import { NotificationCenter } from "@/components/notifications/notification-center";
+import { LanguageSelector } from "@/components/i18n/language-selector";
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -39,10 +39,13 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Handle menu item click - close menu and navigate
-  const handleMenuItemClick = useCallback((href: string) => {
-    setIsMenuOpen(false);
-    router.push(href);
-  }, [router]);
+  const handleMenuItemClick = useCallback(
+    (href: string) => {
+      setIsMenuOpen(false);
+      router.push(href);
+    },
+    [router]
+  );
 
   const { theme: themeValue } = useTheme();
   let theme = themeValue;
@@ -53,11 +56,11 @@ export const Navbar = () => {
 
   let SessionArea;
 
-  const { data: session } = useSession()
-  
+  const { data: session } = useSession();
+
   // Helper to check if path is active
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
+    if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
 
@@ -88,7 +91,7 @@ export const Navbar = () => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="max-w-fit">
           <NextLink className="flex items-center gap-2" href="/">
-            <DefaultLogo onClick={() => window.location.href = "/"} />
+            <DefaultLogo onClick={() => (window.location.href = "/")} />
           </NextLink>
         </NavbarBrand>
 
@@ -97,7 +100,7 @@ export const Navbar = () => {
             const active = isActive(item.href);
             const isPrimary = item.href === "/match-making";
             const isCloud = item.href === "/cloud";
-            
+
             return (
               <NavbarItem key={item.href} className="h-full flex items-stretch">
                 <NextLink
@@ -108,17 +111,18 @@ export const Navbar = () => {
                     isPrimary
                       ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
                       : isCloud
-                        ? clsx(
-                            "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600",
-                            active && "esports-nav-link-active"
-                          )
-                        : clsx(
-                            "esports-nav-link",
-                            active 
-                              ? "esports-nav-link-active text-white dark:text-[#DCFF37]"
-                              : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10"
-                          ),
-                    index === 0 && "!ml-0" /* primeiro item sem margem negativa */
+                      ? clsx(
+                          "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600",
+                          active && "esports-nav-link-active"
+                        )
+                      : clsx(
+                          "esports-nav-link",
+                          active
+                            ? "esports-nav-link-active text-white dark:text-[#DCFF37]"
+                            : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10"
+                        ),
+                    index === 0 &&
+                      "!ml-0" /* primeiro item sem margem negativa */
                   )}
                   href={item.href}
                 >
@@ -133,9 +137,11 @@ export const Navbar = () => {
       <NavbarContent className="hidden md:flex gap-3" justify="end">
         {/* Separator */}
         <NavbarItem className="hidden md:flex items-center">
-          <span className="text-[#FF4654]/40 dark:text-[#DCFF37]/40 font-mono text-lg tracking-tighter select-none">{"//"}</span>
+          <span className="text-[#FF4654]/40 dark:text-[#DCFF37]/40 font-mono text-lg tracking-tighter select-none">
+            {"//"}
+          </span>
         </NavbarItem>
-        
+
         <NavbarItem className="hidden md:flex w-48 lg:w-64 xl:w-80">
           {searchInput}
         </NavbarItem>
@@ -154,18 +160,23 @@ export const Navbar = () => {
       <NavbarContent className="md:hidden basis-1 gap-1" justify="end">
         <LanguageSelector showFlag={true} variant="flat" size="sm" />
         <ThemeSwitch />
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
       </NavbarContent>
 
       <NavbarMenu className="pt-6 pb-6 gap-2 bg-background/95 backdrop-blur-xl">
-        <div className="px-4 mb-4">
-          {searchInput}
-        </div>
+        <div className="px-4 mb-4">{searchInput}</div>
         <div className="flex flex-col gap-1 px-2">
           {siteConfig.navMenuItems.map((item, index) => {
             // Handle divider
-            if (item.label === 'divider') {
-              return <Divider key={`divider-${index}`} className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20" />;
+            if (item.label === "divider") {
+              return (
+                <Divider
+                  key={`divider-${index}`}
+                  className="my-2 bg-[#FF4654]/20 dark:bg-[#DCFF37]/20"
+                />
+              );
             }
 
             const isHighlight = item.highlight;
@@ -182,13 +193,14 @@ export const Navbar = () => {
                     isHighlight
                       ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold dark:from-[#DCFF37] dark:to-[#34445C] dark:text-[#1a1a1a]"
                       : active
-                        ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
-                        : "hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 text-foreground"
+                      ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
+                      : "hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 text-foreground"
                   )}
-                  style={{ 
-                    clipPath: isHighlight || active 
-                      ? 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)'
-                      : undefined 
+                  style={{
+                    clipPath:
+                      isHighlight || active
+                        ? "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)"
+                        : undefined,
                   }}
                 >
                   {itemIcon && (
@@ -196,7 +208,9 @@ export const Navbar = () => {
                       icon={itemIcon}
                       className={clsx(
                         "w-5 h-5 flex-shrink-0",
-                        isHighlight || active ? "text-current" : "text-default-500"
+                        isHighlight || active
+                          ? "text-current"
+                          : "text-default-500"
                       )}
                     />
                   )}
@@ -215,11 +229,16 @@ export const Navbar = () => {
                   className="w-full justify-start gap-3 px-3 bg-danger/10 hover:bg-danger/20 text-danger font-semibold"
                   radius="none"
                   variant="flat"
-                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-                  startContent={<Icon icon="solar:logout-2-bold" className="w-5 h-5" />}
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                  }}
+                  startContent={
+                    <Icon icon="solar:logout-2-bold" className="w-5 h-5" />
+                  }
                   onPress={() => {
                     setIsMenuOpen(false);
-                    signOut({ callbackUrl: '/' });
+                    signOut({ callbackUrl: "/" });
                   }}
                 >
                   Log Out

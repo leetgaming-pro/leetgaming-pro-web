@@ -7,7 +7,10 @@
 
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth";
+import {
+  getRIDTokenManager,
+  isAuthenticatedSync,
+} from "@/types/replay-api/auth";
 import { IdentifierSourceType } from "@/types/replay-api/entities.types";
 import { logger } from "@/lib/logger";
 
@@ -72,7 +75,9 @@ export function AuthSync({ children }: AuthSyncProps) {
 
       // If session has no RID, backend onboarding may have failed
       if (!sessionRid) {
-        logger.debug("[AuthSync] Session has no RID - backend onboarding may have failed");
+        logger.debug(
+          "[AuthSync] Session has no RID - backend onboarding may have failed"
+        );
         return;
       }
 
@@ -98,8 +103,7 @@ export function AuthSync({ children }: AuthSyncProps) {
         // Check if user logged in via Google
         else if (sessionUser?.google?.sub) {
           sourceType = IdentifierSourceType.Google;
-          sourceKey =
-            sessionUser.google.email || session.user.email || "";
+          sourceKey = sessionUser.google.email || session.user.email || "";
         }
         // Email-password login defaults to Google type (email-based)
 

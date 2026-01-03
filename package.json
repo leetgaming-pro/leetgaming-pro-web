@@ -19,6 +19,7 @@
     "playwright:install": "playwright install --with-deps"
   },
   "dependencies": {
+    "@iconify-icons/solar": "^1.2.3",
     "@iconify/react": "^4.1.1",
     "@nextui-org/accordion": "^2.0.34",
     "@nextui-org/button": "2.0.26",

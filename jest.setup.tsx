@@ -3,23 +3,23 @@
  * Runs before all tests to configure the testing environment
  */
 
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter() {
     return {
       push: jest.fn(),
       replace: jest.fn(),
       prefetch: jest.fn(),
       back: jest.fn(),
-      pathname: '/',
+      pathname: "/",
       query: {},
-      asPath: '/',
+      asPath: "/",
     };
   },
   usePathname() {
-    return '/';
+    return "/";
   },
   useSearchParams() {
     return new URLSearchParams();
@@ -27,11 +27,11 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock next-auth
-jest.mock('next-auth/react', () => ({
+jest.mock("next-auth/react", () => ({
   useSession() {
     return {
       data: null,
-      status: 'unauthenticated',
+      status: "unauthenticated",
     };
   },
   signIn: jest.fn(),
@@ -44,19 +44,31 @@ interface MockMotionProps {
   [key: string]: unknown;
 }
 
-jest.mock('framer-motion', () => ({
+jest.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: MockMotionProps) => <div {...props as React.HTMLAttributes<HTMLDivElement>}>{children}</div>,
-    span: ({ children, ...props }: MockMotionProps) => <span {...props as React.HTMLAttributes<HTMLSpanElement>}>{children}</span>,
-    button: ({ children, ...props }: MockMotionProps) => <button {...props as React.ButtonHTMLAttributes<HTMLButtonElement>}>{children}</button>,
+    div: ({ children, ...props }: MockMotionProps) => (
+      <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>
+    ),
+    span: ({ children, ...props }: MockMotionProps) => (
+      <span {...(props as React.HTMLAttributes<HTMLSpanElement>)}>
+        {children}
+      </span>
+    ),
+    button: ({ children, ...props }: MockMotionProps) => (
+      <button {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
+        {children}
+      </button>
+    ),
   },
-  AnimatePresence: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  AnimatePresence: ({ children }: { children?: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -71,9 +83,9 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock IntersectionObserver
 class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | Document | null = null;
-  readonly rootMargin: string = '';
+  readonly rootMargin: string = "";
   readonly thresholds: ReadonlyArray<number> = [];
-  
+
   disconnect(): void {}
   observe(): void {}
   takeRecords(): IntersectionObserverEntry[] {

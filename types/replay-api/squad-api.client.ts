@@ -50,13 +50,13 @@ export class SquadApiClient {
   ): Promise<SquadSearchResult[] | undefined> {
     // Convert object to JSON string if needed
     const queryString = typeof query === 'object' ? JSON.stringify(query) : (query || '{}');
-    
+
     const result = await this.routeBuilder.search<SquadSearchResult[] | SquadSearchResult>(
       ReplayApiResourceType.Squad,
       queryString,
       authToken
     );
-    
+
     // Normalize to array
     if (Array.isArray(result)) {
       return result;

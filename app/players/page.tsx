@@ -510,10 +510,15 @@ export default function PlayersPage() {
                           View Profile
                         </Button>
                         <Tooltip
-                          content={isAuthenticated ? "Send Message" : "Sign in to message"}
+                          content={
+                            isAuthenticated
+                              ? "Send Message"
+                              : "Sign in to message"
+                          }
                           placement="top"
                           classNames={{
-                            content: "bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none",
+                            content:
+                              "bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none",
                           }}
                         >
                           <Button
@@ -522,10 +527,14 @@ export default function PlayersPage() {
                             className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 hover:border-[#FF4654] dark:hover:border-[#DCFF37] hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-all"
                             onPress={() => {
                               if (!isAuthenticated) {
-                                router.push(`/signin?callbackUrl=/players/${player.id}`);
+                                router.push(
+                                  `/signin?callbackUrl=/players/${player.id}`
+                                );
                               } else {
                                 // TODO: Open message modal or navigate to messaging
-                                router.push(`/players/${player.id}?action=message`);
+                                router.push(
+                                  `/players/${player.id}?action=message`
+                                );
                               }
                             }}
                           >
