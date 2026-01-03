@@ -6,22 +6,12 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Checkbox,
   Input,
-  Link,
-  LinkIcon,
   Kbd,
+  Spinner,
 } from "@nextui-org/react";
-import {
-  CopyDocumentIcon,
-  DeleteDocumentIcon,
-  EditDocumentIcon,
-  Logo,
-  PlusIcon,
-  SearchIcon,
-  ServerIcon,
-} from "@/components/icons";
-import { ChevronDownIcon } from "@/components/files/replays-table/ChevronDownIcon";
+import { Icon } from "@iconify/react";
+import { SearchIcon } from "@/components/icons";
 import SearchResults from "./search-results";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { useGlobalSearchContext } from "@/components/search/global-search-provider";
@@ -55,19 +45,25 @@ export default function SearchInput() {
   }, [query, search, clear]);
 
   // Clear search when modal closes
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      setQuery("");
-      clear();
-      closeSearch();
-    }
-  };
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        setQuery("");
+        clear();
+        closeSearch();
+      }
+    },
+    [clear, closeSearch]
+  );
 
-  const handleKey = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape") {
-      handleOpenChange(false);
-    }
-  }, []);
+  const handleKey = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Escape") {
+        handleOpenChange(false);
+      }
+    },
+    [handleOpenChange]
+  );
 
   return (
     <div className="w-full">
@@ -107,13 +103,15 @@ export default function SearchInput() {
         onOpenChange={handleOpenChange}
         placement="top-center"
         size="5xl"
+        hideCloseButton
         classNames={{
           base: "leet-modal",
-          wrapper: "leet-modal-backdrop",
+          wrapper: "leet-modal-wrapper",
           backdrop: "leet-modal-backdrop",
           body: "leet-modal-body bg-[#F5F0E1] dark:bg-[#1a1a1a]",
-          header: "leet-modal-header",
+          header: "leet-modal-header relative",
           footer: "leet-modal-footer",
+          closeButton: "hidden",
         }}
         motionProps={{
           variants: {
@@ -138,10 +136,25 @@ export default function SearchInput() {
           },
         }}
       >
-        <ModalContent className="leet-modal-content">
+        <ModalContent className="leet-modal-content relative">
           {(onClose) => (
             <>
-              <ModalHeader className="items-center text-center justify-center">
+              {/* Close button - fixed position in modal corner */}
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={onClose}
+                className="absolute right-2 top-2 z-50 min-w-[44px] w-11 h-11 rounded-none bg-[#FF4654]/20 dark:bg-[#DCFF37]/20 hover:bg-[#FF4654]/40 dark:hover:bg-[#DCFF37]/40 border-2 border-[#FF4654] dark:border-[#DCFF37]"
+                aria-label="Close search"
+              >
+                <Icon
+                  icon="mdi:close"
+                  width={28}
+                  className="text-[#FF4654] dark:text-[#DCFF37]"
+                />
+              </Button>
+
+              <ModalHeader className="flex flex-col gap-2 px-4 py-4 pr-16">
                 <Input
                   aria-label="Search"
                   autoFocus
@@ -150,26 +163,33 @@ export default function SearchInput() {
                   onKeyDown={handleKey}
                   classNames={{
                     inputWrapper:
-                      "bg-[#F5F0E1]/80 dark:bg-[#1a1a1a]/80 rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                      "bg-[#F5F0E1]/80 dark:bg-[#1a1a1a]/80 rounded-none border-2 border-[#FF4654]/50 dark:border-[#DCFF37]/50 h-14",
                     input: "text-xl text-[#34445C] dark:text-[#F5F0E1]",
                   }}
                   endContent={
                     loading ? (
-                      <div className="animate-spin text-[#FF4654] dark:text-[#DCFF37]">
-                        ⏳
-                      </div>
+                      <Spinner
+                        size="sm"
+                        classNames={{
+                          circle1: "border-b-[#FF4654] dark:border-b-[#DCFF37]",
+                          circle2:
+                            "border-b-[#FF4654]/50 dark:border-b-[#DCFF37]/50",
+                        }}
+                      />
                     ) : (
-                      <Kbd
-                        keys={["command", "enter"]}
-                        title="Search"
-                        className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] rounded-none"
-                      ></Kbd>
+                      <Kbd className="bg-[#FF4654]/20 dark:bg-[#DCFF37]/20 text-[#FF4654] dark:text-[#DCFF37] rounded-none text-sm px-2">
+                        ESC
+                      </Kbd>
                     )
                   }
                   labelPlacement="outside"
-                  placeholder="Type at least 2 characters..."
+                  placeholder="Search players, teams, replays..."
                   startContent={
-                    <SearchIcon className="text-[#FF4654] dark:text-[#DCFF37]" />
+                    <Icon
+                      icon="mdi:magnify"
+                      width={28}
+                      className="text-[#FF4654] dark:text-[#DCFF37]"
+                    />
                   }
                   type="search"
                 />

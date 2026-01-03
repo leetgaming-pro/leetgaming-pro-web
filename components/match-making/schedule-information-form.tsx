@@ -793,9 +793,9 @@ const ScheduleInformationForm = React.forwardRef<
                             )}
                           >
                             {isActive ? (
-                              <Icon 
-                                icon="solar:check-circle-bold" 
-                                width={20} 
+                              <Icon
+                                icon="solar:check-circle-bold"
+                                width={20}
                                 className="text-white dark:text-[#111111]"
                               />
                             ) : (

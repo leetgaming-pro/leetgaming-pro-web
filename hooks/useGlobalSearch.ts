@@ -1,12 +1,19 @@
 /**
  * Global Search Hook
  * Unified search across all entities: Replays, Players, Teams, Matches
+ * 
+ * Features:
+ * - Progressive loading: shows results as they arrive (no waiting for all)
+ * - Dynamic fields: uses search schema from backend (cached)
+ * - Parallel searches: queries all entity types simultaneously
+ * - Smart defaults: uses default_search_fields from schema
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import { ReplayFile } from '@/types/replay-api/replay-file';
+import { EntitySearchSchema, EntityTypes } from '@/types/replay-api/search-schema.sdk';
 
 export interface GlobalSearchResult {
   type: 'replay' | 'player' | 'team' | 'match';
@@ -21,19 +28,29 @@ export interface UseGlobalSearchResult {
   results: GlobalSearchResult[];
   loading: boolean;
   error: string | null;
+  schemaLoaded: boolean;
   search: (query: string) => Promise<void>;
   clear: () => void;
+}
+
+// Search configuration per entity type
+interface EntitySearchConfig {
+  type: GlobalSearchResult['type'];
+  entityType: string;
+  searchFn: (term: string, fields: string[]) => Promise<unknown[]>;
+  transformFn: (items: unknown[]) => GlobalSearchResult[];
+  maxResults: number;
 }
 
 /**
  * Transform replay files to search results
  */
-function transformReplays(replays: ReplayFile[]): GlobalSearchResult[] {
-  return replays.map((replay) => ({
+function transformReplays(replays: unknown[]): GlobalSearchResult[] {
+  return (replays as ReplayFile[]).map((replay) => ({
     type: 'replay' as const,
     id: replay.id,
-    title: `Replay: ${replay.networkId} - ${replay.gameId}`,
-    description: `Uploaded ${new Date(replay.createdAt).toLocaleDateString()} • ${replay.status}`,
+    title: `Replay: ${replay.networkId || replay.id?.substring(0, 8)}`,
+    description: `${replay.gameId?.toUpperCase() || 'CS2'} • ${replay.status || 'Processed'} • ${replay.createdAt ? new Date(replay.createdAt).toLocaleDateString() : 'N/A'}`,
     href: `/match/${replay.id}`,
     metadata: {
       gameId: replay.gameId,
@@ -49,6 +66,7 @@ interface PlayerSearchItem {
   user_id?: string;
   steam_name?: string;
   username?: string;
+  nickname?: string;
   steam_id?: string;
   profiles?: unknown[];
 }
@@ -56,11 +74,11 @@ interface PlayerSearchItem {
 /**
  * Transform player profiles to search results
  */
-function transformPlayers(players: PlayerSearchItem[]): GlobalSearchResult[] {
-  return players.map((player) => ({
+function transformPlayers(players: unknown[]): GlobalSearchResult[] {
+  return (players as PlayerSearchItem[]).map((player) => ({
     type: 'player' as const,
     id: player.id || player.user_id || '',
-    title: player.steam_name || player.username || 'Unknown Player',
+    title: player.nickname || player.steam_name || player.username || 'Unknown Player',
     description: `Steam ID: ${player.steam_id || 'N/A'} • ${player.profiles?.length || 0} profiles`,
     href: `/players/${player.id || player.user_id}`,
     metadata: {
@@ -75,14 +93,15 @@ import { Squad } from '@/types/replay-api/entities.types';
 /**
  * Transform squads/teams to search results
  */
-function transformTeams(teams: Squad[]): GlobalSearchResult[] {
-  return teams.map((team) => ({
+function transformTeams(teams: unknown[]): GlobalSearchResult[] {
+  return (teams as Squad[]).map((team) => ({
     type: 'team' as const,
     id: team.id,
     title: team.name || 'Unnamed Team',
-    description: `${team.membership?.length || 0} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
+    description: `${team.symbol ? `[${team.symbol}]` : ''} ${team.membership?.length || 0} members • Created ${team.created_at ? new Date(team.created_at).toLocaleDateString() : 'N/A'}`,
     href: `/teams/${team.id}`,
     metadata: {
+      symbol: team.symbol,
       membership: team.membership,
       createdAt: team.created_at,
     },
@@ -94,6 +113,7 @@ interface MatchSearchItem {
   match_id?: string;
   title?: string;
   game_id?: string;
+  map_name?: string;
   status?: string;
   played_at?: string;
 }
@@ -101,15 +121,16 @@ interface MatchSearchItem {
 /**
  * Transform matches to search results
  */
-function transformMatches(matches: MatchSearchItem[]): GlobalSearchResult[] {
-  return matches.map((match) => ({
+function transformMatches(matches: unknown[]): GlobalSearchResult[] {
+  return (matches as MatchSearchItem[]).map((match) => ({
     type: 'match' as const,
     id: match.id || match.match_id || '',
-    title: match.title || `Match ${match.id?.substring(0, 8) || 'Unknown'}`,
+    title: match.title || match.map_name || `Match ${match.id?.substring(0, 8) || 'Unknown'}`,
     description: `${match.game_id?.toUpperCase() || 'CS2'} • ${match.status || 'Completed'} • ${match.played_at ? new Date(match.played_at).toLocaleDateString() : 'N/A'}`,
     href: `/match/${match.id || match.match_id}`,
     metadata: {
       gameId: match.game_id,
+      mapName: match.map_name,
       status: match.status,
       playedAt: match.played_at,
     },
@@ -117,86 +138,168 @@ function transformMatches(matches: MatchSearchItem[]): GlobalSearchResult[] {
 }
 
 /**
- * Global search hook
+ * Global search hook with progressive loading and dynamic schema
+ * Results appear as each API responds - no waiting for all
  */
 export function useGlobalSearch(): UseGlobalSearchResult {
   const { sdk } = useSDK();
   const [results, setResults] = useState<GlobalSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [schemaLoaded, setSchemaLoaded] = useState(false);
+  const [entitySchemas, setEntitySchemas] = useState<Record<string, EntitySearchSchema>>({});
 
   const abortRef = useRef<AbortController | null>(null);
+  const searchIdRef = useRef<number>(0);
+
+  // Load search schema on mount
+  useEffect(() => {
+    const loadSchema = async () => {
+      try {
+        const schema = await sdk.searchSchema.getSchema();
+        if (schema) {
+          setEntitySchemas(schema.entities);
+          setSchemaLoaded(true);
+          logger.info('[useGlobalSearch] Schema loaded:', Object.keys(schema.entities));
+        }
+      } catch (err) {
+        logger.warn('[useGlobalSearch] Failed to load schema, using fallback:', err);
+        // Use fallback defaults if schema fetch fails
+        setSchemaLoaded(true);
+      }
+    };
+    loadSchema();
+  }, [sdk]);
+
+  // Get default search fields for an entity type
+  const getSearchFields = useCallback((entityType: string): string[] => {
+    const schema = entitySchemas[entityType];
+    if (schema?.default_search_fields?.length) {
+      return schema.default_search_fields;
+    }
+    // Fallback defaults if schema not loaded
+    const fallbacks: Record<string, string[]> = {
+      players: ['Nickname', 'Description'],
+      teams: ['Name', 'Tag', 'Description'],
+      replays: ['Header'],
+      matches: ['MapName'],
+    };
+    return fallbacks[entityType] || [];
+  }, [entitySchemas]);
+
   const search = useCallback(async (query: string) => {
     if (!query || query.trim().length < 2) {
       setResults([]);
       return;
     }
 
+    // Increment search ID to track this search session
+    const currentSearchId = ++searchIdRef.current;
+
     setLoading(true);
     setError(null);
+    setResults([]); // Clear previous results
 
-    try {
-      const searchTerm = query.trim();
-      const allResults: GlobalSearchResult[] = [];
-
-      // Abort previous in-flight requests
-      if (abortRef.current) {
-        abortRef.current.abort();
-      }
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      const commonFetchInit: RequestInit = { signal: controller.signal };
-
-      // Execute all searches in parallel for better performance
-      const [replaysResult, playersResult, squadsResult, matchesResult] = await Promise.allSettled([
-        sdk.replayFiles.searchReplayFiles({ search_term: searchTerm }),
-        sdk.playerProfiles.searchPlayerProfiles({ nickname: searchTerm }),
-        sdk.squads.searchSquads({ name: searchTerm }),
-        sdk.matches.searchMatches('cs2', { search_term: searchTerm }),
-      ]);
-
-      // Process replays
-      if (replaysResult.status === 'fulfilled' && replaysResult.value?.length > 0) {
-        allResults.push(...transformReplays((replaysResult.value as ReplayFile[]).slice(0, 5)));
-      } else if (replaysResult.status === 'rejected') {
-        logger.warn('Replay search failed:', replaysResult.reason);
-      }
-
-      // Process players
-      if (playersResult.status === 'fulfilled' && playersResult.value?.length > 0) {
-        allResults.push(...transformPlayers(playersResult.value.slice(0, 5)));
-      } else if (playersResult.status === 'rejected') {
-        logger.warn('Player search failed:', playersResult.reason);
-      }
-
-      // Process teams/squads
-      if (squadsResult.status === 'fulfilled' && squadsResult.value?.length > 0) {
-        allResults.push(...transformTeams(squadsResult.value.slice(0, 5)));
-      } else if (squadsResult.status === 'rejected') {
-        logger.warn('Team search failed:', squadsResult.reason);
-      }
-
-      // Process matches
-      if (matchesResult.status === 'fulfilled' && matchesResult.value?.length > 0) {
-        allResults.push(...transformMatches(matchesResult.value.slice(0, 5)));
-      } else if (matchesResult.status === 'rejected') {
-        logger.warn('Match search failed:', matchesResult.reason);
-      }
-
-      setResults(allResults);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        logger.warn('Global search aborted');
-        return; // Ignore aborted requests
-      }
-      const message = err instanceof Error ? err.message : 'Search failed';
-      logger.error('Global search error:', { error: message });
-      setError(message);
-    } finally {
-      setLoading(false);
+    // Abort previous in-flight requests
+    if (abortRef.current) {
+      abortRef.current.abort();
     }
-  }, [sdk]);
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const searchTerm = query.trim();
+    let completedCount = 0;
+    const totalSearches = 4; // players, teams, replays, matches
+
+    // Helper to add results progressively
+    const addResults = (newResults: GlobalSearchResult[]) => {
+      // Only update if this is still the current search
+      if (currentSearchId !== searchIdRef.current) return;
+      if (newResults.length > 0) {
+        setResults(prev => [...prev, ...newResults]);
+      }
+    };
+
+    // Helper to mark a search as complete
+    const markComplete = () => {
+      completedCount++;
+      if (completedCount >= totalSearches && currentSearchId === searchIdRef.current) {
+        setLoading(false);
+      }
+    };
+
+    // Build search params with dynamic fields
+    const buildParams = (entityType: string, additionalFilters?: Record<string, string>) => {
+      const params = new URLSearchParams();
+      params.append('q', searchTerm);
+      const fields = getSearchFields(entityType);
+      if (fields.length > 0) {
+        params.append('search_fields', fields.join(','));
+      }
+      params.append('limit', '5');
+      if (additionalFilters) {
+        Object.entries(additionalFilters).forEach(([k, v]) => params.append(k, v));
+      }
+      return params.toString();
+    };
+
+    // Search players - using dynamic fields
+    sdk.client.get<PlayerSearchItem[]>(`/players?${buildParams(EntityTypes.PLAYERS)}`)
+      .then((response) => {
+        if (response.data?.length) {
+          addResults(transformPlayers(response.data.slice(0, 5)));
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          logger.warn('[useGlobalSearch] Player search failed:', err);
+        }
+      })
+      .finally(markComplete);
+
+    // Search teams/squads - using dynamic fields
+    sdk.client.get<Squad[]>(`/teams?${buildParams(EntityTypes.TEAMS)}`)
+      .then((response) => {
+        if (response.data?.length) {
+          addResults(transformTeams(response.data.slice(0, 5)));
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          logger.warn('[useGlobalSearch] Team search failed:', err);
+        }
+      })
+      .finally(markComplete);
+
+    // Search replays - using dynamic fields from schema
+    sdk.client.get<ReplayFile[]>(`/games/cs2/replays?${buildParams(EntityTypes.REPLAYS)}`)
+      .then((response) => {
+        if (response.data?.length) {
+          addResults(transformReplays(response.data.slice(0, 5)));
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          logger.warn('[useGlobalSearch] Replay search failed:', err);
+        }
+      })
+      .finally(markComplete);
+
+    // Search matches - using dynamic fields from schema
+    sdk.client.get<MatchSearchItem[]>(`/games/cs2/matches?${buildParams(EntityTypes.MATCHES)}`)
+      .then((response) => {
+        if (response.data?.length) {
+          addResults(transformMatches(response.data.slice(0, 5)));
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          logger.warn('[useGlobalSearch] Match search failed:', err);
+        }
+      })
+      .finally(markComplete);
+
+  }, [sdk, getSearchFields]);
 
   const clear = useCallback(() => {
     setResults([]);
@@ -210,6 +313,7 @@ export function useGlobalSearch(): UseGlobalSearchResult {
     results,
     loading,
     error,
+    schemaLoaded,
     search,
     clear,
   };
