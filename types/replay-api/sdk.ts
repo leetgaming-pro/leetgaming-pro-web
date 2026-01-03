@@ -19,6 +19,7 @@ import { ChallengeAPI } from './challenge.sdk';
 import { HighlightsAPI } from './highlights.sdk';
 import { BlockchainAPI } from './blockchain.sdk';
 import { ReplayFile } from './replay-file';
+import { SearchSchemaAPI } from './search-schema.sdk';
 
 /**
  * Match data structure
@@ -391,6 +392,30 @@ export class MatchAPI {
   }
 
   /**
+   * List matches from /games/{gameId}/matches endpoint with optional search
+   */
+  async listMatches(filters?: {
+    game_id?: string;
+    search_term?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<MatchData[]> {
+    const params = new URLSearchParams();
+    if (filters?.search_term) {
+      params.append('q', filters.search_term);
+      // Only NetworkID is queryable for text search
+      params.append('search_fields', 'NetworkID');
+    }
+    if (filters?.limit) params.append('limit', String(filters.limit));
+    if (filters?.offset) params.append('offset', String(filters.offset));
+
+    const queryString = params.toString();
+    const gameId = filters?.game_id || 'cs2';
+    const response = await this.client.get<MatchData[]>(`/games/${gameId}/matches${queryString ? `?${queryString}` : ''}`);
+    return response.data || [];
+  }
+
+  /**
    * Search matches
    * Field names must be PascalCase to match Go struct fields.
    * Text search uses 'q' + 'search_fields' for OR logic.
@@ -454,6 +479,30 @@ export class ReplayFileAPI {
   async deleteReplayFile(gameId: string, replayFileId: string): Promise<boolean> {
     const response = await this.client.delete(`/games/${gameId}/replays/${replayFileId}`);
     return response.status === 204 || response.status === 200;
+  }
+
+  /**
+   * List replay files from /games/{gameId}/replays endpoint with optional search
+   */
+  async listReplayFiles(filters?: {
+    game_id?: string;
+    search_term?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ReplayFile[]> {
+    const params = new URLSearchParams();
+    if (filters?.search_term) {
+      params.append('q', filters.search_term);
+      // Only NetworkID is queryable for text search
+      params.append('search_fields', 'NetworkID');
+    }
+    if (filters?.limit) params.append('limit', String(filters.limit));
+    if (filters?.offset) params.append('offset', String(filters.offset));
+
+    const queryString = params.toString();
+    const gameId = filters?.game_id || 'cs2';
+    const response = await this.client.get<ReplayFile[]>(`/games/${gameId}/replays${queryString ? `?${queryString}` : ''}`);
+    return response.data || [];
   }
 
   /**
@@ -613,6 +662,7 @@ export class ReplayAPISDK {
   public matchmaking: MatchmakingAPI;
   public tournaments: TournamentAPI;
   public search: SearchAPI;
+  public searchSchema: SearchSchemaAPI;
   public matchAnalytics: MatchAnalyticsAPI;
   public challenges: ChallengeAPI;
   public highlights: HighlightsAPI;
@@ -633,6 +683,7 @@ export class ReplayAPISDK {
     this.matchmaking = new MatchmakingAPI(this.client);
     this.tournaments = new TournamentAPI(this.client);
     this.search = new SearchAPI(this.client);
+    this.searchSchema = new SearchSchemaAPI(this.client);
     this.matchAnalytics = new MatchAnalyticsAPI(this.client);
     this.challenges = new ChallengeAPI(this.client);
     this.highlights = new HighlightsAPI(this.client);

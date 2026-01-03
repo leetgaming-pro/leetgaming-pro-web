@@ -23,6 +23,7 @@ export * from './auth';
 
 // Search and filtering
 export * from './search-builder';
+export * from './search-schema.sdk';
 
 // API clients
 export * from './replay-api.client';
