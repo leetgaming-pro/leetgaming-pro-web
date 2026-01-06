@@ -1,0 +1,18 @@
+[submodule "match-making-api"]
+	path = match-making-api
+	url = https://github.com/match-making-api/match-making-api.git
+
+[submodule "replay-common"]
+	path = replay-common
+	url = https://github.com/replay-api/replay-common.git
+
+[submodule "resource-ownership/go-common"]
+	path = resource-ownership/go-common
+	url = https://github.com/resource-ownership/go-common.git
+
+[submodule "resource-ownership/go-mongodb"]
+	path = resource-ownership/go-mongodb
+	url = https://github.com/resource-ownership/go-mongodb.git
+[submodule "leetgaming-pro-web"]
+	path = leetgaming-pro-web
+	url = https://github.com/leetgaming-pro/leetgaming-pro-web.git
