@@ -135,7 +135,15 @@ export type ReplayFeature =
   | "teamfight-analysis"
   | "draft-analysis"
   | "lane-analysis"
-  | "objective-control";
+  | "objective-control"
+  | "legend-tracking"
+  | "team-composition"
+  | "building-analysis"
+  | "elimination-tracking"
+  | "material-usage"
+  | "hero-swaps"
+  | "team-fights"
+  | "healing-stats";
 
 /**
  * Game mode configuration

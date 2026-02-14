@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * MFAModal - Multi-Factor Authentication verification modal
@@ -6,7 +6,7 @@
  * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   ModalContent,
@@ -16,9 +16,9 @@ import {
   Button,
   Input,
   Spinner,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useAuthExtensions } from '@/hooks/use-auth-extensions';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
 interface MFAModalProps {
   isOpen: boolean;
@@ -35,14 +35,14 @@ export function MFAModal({
 }: MFAModalProps) {
   // Use SDK-powered auth hook instead of direct fetch
   const {
-    isMFALoading: isVerifying,
+    isMFALoading: _isVerifying,
     mfaError,
     verifyMFA,
     sendVerificationEmail,
     clearErrors,
   } = useAuthExtensions();
 
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +55,7 @@ export function MFAModal({
     if (isOpen && !codeSent) {
       sendMFACode();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: codeSent is a guard flag, sendMFACode is stable; only re-trigger on isOpen change
   }, [isOpen]);
 
   // Cooldown timer
@@ -69,7 +70,7 @@ export function MFAModal({
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setCode(['', '', '', '', '', '']);
+      setCode(["", "", "", "", "", ""]);
       setError(null);
       setCodeSent(false);
       clearErrors();
@@ -85,15 +86,16 @@ export function MFAModal({
     try {
       // Use SDK hook to send verification email
       const success = await sendVerificationEmail();
-      
+
       if (success) {
         setCodeSent(true);
         setCooldown(60);
       } else {
-        setError('Failed to send MFA code');
+        setError("Failed to send MFA code");
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send MFA code';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to send MFA code";
       setError(errorMessage);
     } finally {
       setIsSending(false);
@@ -111,23 +113,29 @@ export function MFAModal({
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newCode.every((digit) => digit !== '') && newCode.join('').length === 6) {
-      verifyCode(newCode.join(''));
+    if (
+      newCode.every((digit) => digit !== "") &&
+      newCode.join("").length === 6
+    ) {
+      verifyCode(newCode.join(""));
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
 
     if (pastedData.length === 6) {
-      const newCode = pastedData.split('');
+      const newCode = pastedData.split("");
       setCode(newCode);
       verifyCode(pastedData);
     }
@@ -139,20 +147,21 @@ export function MFAModal({
 
     try {
       // Use SDK hook to verify MFA code
-      const success = await verifyMFA(verificationCode, 'totp');
+      const success = await verifyMFA(verificationCode, "totp");
 
       if (success) {
         // Generate a session token for the verified action
         onVerified(verificationCode);
       } else {
-        setError(mfaError || 'Invalid MFA code');
-        setCode(['', '', '', '', '', '']);
+        setError(mfaError || "Invalid MFA code");
+        setCode(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Verification failed';
+      const errorMessage =
+        err instanceof Error ? err.message : "Verification failed";
       setError(errorMessage);
-      setCode(['', '', '', '', '', '']);
+      setCode(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
@@ -160,23 +169,23 @@ export function MFAModal({
   };
 
   const handleClose = () => {
-    setCode(['', '', '', '', '', '']);
+    setCode(["", "", "", "", "", ""]);
     setError(null);
     onClose();
   };
 
   const getActionIcon = () => {
     const actionLower = action.toLowerCase();
-    if (actionLower.includes('payment') || actionLower.includes('withdraw')) {
-      return 'solar:wallet-money-bold';
+    if (actionLower.includes("payment") || actionLower.includes("withdraw")) {
+      return "solar:wallet-money-bold";
     }
-    if (actionLower.includes('delete') || actionLower.includes('remove')) {
-      return 'solar:trash-bin-trash-bold';
+    if (actionLower.includes("delete") || actionLower.includes("remove")) {
+      return "solar:trash-bin-trash-bold";
     }
-    if (actionLower.includes('password') || actionLower.includes('security')) {
-      return 'solar:lock-password-bold';
+    if (actionLower.includes("password") || actionLower.includes("security")) {
+      return "solar:lock-password-bold";
     }
-    return 'solar:shield-check-bold';
+    return "solar:shield-check-bold";
   };
 
   return (
@@ -185,14 +194,17 @@ export function MFAModal({
       onClose={handleClose}
       placement="center"
       classNames={{
-        backdrop: 'bg-black/80 backdrop-blur-sm',
-        base: 'bg-content1 border border-content3',
+        backdrop: "bg-black/80 backdrop-blur-sm",
+        base: "bg-content1 border border-content3",
       }}
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <Icon icon="solar:shield-keyhole-bold" className="w-5 h-5 text-primary" />
+            <Icon
+              icon="solar:shield-keyhole-bold"
+              className="w-5 h-5 text-primary"
+            />
             <span>Security Verification</span>
           </div>
         </ModalHeader>
@@ -206,7 +218,8 @@ export function MFAModal({
               For your security, please enter the verification code
             </p>
             <p className="text-sm text-default-400 mt-1">
-              to confirm: <span className="font-medium text-foreground">{action}</span>
+              to confirm:{" "}
+              <span className="font-medium text-foreground">{action}</span>
             </p>
           </div>
 
@@ -215,7 +228,9 @@ export function MFAModal({
             {code.map((digit, index) => (
               <Input
                 key={index}
-                ref={(el) => { inputRefs.current[index] = el as HTMLInputElement | null; }}
+                ref={(el) => {
+                  inputRefs.current[index] = el as HTMLInputElement | null;
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -223,9 +238,9 @@ export function MFAModal({
                 onChange={(e) => handleCodeChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 classNames={{
-                  base: 'w-12',
-                  input: 'text-center text-xl font-bold',
-                  inputWrapper: 'h-14',
+                  base: "w-12",
+                  input: "text-center text-xl font-bold",
+                  inputWrapper: "h-14",
                 }}
                 isDisabled={isLoading}
                 autoFocus={index === 0}
@@ -236,7 +251,10 @@ export function MFAModal({
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-2 p-3 bg-danger/10 border border-danger/20 rounded-lg text-sm">
-              <Icon icon="solar:danger-triangle-bold" className="w-4 h-4 text-danger" />
+              <Icon
+                icon="solar:danger-triangle-bold"
+                className="w-4 h-4 text-danger"
+              />
               <span className="text-danger">{error}</span>
             </div>
           )}
@@ -252,7 +270,7 @@ export function MFAModal({
           {/* Resend Code */}
           <div className="text-center mt-4">
             <p className="text-sm text-default-400">
-              Didn&apos;t receive the code?{' '}
+              Didn&apos;t receive the code?{" "}
               {cooldown > 0 ? (
                 <span className="text-default-500">Resend in {cooldown}s</span>
               ) : (
@@ -272,7 +290,10 @@ export function MFAModal({
           {/* Help text */}
           <div className="mt-4 p-3 bg-content2/50 rounded-lg">
             <p className="text-xs text-default-400 text-center">
-              <Icon icon="solar:info-circle-bold" className="w-3 h-3 inline mr-1" />
+              <Icon
+                icon="solar:info-circle-bold"
+                className="w-3 h-3 inline mr-1"
+              />
               Check your email for the 6-digit code
             </p>
           </div>

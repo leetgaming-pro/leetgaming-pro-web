@@ -46,7 +46,7 @@ interface DayAvailability {
 // Generate activity data based on real pool stats or intelligent defaults
 const generateActivityData = (
   basePlayersOnline: number = 100,
-  avgWaitTime: number = 60
+  avgWaitTime: number = 60,
 ): TimeSlot[] => {
   return Array.from({ length: 24 }, (_, hour) => {
     let activity: TimeSlot["activity"] = "low";
@@ -126,7 +126,10 @@ const ScheduleInformationForm = React.forwardRef<
 >((_props, _ref) => {
   const { state, updateState, sdk } = useWizard();
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  // Use mounted state to prevent hydration mismatch with theme
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted ? theme === "dark" : false;
 
   const [scheduleMode, setScheduleMode] = useState<ScheduleMode>("instant");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -134,15 +137,24 @@ const ScheduleInformationForm = React.forwardRef<
   const [weeklyAvailability, setWeeklyAvailability] = useState<
     Record<string, string[]>
   >({});
-  const [activityData, setActivityData] = useState<TimeSlot[]>(() =>
-    generateActivityData()
-  );
+  // Initialize with empty array to prevent hydration mismatch
+  const [activityData, setActivityData] = useState<TimeSlot[]>([]);
   const [_isLoadingStats, setIsLoadingStats] = useState(true);
+  // Initialize time-dependent values as null to prevent hydration mismatch
+  const [currentHour, setCurrentHour] = useState<number>(12); // Safe default
+  const [userTimezone, setUserTimezone] = useState<string>("UTC");
+  const [_isHydrated, setIsHydrated] = useState(false);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
-  // Current time info
-  const now = new Date();
-  const currentHour = now.getHours();
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // Initialize client-side values after hydration
+  useEffect(() => {
+    const now = new Date();
+    setCurrentTime(now);
+    setCurrentHour(now.getHours());
+    setUserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setActivityData(generateActivityData());
+    setIsHydrated(true);
+  }, []);
 
   // Fetch real pool stats from backend
   const fetchPoolStats = useCallback(async () => {
@@ -151,14 +163,14 @@ const ScheduleInformationForm = React.forwardRef<
       const stats = await sdk.getPoolStats(
         gameId,
         state.gameMode,
-        state.region
+        state.region,
       );
 
       if (stats) {
         // Update activity data based on real stats
         const realActivityData = generateActivityData(
           stats.total_players,
-          stats.average_wait_time_seconds
+          stats.average_wait_time_seconds,
         );
         setActivityData(realActivityData);
       }
@@ -178,14 +190,16 @@ const ScheduleInformationForm = React.forwardRef<
 
   // Calculate optimal play times
   const optimalTimes = useMemo(() => {
+    if (!activityData.length) return [];
     return activityData
       .filter((slot) => slot.activity === "peak" || slot.activity === "high")
       .sort((a, b) => a.estimatedWait - b.estimatedWait)
       .slice(0, 3);
   }, [activityData]);
 
-  // Current activity
-  const currentActivity = activityData[currentHour];
+  // Current activity (hydration-safe)
+  const currentActivity =
+    activityData.length > 0 ? activityData[currentHour] : null;
 
   // Handle mode changes
   useEffect(() => {
@@ -265,104 +279,115 @@ const ScheduleInformationForm = React.forwardRef<
     return `${h}${ampm}`;
   };
 
-  // Generate next 7 days for date picker
-  const nextDays = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      return date;
-    });
+  // Generate next 7 days for date picker (hydration-safe)
+  const [nextDays, setNextDays] = useState<Date[]>([]);
+
+  useEffect(() => {
+    setNextDays(
+      Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        return date;
+      }),
+    );
   }, []);
 
   return (
     <>
-      {/* Header */}
-      <div className="flex flex-col items-center text-center mb-6">
+      {/* Header - Compact for mobile */}
+      <div className="flex flex-col items-center text-center mb-4 sm:mb-6 px-2">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mb-3"
+          className="mb-2"
         >
           <div
-            className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/30 rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+            className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/30 rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
             style={{ clipPath: "polygon(8% 0, 100% 0, 92% 100%, 0 100%)" }}
           >
             <Icon
               icon="solar:calendar-bold-duotone"
               className="text-[#FF4654] dark:text-[#DCFF37]"
-              width={32}
+              width={24}
             />
           </div>
         </motion.div>
-        <h1 className={title({ color: isDark ? "battleLime" : "battleNavy" })}>
-          Schedule Your Session
+        <h1
+          className={title({
+            color: isDark ? "battleLime" : "battleNavy",
+            size: "sm",
+          })}
+        >
+          Schedule Session
         </h1>
-        <p className="text-default-500 mt-2 max-w-md">
-          Choose when you want to compete. Peak hours offer faster matchmaking.
+        <p className="text-sm text-default-500 mt-1 max-w-md">
+          Choose when you want to compete
         </p>
       </div>
 
       {/* Live Activity Indicator */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
-        <Card className="rounded-none bg-gradient-to-r from-[#34445C]/5 via-transparent to-[#34445C]/5 dark:from-[#DCFF37]/5 dark:to-[#DCFF37]/5 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div
-                    className={cn(
-                      "w-3 h-3 rounded-full",
-                      getActivityColor(currentActivity.activity)
-                    )}
-                  />
-                  <div
-                    className={cn(
-                      "absolute inset-0 w-3 h-3 rounded-full animate-ping",
-                      getActivityColor(currentActivity.activity),
-                      "opacity-50"
-                    )}
-                  />
+      {currentActivity && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 sm:mb-6 px-2"
+        >
+          <Card className="rounded-none bg-gradient-to-r from-[#34445C]/5 via-transparent to-[#34445C]/5 dark:from-[#DCFF37]/5 dark:to-[#DCFF37]/5 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardBody className="p-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div
+                      className={cn(
+                        "w-3 h-3 rounded-full",
+                        getActivityColor(currentActivity.activity),
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "absolute inset-0 w-3 h-3 rounded-full animate-ping",
+                        getActivityColor(currentActivity.activity),
+                        "opacity-50",
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                      {getActivityLabel(currentActivity.activity)}
+                    </p>
+                    <p className="text-xs text-default-500">
+                      {currentActivity.playersOnline.toLocaleString()} players
+                      online now
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
-                    {getActivityLabel(currentActivity.activity)}
-                  </p>
-                  <p className="text-xs text-default-500">
-                    {currentActivity.playersOnline.toLocaleString()} players
-                    online now
-                  </p>
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <p className="text-xs text-default-500">Est. Wait</p>
+                    <p className="text-sm font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                      ~{Math.floor(currentActivity.estimatedWait / 60)}:
+                      {String(currentActivity.estimatedWait % 60).padStart(
+                        2,
+                        "0",
+                      )}
+                    </p>
+                  </div>
+                  <Divider orientation="vertical" className="h-8" />
+                  <div className="text-center">
+                    <p className="text-xs text-default-500">Your Time</p>
+                    <p className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
+                      {currentTime.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <p className="text-xs text-default-500">Est. Wait</p>
-                  <p className="text-sm font-bold text-[#FF4654] dark:text-[#DCFF37]">
-                    ~{Math.floor(currentActivity.estimatedWait / 60)}:
-                    {String(currentActivity.estimatedWait % 60).padStart(
-                      2,
-                      "0"
-                    )}
-                  </p>
-                </div>
-                <Divider orientation="vertical" className="h-8" />
-                <div className="text-center">
-                  <p className="text-xs text-default-500">Your Time</p>
-                  <p className="text-sm font-semibold text-[#34445C] dark:text-[#F5F0E1]">
-                    {now.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </motion.div>
+            </CardBody>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Mode Selection */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -395,7 +420,7 @@ const ScheduleInformationForm = React.forwardRef<
               "p-4 rounded-none border-2 transition-all duration-200 text-center",
               scheduleMode === mode.id
                 ? "border-[#FF4654] dark:border-[#DCFF37] bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 shadow-lg"
-                : "border-[#34445C]/20 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 bg-[#F5F0E1]/50 dark:bg-[#111111]/50"
+                : "border-[#34445C]/20 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 bg-[#F5F0E1]/50 dark:bg-[#111111]/50",
             )}
           >
             <Icon
@@ -405,7 +430,7 @@ const ScheduleInformationForm = React.forwardRef<
                 "mx-auto mb-2",
                 scheduleMode === mode.id
                   ? "text-[#FF4654] dark:text-[#DCFF37]"
-                  : "text-[#34445C]/60 dark:text-[#F5F0E1]/60"
+                  : "text-[#34445C]/60 dark:text-[#F5F0E1]/60",
               )}
             />
             <p
@@ -413,7 +438,7 @@ const ScheduleInformationForm = React.forwardRef<
                 "text-sm font-semibold",
                 scheduleMode === mode.id
                   ? "text-[#FF4654] dark:text-[#DCFF37]"
-                  : "text-[#34445C] dark:text-[#F5F0E1]"
+                  : "text-[#34445C] dark:text-[#F5F0E1]",
               )}
             >
               {mode.label}
@@ -463,7 +488,7 @@ const ScheduleInformationForm = React.forwardRef<
                       className="text-[#FF4654] dark:text-[#DCFF37]"
                     />
                     <span className="text-default-600">
-                      {currentActivity.playersOnline} online
+                      {currentActivity?.playersOnline ?? 0} online
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -472,7 +497,8 @@ const ScheduleInformationForm = React.forwardRef<
                       className="text-[#FF4654] dark:text-[#DCFF37]"
                     />
                     <span className="text-default-600">
-                      ~{Math.ceil(currentActivity.estimatedWait / 60)} min wait
+                      ~{Math.ceil((currentActivity?.estimatedWait ?? 60) / 60)}{" "}
+                      min wait
                     </span>
                   </div>
                 </div>
@@ -503,7 +529,7 @@ const ScheduleInformationForm = React.forwardRef<
                         "rounded-none",
                         slot.activity === "peak"
                           ? "bg-[#DCFF37]/20 text-[#34445C] dark:text-[#DCFF37] border border-[#DCFF37]/50"
-                          : "bg-[#FF4654]/10 text-[#FF4654] border border-[#FF4654]/30"
+                          : "bg-[#FF4654]/10 text-[#FF4654] border border-[#FF4654]/30",
                       )}
                     >
                       {formatHour(slot.hour)} -{" "}
@@ -556,7 +582,7 @@ const ScheduleInformationForm = React.forwardRef<
                           "p-3 rounded-none border-2 transition-all text-center",
                           isSelected
                             ? "border-[#FF4654] dark:border-[#DCFF37] bg-[#FF4654]/10 dark:bg-[#DCFF37]/10"
-                            : "border-transparent hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30"
+                            : "border-transparent hover:border-[#FF4654]/30 dark:hover:border-[#DCFF37]/30",
                         )}
                       >
                         <p
@@ -564,7 +590,7 @@ const ScheduleInformationForm = React.forwardRef<
                             "text-xs font-medium",
                             isSelected
                               ? "text-[#FF4654] dark:text-[#DCFF37]"
-                              : "text-default-500"
+                              : "text-default-500",
                           )}
                         >
                           {dayName}
@@ -574,7 +600,7 @@ const ScheduleInformationForm = React.forwardRef<
                             "text-lg font-bold",
                             isSelected
                               ? "text-[#FF4654] dark:text-[#DCFF37]"
-                              : "text-[#34445C] dark:text-[#F5F0E1]"
+                              : "text-[#34445C] dark:text-[#F5F0E1]",
                           )}
                         >
                           {dayNum}
@@ -651,7 +677,7 @@ const ScheduleInformationForm = React.forwardRef<
                               "p-2 rounded-none border transition-all relative",
                               selectedHour === slot.hour
                                 ? "border-[#FF4654] dark:border-[#DCFF37] ring-2 ring-[#FF4654]/50 dark:ring-[#DCFF37]/50"
-                                : "border-transparent hover:border-[#34445C]/30"
+                                : "border-transparent hover:border-[#34445C]/30",
                             )}
                           >
                             <div
@@ -661,7 +687,7 @@ const ScheduleInformationForm = React.forwardRef<
                                 slot.activity === "peak" ||
                                   slot.activity === "high"
                                   ? "text-white"
-                                  : "text-[#34445C]"
+                                  : "text-[#34445C]",
                               )}
                             >
                               {formatHour(slot.hour)}
@@ -748,7 +774,7 @@ const ScheduleInformationForm = React.forwardRef<
                     key={day.shortDay}
                     className={cn(
                       "grid grid-cols-[80px_repeat(4,1fr)] border-b last:border-b-0 border-[#34445C]/10 dark:border-[#DCFF37]/10",
-                      day.isWeekend && "bg-[#DCFF37]/5 dark:bg-[#DCFF37]/5"
+                      day.isWeekend && "bg-[#DCFF37]/5 dark:bg-[#DCFF37]/5",
                     )}
                   >
                     <div className="p-3 flex items-center">
@@ -781,7 +807,7 @@ const ScheduleInformationForm = React.forwardRef<
                             "p-3 border-l border-[#34445C]/10 dark:border-[#DCFF37]/10 transition-all",
                             isActive
                               ? "bg-gradient-to-r from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20"
-                              : "hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5"
+                              : "hover:bg-[#FF4654]/5 dark:hover:bg-[#DCFF37]/5",
                           )}
                         >
                           <div
@@ -789,7 +815,7 @@ const ScheduleInformationForm = React.forwardRef<
                               "w-full h-8 rounded-none flex items-center justify-center transition-all",
                               isActive
                                 ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                                : "bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                                : "bg-[#34445C]/10 dark:bg-[#DCFF37]/10",
                             )}
                           >
                             {isActive ? (
@@ -816,7 +842,7 @@ const ScheduleInformationForm = React.forwardRef<
 
             {/* Summary */}
             {Object.values(weeklyAvailability).some(
-              (blocks) => blocks.length > 0
+              (blocks) => blocks.length > 0,
             ) && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -848,7 +874,7 @@ const ScheduleInformationForm = React.forwardRef<
                                   .map(
                                     (b) =>
                                       TIME_BLOCKS.find((tb) => tb.id === b)
-                                        ?.label
+                                        ?.label,
                                   )
                                   .join(", ")}
                               </Chip>

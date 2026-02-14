@@ -47,7 +47,7 @@ npm run dev
 ```bash
 # From root directory
 cd ..
-make local-up
+make up
 ```
 
 ---

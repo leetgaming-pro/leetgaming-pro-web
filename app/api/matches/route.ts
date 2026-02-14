@@ -6,8 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/options';
+import { getBackendUrl } from '@/lib/api/backend-url';
 
-const REPLAY_API_URL = process.env.REPLAY_API_URL || 'http://localhost:3001';
+const REPLAY_API_URL = getBackendUrl();
 
 interface BackendPlayer {
   display_name?: string;

@@ -9,21 +9,13 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Card,
-  CardHeader,
   CardBody,
   CardFooter,
   Avatar,
-  AvatarGroup,
   Button,
   Chip,
   Tabs,
   Tab,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Skeleton,
   Divider,
   Progress,
@@ -42,10 +34,7 @@ import { useReplayApi } from "@/hooks/use-replay-api";
 import { useOptionalAuth } from "@/hooks";
 import { logger } from "@/lib/logger";
 
-import {
-  Squad as SquadBase,
-  SquadMembership,
-} from "@/types/replay-api/entities.types";
+import { Squad as SquadBase } from "@/types/replay-api/entities.types";
 
 /** Extended squad response from API */
 interface SquadAPIResponse extends SquadBase {
@@ -116,6 +105,7 @@ interface TeamProfile {
     result: "win" | "loss" | "tie";
     score: string;
     map: string;
+    map_name?: string;
   }>;
 }
 
@@ -215,7 +205,8 @@ export default function TeamDetailPage() {
               : undefined;
             const isTeamOwner =
               ownerUserId === user.id ||
-              userMembership?.roles?.includes("owner");
+              userMembership?.roles?.includes("owner") ||
+              false;
             setIsOwner(isTeamOwner);
           } else {
             setIsOwner(false);
@@ -631,7 +622,7 @@ export default function TeamDetailPage() {
                           </div>
                           <div className="text-sm text-default-500">
                             {new Date(match.date).toLocaleDateString()} •{" "}
-                            {match.map}
+                            {match.map_name || match.map}
                           </div>
                         </div>
                         <div className="text-right">

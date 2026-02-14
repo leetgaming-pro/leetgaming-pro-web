@@ -1,6 +1,6 @@
 "use client";
 
-import type {Selection} from "@nextui-org/react";
+import type { Selection } from "@nextui-org/react";
 
 import React from "react";
 import {
@@ -20,7 +20,7 @@ import {
   DropdownItem,
   Skeleton,
 } from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import { Icon } from "@iconify/react";
 
 import UserCell from "./user-cell";
 
@@ -45,11 +45,13 @@ export default function InviteMemberCard({
   className,
   members = [],
   isLoading = false,
-  onInvite,
+  onInvite: _onInvite,
   onCopyLink,
   onGetEmbedCode,
 }: InviteMemberCardProps) {
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set(["can-view"]));
+  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
+    new Set(["can-view"])
+  );
 
   const permissionLabels: Record<string, string> = {
     "can-view": "Can View",
@@ -101,7 +103,7 @@ export default function InviteMemberCard({
   }, [members, isLoading]);
 
   return (
-    <Card className={`w-full max-w-[400px] ${className || ''}`}>
+    <Card className={`w-full max-w-[400px] ${className || ""}`}>
       <CardHeader className="justify-center px-6 pb-0 pt-6">
         <div className="flex flex-col items-center">
           {members.length > 0 ? (

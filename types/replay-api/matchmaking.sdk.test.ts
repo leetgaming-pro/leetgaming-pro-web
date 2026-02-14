@@ -97,6 +97,11 @@ describe("MatchmakingAPI", () => {
         max_ping: 50,
         priority_boost: false,
         team_format: "5v5",
+        player_role: undefined,
+        map_preferences: undefined,
+        skill_range_min: 1000,
+        skill_range_max: 2000,
+        allow_cross_platform: false,
       });
     });
 
@@ -344,6 +349,9 @@ describe("MatchmakingAPI", () => {
     });
 
     it("should poll pool stats at interval", async () => {
+      // Use real timers for this test since the interval callback is async
+      jest.useRealTimers();
+
       const mockStats: PoolStatsResponse = {
         pool_id: "pool-123",
         game_id: "cs2",
@@ -363,12 +371,11 @@ describe("MatchmakingAPI", () => {
       const unsubscribe = matchmakingApi.subscribeToPoolUpdates(
         "cs2",
         callback,
-        1000
+        50 // short interval for fast test
       );
 
-      // Fast-forward
-      jest.advanceTimersByTime(1500);
-      await Promise.resolve();
+      // Wait enough time for at least one interval tick + async resolution
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       unsubscribe();
 

@@ -3,7 +3,7 @@
  * Global keyboard shortcut handler for application-wide hotkeys
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 
 type KeyboardShortcutHandler = () => void;
 

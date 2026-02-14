@@ -7,8 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import { forwardAuthenticatedRequest } from '@/lib/auth/server-auth';
+import { getBackendUrl } from '@/lib/api/backend-url';
 
-const BACKEND_URL = process.env.REPLAY_API_URL || 'http://localhost:30800';
+const BACKEND_URL = getBackendUrl();
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Update user profile
     if (profile) {
-      await forwardAuthenticatedRequest(
+      const profileResponse = await forwardAuthenticatedRequest(
         `${BACKEND_URL}/players/me`,
         {
           method: 'PATCH',
@@ -39,11 +40,14 @@ export async function POST(request: NextRequest) {
         },
         session
       );
+      if (!profileResponse.ok) {
+        console.warn('[API] Profile update failed during onboarding:', profileResponse.status);
+      }
     }
 
     // Update gaming preferences
     if (gamingPreferences) {
-      await forwardAuthenticatedRequest(
+      const prefsResponse = await forwardAuthenticatedRequest(
         `${BACKEND_URL}/players/me/preferences`,
         {
           method: 'PUT',
@@ -58,6 +62,9 @@ export async function POST(request: NextRequest) {
         },
         session
       );
+      if (!prefsResponse.ok) {
+        console.warn('[API] Preferences update failed during onboarding:', prefsResponse.status);
+      }
     }
 
     // Mark onboarding as complete

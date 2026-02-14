@@ -188,6 +188,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           </ListboxItem>
         );
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- renderItem and renderNestItem are mutually recursive; adding them would cause infinite re-creation
       [isCompact, hideEndContent, iconClassName, items],
     );
 
@@ -243,6 +244,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           </ListboxItem>
         );
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- renderNestItem and renderItem are mutually recursive; adding them would cause infinite re-creation
       [isCompact, hideEndContent, iconClassName, itemClasses?.base],
     );
 

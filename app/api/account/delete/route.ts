@@ -8,8 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import { forwardAuthenticatedRequest } from '@/lib/auth/server-auth';
+import { getBackendUrl } from '@/lib/api/backend-url';
 
-const BACKEND_URL = process.env.REPLAY_API_URL || 'http://localhost:30800';
+const BACKEND_URL = getBackendUrl();
 
 /**
  * POST /api/account/delete

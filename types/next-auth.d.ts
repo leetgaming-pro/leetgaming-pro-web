@@ -77,6 +77,8 @@ declare module 'next-auth' {
     google?: GoogleProfile;
     rid?: string;
     uid?: string;
+    role?: string;
+    isAdmin?: boolean;
   }
 }
 

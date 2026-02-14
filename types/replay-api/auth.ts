@@ -4,26 +4,31 @@
  * Based on replay-api/pkg/domain/rid_token.go
  */
 
-import { ResourceOwner } from './replay-file';
-import { IntendedAudienceKey, GrantType, RID_TOKEN_EXPIRATION_MS } from './settings';
-import { RIDToken, IdentifierSourceType } from './entities.types';
+import { ResourceOwner } from "./replay-file";
+import {
+  IntendedAudienceKey,
+  GrantType,
+  RID_TOKEN_EXPIRATION_MS,
+} from "./settings";
+import { RIDToken, IdentifierSourceType } from "./entities.types";
 
 /**
  * Session API endpoints for secure cookie-based authentication
+ * Note: Using /rid-session to avoid conflict with NextAuth's /session endpoint
  */
-const SESSION_API_BASE = '/api/auth';
-const SESSION_ENDPOINT = `${SESSION_API_BASE}/session`;
+const SESSION_API_BASE = "/api/auth";
+const SESSION_ENDPOINT = `${SESSION_API_BASE}/rid-session`;
 const HEADERS_ENDPOINT = `${SESSION_API_BASE}/headers`;
 
 /**
  * Cookie name for CSRF token (readable by client)
  */
-const CSRF_TOKEN_COOKIE = 'csrf_token';
+const CSRF_TOKEN_COOKIE = "csrf_token";
 
 /**
  * Cookie name for metadata (readable by client)
  */
-const RID_METADATA_COOKIE = 'rid_metadata';
+const RID_METADATA_COOKIE = "rid_metadata";
 
 /**
  * RID Token metadata for client-side management
@@ -89,21 +94,59 @@ export class RIDTokenManager {
    */
   async setToken(
     tokenId: string,
-    resourceOwner: ResourceOwner,
-    intendedAudience: IntendedAudienceKey = IntendedAudienceKey.UserAudienceIDKey
+    resourceOwner:
+      | ResourceOwner
+      | {
+          tenant_id: string;
+          client_id: string;
+          group_id: string | null;
+          user_id: string | null;
+        },
+    intendedAudience: IntendedAudienceKey = IntendedAudienceKey.UserAudienceIDKey,
   ): Promise<void> {
+    console.log(
+      "[RIDTokenManager] setToken starting, endpoint:",
+      SESSION_ENDPOINT,
+    );
     try {
+      // Handle both ResourceOwner class instance and plain object
+      const resourceOwnerData =
+        resourceOwner instanceof ResourceOwner
+          ? resourceOwner.toJSON()
+          : {
+              tenant_id:
+                (resourceOwner as any).tenant_id ||
+                (resourceOwner as any).tenantId,
+              client_id:
+                (resourceOwner as any).client_id ||
+                (resourceOwner as any).clientId,
+              group_id:
+                (resourceOwner as any).group_id ??
+                (resourceOwner as any).groupId ??
+                null,
+              user_id:
+                (resourceOwner as any).user_id ??
+                (resourceOwner as any).userId ??
+                null,
+            };
+
+      console.log(
+        "[RIDTokenManager] setToken posting to:",
+        SESSION_ENDPOINT,
+        "with resourceOwner:",
+        resourceOwnerData,
+      );
       const response = await fetch(SESSION_ENDPOINT, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           tokenId,
-          resourceOwner: resourceOwner.toJSON(),
+          resourceOwner: resourceOwnerData,
           intendedAudience,
         }),
-        credentials: 'include', // Include cookies in request
+        credentials: "include", // Include cookies in request
       });
 
       if (!response.ok) {
@@ -117,13 +160,13 @@ export class RIDTokenManager {
       this.metadata = {
         tokenId,
         expiresAt: data.expiresAt,
-        resourceOwner: resourceOwner.toJSON(),
+        resourceOwner: resourceOwnerData,
         intendedAudience,
       };
 
       this.scheduleRefresh();
     } catch (error) {
-      console.error('Failed to set token:', error);
+      console.error("Failed to set token:", error);
       throw error;
     }
   }
@@ -132,8 +175,14 @@ export class RIDTokenManager {
    * Set token from onboarding response
    */
   async setFromOnboarding(response: OnboardingResponse): Promise<void> {
+    console.log("[RIDTokenManager] setFromOnboarding called with:", {
+      hasRid: !!response.rid,
+      ridPrefix: response.rid?.substring(0, 8),
+      userId: response.user_id,
+    });
     const resourceOwner = ResourceOwner.fromUser(response.user_id);
     await this.setToken(response.rid, resourceOwner);
+    console.log("[RIDTokenManager] setFromOnboarding completed successfully");
   }
 
   /**
@@ -180,8 +229,8 @@ export class RIDTokenManager {
   async isAuthenticated(): Promise<boolean> {
     try {
       const response = await fetch(SESSION_ENDPOINT, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -191,7 +240,7 @@ export class RIDTokenManager {
       const data = await response.json();
       return data.authenticated === true;
     } catch (error) {
-      console.error('Failed to check authentication:', error);
+      console.error("Failed to check authentication:", error);
       return false;
     }
   }
@@ -211,21 +260,23 @@ export class RIDTokenManager {
     try {
       // Call API to clear httpOnly cookies (always try, server handles missing CSRF)
       await fetch(SESSION_ENDPOINT, {
-        method: 'DELETE',
-        headers: this.csrfToken ? {
-          'X-CSRF-Token': this.csrfToken,
-        } : {},
-        credentials: 'include',
+        method: "DELETE",
+        headers: this.csrfToken
+          ? {
+              "X-CSRF-Token": this.csrfToken,
+            }
+          : {},
+        credentials: "include",
       });
     } catch (error) {
-      console.error('Failed to clear session:', error);
+      console.error("Failed to clear session:", error);
     } finally {
       // Clear local state
       this.metadata = null;
       this.csrfToken = null;
 
       // Clear metadata cookie client-side as backup
-      if (typeof document !== 'undefined') {
+      if (typeof document !== "undefined") {
         document.cookie = `${RID_METADATA_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
         document.cookie = `${CSRF_TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       }
@@ -240,12 +291,15 @@ export class RIDTokenManager {
   /**
    * Get authentication headers for API requests
    * Calls server-side endpoint to read httpOnly cookie
+   *
+   * IMPORTANT: Handles expired tokens by clearing local state and
+   * returning empty headers to prevent 401 errors from backend.
    */
   async getAuthHeaders(): Promise<Record<string, string>> {
     try {
       const response = await fetch(HEADERS_ENDPOINT, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -253,9 +307,28 @@ export class RIDTokenManager {
       }
 
       const data = await response.json();
+
+      // If token is expired, clear local state and return empty headers
+      // This prevents stale tokens from being sent to the backend
+      if (data.expired) {
+        console.warn("[RIDTokenManager] Token expired, clearing local state");
+        this.metadata = null;
+        this.csrfToken = null;
+        if (this.refreshTimer) {
+          clearTimeout(this.refreshTimer);
+          this.refreshTimer = null;
+        }
+        // Clear metadata cookie client-side as backup
+        if (typeof document !== "undefined") {
+          document.cookie = `rid_metadata=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+          document.cookie = `csrf_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        }
+        return {};
+      }
+
       return data.headers || {};
     } catch (error) {
-      console.error('Failed to get auth headers:', error);
+      console.error("Failed to get auth headers:", error);
       return {};
     }
   }
@@ -270,12 +343,14 @@ export class RIDTokenManager {
   /**
    * Create fetch options with auth headers
    */
-  async createAuthFetchOptions(options: RequestInit = {}): Promise<RequestInit> {
+  async createAuthFetchOptions(
+    options: RequestInit = {},
+  ): Promise<RequestInit> {
     const authHeaders = await this.getAuthHeaders();
 
     return {
       ...options,
-      credentials: 'include', // Always include cookies
+      credentials: "include", // Always include cookies
       headers: {
         ...options.headers,
         ...authHeaders,
@@ -290,20 +365,20 @@ export class RIDTokenManager {
   async refreshToken(): Promise<boolean> {
     try {
       if (!this.csrfToken) {
-        console.error('No CSRF token available for refresh');
+        console.error("No CSRF token available for refresh");
         return false;
       }
 
       const response = await fetch(SESSION_ENDPOINT, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'X-CSRF-Token': this.csrfToken,
+          "X-CSRF-Token": this.csrfToken,
         },
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
-        console.error('Token refresh failed:', response.statusText);
+        console.error("Token refresh failed:", response.statusText);
         return false;
       }
 
@@ -317,7 +392,7 @@ export class RIDTokenManager {
 
       return true;
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
       return false;
     }
   }
@@ -327,16 +402,20 @@ export class RIDTokenManager {
    * Note: Token is in httpOnly cookie and not accessible
    */
   private loadMetadataFromCookie(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     try {
       // Read metadata from non-httpOnly cookie
-      const cookies = document.cookie.split(';');
-      const metaCookie = cookies.find(c => c.trim().startsWith(`${RID_METADATA_COOKIE}=`));
-      const csrfCookie = cookies.find(c => c.trim().startsWith(`${CSRF_TOKEN_COOKIE}=`));
+      const cookies = document.cookie.split(";");
+      const metaCookie = cookies.find((c) =>
+        c.trim().startsWith(`${RID_METADATA_COOKIE}=`),
+      );
+      const csrfCookie = cookies.find((c) =>
+        c.trim().startsWith(`${CSRF_TOKEN_COOKIE}=`),
+      );
 
       if (metaCookie) {
-        const metaValue = metaCookie.split('=')[1];
+        const metaValue = metaCookie.split("=")[1];
         this.metadata = JSON.parse(decodeURIComponent(metaValue));
 
         // Clear if expired
@@ -348,10 +427,10 @@ export class RIDTokenManager {
       }
 
       if (csrfCookie) {
-        this.csrfToken = csrfCookie.split('=')[1];
+        this.csrfToken = csrfCookie.split("=")[1];
       }
     } catch (error) {
-      console.error('Failed to load metadata from cookie:', error);
+      console.error("Failed to load metadata from cookie:", error);
     }
   }
 
@@ -359,11 +438,11 @@ export class RIDTokenManager {
    * Helper to get a cookie value by name
    */
   private getCookie(name: string): string | null {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
 
-    const cookies = document.cookie.split(';');
-    const cookie = cookies.find(c => c.trim().startsWith(`${name}=`));
-    return cookie ? cookie.split('=')[1] : null;
+    const cookies = document.cookie.split(";");
+    const cookie = cookies.find((c) => c.trim().startsWith(`${name}=`));
+    return cookie ? cookie.split("=")[1] : null;
   }
 
   /**
@@ -439,17 +518,18 @@ interface GuestTokenResponse {
  */
 export async function createGuestToken(): Promise<GuestTokenResponse | null> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'http://localhost:8080';
+    const apiUrl =
+      process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
 
     const response = await fetch(`${apiUrl}/auth/guest`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      console.error('Failed to create guest token:', response.statusText);
+      console.error("Failed to create guest token:", response.statusText);
       return null;
     }
 
@@ -458,21 +538,17 @@ export async function createGuestToken(): Promise<GuestTokenResponse | null> {
     if (data.success && data.token_id) {
       // Store the guest token in the session
       const manager = getRIDTokenManager();
+      const resourceOwner = ResourceOwner.fromUser(data.user_id || "");
       await manager.setToken(
         data.token_id,
-        {
-          tenant_id: 'default',
-          client_id: 'web',
-          group_id: null,
-          user_id: data.user_id || null,
-        } as any, // ResourceOwner requires specific format
-        IntendedAudienceKey.UserAudienceIDKey
+        resourceOwner,
+        IntendedAudienceKey.UserAudienceIDKey,
       );
     }
 
     return data;
   } catch (error) {
-    console.error('Error creating guest token:', error);
+    console.error("Error creating guest token:", error);
     return null;
   }
 }

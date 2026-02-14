@@ -183,6 +183,7 @@ export function PrivacySettings() {
   useEffect(() => {
     fetchDataExportStatus();
     fetchDeletionStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only effect; functions use stable settingsApi and setState
   }, []);
 
   // Fetch data export status using SDK

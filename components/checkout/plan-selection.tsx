@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 /**
  * Plan Selection Component
  * Uses SDK via useSubscription hook - DO NOT use direct fetch calls
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -16,16 +16,12 @@ import {
   Divider,
   Tab,
   Tabs,
-  Spinner,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { cn } from '@nextui-org/react';
-import { useCheckout } from './checkout-context';
-import {
-  PricingPlan,
-  BillingPeriod,
-} from './types';
-import { useSubscription } from '@/hooks/use-subscription';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { cn } from "@nextui-org/react";
+import { useCheckout } from "./checkout-context";
+import { PricingPlan, BillingPeriod } from "./types";
+import { useSubscription } from "@/hooks/use-subscription";
 
 // ============================================================================
 // Plan Data (Fallback if API fails)
@@ -33,70 +29,70 @@ import { useSubscription } from '@/hooks/use-subscription';
 
 export const DEFAULT_PRICING_PLANS: PricingPlan[] = [
   {
-    id: 'free',
-    key: 'free',
-    name: 'Free',
-    description: 'Perfect for casual gamers getting started.',
+    id: "free",
+    key: "free",
+    name: "Free",
+    description: "Perfect for casual gamers getting started.",
     price: {
       monthly: 0,
       quarterly: 0,
       yearly: 0,
-      currency: 'usd',
+      currency: "usd",
     },
     features: [
-      '5 replay uploads per month',
-      '1 GB cloud storage',
-      'Basic match statistics',
-      'Community access',
-      'Help center access',
+      "5 replay uploads per month",
+      "1 GB cloud storage",
+      "Basic match statistics",
+      "Community access",
+      "Help center access",
     ],
     stripePriceId: undefined,
   },
   {
-    id: 'pro',
-    key: 'pro',
-    name: 'Pro',
-    description: 'For competitive players who want an edge.',
+    id: "pro",
+    key: "pro",
+    name: "Pro",
+    description: "For competitive players who want an edge.",
     price: {
       monthly: 9.99,
       quarterly: 24.99,
       yearly: 79.99,
-      currency: 'usd',
+      currency: "usd",
     },
     features: [
-      'Unlimited replay uploads',
-      '50 GB cloud storage',
-      'Advanced analytics & heatmaps',
-      'Priority matchmaking',
-      'Custom highlights generator',
-      'Priority email support',
+      "Unlimited replay uploads",
+      "50 GB cloud storage",
+      "Advanced analytics & heatmaps",
+      "Priority matchmaking",
+      "Custom highlights generator",
+      "Priority email support",
     ],
     highlighted: true,
-    badge: 'Most Popular',
+    badge: "Most Popular",
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
   },
   {
-    id: 'team',
-    key: 'team',
-    name: 'Team',
-    description: 'For esports teams and organizations.',
+    id: "team",
+    key: "team",
+    name: "Team",
+    description: "For esports teams and organizations.",
     price: {
       monthly: 29.99,
       quarterly: 79.99,
       yearly: 249.99,
-      currency: 'usd',
+      currency: "usd",
     },
     features: [
-      'Everything in Pro',
-      '500 GB team storage',
-      'Team management dashboard',
-      'Scrim scheduling & tracking',
-      'API access & webhooks',
-      'Custom branding',
-      'Dedicated account manager',
-      'Phone & email support',
+      "Everything in Pro",
+      "500 GB team storage",
+      "Team management dashboard",
+      "Scrim scheduling & tracking",
+      "API access & webhooks",
+      "Custom branding",
+      "Dedicated account manager",
+      "Phone & email support",
     ],
-    badge: 'Best Value',
+    badge: "Best Value",
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_TEAM_PRICE_ID,
   },
 ];
@@ -110,9 +106,10 @@ export const PRICING_PLANS = DEFAULT_PRICING_PLANS;
 
 interface PlanSelectionProps {
   onSelectPlan?: (plan: PricingPlan) => void;
+  initialPlanId?: string;
 }
 
-export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
+export function PlanSelection({ onSelectPlan, initialPlanId }: PlanSelectionProps) {
   const {
     state,
     selectPlan,
@@ -124,8 +121,8 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
   // Use SDK-powered subscription hook instead of direct fetch
   const {
     plans: apiPlans,
-    isLoadingPlans: loading,
-    plansError: error,
+    isLoadingPlans: _loading,
+    plansError: _error,
   } = useSubscription(true);
 
   // Transform API plans to match PricingPlan interface, fallback to defaults
@@ -142,7 +139,7 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
           monthly: plan.price?.monthly || 0,
           quarterly: plan.price?.quarterly || 0,
           yearly: plan.price?.yearly || 0,
-          currency: plan.price?.currency || 'usd',
+          currency: plan.price?.currency || "usd",
         },
         features: plan.features || [],
         highlighted: plan.highlighted,
@@ -150,6 +147,14 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
         stripePriceId: plan.stripePriceId,
       }));
       setPlans(transformedPlans);
+
+      // Auto-select plan from URL query param if provided
+      if (initialPlanId && !state.selectedPlan) {
+        const matchingPlan = transformedPlans.find((p) => p.id === initialPlanId);
+        if (matchingPlan) {
+          handleSelectPlan(matchingPlan);
+        }
+      }
     }
   }, [apiPlans]);
 
@@ -160,21 +165,21 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
 
   const formatPrice = (plan: PricingPlan): string => {
     const price = getPriceForPeriod(plan);
-    if (price === 0) return 'Free';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    if (price === 0) return "Free";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: plan.price.currency.toUpperCase(),
     }).format(price);
   };
 
   const getPriceSuffix = (): string => {
     switch (state.billingPeriod) {
-      case 'monthly':
-        return '/month';
-      case 'quarterly':
-        return '/quarter';
-      case 'yearly':
-        return '/year';
+      case "monthly":
+        return "/month";
+      case "quarterly":
+        return "/quarter";
+      case "yearly":
+        return "/year";
     }
   };
 
@@ -187,11 +192,11 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
           selectedKey={state.billingPeriod}
           onSelectionChange={(key) => setBillingPeriod(key as BillingPeriod)}
           classNames={{
-            tabList: 'gap-2 bg-content2 p-1 rounded-full',
-            tab: 'px-4 h-10',
-            cursor: 'bg-primary',
+            tabList: "gap-2 bg-[#34445C]/50 p-1 rounded-none",
+            tab: "px-4 h-10 rounded-none",
+            cursor: "bg-[#FF4654] rounded-none",
           }}
-          radius="full"
+          radius="none"
           size="lg"
         >
           <Tab
@@ -199,7 +204,7 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
             title={
               <div className="flex items-center gap-2">
                 <span>Yearly</span>
-                <Chip color="success" size="sm" variant="flat">
+                <Chip size="sm" variant="flat" className="bg-[#DCFF37]/20 text-[#DCFF37]">
                   Save 33%
                 </Chip>
               </div>
@@ -212,7 +217,7 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
 
       {/* Plan Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {PRICING_PLANS.map((plan) => {
+        {plans.map((plan) => {
           const isHighlighted = plan.highlighted;
           const savings = getSavingsPercentage(plan);
 
@@ -220,18 +225,20 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
             <Card
               key={plan.id}
               className={cn(
-                'relative transition-all duration-300',
+                "relative transition-all duration-300 rounded-none",
                 isHighlighted
-                  ? 'border-2 border-primary shadow-lg shadow-primary/20 scale-105 z-10'
-                  : 'border border-content3 hover:border-primary/50'
+                  ? "border-2 border-[#DCFF37] shadow-lg shadow-[#DCFF37]/20 scale-105 z-10"
+                  : "border border-[#34445C] hover:border-[#FF4654]/50"
               )}
-              shadow={isHighlighted ? 'lg' : 'sm'}
+              shadow={isHighlighted ? "lg" : "sm"}
             >
               {plan.badge && (
                 <Chip
-                  color={isHighlighted ? 'primary' : 'default'}
                   variant="flat"
-                  className="absolute top-3 right-3 z-20"
+                  className={cn(
+                    "absolute top-3 right-3 z-20 rounded-none",
+                    isHighlighted ? "bg-[#DCFF37]/20 text-[#DCFF37]" : "bg-[#34445C]/50 text-[#F5F0E1]/70"
+                  )}
                   size="sm"
                 >
                   {plan.badge}
@@ -246,13 +253,17 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
               <CardBody className="px-6">
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{formatPrice(plan)}</span>
+                    <span className="text-4xl font-bold">
+                      {formatPrice(plan)}
+                    </span>
                     {plan.price.monthly > 0 && (
-                      <span className="text-default-500">{getPriceSuffix()}</span>
+                      <span className="text-default-500">
+                        {getPriceSuffix()}
+                      </span>
                     )}
                   </div>
-                  {savings > 0 && state.billingPeriod !== 'monthly' && (
-                    <p className="text-sm text-success mt-1">
+                  {savings > 0 && state.billingPeriod !== "monthly" && (
+                    <p className="text-sm text-[#DCFF37] mt-1">
                       Save {savings}% compared to monthly
                     </p>
                   )}
@@ -266,11 +277,13 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
                       <Icon
                         icon="solar:check-circle-bold"
                         className={cn(
-                          'w-5 h-5 mt-0.5 flex-shrink-0',
-                          isHighlighted ? 'text-primary' : 'text-success'
+                          "w-5 h-5 mt-0.5 flex-shrink-0",
+                          isHighlighted ? "text-[#DCFF37]" : "text-[#FFC700]"
                         )}
                       />
-                      <span className="text-sm text-default-600">{feature}</span>
+                      <span className="text-sm text-[#F5F0E1]/70">
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -279,15 +292,19 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
               <CardFooter className="px-6 pb-6">
                 <Button
                   fullWidth
-                  color={isHighlighted ? 'primary' : 'default'}
-                  variant={isHighlighted ? 'solid' : 'bordered'}
+                  variant={isHighlighted ? "solid" : "bordered"}
                   size="lg"
+                  radius="none"
                   onPress={() => handleSelectPlan(plan)}
                   className={cn(
-                    isHighlighted && 'shadow-lg shadow-primary/25'
+                    isHighlighted
+                      ? "bg-[#DCFF37] text-[#34445C] font-bold shadow-lg shadow-[#DCFF37]/25 hover:bg-[#DCFF37]/90"
+                      : "border-[#34445C] text-[#F5F0E1] hover:border-[#FF4654]"
                   )}
                 >
-                  {plan.price.monthly === 0 ? 'Get Started Free' : 'Select Plan'}
+                  {plan.price.monthly === 0
+                    ? "Get Started Free"
+                    : "Select Plan"}
                 </Button>
               </CardFooter>
             </Card>
@@ -297,16 +314,25 @@ export function PlanSelection({ onSelectPlan }: PlanSelectionProps) {
 
       {/* Trust Badges */}
       <div className="flex flex-wrap justify-center gap-6 pt-8">
-        <div className="flex items-center gap-2 text-default-500">
-          <Icon icon="solar:shield-check-bold" className="w-5 h-5 text-success" />
+        <div className="flex items-center gap-2 text-[#F5F0E1]/60">
+          <Icon
+            icon="solar:shield-check-bold"
+            className="w-5 h-5 text-[#DCFF37]"
+          />
           <span className="text-sm">Secure payments</span>
         </div>
-        <div className="flex items-center gap-2 text-default-500">
-          <Icon icon="solar:refresh-circle-bold" className="w-5 h-5 text-primary" />
+        <div className="flex items-center gap-2 text-[#F5F0E1]/60">
+          <Icon
+            icon="solar:refresh-circle-bold"
+            className="w-5 h-5 text-[#FF4654]"
+          />
           <span className="text-sm">Cancel anytime</span>
         </div>
-        <div className="flex items-center gap-2 text-default-500">
-          <Icon icon="solar:clock-circle-bold" className="w-5 h-5 text-warning" />
+        <div className="flex items-center gap-2 text-[#F5F0E1]/60">
+          <Icon
+            icon="solar:clock-circle-bold"
+            className="w-5 h-5 text-[#FFC700]"
+          />
           <span className="text-sm">30-day money back</span>
         </div>
       </div>

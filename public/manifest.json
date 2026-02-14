@@ -1,0 +1,83 @@
+{
+  "name": "LeetGaming",
+  "short_name": "LeetGaming",
+  "description": "Competitive esports platform with monetized matchmaking, escrow system, and skill-based tournaments",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#DCFF37",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["games", "sports", "entertainment"],
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshots/mobile-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "LeetGaming Home"
+    },
+    {
+      "src": "/images/screenshots/desktop-matchmaking.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "LeetGaming Matchmaking"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Match",
+      "short_name": "Match",
+      "description": "Start matchmaking",
+      "url": "/match-making",
+      "icons": [{ "src": "/icons/gamepad.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Wallet",
+      "short_name": "Wallet",
+      "description": "View wallet balance",
+      "url": "/wallet",
+      "icons": [{ "src": "/icons/wallet.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Leaderboard",
+      "short_name": "Ranks",
+      "description": "View rankings",
+      "url": "/leaderboard",
+      "icons": [{ "src": "/icons/trophy.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  }
+}

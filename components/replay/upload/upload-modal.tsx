@@ -1,18 +1,25 @@
 import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
-import { Icon } from '@iconify/react';
-import UploadContent from './upload-content';
-import { DeleteDocumentIcon, PlusIcon } from '@/components/icons';
-import { ChevronDownIcon } from "@/components/files/replays-table/ChevronDownIcon"
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import UploadContent from "./upload-content";
+import { PlusIcon, DeleteDocumentIcon } from "@/components/icons";
 
 export default function App() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
-    <div className='w-full'>
+    <div className="w-full">
       {/* Upload Button - Brand Colors */}
-      <Button 
-        onPress={onOpen} 
+      <Button
+        onPress={onOpen}
         className="esports-btn esports-btn-primary px-6"
         endContent={<PlusIcon />}
       >
@@ -20,9 +27,9 @@ export default function App() {
       </Button>
 
       {/* Upload Modal - Gaming Aesthetic */}
-      <Modal 
+      <Modal
         backdrop="opaque"
-        isOpen={isOpen} 
+        isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
         size="2xl"
@@ -60,18 +67,22 @@ export default function App() {
                 </div>
               </ModalHeader>
               <ModalBody className="leet-modal-body py-6">
-                <p className="text-center text-default-500 mb-4">Choose your preferred upload method:</p>
+                <p className="text-center text-default-500 mb-4">
+                  Choose your preferred upload method:
+                </p>
                 <UploadContent />
               </ModalBody>
               <ModalFooter className="leet-modal-footer gap-3">
-                <Button 
+                <Button
                   className="leet-modal-btn leet-modal-btn-secondary"
-                  onPress={onClose} 
-                  startContent={<DeleteDocumentIcon size={16} height={16} width={16} />}
+                  onPress={onClose}
+                  startContent={
+                    <DeleteDocumentIcon size={16} height={16} width={16} />
+                  }
                 >
                   Discard
                 </Button>
-                <Button 
+                <Button
                   className="leet-modal-btn leet-modal-btn-primary"
                   endContent={<Icon icon="solar:arrow-right-bold" width={18} />}
                   onPress={onOpen}

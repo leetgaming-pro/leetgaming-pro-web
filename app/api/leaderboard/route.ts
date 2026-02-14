@@ -4,8 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getBackendUrl } from '@/lib/api/backend-url';
 
-const REPLAY_API_URL = process.env.REPLAY_API_URL || 'http://localhost:3001';
+const REPLAY_API_URL = getBackendUrl();
 
 interface LeaderboardEntry {
   position?: number;

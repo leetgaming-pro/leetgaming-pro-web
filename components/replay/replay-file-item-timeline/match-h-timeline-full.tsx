@@ -2,18 +2,16 @@ import React, { useState } from "react";
 import TimelineWinnerCard, { getColor } from './winner-card';
 import { RoundData } from './types';
 import { electrolize } from "@/config/fonts";
-import { MapViewModeType, CSFilters } from "@/types/replay-api/searchable";
+import { MapViewModeType } from "@/types/replay-api/searchable";
 import { fetchRoundData } from "@/app/api/search/rounds";
 // import { ReplayPageProps } from "@/app/match/[matchid]/round/[roundnumber]/page";
 
-interface MatchTimelineData {
-  rounds: RoundData[]
-}
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function MatchTimelineHorizontalFull(props: any) {
-  const [viewModes, setViewModes] = useState<MapViewModeType[]>([MapViewModeType.MapHeatmapLayer]);
+  const [_viewModes, _setViewModes] = useState<MapViewModeType[]>([MapViewModeType.MapHeatmapLayer]);
   // Removed mock timeline data; expects real roundData from API
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const roundData: any | undefined = await fetchRoundData(props.filter)
 
   const getConditionalCard = (round: RoundData, side: string) => {
@@ -37,6 +35,7 @@ export default async function MatchTimelineHorizontalFull(props: any) {
     <div className={`relative w-full overflow-x-auto ${electrolize.className}`} {...props}>
       <div className="flex w-full py-2">
         <div className="flex w-full">
+          {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
           {[roundData!].map((round: RoundData, index: number) => (
             <React.Fragment key={index}> {/* Added Fragment to wrap multiple elements */}
               <div className={`flex flex-col w-6 mx-0.1rem pr-[0.1rem] ${electrolize.className}`}>

@@ -3,33 +3,37 @@
  * Premium 4-step withdrawal flow with security confirmations
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
   Input,
   Progress,
   Card,
   CardBody,
   Chip,
   Divider,
-} from '@nextui-org/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Icon } from '@iconify/react';
-import { useReplayApi } from '@/hooks/use-replay-api';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { SuccessCelebration } from '@/components/ui/success-confetti';
-import { modalAnimations, springs } from '@/lib/design/animations';
-import { designTokens } from '@/lib/design/tokens';
-import type { Currency } from '@/types/replay-api/wallet.types';
+  Button,
+} from "@nextui-org/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Icon } from "@iconify/react";
+import { useReplayApi } from "@/hooks/use-replay-api";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { SuccessCelebration } from "@/components/ui/success-confetti";
+import { modalAnimations, springs } from "@/lib/design/animations";
+import type { Currency } from "@/types/replay-api/wallet.types";
 
-type WithdrawStep = 'amount' | 'destination' | 'confirmation' | 'processing' | 'success';
+type WithdrawStep =
+  | "amount"
+  | "destination"
+  | "confirmation"
+  | "processing"
+  | "success";
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -44,25 +48,25 @@ export function WithdrawModal({
   onClose,
   onSuccess,
   availableBalance,
-  currency = 'USDC',
+  currency = "USDC",
 }: WithdrawModalProps) {
   const { sdk } = useReplayApi();
-  const [step, setStep] = useState<WithdrawStep>('amount');
-  const [amount, setAmount] = useState('');
-  const [destination, setDestination] = useState('');
+  const [step, setStep] = useState<WithdrawStep>("amount");
+  const [amount, setAmount] = useState("");
+  const [destination, setDestination] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState('');
-  const [transactionId, setTransactionId] = useState('');
+  const [error, setError] = useState("");
+  const [transactionId, setTransactionId] = useState("");
 
   // Reset on close
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
-        setStep('amount');
-        setAmount('');
-        setDestination('');
-        setError('');
-        setTransactionId('');
+        setStep("amount");
+        setAmount("");
+        setDestination("");
+        setError("");
+        setTransactionId("");
       }, 300);
     }
   }, [isOpen]);
@@ -81,57 +85,57 @@ export function WithdrawModal({
 
   const validateAmount = () => {
     if (amountValue <= 0) {
-      setError('Amount must be greater than 0');
+      setError("Amount must be greater than 0");
       return false;
     }
     if (amountValue > availableBalance) {
-      setError('Insufficient balance');
+      setError("Insufficient balance");
       return false;
     }
     if (amountValue < 10) {
-      setError('Minimum withdrawal is $10');
+      setError("Minimum withdrawal is $10");
       return false;
     }
-    setError('');
+    setError("");
     return true;
   };
 
   const validateDestination = () => {
     if (!destination.trim()) {
-      setError('Destination address is required');
+      setError("Destination address is required");
       return false;
     }
     // Basic EVM address validation
     if (!/^0x[a-fA-F0-9]{40}$/.test(destination.trim())) {
-      setError('Invalid EVM address format');
+      setError("Invalid EVM address format");
       return false;
     }
-    setError('');
+    setError("");
     return true;
   };
 
   const handleAmountNext = () => {
     if (validateAmount()) {
-      setStep('destination');
+      setStep("destination");
     }
   };
 
   const handleDestinationNext = () => {
     if (validateDestination()) {
-      setStep('confirmation');
+      setStep("confirmation");
     }
   };
 
   const handleWithdraw = async () => {
     setIsProcessing(true);
-    setStep('processing');
-    setError('');
+    setStep("processing");
+    setError("");
 
     try {
       const result = await sdk.wallet.withdraw({
         currency,
         amount: amountValue,
-        destination_address: destination.trim(),
+        to_address: destination.trim(),
         metadata: {
           net_amount: netAmount,
           fee: fee,
@@ -140,22 +144,26 @@ export function WithdrawModal({
 
       if (result) {
         setTransactionId(result.id);
-        setStep('success');
+        setStep("success");
         onSuccess?.();
       } else {
-        throw new Error('Withdrawal request failed');
+        throw new Error("Withdrawal request failed");
       }
     } catch (err) {
-      console.error('Withdrawal error:', err);
-      setError(err instanceof Error ? err.message : 'Withdrawal failed. Please try again.');
-      setStep('confirmation');
+      console.error("Withdrawal error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Withdrawal failed. Please try again.",
+      );
+      setStep("confirmation");
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleClose = () => {
-    if (step === 'success') {
+    if (step === "success") {
       onClose();
     } else if (!isProcessing) {
       onClose();
@@ -169,8 +177,8 @@ export function WithdrawModal({
       size="2xl"
       placement="center"
       classNames={{
-        base: 'bg-background',
-        backdrop: 'bg-black/80 backdrop-blur-sm',
+        base: "bg-background",
+        backdrop: "bg-black/80 backdrop-blur-sm",
       }}
       motionProps={{
         variants: modalAnimations.center,
@@ -183,7 +191,10 @@ export function WithdrawModal({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-warning-100 p-2 dark:bg-warning-900/30">
-                <Icon icon="solar:alt-arrow-right-bold" className="h-5 w-5 text-warning-600 dark:text-warning-400" />
+                <Icon
+                  icon="solar:alt-arrow-right-bold"
+                  className="h-5 w-5 text-warning-600 dark:text-warning-400"
+                />
               </div>
               <div>
                 <h2 className="text-xl font-semibold">Withdraw Funds</h2>
@@ -198,14 +209,14 @@ export function WithdrawModal({
             color="warning"
             className="mt-2"
             classNames={{
-              indicator: 'transition-all duration-500 ease-out',
+              indicator: "transition-all duration-500 ease-out",
             }}
           />
         </ModalHeader>
 
         <ModalBody className="gap-4 py-4">
           <AnimatePresence mode="wait">
-            {step === 'amount' && (
+            {step === "amount" && (
               <AmountStep
                 key="amount"
                 amount={amount}
@@ -218,7 +229,7 @@ export function WithdrawModal({
               />
             )}
 
-            {step === 'destination' && (
+            {step === "destination" && (
               <DestinationStep
                 key="destination"
                 destination={destination}
@@ -227,7 +238,7 @@ export function WithdrawModal({
               />
             )}
 
-            {step === 'confirmation' && (
+            {step === "confirmation" && (
               <ConfirmationStep
                 key="confirmation"
                 amount={amountValue}
@@ -239,11 +250,9 @@ export function WithdrawModal({
               />
             )}
 
-            {step === 'processing' && (
-              <ProcessingStep key="processing" />
-            )}
+            {step === "processing" && <ProcessingStep key="processing" />}
 
-            {step === 'success' && (
+            {step === "success" && (
               <SuccessStep
                 key="success"
                 amount={netAmount}
@@ -255,7 +264,7 @@ export function WithdrawModal({
         </ModalBody>
 
         <ModalFooter className="pt-2">
-          {step === 'amount' && (
+          {step === "amount" && (
             <>
               <Button variant="light" onPress={handleClose}>
                 Cancel
@@ -263,45 +272,57 @@ export function WithdrawModal({
               <Button
                 color="warning"
                 onPress={handleAmountNext}
-                startContent={<Icon icon="solar:alt-arrow-right-bold" className="h-4 w-4" />}
+                startContent={
+                  <Icon icon="solar:alt-arrow-right-bold" className="h-4 w-4" />
+                }
               >
                 Continue
               </Button>
             </>
           )}
 
-          {step === 'destination' && (
+          {step === "destination" && (
             <>
-              <Button variant="light" onPress={() => setStep('amount')}>
+              <Button variant="light" onPress={() => setStep("amount")}>
                 Back
               </Button>
               <Button
                 color="warning"
                 onPress={handleDestinationNext}
-                startContent={<Icon icon="solar:shield-keyhole-bold" className="h-4 w-4" />}
+                startContent={
+                  <Icon icon="solar:shield-keyhole-bold" className="h-4 w-4" />
+                }
               >
                 Review Withdrawal
               </Button>
             </>
           )}
 
-          {step === 'confirmation' && (
+          {step === "confirmation" && (
             <>
-              <Button variant="light" onPress={() => setStep('destination')} isDisabled={isProcessing}>
+              <Button
+                variant="light"
+                onPress={() => setStep("destination")}
+                isDisabled={isProcessing}
+              >
                 Back
               </Button>
               <Button
                 color="warning"
                 onPress={handleWithdraw}
                 isLoading={isProcessing}
-                startContent={!isProcessing ? <Icon icon="solar:check-circle-bold" className="h-4 w-4" /> : null}
+                startContent={
+                  !isProcessing ? (
+                    <Icon icon="solar:check-circle-bold" className="h-4 w-4" />
+                  ) : null
+                }
               >
-                {isProcessing ? 'Processing...' : 'Confirm Withdrawal'}
+                {isProcessing ? "Processing..." : "Confirm Withdrawal"}
               </Button>
             </>
           )}
 
-          {step === 'success' && (
+          {step === "success" && (
             <Button color="success" onPress={handleClose} className="w-full">
               Done
             </Button>
@@ -344,7 +365,10 @@ function AmountStep({
       <Card className="bg-warning-50 dark:bg-warning-900/20">
         <CardBody className="flex-row items-center justify-between py-3">
           <div className="flex items-center gap-2">
-            <Icon icon="solar:wallet-bold-duotone" className="h-4 w-4 text-warning-600 dark:text-warning-400" />
+            <Icon
+              icon="solar:wallet-bold-duotone"
+              className="h-4 w-4 text-warning-600 dark:text-warning-400"
+            />
             <span className="text-sm text-warning-700 dark:text-warning-300">
               Available Balance
             </span>
@@ -367,8 +391,8 @@ function AmountStep({
         isInvalid={!!error}
         errorMessage={error}
         classNames={{
-          input: 'text-2xl font-semibold',
-          inputWrapper: 'h-14',
+          input: "text-2xl font-semibold",
+          inputWrapper: "h-14",
         }}
         autoFocus
       />
@@ -379,7 +403,7 @@ function AmountStep({
           <Button
             key={quickAmount}
             size="sm"
-            variant={amount === quickAmount.toString() ? 'solid' : 'bordered'}
+            variant={amount === quickAmount.toString() ? "solid" : "bordered"}
             color="warning"
             onPress={() => setAmount(quickAmount.toString())}
             isDisabled={quickAmount > availableBalance}
@@ -393,21 +417,27 @@ function AmountStep({
       {parseFloat(amount) > 0 && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
+          animate={{ opacity: 1, height: "auto" }}
           className="space-y-2 rounded-lg bg-default-100 p-3 dark:bg-default-50"
         >
           <div className="flex items-center justify-between text-sm">
             <span className="text-default-600">Withdrawal Amount</span>
-            <span className="font-medium">${parseFloat(amount).toFixed(2)}</span>
+            <span className="font-medium">
+              ${parseFloat(amount).toFixed(2)}
+            </span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-default-600">Network Fee (2%)</span>
-            <span className="font-medium text-warning-600">-${fee.toFixed(2)}</span>
+            <span className="font-medium text-warning-600">
+              -${fee.toFixed(2)}
+            </span>
           </div>
           <Divider />
           <div className="flex items-center justify-between text-sm font-semibold">
             <span>You Will Receive</span>
-            <span className="text-lg text-success-600">${netAmount.toFixed(2)}</span>
+            <span className="text-lg text-success-600">
+              ${netAmount.toFixed(2)}
+            </span>
           </div>
         </motion.div>
       )}
@@ -416,7 +446,10 @@ function AmountStep({
       <Card className="border-l-4 border-warning-500 bg-warning-50/50 dark:bg-warning-900/10">
         <CardBody className="gap-2 py-3">
           <div className="flex items-start gap-2">
-            <Icon icon="solar:info-circle-bold" className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-600" />
+            <Icon
+              icon="solar:info-circle-bold"
+              className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-600"
+            />
             <div className="space-y-1 text-xs text-warning-700 dark:text-warning-400">
               <p>• Minimum withdrawal: $10</p>
               <p>• Processing time: 1-3 business days</p>
@@ -451,13 +484,17 @@ function DestinationStep({
       <Card className="border-l-4 border-warning-500 bg-warning-50 dark:bg-warning-900/20">
         <CardBody className="gap-2 py-3">
           <div className="flex items-start gap-2">
-            <Icon icon="solar:shield-keyhole-bold" className="mt-0.5 h-5 w-5 flex-shrink-0 text-warning-600" />
+            <Icon
+              icon="solar:shield-keyhole-bold"
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-warning-600"
+            />
             <div className="space-y-1">
               <p className="font-semibold text-warning-700 dark:text-warning-300">
                 Security Reminder
               </p>
               <p className="text-sm text-warning-600 dark:text-warning-400">
-                Double-check the destination address. Cryptocurrency transactions are irreversible.
+                Double-check the destination address. Cryptocurrency
+                transactions are irreversible.
               </p>
             </div>
           </div>
@@ -474,7 +511,7 @@ function DestinationStep({
         isInvalid={!!error}
         errorMessage={error}
         classNames={{
-          input: 'font-mono text-sm',
+          input: "font-mono text-sm",
         }}
         autoFocus
       />
@@ -534,8 +571,13 @@ function ConfirmationStep({
         <Card className="border-l-4 border-danger-500 bg-danger-50 dark:bg-danger-900/20">
           <CardBody className="gap-2 py-3">
             <div className="flex items-start gap-2">
-              <Icon icon="solar:danger-circle-bold" className="mt-0.5 h-5 w-5 flex-shrink-0 text-danger-600" />
-              <p className="text-sm text-danger-600 dark:text-danger-400">{error}</p>
+              <Icon
+                icon="solar:danger-circle-bold"
+                className="mt-0.5 h-5 w-5 flex-shrink-0 text-danger-600"
+              />
+              <p className="text-sm text-danger-600 dark:text-danger-400">
+                {error}
+              </p>
             </div>
           </CardBody>
         </Card>
@@ -548,7 +590,8 @@ function ConfirmationStep({
             <div>
               <p className="text-xs text-default-500">Withdrawal Amount</p>
               <p className="text-2xl font-bold">
-                ${amount.toFixed(2)} <span className="text-base text-default-500">{currency}</span>
+                ${amount.toFixed(2)}{" "}
+                <span className="text-base text-default-500">{currency}</span>
               </p>
             </div>
 
@@ -556,7 +599,9 @@ function ConfirmationStep({
 
             <div>
               <p className="text-xs text-default-500">Destination Address</p>
-              <p className="break-all font-mono text-sm font-medium">{destination}</p>
+              <p className="break-all font-mono text-sm font-medium">
+                {destination}
+              </p>
             </div>
 
             <Divider />
@@ -568,12 +613,16 @@ function ConfirmationStep({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-default-600">Network Fee</span>
-                <span className="font-medium text-warning-600">-${fee.toFixed(2)}</span>
+                <span className="font-medium text-warning-600">
+                  -${fee.toFixed(2)}
+                </span>
               </div>
               <Divider />
               <div className="flex justify-between font-semibold">
                 <span>Total to Receive</span>
-                <span className="text-lg text-success-600">${netAmount.toFixed(2)}</span>
+                <span className="text-lg text-success-600">
+                  ${netAmount.toFixed(2)}
+                </span>
               </div>
             </div>
           </div>
@@ -584,13 +633,17 @@ function ConfirmationStep({
       <Card className="border-l-4 border-danger-500 bg-danger-50 dark:bg-danger-900/20">
         <CardBody className="gap-2 py-3">
           <div className="flex items-start gap-2">
-            <Icon icon="solar:danger-circle-bold" className="mt-0.5 h-5 w-5 flex-shrink-0 text-danger-600" />
+            <Icon
+              icon="solar:danger-circle-bold"
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-danger-600"
+            />
             <div className="space-y-1">
               <p className="font-semibold text-danger-700 dark:text-danger-300">
                 Final Confirmation
               </p>
               <p className="text-sm text-danger-600 dark:text-danger-400">
-                This action cannot be undone. Verify all details before proceeding.
+                This action cannot be undone. Verify all details before
+                proceeding.
               </p>
             </div>
           </div>
@@ -612,14 +665,19 @@ function ProcessingStep() {
     >
       <motion.div
         animate={{ rotate: 360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
         className="rounded-full bg-warning-100 p-4 dark:bg-warning-900/30"
       >
-        <Icon icon="solar:alt-arrow-right-bold" className="h-8 w-8 text-warning-600 dark:text-warning-400" />
+        <Icon
+          icon="solar:alt-arrow-right-bold"
+          className="h-8 w-8 text-warning-600 dark:text-warning-400"
+        />
       </motion.div>
       <div className="text-center">
         <h3 className="text-xl font-semibold">Processing Withdrawal</h3>
-        <p className="text-sm text-default-500">Please wait while we process your request...</p>
+        <p className="text-sm text-default-500">
+          Please wait while we process your request...
+        </p>
       </div>
     </motion.div>
   );
@@ -652,10 +710,10 @@ function SuccessStep({
       <div className="text-center">
         <h3 className="text-2xl font-bold">Withdrawal Initiated!</h3>
         <p className="mt-2 text-default-600">
-          Your withdrawal of{' '}
+          Your withdrawal of{" "}
           <span className="font-semibold text-success-600">
             ${amount.toFixed(2)} {currency}
-          </span>{' '}
+          </span>{" "}
           is being processed
         </p>
       </div>
@@ -664,11 +722,16 @@ function SuccessStep({
         <CardBody className="gap-3 p-4">
           <div>
             <p className="text-xs text-default-500">Transaction ID</p>
-            <p className="break-all font-mono text-sm font-medium">{transactionId}</p>
+            <p className="break-all font-mono text-sm font-medium">
+              {transactionId}
+            </p>
           </div>
           <Divider />
           <div className="flex items-start gap-2 text-sm text-default-600">
-            <Icon icon="solar:clock-circle-bold" className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <Icon
+              icon="solar:clock-circle-bold"
+              className="mt-0.5 h-4 w-4 flex-shrink-0"
+            />
             <p>Expected arrival: 1-3 business days</p>
           </div>
         </CardBody>

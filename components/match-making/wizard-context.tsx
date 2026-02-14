@@ -12,7 +12,9 @@ import React, {
   useEffect,
   useRef,
   ReactNode,
+  useCallback,
 } from "react";
+import { useRouter } from "next/navigation";
 import { DistributionRule } from "./prize-distribution-selector";
 import { MatchmakingAPI } from "@/types/replay-api/matchmaking.sdk";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
@@ -25,32 +27,39 @@ import type {
 import { ensureSession, createGuestToken } from "@/types/replay-api/auth";
 
 export interface WizardState {
-  // Step 0: Region
-  region: string;
-
-  // Step 1: Game Mode / Tier
-  gameMode: string;
+  // Step 0: Tier Selection
   tier?: "free" | "premium" | "pro" | "elite";
 
-  // Step 2: Squad
+  // Step 1: Game Selection (NEW)
+  selectedGame?: string; // Game ID (e.g., 'cs2', 'valorant')
+  selectedProfileId?: string; // Profile ID for the selected game
+
+  // Step 2: Region
+  region: string;
+
+  // Step 3: Game Mode
+  gameMode: string;
+
+  // Step 4: Squad
   squadId?: string;
   teamType?: "solo" | "duo" | "squad";
   selectedFriends?: string[];
 
-  // Step 3: Schedule (optional for instant matchmaking)
+  // Step 5: Schedule (optional for instant matchmaking)
   scheduleStart?: Date;
   scheduleEnd?: Date;
   weeklyRoutine?: string[];
+  scheduleType?: "now" | "time-frames" | "weekly-routine";
   schedule?: {
     timeWindow?: string;
     weeklyRoutine?: string[];
   };
 
-  // Step 4: Prize Distribution
+  // Step 6: Prize Distribution
   distributionRule: DistributionRule;
   expectedPool?: number;
 
-  // Step 5: Review
+  // Step 7: Review
   confirmed?: boolean;
 
   // Matchmaking State
@@ -82,6 +91,39 @@ const matchmakingSDK = sdk.matchmaking;
 export function WizardProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<WizardState>(initialState);
   const elapsedTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
+
+  // Handle match found — navigate to the match/lobby
+  const handleMatchFound = useCallback(
+    (matchId?: string, lobbyId?: string) => {
+      matchmakingSDK.stopPolling();
+      if (elapsedTimeIntervalRef.current) {
+        clearInterval(elapsedTimeIntervalRef.current);
+        elapsedTimeIntervalRef.current = null;
+      }
+
+      setState((prev) => ({
+        ...prev,
+        matchmaking: prev.matchmaking
+          ? {
+              ...prev.matchmaking,
+              isSearching: false,
+              matchId,
+              lobbyId,
+            }
+          : prev.matchmaking,
+      }));
+
+      // Navigate to the match detail page
+      if (matchId) {
+        const gameId = state.selectedGame || "cs2";
+        router.push(`/matches/${gameId}/${matchId}`);
+      } else if (lobbyId) {
+        router.push(`/matches?lobby=${lobbyId}`);
+      }
+    },
+    [router, state.selectedGame],
+  );
 
   // Auto-increment elapsed time every second during matchmaking
   useEffect(() => {
@@ -158,7 +200,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         player_id: playerId,
         squad_id: state.squadId,
         preferences: {
-          game_id: "cs2",
+          game_id: state.selectedGame || "cs2", // Use selected game from wizard state
           game_mode: state.gameMode || "competitive",
           region: state.region || "na-east",
           skill_range: { min_mmr: 1000, max_mmr: 2000 },
@@ -168,6 +210,10 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           priority_boost: state.tier === "elite" || state.tier === "pro",
         },
         player_mmr: 1500,
+        distribution_rule: state.distributionRule,
+        entry_fee_cents: state.expectedPool
+          ? Math.round(state.expectedPool * 100)
+          : undefined,
       });
 
       if (!response) {
@@ -190,6 +236,41 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
       // Start polling for updates
       matchmakingSDK.startPolling(response.session_id, (status) => {
+        // Check if match was found
+        if (
+          status.status === "matched" ||
+          status.status === "match_found" ||
+          status.match_id ||
+          status.lobby_id
+        ) {
+          handleMatchFound(status.match_id, status.lobby_id);
+          return;
+        }
+
+        // Check for terminal error states
+        if (
+          status.status === "cancelled" ||
+          status.status === "expired" ||
+          status.status === "error"
+        ) {
+          matchmakingSDK.stopPolling();
+          setState((prev) => ({
+            ...prev,
+            matchmaking: prev.matchmaking
+              ? {
+                  ...prev.matchmaking,
+                  isSearching: false,
+                  error:
+                    status.status === "expired"
+                      ? "QUEUE_TIMEOUT"
+                      : "NETWORK_ERROR",
+                }
+              : prev.matchmaking,
+          }));
+          return;
+        }
+
+        // Update queue stats
         setState((prev) => ({
           ...prev,
           matchmaking: prev.matchmaking

@@ -33,7 +33,7 @@ async function performLogin(page: Page): Promise<void> {
   await page.click('button[type="submit"]');
 
   // Wait for redirect after login
-  await page.waitForURL('**/dashboard/**', { timeout: 10000 });
+  await page.waitForURL('**/home/**', { timeout: 10000 });
 }
 
 /**

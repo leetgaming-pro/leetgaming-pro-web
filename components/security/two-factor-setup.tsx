@@ -22,6 +22,8 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSDK } from "@/contexts/sdk-context";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // Types
@@ -86,32 +88,6 @@ const METHOD_INFO: Record<
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-// Generate mock TOTP secret (in production, this comes from the API)
-const generateMockSecret = (): TwoFactorSecret => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let secret = "";
-  for (let i = 0; i < 32; i++) {
-    secret += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  // Generate backup codes
-  const backupCodes: string[] = [];
-  for (let i = 0; i < 10; i++) {
-    const code =
-      Math.random().toString(36).substring(2, 6).toUpperCase() +
-      "-" +
-      Math.random().toString(36).substring(2, 6).toUpperCase();
-    backupCodes.push(code);
-  }
-
-  return {
-    secret,
-    qrCodeUri: `otpauth://totp/LeetGaming.PRO?secret=${secret}&issuer=LeetGaming.PRO`,
-    backupCodes,
-    method: "totp",
-  };
-};
 
 // ============================================================================
 // Sub-Components
@@ -486,24 +462,40 @@ export function TwoFactorSetup({
     }
   }, [isOpen]);
 
+  const { sdk } = useSDK();
+
   const handleMethodSelect = async (method: TwoFactorMethod) => {
     setSelectedMethod(method);
     setIsLoading(true);
     setError(null);
 
     try {
-      // In production: POST /api/v1/users/2fa/enable
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const mfaResult = await sdk.auth.setupMFA();
 
-      if (method === "totp") {
-        const newSecret = generateMockSecret();
-        setSecret(newSecret);
+      if (method === "totp" && mfaResult) {
+        setSecret({
+          secret: mfaResult.secret,
+          qrCodeUri: mfaResult.qr_code_url || `otpauth://totp/LeetGaming.PRO?secret=${mfaResult.secret}&issuer=LeetGaming.PRO`,
+          backupCodes: mfaResult.recovery_codes || [],
+          method: "totp",
+        });
         setStep("scan-qr");
-      } else {
+      } else if (mfaResult) {
         // For SMS/email, skip to verification
+        if (mfaResult.recovery_codes) {
+          setSecret({
+            secret: mfaResult.secret,
+            qrCodeUri: "",
+            backupCodes: mfaResult.recovery_codes,
+            method,
+          });
+        }
         setStep("verify");
+      } else {
+        setError("Failed to initialize 2FA. The server did not return setup data.");
       }
-    } catch {
+    } catch (err) {
+      logger.error("[2FA] Setup error:", err);
       setError("Failed to initialize 2FA setup. Please try again.");
     } finally {
       setIsLoading(false);
@@ -521,16 +513,15 @@ export function TwoFactorSetup({
     setError(null);
 
     try {
-      // In production: POST /api/v1/users/2fa/verify
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await sdk.auth.confirmMFASetup(code);
 
-      // Simulate verification (in production, validate code server-side)
-      if (code === "123456" || code.length === 6) {
+      if (result?.success) {
         setStep("backup-codes");
       } else {
-        setError("Invalid code. Please try again.");
+        setError(result?.message || "Invalid code. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      logger.error("[2FA] Verification error:", err);
       setError("Verification failed. Please try again.");
     } finally {
       setIsLoading(false);

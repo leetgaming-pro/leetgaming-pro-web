@@ -6,13 +6,15 @@ import React from "react";
 import {Input, Checkbox, Link, Divider} from "@nextui-org/react";
 import {Icon} from "@iconify/react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SteamIcon } from "../icons";
 import { GoogleIcon } from "./social";
 import { EsportsButton } from "../ui/esports-button";
 
 export default function SignInBlurreds() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/match-making";
   const [isVisible, setIsVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -37,7 +39,7 @@ export default function SignInBlurreds() {
       if (result?.error) {
         setError(result.error === 'CredentialsSignin' ? 'Invalid email or password' : result.error);
       } else if (result?.ok) {
-        router.push('/match-making');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (err) {
@@ -158,7 +160,7 @@ export default function SignInBlurreds() {
             variant="action"
             size="lg"
             fullWidth
-            onClick={() => signIn("steam", { callbackUrl: "/match-making" })}
+            onClick={() => signIn("steam", { callbackUrl })}
           >
             <SteamIcon />
             Continue with Steam
@@ -167,7 +169,7 @@ export default function SignInBlurreds() {
             variant="ghost"
             size="lg"
             fullWidth
-            onClick={() => signIn("google", { callbackUrl: "/match-making" })}
+            onClick={() => signIn("google", { callbackUrl })}
           >
             <GoogleIcon width={24} />
             Continue with Google

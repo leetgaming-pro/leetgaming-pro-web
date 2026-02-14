@@ -14,7 +14,8 @@
     --leet-lime: 220, 255, 55; /* #DCFF37 - Signature lime */
     --leet-orange: 255, 70, 84; /* #FF4654 - Battle orange/red */
     --leet-gold: 255, 199, 0; /* #FFC700 - Gold accent */
-    --leet-cream: 245, 240, 225; /* #F5F0E1 - Warm cream (replaces pure white) */
+    --leet-cream:
+      245, 240, 225; /* #F5F0E1 - Warm cream (replaces pure white) */
     --leet-black: 10, 10, 10; /* #0a0a0a - Rich black */
 
     /* IMPORTANT: Use --leet-cream instead of white for brand consistency */
@@ -670,7 +671,8 @@
   font-size: 4rem;
   /* Adjust the font size as needed */
   margin-bottom: 1rem;
-  text-shadow: 0 0 1px #f5f0e1,
+  text-shadow:
+    0 0 1px #f5f0e1,
     /* Smaller, brighter inner glow */ 0 0 8px #f5f0e1,
     /* Medium glow */ 0 0 1px #34445c;
   /* Larger, softer outer glow */
@@ -679,7 +681,8 @@
 .hero-title b {
   color: #f5f0e1;
   /* Cream color for the text */
-  text-shadow: 0 0 5px #f2f2f2,
+  text-shadow:
+    0 0 5px #f2f2f2,
     /* Smaller, brighter inner glow */ 0 0 10px #f2f2f2,
     /* Medium glow */ 0 0 20px #34445c;
   /* Larger, softer outer glow */
@@ -823,7 +826,9 @@
   align-items: center;
   margin-bottom: 2px;
   color: #f5f5f5;
-  text-shadow: 0 0 1px #333, 0 0 10px #333;
+  text-shadow:
+    0 0 1px #333,
+    0 0 10px #333;
   background: linear-gradient(to right, rgba(52, 68, 92, 0.5) 1%, transparent);
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
@@ -837,7 +842,9 @@
   align-items: center;
   margin-bottom: 2px;
   color: #f5f5f5;
-  text-shadow: 0 0 1px #333, 0 0 10px #333;
+  text-shadow:
+    0 0 1px #333,
+    0 0 10px #333;
   background: linear-gradient(to right, rgba(52, 68, 92, 0.5) 1%, transparent);
   border-top-left-radius: 50px;
   border-bottom-left-radius: 50px;
@@ -993,33 +1000,38 @@
 .esports-btn-primary {
   background: linear-gradient(135deg, #34445c 0%, #2a3749 50%, #34445c 100%);
   color: #f5f0e1;
-  box-shadow: 0 4px 15px rgba(52, 68, 92, 0.4),
+  box-shadow:
+    0 4px 15px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .esports-btn-primary:hover {
   background: linear-gradient(135deg, #3d5068 0%, #34445c 50%, #3d5068 100%);
-  box-shadow: 0 6px 20px rgba(52, 68, 92, 0.5),
+  box-shadow:
+    0 6px 20px rgba(52, 68, 92, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
 }
 
 .esports-btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(52, 68, 92, 0.4),
+  box-shadow:
+    0 2px 10px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .dark .esports-btn-primary {
   background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #dcff37 100%);
   color: #1a1a1a;
-  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.3),
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .dark .esports-btn-primary:hover {
   background: linear-gradient(135deg, #e5ff5a 0%, #dcff37 50%, #e5ff5a 100%);
-  box-shadow: 0 6px 25px rgba(220, 255, 55, 0.4),
+  box-shadow:
+    0 6px 25px rgba(220, 255, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
@@ -1027,13 +1039,15 @@
 .esports-btn-action {
   background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #dcff37 100%);
   color: #1a1a1a;
-  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.3),
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .esports-btn-action:hover {
   background: linear-gradient(135deg, #e5ff5a 0%, #dcff37 50%, #e5ff5a 100%);
-  box-shadow: 0 6px 25px rgba(220, 255, 55, 0.4),
+  box-shadow:
+    0 6px 25px rgba(220, 255, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);
 }
@@ -1041,7 +1055,8 @@
 .dark .esports-btn-action {
   background: linear-gradient(135deg, #34445c 0%, #2a3749 50%, #34445c 100%);
   color: #dcff37;
-  box-shadow: 0 4px 15px rgba(52, 68, 92, 0.4),
+  box-shadow:
+    0 4px 15px rgba(52, 68, 92, 0.4),
     inset 0 1px 0 rgba(220, 255, 55, 0.1);
 }
 
@@ -1065,7 +1080,9 @@
     calc(100% - var(--cut-size)) 100%,
     0 100%
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   padding: 2px;
@@ -1100,13 +1117,15 @@
 .esports-btn-danger {
   background: linear-gradient(135deg, #ff4654 0%, #e03d4a 50%, #ff4654 100%);
   color: #ffffff;
-  box-shadow: 0 4px 20px rgba(255, 70, 84, 0.3),
+  box-shadow:
+    0 4px 20px rgba(255, 70, 84, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .esports-btn-danger:hover {
   background: linear-gradient(135deg, #ff5c68 0%, #ff4654 50%, #ff5c68 100%);
-  box-shadow: 0 6px 25px rgba(255, 70, 84, 0.4),
+  box-shadow:
+    0 6px 25px rgba(255, 70, 84, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
@@ -1116,15 +1135,19 @@
   --cut-size: 16px;
   background: linear-gradient(135deg, #dcff37 0%, #34445c 100%);
   color: #ffffff;
-  box-shadow: 0 4px 25px rgba(220, 255, 55, 0.3),
-    0 4px 25px rgba(52, 68, 92, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 4px 25px rgba(220, 255, 55, 0.3),
+    0 4px 25px rgba(52, 68, 92, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .esports-btn-matchmaking:hover {
   background: linear-gradient(135deg, #e5ff5a 0%, #3d5068 100%);
-  box-shadow: 0 6px 30px rgba(220, 255, 55, 0.4),
-    0 6px 30px rgba(52, 68, 92, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 6px 30px rgba(220, 255, 55, 0.4),
+    0 6px 30px rgba(52, 68, 92, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
@@ -1298,20 +1321,16 @@
   background: rgba(10, 10, 10, 0.9) !important;
   backdrop-filter: blur(12px) saturate(150%) !important;
   /* Grid pattern directly on backdrop */
-  background-image: linear-gradient(
-      rgba(255, 70, 84, 0.08) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(rgba(255, 70, 84, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 70, 84, 0.08) 1px, transparent 1px) !important;
   background-size: 40px 40px !important;
   background-position: center center !important;
 }
 
 .dark .leet-modal-backdrop {
-  background-image: linear-gradient(
-      rgba(220, 255, 55, 0.12) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(rgba(220, 255, 55, 0.12) 1px, transparent 1px),
     linear-gradient(90deg, rgba(220, 255, 55, 0.12) 1px, transparent 1px) !important;
 }
 
@@ -1347,7 +1366,9 @@
     rgba(245, 240, 225, 0.98) 0%,
     rgba(245, 240, 225, 0.95) 100%
   ) !important;
-  box-shadow: 0 0 60px rgba(255, 70, 84, 0.2), 0 0 100px rgba(255, 199, 0, 0.1),
+  box-shadow:
+    0 0 60px rgba(255, 70, 84, 0.2),
+    0 0 100px rgba(255, 199, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
   position: relative;
   overflow: hidden;
@@ -1360,7 +1381,9 @@
     rgba(26, 26, 26, 0.98) 0%,
     rgba(20, 20, 20, 0.98) 100%
   ) !important;
-  box-shadow: 0 0 60px rgba(220, 255, 55, 0.15), 0 0 100px rgba(52, 68, 92, 0.2),
+  box-shadow:
+    0 0 60px rgba(220, 255, 55, 0.15),
+    0 0 100px rgba(52, 68, 92, 0.2),
     inset 0 1px 0 rgba(220, 255, 55, 0.1);
 }
 
@@ -1659,7 +1682,8 @@
     rgba(255, 70, 84, 0.1),
     rgba(255, 199, 0, 0.05)
   ) !important;
-  box-shadow: 0 0 20px rgba(255, 70, 84, 0.2),
+  box-shadow:
+    0 0 20px rgba(255, 70, 84, 0.2),
     inset 0 0 30px rgba(255, 70, 84, 0.05);
 }
 
@@ -1670,7 +1694,8 @@
     rgba(220, 255, 55, 0.1),
     rgba(52, 68, 92, 0.05)
   ) !important;
-  box-shadow: 0 0 20px rgba(220, 255, 55, 0.15),
+  box-shadow:
+    0 0 20px rgba(220, 255, 55, 0.15),
     inset 0 0 30px rgba(220, 255, 55, 0.03);
 }
 
@@ -1741,25 +1766,29 @@
 .leet-modal-btn-primary {
   background: linear-gradient(135deg, #ff4654 0%, #e03d4a 50%, #ffc700 100%);
   color: white !important;
-  box-shadow: 0 4px 20px rgba(255, 70, 84, 0.3),
+  box-shadow:
+    0 4px 20px rgba(255, 70, 84, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .leet-modal-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(255, 70, 84, 0.4),
+  box-shadow:
+    0 6px 30px rgba(255, 70, 84, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .dark .leet-modal-btn-primary {
   background: linear-gradient(135deg, #dcff37 0%, #c4e530 50%, #34445c 100%);
   color: #1a1a1a !important;
-  box-shadow: 0 4px 20px rgba(220, 255, 55, 0.3),
+  box-shadow:
+    0 4px 20px rgba(220, 255, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .dark .leet-modal-btn-primary:hover {
-  box-shadow: 0 6px 30px rgba(220, 255, 55, 0.4),
+  box-shadow:
+    0 6px 30px rgba(220, 255, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -2016,4 +2045,479 @@
     rgba(220, 255, 55, 0.2),
     transparent
   );
+}
+
+/* ============================================================================
+   📱 MOBILE-FIRST RESPONSIVE SYSTEM
+   Award-Winning App-Like Experience for LeetGaming
+   ============================================================================ */
+
+@layer utilities {
+  /* ========== SAFE AREA UTILITIES ========== */
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-area-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-area-y {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-all {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* Margin variants */
+  .safe-margin-bottom {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ========== TOUCH TARGET UTILITIES ========== */
+
+  /* Minimum 44px touch target (WCAG 2.1) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Larger touch target for primary actions */
+  .touch-target-lg {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  /* Extra large for FABs */
+  .touch-target-xl {
+    min-width: 56px;
+    min-height: 56px;
+  }
+
+  /* ========== MOBILE SCROLL BEHAVIORS ========== */
+
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
+
+  .overscroll-none {
+    overscroll-behavior: none;
+  }
+
+  /* iOS-style momentum scrolling */
+  .scroll-momentum {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ========== TAP HIGHLIGHT UTILITIES ========== */
+
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tap-highlight-brand {
+    -webkit-tap-highlight-color: rgba(220, 255, 55, 0.2);
+  }
+
+  /* ========== SELECTION UTILITIES ========== */
+
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .touch-none {
+    touch-action: none;
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* ========== MOBILE-OPTIMIZED SPACING ========== */
+
+  /* Compact spacing for mobile */
+  @media (max-width: 640px) {
+    .mobile-compact {
+      padding: 0.75rem !important;
+    }
+
+    .mobile-compact-x {
+      padding-left: 0.75rem !important;
+      padding-right: 0.75rem !important;
+    }
+
+    .mobile-compact-y {
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.75rem !important;
+    }
+
+    .mobile-gap-sm {
+      gap: 0.5rem !important;
+    }
+
+    .mobile-gap-md {
+      gap: 0.75rem !important;
+    }
+  }
+}
+
+@layer components {
+  /* ========== MOBILE CARD STYLES ========== */
+
+  .mobile-card {
+    @apply bg-white dark:bg-[#0a0a0a];
+    @apply border border-[#FF4654]/10 dark:border-[#DCFF37]/10;
+    @apply rounded-xl;
+    @apply shadow-sm;
+    @apply transition-shadow duration-200;
+    @apply active:shadow-md;
+  }
+
+  @media (max-width: 640px) {
+    .mobile-card {
+      @apply rounded-none mx-0;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  /* ========== MOBILE FULL-BLEED SECTIONS ========== */
+
+  .mobile-full-bleed {
+    @apply mx-auto;
+    @apply px-4 sm:px-6 lg:px-8;
+    max-width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .mobile-full-bleed {
+      @apply px-0;
+    }
+  }
+
+  /* ========== MOBILE STICKY HEADER ========== */
+
+  .mobile-sticky-header {
+    @apply sticky top-0 z-40;
+    @apply bg-white/95 dark:bg-[#0a0a0a]/95;
+    @apply backdrop-blur-xl backdrop-saturate-150;
+    @apply border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* ========== MOBILE BOTTOM SHEET CONTENT ========== */
+
+  .mobile-bottom-content {
+    @apply pb-20; /* Space for bottom nav */
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  /* ========== MOBILE-OPTIMIZED BUTTONS ========== */
+
+  .mobile-btn {
+    @apply w-full sm:w-auto;
+    @apply min-h-[48px];
+    @apply text-base font-semibold;
+    @apply touch-target;
+    @apply tap-highlight-none;
+    @apply active:scale-[0.98] transition-transform duration-100;
+  }
+
+  .mobile-btn-primary {
+    @apply mobile-btn;
+    @apply bg-gradient-to-r from-[#FF4654] to-[#FFC700];
+    @apply dark:from-[#DCFF37] dark:to-[#34445C];
+    @apply text-white dark:text-[#34445C];
+    @apply rounded-xl;
+    @apply shadow-lg shadow-[#FF4654]/20 dark:shadow-[#DCFF37]/20;
+  }
+
+  .mobile-btn-secondary {
+    @apply mobile-btn;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply text-[#34445C] dark:text-[#DCFF37];
+    @apply rounded-xl;
+    @apply border border-[#34445C]/20 dark:border-[#DCFF37]/20;
+  }
+
+  /* ========== MOBILE INPUT STYLES ========== */
+
+  .mobile-input {
+    @apply w-full;
+    @apply min-h-[48px];
+    @apply text-base; /* Prevents iOS zoom */
+    @apply rounded-xl;
+    @apply border border-[#34445C]/20 dark:border-[#DCFF37]/20;
+    @apply bg-white dark:bg-[#0a0a0a];
+    @apply px-4 py-3;
+    @apply focus:border-[#FF4654] dark:focus:border-[#DCFF37];
+    @apply focus:ring-2 focus:ring-[#FF4654]/20 dark:focus:ring-[#DCFF37]/20;
+    @apply transition-all duration-200;
+  }
+
+  /* ========== MOBILE LIST ITEMS ========== */
+
+  .mobile-list-item {
+    @apply flex items-center gap-3;
+    @apply w-full px-4 py-4;
+    @apply min-h-[56px];
+    @apply bg-white dark:bg-[#0a0a0a];
+    @apply border-b border-[#34445C]/5 dark:border-[#DCFF37]/5;
+    @apply active:bg-[#34445C]/5 dark:active:bg-[#DCFF37]/5;
+    @apply transition-colors duration-100;
+    @apply tap-highlight-none;
+  }
+
+  .mobile-list-item:last-child {
+    @apply border-b-0;
+  }
+
+  /* ========== MOBILE GRID LAYOUTS ========== */
+
+  .mobile-grid-2 {
+    @apply grid grid-cols-2 gap-3;
+  }
+
+  @media (max-width: 640px) {
+    .mobile-grid-2 {
+      @apply gap-2;
+    }
+  }
+
+  .mobile-grid-responsive {
+    @apply grid;
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    @apply gap-4 sm:gap-6;
+  }
+
+  /* ========== MOBILE STATS GRID ========== */
+
+  .mobile-stats-grid {
+    @apply grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4;
+  }
+
+  .mobile-stat-card {
+    @apply flex flex-col items-center justify-center;
+    @apply p-4 sm:p-5;
+    @apply bg-[#34445C]/5 dark:bg-[#DCFF37]/5;
+    @apply rounded-xl;
+    @apply text-center;
+  }
+
+  .mobile-stat-value {
+    @apply text-xl sm:text-2xl font-bold;
+    @apply text-[#34445C] dark:text-[#DCFF37];
+  }
+
+  .mobile-stat-label {
+    @apply text-xs sm:text-sm;
+    @apply text-[#34445C]/60 dark:text-[#F5F0E1]/60;
+    @apply mt-1;
+  }
+
+  /* ========== MOBILE ACTION BAR (Fixed Bottom) ========== */
+
+  .mobile-action-bar {
+    @apply fixed bottom-0 left-0 right-0 z-40;
+    @apply bg-white/95 dark:bg-[#0a0a0a]/95;
+    @apply backdrop-blur-xl;
+    @apply border-t border-[#FF4654]/10 dark:border-[#DCFF37]/10;
+    @apply p-4;
+    @apply flex items-center gap-3;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 768px) {
+    .mobile-action-bar {
+      @apply hidden;
+    }
+  }
+
+  /* ========== MOBILE SECTION HEADERS ========== */
+
+  .mobile-section-header {
+    @apply flex items-center justify-between;
+    @apply px-4 py-3;
+    @apply text-sm font-semibold uppercase tracking-wider;
+    @apply text-[#34445C]/70 dark:text-[#F5F0E1]/70;
+  }
+
+  /* ========== PULL TO REFRESH INDICATOR ========== */
+
+  .pull-refresh-indicator {
+    @apply flex items-center justify-center;
+    @apply w-10 h-10;
+    @apply mx-auto;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply rounded-full;
+    @apply transition-transform duration-200;
+  }
+
+  /* ========== MOBILE EMPTY STATE ========== */
+
+  .mobile-empty-state {
+    @apply flex flex-col items-center justify-center;
+    @apply py-12 px-6;
+    @apply text-center;
+  }
+
+  .mobile-empty-icon {
+    @apply w-16 h-16;
+    @apply flex items-center justify-center;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply rounded-full;
+    @apply mb-4;
+  }
+
+  .mobile-empty-title {
+    @apply text-lg font-semibold;
+    @apply text-[#34445C] dark:text-[#F5F0E1];
+    @apply mb-2;
+  }
+
+  .mobile-empty-text {
+    @apply text-sm;
+    @apply text-[#34445C]/60 dark:text-[#F5F0E1]/60;
+    @apply max-w-xs;
+  }
+
+  /* ========== MOBILE SKELETON LOADING ========== */
+
+  .mobile-skeleton {
+    @apply animate-pulse;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply rounded-lg;
+  }
+
+  .mobile-skeleton-text {
+    @apply h-4 rounded;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply animate-pulse;
+  }
+
+  .mobile-skeleton-avatar {
+    @apply w-12 h-12 rounded-full;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply animate-pulse;
+  }
+
+  /* ========== MOBILE TABS (Horizontal Scroll) ========== */
+
+  .mobile-tabs-container {
+    @apply flex gap-2;
+    @apply overflow-x-auto;
+    @apply pb-2;
+    @apply scrollbar-hide;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-tab {
+    @apply flex-shrink-0;
+    @apply px-4 py-2.5;
+    @apply min-h-[44px];
+    @apply rounded-full;
+    @apply text-sm font-medium;
+    @apply whitespace-nowrap;
+    @apply transition-all duration-200;
+    @apply tap-highlight-none;
+  }
+
+  .mobile-tab-active {
+    @apply bg-gradient-to-r from-[#FF4654] to-[#FFC700];
+    @apply dark:from-[#DCFF37] dark:to-[#34445C];
+    @apply text-white dark:text-[#34445C];
+    @apply shadow-lg shadow-[#FF4654]/20 dark:shadow-[#DCFF37]/20;
+  }
+
+  .mobile-tab-inactive {
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply text-[#34445C]/70 dark:text-[#F5F0E1]/70;
+  }
+
+  /* ========== MOBILE PRICE/AMOUNT DISPLAY ========== */
+
+  .mobile-amount-primary {
+    @apply text-2xl sm:text-3xl font-bold;
+    @apply text-[#34445C] dark:text-[#DCFF37];
+  }
+
+  .mobile-amount-secondary {
+    @apply text-sm;
+    @apply text-[#34445C]/60 dark:text-[#F5F0E1]/60;
+  }
+
+  /* ========== MOBILE NOTIFICATION DOT ========== */
+
+  .mobile-notification-dot {
+    @apply absolute -top-1 -right-1;
+    @apply w-3 h-3;
+    @apply bg-[#FF4654];
+    @apply rounded-full;
+    @apply border-2 border-white dark:border-[#0a0a0a];
+    @apply animate-pulse;
+  }
+
+  /* ========== MOBILE CHIP/TAG ========== */
+
+  .mobile-chip {
+    @apply inline-flex items-center gap-1;
+    @apply px-3 py-1.5;
+    @apply text-xs font-medium;
+    @apply rounded-full;
+    @apply bg-[#34445C]/10 dark:bg-[#DCFF37]/10;
+    @apply text-[#34445C] dark:text-[#DCFF37];
+  }
+
+  .mobile-chip-success {
+    @apply bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400;
+  }
+
+  .mobile-chip-warning {
+    @apply bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+  }
+
+  .mobile-chip-danger {
+    @apply bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400;
+  }
 }

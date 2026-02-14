@@ -109,7 +109,7 @@ export function MatchmakingQueue({
   partyMembers = [],
   onQueueStart,
   onQueueCancel,
-  onMatchFound,
+  onMatchFound: _onMatchFound,
   className = "",
 }: MatchmakingQueueProps) {
   const game = GAME_CONFIGS[gameId];
@@ -133,7 +133,7 @@ export function MatchmakingQueue({
     joinQueue,
     leaveQueue,
     fetchPoolStats,
-    joinLobby,
+    joinLobby: _joinLobby,
     acceptMatch,
     declineMatch,
     clearError,
@@ -206,7 +206,7 @@ export function MatchmakingQueue({
   const [readyCheckTimeout, setReadyCheckTimeout] = useState(30);
 
   // Match found state
-  const [foundMatch, setFoundMatch] = useState<MatchFoundData | null>(null);
+  const [foundMatch, _setFoundMatch] = useState<MatchFoundData | null>(null);
 
   // Get current rank tier
   const rankTier = getRankTier(gameId, playerRating);
@@ -315,7 +315,6 @@ export function MatchmakingQueue({
       const success = await acceptMatch();
       if (success) {
         // Match accepted successfully - the hook will handle status updates
-        console.log("Match accepted successfully");
       } else {
         console.error("Failed to accept match");
         setReadyCheckAccepted(false);
@@ -430,23 +429,27 @@ export function MatchmakingQueue({
                   />
                   <div>
                     <p className="text-sm font-semibold text-danger-700">
-                      {matchmakingError.type === "network"
+                      {matchmakingError === "NETWORK_ERROR"
                         ? "Connection Error"
-                        : matchmakingError.type === "validation"
+                        : matchmakingError === "INVALID_PREFERENCES"
                         ? "Invalid Settings"
-                        : matchmakingError.type === "rate_limit"
+                        : matchmakingError === "RATE_LIMITED"
                         ? "Rate Limited"
-                        : matchmakingError.type === "server"
-                        ? "Server Error"
+                        : matchmakingError === "AUTHENTICATION_FAILED"
+                        ? "Authentication Error"
                         : "Matchmaking Error"}
                     </p>
                     <p className="text-xs text-danger-600 mt-1">
-                      {matchmakingError.message}
+                      {matchmakingError}
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {matchmakingError.canRetry && (
+                  {[
+                    "NETWORK_ERROR",
+                    "RATE_LIMITED",
+                    "SESSION_EXPIRED",
+                  ].includes(matchmakingError) && (
                     <Button
                       size="sm"
                       variant="light"

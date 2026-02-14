@@ -19,6 +19,66 @@ export type TransactionStatus =
   | "confirmed"
   | "failed"
   | "cancelled";
+export type PaymentMethod =
+  | "crypto"
+  | "credit_card"
+  | "pix"
+  | "bank_transfer";
+
+// Supported chain IDs (matches Go backend ChainID type)
+export const ChainID = {
+  None: 0,
+  EthereumMainnet: 1,
+  PolygonMainnet: 137,
+  PolygonAmoy: 80002,
+  ArbitrumOne: 42161,
+  BaseMainnet: 8453,
+} as const;
+export type ChainID = (typeof ChainID)[keyof typeof ChainID];
+
+export const SupportedChains: {
+  id: ChainID;
+  name: string;
+  symbol: string;
+  explorer: string;
+  isTestnet: boolean;
+}[] = [
+  {
+    id: ChainID.PolygonMainnet,
+    name: "Polygon",
+    symbol: "MATIC",
+    explorer: "https://polygonscan.com",
+    isTestnet: false,
+  },
+  {
+    id: ChainID.EthereumMainnet,
+    name: "Ethereum",
+    symbol: "ETH",
+    explorer: "https://etherscan.io",
+    isTestnet: false,
+  },
+  {
+    id: ChainID.ArbitrumOne,
+    name: "Arbitrum",
+    symbol: "ETH",
+    explorer: "https://arbiscan.io",
+    isTestnet: false,
+  },
+  {
+    id: ChainID.BaseMainnet,
+    name: "Base",
+    symbol: "ETH",
+    explorer: "https://basescan.org",
+    isTestnet: false,
+  },
+  {
+    id: ChainID.PolygonAmoy,
+    name: "Polygon Amoy (Testnet)",
+    symbol: "MATIC",
+    explorer: "https://amoy.polygonscan.com",
+    isTestnet: true,
+  },
+];
 
 // Base interface for paginated results
 export interface PaginatedResult<T> {
@@ -56,6 +116,7 @@ export interface WalletBalance {
   lock_reason?: string;
   created_at?: string;
   updated_at?: string;
+  version?: number; // Optimistic locking — incremented on every mutation
   // Legacy fields (for backwards compatibility)
   id?: string;
   pending_transactions?: string[];
@@ -76,6 +137,10 @@ export interface Transaction {
   description: string;
   created_at: string;
   is_reversed: boolean;
+  // Chain & payment method
+  chain_id?: ChainID;
+  payment_method?: PaymentMethod;
+  contract_address?: string;
   // Optional fields for full transaction details
   wallet_id?: string;
   status?: TransactionStatus;
@@ -116,15 +181,20 @@ export interface TransactionFilters {
 export interface DepositRequest {
   currency: Currency;
   amount: number;
-  payment_method?: "crypto" | "credit_card" | "paypal" | "bank_transfer";
-  blockchain_tx_hash?: string;
+  payment_method?: PaymentMethod;
+  chain_id?: ChainID;
+  tx_hash?: string;
+  idempotency_key?: string; // Client-generated key for duplicate prevention
   metadata?: Record<string, unknown>;
 }
 
 export interface WithdrawRequest {
   currency: Currency;
   amount: number;
-  destination_address: string;
+  to_address: string;
+  chain_id?: ChainID;
+  payment_method?: PaymentMethod;
+  idempotency_key?: string; // Client-generated key for duplicate prevention
   metadata?: Record<string, unknown>;
 }
 
@@ -243,4 +313,35 @@ export const normalizeTransactionType = (type: string): TransactionType => {
     Refund: "refund",
   };
   return mapping[type] ?? (type as TransactionType);
+};
+
+// Chain helpers
+export const getChainName = (chainId: ChainID): string => {
+  const chain = SupportedChains.find((c) => c.id === chainId);
+  return chain?.name ?? "Unknown";
+};
+
+export const getChainExplorerUrl = (
+  chainId: ChainID,
+  txHash: string
+): string => {
+  const chain = SupportedChains.find((c) => c.id === chainId);
+  if (!chain) return "";
+  return `${chain.explorer}/tx/${txHash}`;
+};
+
+export const getMainnetChains = () =>
+  SupportedChains.filter((c) => !c.isTestnet);
+
+export const isPaymentMethodCrypto = (method?: PaymentMethod): boolean =>
+  method === "crypto";
+
+export const getPaymentMethodLabel = (method?: PaymentMethod): string => {
+  const labels: Record<PaymentMethod, string> = {
+    crypto: "Cryptocurrency",
+    credit_card: "Credit Card",
+    pix: "PIX",
+    bank_transfer: "Bank Transfer",
+  };
+  return method ? labels[method] ?? method : "Unknown";
 };

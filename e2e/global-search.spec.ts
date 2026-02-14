@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Global Search', () => {
   test.describe('Keyboard Shortcuts', () => {
     test('should open search modal with Cmd+K on Mac', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -28,7 +28,7 @@ test.describe('Global Search', () => {
     });
 
     test('should open search modal with Ctrl+K on Windows/Linux', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -44,7 +44,7 @@ test.describe('Global Search', () => {
     });
 
     test('should close search modal with Escape', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -67,7 +67,7 @@ test.describe('Global Search', () => {
 
   test.describe('Search Input in Navbar', () => {
     test('should have search input in navbar', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
 
       // Check for search input in navbar
@@ -78,7 +78,7 @@ test.describe('Global Search', () => {
     });
 
     test('should open modal when clicking search input', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -100,7 +100,7 @@ test.describe('Global Search', () => {
     });
 
     test('should show keyboard shortcut hint', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
 
       // Check for Cmd+K hint in search area
@@ -154,7 +154,7 @@ test.describe('Global Search', () => {
         });
       });
 
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -190,7 +190,7 @@ test.describe('Global Search', () => {
         });
       });
 
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -213,7 +213,7 @@ test.describe('Global Search', () => {
     });
 
     test('should require minimum 2 characters', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -237,7 +237,7 @@ test.describe('Global Search', () => {
     });
 
     test('should clear results when modal closes', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -295,7 +295,7 @@ test.describe('Global Search', () => {
         await route.fulfill({ status: 200, body: JSON.stringify([]) });
       });
 
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -329,7 +329,7 @@ test.describe('Global Search', () => {
 
   test.describe('Accessibility', () => {
     test('should have proper focus management', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -348,7 +348,7 @@ test.describe('Global Search', () => {
     });
 
     test('should have proper ARIA attributes', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -371,7 +371,7 @@ test.describe('Global Search', () => {
   test.describe('Mobile Behavior', () => {
     test('should work on mobile viewport', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(1000);
 
@@ -383,7 +383,7 @@ test.describe('Global Search', () => {
 
     test('should have touch-friendly search trigger', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('domcontentloaded');
 
       // Look for search icon/button that's touch-friendly

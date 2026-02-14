@@ -30,6 +30,7 @@ import {
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useRequireAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
@@ -112,9 +113,22 @@ const _CHART_COLORS = [
 ];
 
 export default function AdminDashboardPage() {
-  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting } = useRequireAuth({
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth({
     callbackUrl: '/admin'
   });
+  const router = useRouter();
+
+  // Admin role check - redirect non-admins
+  React.useEffect(() => {
+    if (isAuthLoading || isRedirecting) return;
+    if (isAuthenticated) {
+      const isAdmin = user?.role === "admin" || user?.isAdmin;
+      if (!isAdmin) {
+        router.replace("/dashboard");
+      }
+    }
+  }, [isAuthenticated, isAuthLoading, isRedirecting, user, router]);
+
   const sdk = useMemo(
     () => new ReplayAPISDK(ReplayApiSettingsMock, logger),
     []
@@ -1315,7 +1329,7 @@ export default function AdminDashboardPage() {
               <CardBody className="space-y-3">
                 <Button
                   as={Link}
-                  href="http://localhost:3000"
+                  href="http://localhost:30050"
                   target="_blank"
                   variant="flat"
                   fullWidth

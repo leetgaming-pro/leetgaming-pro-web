@@ -5,6 +5,9 @@
 
 import useSWR from 'swr';
 
+// Match source indicates how the match was created
+export type MatchSource = 'replay' | 'matchmaking' | 'external_api' | 'manual';
+
 export interface Match {
   id: string;
   game: string;
@@ -20,6 +23,11 @@ export interface Match {
   timestamp: Date;
   duration?: string;
   tournament?: string;
+  // Source tracking
+  source?: MatchSource;              // How the match was created
+  linkedReplayId?: string;           // For matchmaking matches, links to associated replay
+  externalMatchId?: string;          // External system match ID
+  hasReplay?: boolean;               // True if match has replay file
 }
 
 interface MatchesResponse {

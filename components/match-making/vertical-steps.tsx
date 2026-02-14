@@ -3,7 +3,7 @@
 import type { ComponentProps } from "react";
 import type { ButtonProps } from "@nextui-org/react";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useControlledState } from "@react-stately/utils";
 import { m, LazyMotion, domAnimation } from "framer-motion";
 import { Card, cn } from "@nextui-org/react";
@@ -60,7 +60,13 @@ export interface VerticalStepsProps extends React.HTMLAttributes<HTMLButtonEleme
 
 function CheckIcon(props: ComponentProps<"svg">) {
   return (
-    <svg {...props} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg
+      {...props}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+    >
       <m.path
         animate={{ pathLength: 1 }}
         d="M5 13l4 4L19 7"
@@ -77,9 +83,6 @@ function CheckIcon(props: ComponentProps<"svg">) {
     </svg>
   );
 }
-
-
-
 
 const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
   (
@@ -102,11 +105,11 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
       onStepChange,
     );
 
-    let { theme, setTheme } = useTheme();
-
-    if (theme === null || theme === undefined) {
-      theme = "dark";
-    }
+    const { theme: rawTheme } = useTheme();
+    // Use mounted state to prevent hydration mismatch
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+    const theme = mounted ? (rawTheme ?? "dark") : "dark";
 
     const colors = React.useMemo(() => {
       let userColor;
@@ -156,7 +159,9 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
       if (!className?.includes("--step-fg-color")) colorsVars.unshift(fgColor);
       if (!className?.includes("--step-color")) colorsVars.unshift(userColor);
       if (!className?.includes("--inactive-bar-color"))
-        colorsVars.push("[--inactive-bar-color:hsl(var(--nextui-default-300))]");
+        colorsVars.push(
+          "[--inactive-bar-color:hsl(var(--nextui-default-300))]",
+        );
 
       return colorsVars;
     }, [color, className]);
@@ -166,116 +171,122 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
         <ol className={cn("flex flex-col gap-y-3", colors, className)}>
           {steps?.map((step, stepIdx) => {
             const status =
-              currentStep === stepIdx ? "active" : currentStep < stepIdx ? "inactive" : "complete";
+              currentStep === stepIdx
+                ? "active"
+                : currentStep < stepIdx
+                  ? "inactive"
+                  : "complete";
 
             return (
               <li key={stepIdx} className="relative">
                 <Card
-                      style={{
-                        // Light mode: cream bg for brand consistency
-                        // Dark mode: subtle lime tint
-                        background: theme === 'dark' 
-                          ? 'rgba(220, 255, 55, 0.05)' 
-                          : status === 'active' 
-                            ? 'rgba(245, 240, 225, 0.98)' 
-                            : 'rgba(245, 240, 225, 0.90)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '0px',
-                        boxShadow: theme === 'dark' 
-                          ? '0 4px 8px rgba(0, 0, 0, 0.3)' 
-                          : status === 'active'
-                            ? '0 4px 12px rgba(255, 70, 84, 0.3)'
-                            : '0 4px 8px rgba(0, 0, 0, 0.15)',
-                        borderLeft: theme === 'dark' 
-                          ? '2px solid rgba(220, 255, 55, 0.3)' 
-                          : status === 'active'
-                            ? '3px solid #FF4654'
-                            : '2px solid rgba(255, 70, 84, 0.3)',
-                      }}
-                                   
+                  style={{
+                    // Light mode: cream bg for brand consistency
+                    // Dark mode: subtle lime tint
+                    background:
+                      theme === "dark"
+                        ? "rgba(220, 255, 55, 0.05)"
+                        : status === "active"
+                          ? "rgba(245, 240, 225, 0.98)"
+                          : "rgba(245, 240, 225, 0.90)",
+                    backdropFilter: "blur(10px)",
+                    borderRadius: "0px",
+                    boxShadow:
+                      theme === "dark"
+                        ? "0 4px 8px rgba(0, 0, 0, 0.3)"
+                        : status === "active"
+                          ? "0 4px 12px rgba(255, 70, 84, 0.3)"
+                          : "0 4px 8px rgba(0, 0, 0, 0.15)",
+                    borderLeft:
+                      theme === "dark"
+                        ? "2px solid rgba(220, 255, 55, 0.3)"
+                        : status === "active"
+                          ? "3px solid #FF4654"
+                          : "2px solid rgba(255, 70, 84, 0.3)",
+                  }}
                 >
-                <div className="flex w-full max-w-full items-center">
-                  <button
-                    key={stepIdx}
-                    ref={ref}
-                    aria-current={status === "active" ? "step" : undefined}
-                    className={cn(
-                      "group flex w-full cursor-pointer items-center justify-center gap-4 rounded-none px-3 py-2.5",
-                      stepClassName,
-                    )}
-                    onClick={() => setCurrentStep(stepIdx)}
-                    {...props}
-                  >
-                    <div className="flex h-full items-center">
-                      <LazyMotion features={domAnimation}>
-                        <div className="relative">
-                          <m.div
-                            animate={status}
+                  <div className="flex w-full max-w-full items-center">
+                    <button
+                      key={stepIdx}
+                      ref={ref}
+                      aria-current={status === "active" ? "step" : undefined}
+                      className={cn(
+                        "group flex w-full cursor-pointer items-center justify-center gap-4 rounded-none px-3 py-2.5",
+                        stepClassName,
+                      )}
+                      onClick={() => setCurrentStep(stepIdx)}
+                      {...props}
+                    >
+                      <div className="flex h-full items-center">
+                        <LazyMotion features={domAnimation}>
+                          <div className="relative">
+                            <m.div
+                              animate={status}
+                              className={cn(
+                                "relative flex h-[34px] w-[34px] items-center justify-center rounded-full border-medium text-large font-semibold text-default-foreground",
+                                {
+                                  "shadow-lg": status === "complete",
+                                },
+                              )}
+                              data-status={status}
+                              initial={false}
+                              transition={{ duration: 0.25 }}
+                              variants={{
+                                inactive: {
+                                  backgroundColor: "transparent",
+                                  borderColor: "var(--inactive-border-color)",
+                                  color: "var(--inactive-color)",
+                                },
+                                active: {
+                                  backgroundColor: "transparent",
+                                  borderColor: "var(--active-border-color)",
+                                  color: "var(--active-color)",
+                                },
+                                complete: {
+                                  backgroundColor:
+                                    "var(--complete-background-color)",
+                                  borderColor: "var(--complete-border-color)",
+                                },
+                              }}
+                            >
+                              <div className="flex items-center justify-center">
+                                {status === "complete" ? (
+                                  <CheckIcon className="h-6 w-6 text-[var(--active-fg-color)]" />
+                                ) : (
+                                  <span>{stepIdx + 1}</span>
+                                )}
+                              </div>
+                            </m.div>
+                          </div>
+                        </LazyMotion>
+                      </div>
+
+                      <div className="flex-1 text-left">
+                        <div>
+                          <div
                             className={cn(
-                              "relative flex h-[34px] w-[34px] items-center justify-center rounded-full border-medium text-large font-semibold text-default-foreground",
+                              "text-medium font-medium text-default-foreground transition-[color,opacity] duration-300 group-active:opacity-70",
                               {
-                                "shadow-lg": status === "complete",
+                                "text-default-500": status === "inactive",
                               },
                             )}
-                            data-status={status}
-                            initial={false}
-                            transition={{ duration: 0.25 }}
-                            variants={{
-                              inactive: {
-                                backgroundColor: "transparent",
-                                borderColor: "var(--inactive-border-color)",
-                                color: "var(--inactive-color)",
-                              },
-                              active: {
-                                backgroundColor: "transparent",
-                                borderColor: "var(--active-border-color)",
-                                color: "var(--active-color)",
-                              },
-                              complete: {
-                                backgroundColor: "var(--complete-background-color)",
-                                borderColor: "var(--complete-border-color)",
-                              },
-                            }}
                           >
-                            <div className="flex items-center justify-center">
-                              {status === "complete" ? (
-                                <CheckIcon className="h-6 w-6 text-[var(--active-fg-color)]" />
-                              ) : (
-                                <span>{stepIdx + 1}</span>
-                              )}
-                            </div>
-                          </m.div>
-                        </div>
-                      </LazyMotion>
-                    </div>
-                    
-                    <div className="flex-1 text-left">
-                      <div>
-                        <div
-                          className={cn(
-                            "text-medium font-medium text-default-foreground transition-[color,opacity] duration-300 group-active:opacity-70",
-                            {
-                              "text-default-500": status === "inactive",
-                            },
-                          )}
-                        >
-                          {step.title}
-                        </div>
-                        <div
-                          className={cn(
-                            "text-tiny text-default-600 transition-[color,opacity] duration-300 group-active:opacity-70 lg:text-small",
-                            {
-                              "text-default-500": status === "inactive",
-                            },
-                          )}
-                        >
-                          {step.description}
+                            {step.title}
+                          </div>
+                          <div
+                            className={cn(
+                              "text-tiny text-default-600 transition-[color,opacity] duration-300 group-active:opacity-70 lg:text-small",
+                              {
+                                "text-default-500": status === "inactive",
+                              },
+                            )}
+                          >
+                            {step.description}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                   
-                  </button>
-                </div>
+                    </button>
+                  </div>
                 </Card>
                 {stepIdx < steps.length - 1 && !hideProgressBars && (
                   <div
@@ -284,7 +295,7 @@ const VerticalSteps = React.forwardRef<HTMLButtonElement, VerticalStepsProps>(
                       "pointer-events-none absolute left-3 top-[calc(64px_*_var(--idx)_+_1)] flex h-1/2 -translate-y-1/3 items-center px-4",
                     )}
                     style={{
-                      // @ts-ignore
+                      // @ts-expect-error - CSS custom property
                       "--idx": stepIdx,
                     }}
                   >

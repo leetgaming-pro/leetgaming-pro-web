@@ -1,7 +1,6 @@
-import { DefaultLogoOnlyIcon } from './logo-default-only-icon';
-import DefaultLogoNoIcon from './logo-default-no-icon';
-import { Chip, Image } from '@nextui-org/react'
+import { Image } from "@nextui-org/react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function DefaultLogo(props: any) {
   return (
     <div style={{ textAlign: "center" }}>
@@ -10,9 +9,14 @@ export default function DefaultLogo(props: any) {
       <Image
         src="/logo-red-only-text.png"
         alt="LeetGaming Logo"
-        style={{ objectFit: "contain", maxWidth: "200px", marginTop: "4px", marginBottom: "4px" }}
-
-        {...props} />
+        style={{
+          objectFit: "contain",
+          maxWidth: "200px",
+          marginTop: "4px",
+          marginBottom: "4px",
+        }}
+        {...props}
+      />
       {/* <Chip
         style={{
           verticalAlign: "middle",
@@ -22,5 +26,5 @@ export default function DefaultLogo(props: any) {
         }}
         variant="flat">PRO</Chip> */}
     </div>
-  )
+  );
 }

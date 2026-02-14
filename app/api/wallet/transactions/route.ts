@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
@@ -17,7 +18,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json(
         { success: false, error: 'Authentication required' },
@@ -25,7 +26,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
+    let authHeaders = getAuthHeadersFromCookies();
+
+    // Fallback to session RID/UID if cookies are missing (consistent with balance route)
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = {
+        ...authHeaders,
+        "X-Resource-Owner-ID": session.user.rid,
+      };
+      logger.info(
+        "[API /api/wallet/transactions] Using session RID instead of cookie",
+      );
+    }
+
 
     // Get query parameters
     const { searchParams } = request.nextUrl;

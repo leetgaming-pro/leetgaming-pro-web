@@ -1,14 +1,21 @@
-"use client"
+"use client";
 import React from "react";
-import {Card, CardBody, Image, Button, Slider} from "@nextui-org/react";
+import { Card, CardBody, Image, Button, Slider } from "@nextui-org/react";
 
-import { useRouter } from 'next/navigation'
-import { HeartIcon, NextIcon, PauseCircleIcon, PreviousIcon, RepeatOneIcon, ShuffleIcon } from '@/components/icons';
+import { useRouter } from "next/navigation";
+import {
+  HeartIcon,
+  NextIcon,
+  PauseCircleIcon,
+  PreviousIcon,
+  RepeatOneIcon,
+  ShuffleIcon,
+} from "@/components/icons";
 
 export default function ReplayDetails() {
   const [liked, setLiked] = React.useState(false);
 
-  const router = useRouter()
+  const _router = useRouter();
   // return <p>Post: {router.query.slug}</p>
 
   return (
@@ -35,7 +42,9 @@ export default function ReplayDetails() {
               <div className="flex flex-col gap-0">
                 <h3 className="font-semibold text-foreground/90">de_inferno</h3>
                 <p className="text-small text-foreground/80">37:41</p>
-                <h1 className="text-large font-medium mt-2">LGTM Team 13 x 9 FIY Team</h1>
+                <h1 className="text-large font-medium mt-2">
+                  LGTM Team 13 x 9 FIY Team
+                </h1>
               </div>
               <Button
                 isIconOnly
@@ -46,7 +55,10 @@ export default function ReplayDetails() {
               >
                 <HeartIcon
                   className={liked ? "[&>path]:stroke-transparent" : ""}
-                  fill={liked ? "currentColor" : "none"} width={undefined} height={undefined}                />
+                  fill={liked ? "currentColor" : "none"}
+                  width={undefined}
+                  height={undefined}
+                />
               </Button>
             </div>
 
@@ -74,7 +86,11 @@ export default function ReplayDetails() {
                 radius="full"
                 variant="light"
               >
-                <RepeatOneIcon className="text-foreground/80" width={undefined} height={undefined} />
+                <RepeatOneIcon
+                  className="text-foreground/80"
+                  width={undefined}
+                  height={undefined}
+                />
               </Button>
               <Button
                 isIconOnly
@@ -90,7 +106,11 @@ export default function ReplayDetails() {
                 radius="full"
                 variant="light"
               >
-                <PauseCircleIcon size={54} width={undefined} height={undefined} />
+                <PauseCircleIcon
+                  size={54}
+                  width={undefined}
+                  height={undefined}
+                />
               </Button>
               <Button
                 isIconOnly
@@ -106,7 +126,11 @@ export default function ReplayDetails() {
                 radius="full"
                 variant="light"
               >
-                <ShuffleIcon className="text-foreground/80" width={undefined} height={undefined} />
+                <ShuffleIcon
+                  className="text-foreground/80"
+                  width={undefined}
+                  height={undefined}
+                />
               </Button>
             </div>
           </div>

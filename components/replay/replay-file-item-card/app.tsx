@@ -1,8 +1,14 @@
-import { Card, CardBody, CardFooter, CardHeader, Tab, Tabs } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
+import { ReplayFile } from "@/types/replay-api/replay-file";
 
+export interface ReplayFileCardProps extends Partial<ReplayFile> {
+  id?: string;
+  name?: string;
+  className?: string;
+  removeWrapper?: boolean;
+}
 
-export default function ReplayFileCard(params: any) {
-  
+export default function ReplayFileCard(_params: ReplayFileCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -18,18 +24,17 @@ export default function ReplayFileCard(params: any) {
         de_dust
       </CardHeader>
       <CardBody>
-            {/* <FileTopEventBadgesWCounter />
+        {/* <FileTopEventBadgesWCounter />
 
             <FileDurationLabel /> */}
-            content
-        </CardBody>
-        <CardFooter>
+        content
+      </CardBody>
+      <CardFooter>
         {/* <FileVisibilityDropdown />
         <FileDetails />
         <FileViewsCounter /> */}
         foot
-        </CardFooter>
-      
+      </CardFooter>
     </Card>
-  )
+  );
 }

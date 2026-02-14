@@ -3,10 +3,16 @@
  * Handles multipart uploads, status polling, and retry logic
  */
 
-import { ReplayApiSettings, GameIDKey } from './settings';
-import { ReplayFile, ReplayFileStatus, ResourceOwner } from './replay-file';
-import { getRIDTokenManager } from './auth';
-import { Loggable } from '@/lib/logger';
+import {
+  ReplayApiSettings,
+  GameIDKey,
+  IntendedAudienceKey,
+  VisibilityTypeKey,
+  VisibilityTypeValue,
+} from "./settings";
+import { ReplayFile, ReplayFileStatus, ResourceOwner } from "./replay-file";
+import { getRIDTokenManager } from "./auth";
+import { Loggable } from "@/lib/logger";
 
 /**
  * Upload progress callback
@@ -17,7 +23,7 @@ export type UploadProgressCallback = (progress: UploadProgress) => void;
  * Upload progress information
  */
 export interface UploadProgress {
-  phase: 'uploading' | 'processing' | 'completed' | 'failed';
+  phase: "uploading" | "processing" | "completed" | "failed";
   bytesUploaded: number;
   totalBytes: number;
   percentage: number;
@@ -37,6 +43,11 @@ export interface UploadOptions {
   pollInterval?: number; // milliseconds
   maxPollAttempts?: number;
   signal?: AbortSignal;
+  // Optional metadata for the replay
+  title?: string;
+  description?: string;
+  tags?: string[];
+  visibility?: VisibilityTypeValue; // 1=public, 2=restricted, 4=private
 }
 
 /**
@@ -86,10 +97,7 @@ export class UploadClient {
   private defaultMaxPollAttempts = 60; // 2 minutes max
   private activeUploads = new Map<string, AbortController>();
 
-  constructor(
-    private settings: ReplayApiSettings,
-    private logger: Loggable
-  ) {}
+  constructor(private settings: ReplayApiSettings, private logger: Loggable) {}
 
   /**
    * Upload a replay file with progress tracking
@@ -104,19 +112,23 @@ export class UploadClient {
 
     try {
       // Phase 1: Upload file
-      const uploadResponse = await this.uploadFile(file, options, controller.signal);
-      
+      const uploadResponse = await this.uploadFile(
+        file,
+        options,
+        controller.signal
+      );
+
       if (!uploadResponse) {
         return {
           success: false,
-          error: 'Upload failed - no response from server',
+          error: "Upload failed - no response from server",
         };
       }
 
       // Notify upload complete
       if (options.onProgress) {
         options.onProgress({
-          phase: 'processing',
+          phase: "processing",
           bytesUploaded: file.size,
           totalBytes: file.size,
           percentage: 100,
@@ -126,7 +138,10 @@ export class UploadClient {
       }
 
       // Phase 2: Poll for processing status
-      if (uploadResponse.status === 'Pending' || uploadResponse.status === 'Processing') {
+      if (
+        uploadResponse.status === "Pending" ||
+        uploadResponse.status === "Processing"
+      ) {
         const finalStatus = await this.pollStatus(
           uploadResponse.id,
           options.gameId,
@@ -154,12 +169,15 @@ export class UploadClient {
         replayFile: this.mapToReplayFile(uploadResponse),
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-      this.logger.error('[UploadClient] Upload failed', { error: errorMessage });
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Upload failed";
+      this.logger.error("[UploadClient] Upload failed", {
+        error: errorMessage,
+      });
+
       if (options.onProgress) {
         options.onProgress({
-          phase: 'failed',
+          phase: "failed",
           bytesUploaded: 0,
           totalBytes: file.size,
           percentage: 0,
@@ -181,18 +199,25 @@ export class UploadClient {
    */
   async uploadBatch(
     files: File[],
-    options: Omit<UploadOptions, 'onProgress'>,
-    onBatchProgress?: (completed: number, total: number, results: UploadResult[]) => void
+    options: Omit<UploadOptions, "onProgress">,
+    onBatchProgress?: (
+      completed: number,
+      total: number,
+      results: UploadResult[]
+    ) => void
   ): Promise<UploadResult[]> {
     const results: UploadResult[] = [];
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       const result = await this.uploadReplay(file, {
         ...options,
         onProgress: (progress) => {
-          this.logger.info(`[UploadClient] Batch upload progress for ${file.name}`, progress);
+          this.logger.info(
+            `[UploadClient] Batch upload progress for ${file.name}`,
+            progress
+          );
         },
       });
 
@@ -236,14 +261,31 @@ export class UploadClient {
     signal: AbortSignal
   ): Promise<UploadResponse | null> {
     const formData = new FormData();
-    formData.append('file', file);
-    
+    formData.append("file", file);
+
     if (options.networkId) {
-      formData.append('network_id', options.networkId);
+      formData.append("network_id", options.networkId);
     }
-    
+
     if (options.metadata) {
-      formData.append('metadata', JSON.stringify(options.metadata));
+      formData.append("metadata", JSON.stringify(options.metadata));
+    }
+
+    // Add optional metadata fields
+    if (options.title) {
+      formData.append("title", options.title);
+    }
+
+    if (options.description) {
+      formData.append("description", options.description);
+    }
+
+    if (options.tags && options.tags.length > 0) {
+      formData.append("tags", options.tags.join(","));
+    }
+
+    if (options.visibility !== undefined) {
+      formData.append("visibility", String(options.visibility));
     }
 
     const authHeaders = await getRIDTokenManager().getAuthHeaders();
@@ -256,10 +298,10 @@ export class UploadClient {
 
       // Set up progress tracking
       if (options.onProgress) {
-        xhr.upload.addEventListener('progress', (event) => {
+        xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
             options.onProgress!({
-              phase: 'uploading',
+              phase: "uploading",
               bytesUploaded: event.loaded,
               totalBytes: event.total,
               percentage: Math.round((event.loaded / event.total) * 100),
@@ -270,41 +312,46 @@ export class UploadClient {
 
       // Handle abort signal
       if (signal) {
-        signal.addEventListener('abort', () => xhr.abort());
+        signal.addEventListener("abort", () => xhr.abort());
       }
 
       // Execute upload
-      const response = await new Promise<UploadResponse | null>((resolve, reject) => {
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const data = JSON.parse(xhr.responseText);
-              resolve(data);
-            } catch (error) {
-              reject(new Error('Failed to parse response'));
+      const response = await new Promise<UploadResponse | null>(
+        (resolve, reject) => {
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data);
+              } catch (error) {
+                reject(new Error("Failed to parse response"));
+              }
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
             }
-          } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
-          }
-        };
+          };
 
-        xhr.onerror = () => reject(new Error('Network error during upload'));
-        xhr.onabort = () => reject(new Error('Upload cancelled'));
+          xhr.onerror = () => reject(new Error("Network error during upload"));
+          xhr.onabort = () => reject(new Error("Upload cancelled"));
 
-        xhr.open('POST', url);
-        
-        // Set auth headers
-        Object.entries(authHeaders).forEach(([key, value]) => {
-          xhr.setRequestHeader(key, value);
-        });
+          xhr.open("POST", url);
 
-        xhr.send(formData);
-      });
+          // Set auth headers
+          Object.entries(authHeaders).forEach(([key, value]) => {
+            xhr.setRequestHeader(key, value);
+          });
+
+          xhr.send(formData);
+        }
+      );
 
       return response;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-      this.logger.error('[UploadClient] Upload failed', { error: errorMessage });
+      const errorMessage =
+        error instanceof Error ? error.message : "Upload failed";
+      this.logger.error("[UploadClient] Upload failed", {
+        error: errorMessage,
+      });
       throw error;
     }
   }
@@ -324,7 +371,7 @@ export class UploadClient {
 
     while (attempts < maxAttempts) {
       if (signal.aborted) {
-        throw new Error('Status polling cancelled');
+        throw new Error("Status polling cancelled");
       }
 
       attempts++;
@@ -334,7 +381,7 @@ export class UploadClient {
 
         if (onProgress) {
           onProgress({
-            phase: 'processing',
+            phase: "processing",
             bytesUploaded: 0,
             totalBytes: 0,
             percentage: 100,
@@ -344,10 +391,10 @@ export class UploadClient {
         }
 
         // Check if processing is complete
-        if (status.status === 'Completed' || status.status === 'Ready') {
+        if (status.status === "Completed" || status.status === "Ready") {
           if (onProgress) {
             onProgress({
-              phase: 'completed',
+              phase: "completed",
               bytesUploaded: 0,
               totalBytes: 0,
               percentage: 100,
@@ -358,10 +405,10 @@ export class UploadClient {
           return status;
         }
 
-        if (status.status === 'Failed') {
+        if (status.status === "Failed") {
           if (onProgress) {
             onProgress({
-              phase: 'failed',
+              phase: "failed",
               bytesUploaded: 0,
               totalBytes: 0,
               percentage: 100,
@@ -376,32 +423,41 @@ export class UploadClient {
         // Still processing, wait and retry
         await this.delay(pollInterval);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        this.logger.warn(`[UploadClient] Status check failed (attempt ${attempts}/${maxAttempts})`, { error: errorMessage });
-        
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        this.logger.warn(
+          `[UploadClient] Status check failed (attempt ${attempts}/${maxAttempts})`,
+          { error: errorMessage }
+        );
+
         if (attempts >= maxAttempts) {
           throw error;
         }
-        
+
         await this.delay(pollInterval);
       }
     }
 
-    this.logger.warn(`[UploadClient] Max polling attempts reached for ${replayFileId}`);
+    this.logger.warn(
+      `[UploadClient] Max polling attempts reached for ${replayFileId}`
+    );
     return null;
   }
 
   /**
    * Check replay file status
    */
-  private async checkStatus(replayFileId: string, gameId: GameIDKey): Promise<StatusResponse> {
+  private async checkStatus(
+    replayFileId: string,
+    gameId: GameIDKey
+  ): Promise<StatusResponse> {
     const authHeaders = await getRIDTokenManager().getAuthHeaders();
     const url = `${this.settings.baseUrl}/games/${gameId}/replays/${replayFileId}/status`;
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...authHeaders,
       },
     });
@@ -418,17 +474,19 @@ export class UploadClient {
    */
   private mapToReplayFile(response: UploadResponse): ReplayFile {
     const resourceOwner = ResourceOwner.fromJSON(response.resource_owner);
-    
+
     return new ReplayFile(
+      response.id,
+      IntendedAudienceKey.TenantAudienceIDKey, // Default for uploads
+      VisibilityTypeKey.Public, // Default for uploads
+      resourceOwner,
+      new Date(response.created_at),
+      new Date(response.updated_at),
       response.game_id,
       response.network_id,
       response.size,
       response.internal_uri,
-      response.status,
-      resourceOwner,
-      new Date(response.created_at),
-      new Date(response.updated_at),
-      response.id
+      response.status
     );
   }
 
@@ -443,6 +501,6 @@ export class UploadClient {
    * Delay helper
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

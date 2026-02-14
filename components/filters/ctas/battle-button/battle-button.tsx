@@ -37,8 +37,8 @@ const BattleButton = styled(Button, {
 
 // LightNavy -> rgb(74, 144, 226);
 
-const App = (props: any) => { 
-  const { theme, setTheme } = useTheme();
+const App = (props: Record<string, unknown>) => { 
+  const { theme: _theme, setTheme: _setTheme } = useTheme();
 
   return (
   

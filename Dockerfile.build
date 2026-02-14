@@ -17,6 +17,10 @@ COPY . .
 ENV NEXT_PUBLIC_REPLAY_API_URL=http://localhost:8080
 ENV NEXT_PUBLIC_API_URL=http://localhost:8080
 
+# Stripe publishable key (safe for client-side, override with ARG for real key)
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51SzeyyF7JraMSsMblNYxtxANFa6jpiOYWGjjQc1x7RKVkung6pZfWppooO0TzLjnsOKyN0RjSYxVxS3KqBSaCxVq002dlDqGIB
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -27,6 +31,7 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3030
 ENV HOSTNAME="0.0.0.0"

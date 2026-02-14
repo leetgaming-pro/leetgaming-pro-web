@@ -1,19 +1,24 @@
-'use client';
+"use client";
 
 /**
  * Onboarding Context
  * Manages onboarding state and step progression
  */
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   OnboardingStep,
   OnboardingState,
   OnboardingProfile,
   GamingPreferences,
   ConnectedAccounts,
-  GameTitle,
-} from './types';
+} from "./types";
 
 // ============================================================================
 // Context Types
@@ -32,7 +37,7 @@ interface OnboardingContextValue {
   updateProfile: (profile: Partial<OnboardingProfile>) => void;
   updateGamingPreferences: (prefs: Partial<GamingPreferences>) => void;
   updateConnectedAccounts: (accounts: Partial<ConnectedAccounts>) => void;
-  selectPlan: (plan: 'free' | 'pro' | 'team' | null) => void;
+  selectPlan: (plan: "free" | "pro" | "team" | null) => void;
   markStepComplete: (step: OnboardingStep) => void;
   skipStep: () => void;
   completeOnboarding: () => Promise<void>;
@@ -61,10 +66,10 @@ const STEP_ORDER: OnboardingStep[] = [
 const INITIAL_STATE: OnboardingState = {
   currentStep: OnboardingStep.WELCOME,
   profile: {
-    displayName: '',
-    bio: '',
+    displayName: "",
+    bio: "",
     avatarUrl: undefined,
-    country: '',
+    country: "",
   },
   gamingPreferences: {
     games: [],
@@ -88,7 +93,10 @@ interface OnboardingProviderProps {
   initialState?: Partial<OnboardingState>;
 }
 
-export function OnboardingProvider({ children, initialState }: OnboardingProviderProps) {
+export function OnboardingProvider({
+  children,
+  initialState,
+}: OnboardingProviderProps) {
   const [state, setState] = useState<OnboardingState>({
     ...INITIAL_STATE,
     ...initialState,
@@ -151,21 +159,27 @@ export function OnboardingProvider({ children, initialState }: OnboardingProvide
     }));
   }, []);
 
-  const updateGamingPreferences = useCallback((prefs: Partial<GamingPreferences>) => {
-    setState((prev) => ({
-      ...prev,
-      gamingPreferences: { ...prev.gamingPreferences, ...prefs },
-    }));
-  }, []);
+  const updateGamingPreferences = useCallback(
+    (prefs: Partial<GamingPreferences>) => {
+      setState((prev) => ({
+        ...prev,
+        gamingPreferences: { ...prev.gamingPreferences, ...prefs },
+      }));
+    },
+    []
+  );
 
-  const updateConnectedAccounts = useCallback((accounts: Partial<ConnectedAccounts>) => {
-    setState((prev) => ({
-      ...prev,
-      connectedAccounts: { ...prev.connectedAccounts, ...accounts },
-    }));
-  }, []);
+  const updateConnectedAccounts = useCallback(
+    (accounts: Partial<ConnectedAccounts>) => {
+      setState((prev) => ({
+        ...prev,
+        connectedAccounts: { ...prev.connectedAccounts, ...accounts },
+      }));
+    },
+    []
+  );
 
-  const selectPlan = useCallback((plan: 'free' | 'pro' | 'team' | null) => {
+  const selectPlan = useCallback((plan: "free" | "pro" | "team" | null) => {
     setState((prev) => ({
       ...prev,
       selectedPlan: plan,
@@ -188,9 +202,9 @@ export function OnboardingProvider({ children, initialState }: OnboardingProvide
   const completeOnboarding = useCallback(async () => {
     // Save onboarding data to backend
     try {
-      await fetch('/api/onboarding/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           profile: state.profile,
           gamingPreferences: state.gamingPreferences,
@@ -204,7 +218,7 @@ export function OnboardingProvider({ children, initialState }: OnboardingProvide
         completedSteps: [...STEP_ORDER],
       }));
     } catch (error) {
-      console.error('Failed to complete onboarding:', error);
+      console.error("Failed to complete onboarding:", error);
       throw error;
     }
   }, [state]);
@@ -247,7 +261,7 @@ export function OnboardingProvider({ children, initialState }: OnboardingProvide
 export function useOnboarding() {
   const context = useContext(OnboardingContext);
   if (!context) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
   }
   return context;
 }

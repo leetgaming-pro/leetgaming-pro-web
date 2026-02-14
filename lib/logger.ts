@@ -18,9 +18,9 @@ const pinoConfig: pino.LoggerOptions = {
 
 // Simple logger without worker threads to avoid Next.js module resolution issues
 // pino-pretty transport causes worker thread errors in Next.js dev mode
-export const logger: any = pino(pinoConfig);
+export const logger: Loggable = pino(pinoConfig) as Loggable;
 
 // TODO: mover para middleware
-logger.withRequest = (req: any) => {
+logger.withRequest = (req: IncomingMessage) => {
   return req ? logger.child({ req }) : logger;
 };

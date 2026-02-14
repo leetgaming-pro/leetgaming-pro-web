@@ -72,7 +72,7 @@ interface Player {
 export default function PlayersPage() {
   const {
     isAuthenticated,
-    isLoading: authLoading,
+    isLoading: _authLoading,
     requireAuthForAction,
   } = useOptionalAuth();
   const { sdk } = useReplayApi();

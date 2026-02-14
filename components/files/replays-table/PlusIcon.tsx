@@ -1,5 +1,5 @@
 import React from "react";
-export const PlusIcon = ({size = 24, width, height, ...props}: any): React.JSX.Element => (
+export const PlusIcon = ({size = 24, width, height, ...props}: React.SVGProps<SVGSVGElement> & { size?: number }): React.JSX.Element => (
   <svg
     aria-hidden="true"
     fill="none"

@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spacer, Switch } from "@nextui-org/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Spacer,
+  Switch,
+} from "@nextui-org/react";
 import { EsportsButton } from "@/components/ui/esports-button";
 
 interface CookieSettingsModalProps {
@@ -11,12 +19,17 @@ interface CookieSettingsModalProps {
   onAcceptSelected: () => void;
 }
 
-const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose, onRejectAll, onAcceptAll, onAcceptSelected }) => {
+const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
+  onClose,
+  onRejectAll,
+  onAcceptAll,
+  onAcceptSelected,
+}) => {
   const handleRejectAll = () => {
     onRejectAll();
   };
 
-  const handleAcceptAll = () => {
+  const _handleAcceptAll = () => {
     onAcceptAll();
   };
 
@@ -27,11 +40,13 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose, onRe
   return (
     <Modal isOpen={true} onClose={onClose} placement="top-center">
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">Cookie Settings</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1">
+          Cookie Settings
+        </ModalHeader>
         <ModalBody>
           <p className="text-small font-normal text-default-700">
-            This site uses tracking technologies to improve your experience. You may choose to accept or
-            reject these technologies. Check our{" "}
+            This site uses tracking technologies to improve your experience. You
+            may choose to accept or reject these technologies. Check our{" "}
             <a href="/legal/privacy" className="font-medium underline">
               Privacy Policy
             </a>{" "}
@@ -58,7 +73,11 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({ onClose, onRe
           </div>
         </ModalBody>
         <ModalFooter className="flex-col gap-2">
-          <EsportsButton fullWidth variant="primary" onClick={handleAcceptSelected}>
+          <EsportsButton
+            fullWidth
+            variant="primary"
+            onClick={handleAcceptSelected}
+          >
             Accept Selected
           </EsportsButton>
           <EsportsButton fullWidth variant="ghost" onClick={handleRejectAll}>

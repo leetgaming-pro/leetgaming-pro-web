@@ -19,7 +19,6 @@ import {
   Tab,
   Progress,
   Skeleton,
-  Image,
   Divider,
   Tooltip,
   Modal,
@@ -95,6 +94,7 @@ interface PlayerProfile {
     id: string;
     date: string;
     map: string;
+    map_name?: string;
     result: "win" | "loss" | "tie";
     score: string;
     kills: number;
@@ -606,7 +606,7 @@ export default function PlayerDetailPage() {
                           {match.result.toUpperCase()}
                         </Chip>
                         <div className="flex-1">
-                          <div className="font-semibold">{match.map}</div>
+                          <div className="font-semibold">{match.map_name || match.map}</div>
                           <div className="text-sm text-default-500">
                             {new Date(match.date).toLocaleDateString()} • Score:{" "}
                             {match.score}

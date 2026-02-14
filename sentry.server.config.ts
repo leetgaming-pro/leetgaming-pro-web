@@ -30,7 +30,6 @@ Sentry.init({
   // Server-specific configurations
   integrations: [
     Sentry.httpIntegration(),
-    Sentry.prismaIntegration(),
   ],
 
   // Tags

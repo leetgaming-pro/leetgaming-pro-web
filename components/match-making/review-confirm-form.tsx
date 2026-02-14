@@ -5,14 +5,21 @@
 
 "use client";
 
-import React from "react";
-import { Card, CardBody, CardHeader, Divider, Chip } from "@nextui-org/react";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Chip,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useWizard } from "./wizard-context";
 import {
   TIER_BENEFITS,
   type MatchmakingTier,
+  type PoolStatsResponse,
 } from "@/types/replay-api/matchmaking.types";
 
 const DISTRIBUTION_NAMES = {
@@ -29,7 +36,36 @@ const GAME_MODE_NAMES: Record<string, string> = {
 };
 
 export default function ReviewConfirmForm() {
-  const { state } = useWizard();
+  const { state, sdk } = useWizard();
+  const [poolStats, setPoolStats] = useState<PoolStatsResponse | null>(null);
+
+  // Fetch pool stats during matchmaking search
+  const fetchPoolStats = useCallback(async () => {
+    if (!state.matchmaking?.isSearching) return;
+
+    try {
+      const stats = await sdk.getPoolStats(
+        "cs2",
+        state.gameMode || "competitive",
+        state.region || "na-east",
+      );
+      if (stats) {
+        setPoolStats(stats);
+      }
+    } catch (error) {
+      console.error("Failed to fetch pool stats:", error);
+    }
+  }, [sdk, state.matchmaking?.isSearching, state.gameMode, state.region]);
+
+  // Poll pool stats every 5 seconds during search
+  useEffect(() => {
+    if (state.matchmaking?.isSearching) {
+      fetchPoolStats();
+      const interval = setInterval(fetchPoolStats, 5000);
+      return () => clearInterval(interval);
+    }
+    return undefined;
+  }, [state.matchmaking?.isSearching, fetchPoolStats]);
 
   const tierInfo = state.tier
     ? TIER_BENEFITS[state.tier as MatchmakingTier]
@@ -79,7 +115,7 @@ export default function ReviewConfirmForm() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="text-center space-y-2">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -87,23 +123,24 @@ export default function ReviewConfirmForm() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="inline-block"
         >
-          <div className="rounded-full bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/30 dark:to-[#34445C]/30 p-4 mb-3 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
+          <div className="rounded-full bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/30 dark:to-[#34445C]/30 p-3 sm:p-4 mb-2 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
             <Icon
               icon="solar:shield-check-bold-duotone"
-              width={48}
-              className="text-[#FF4654] dark:text-[#DCFF37]"
+              width={36}
+              className="text-[#FF4654] dark:text-[#DCFF37] sm:w-12 sm:h-12"
             />
           </div>
         </motion.div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
+        <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
           Ready to Compete
         </h3>
-        <p className="text-default-500">
-          Review your match settings before entering the queue
+        <p className="text-sm text-default-500">
+          Review your settings before entering the queue
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Settings summary - scrollable grid on mobile */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
         {sections.map((section, index) => (
           <motion.div
             key={section.title}
@@ -112,20 +149,20 @@ export default function ReviewConfirmForm() {
             transition={{ delay: index * 0.1 }}
           >
             <Card className="hover:shadow-lg transition-all duration-200 rounded-none bg-[#F5F0E1]/80 dark:bg-[#111111]/80 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50">
-              <CardBody className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-none p-2.5 bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody className="p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="rounded-none p-1.5 sm:p-2.5 bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 border border-[#FF4654]/20 dark:border-[#DCFF37]/20 flex-shrink-0">
                     <Icon
                       icon={section.icon}
-                      width={22}
-                      className="text-[#FF4654] dark:text-[#DCFF37]"
+                      width={18}
+                      className="text-[#FF4654] dark:text-[#DCFF37] sm:w-5 sm:h-5"
                     />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-[#34445C]/60 dark:text-[#F5F0E1]/50 uppercase tracking-wider">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-semibold text-[#34445C]/60 dark:text-[#F5F0E1]/50 uppercase tracking-wider">
                       {section.title}
                     </p>
-                    <p className="text-sm font-bold text-[#34445C] dark:text-[#F5F0E1] mt-0.5">
+                    <p className="text-xs sm:text-sm font-bold text-[#34445C] dark:text-[#F5F0E1] mt-0.5 truncate">
                       {section.value}
                     </p>
                   </div>
@@ -288,7 +325,7 @@ export default function ReviewConfirmForm() {
                       {Math.floor(state.matchmaking.estimatedWait / 60)}:
                       {String(state.matchmaking.estimatedWait % 60).padStart(
                         2,
-                        "0"
+                        "0",
                       )}
                     </span>
                   </div>
@@ -303,11 +340,89 @@ export default function ReviewConfirmForm() {
                       {Math.floor(state.matchmaking.elapsedTime / 60)}:
                       {String(state.matchmaking.elapsedTime % 60).padStart(
                         2,
-                        "0"
+                        "0",
                       )}
                     </span>
                   </div>
                 </div>
+
+                {/* Pool Stats Section */}
+                {poolStats && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 pt-4 border-t border-[#FF4654]/20 dark:border-[#DCFF37]/20"
+                  >
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Icon
+                        icon="solar:chart-bold"
+                        width={16}
+                        className="text-[#FFC700] dark:text-[#DCFF37]"
+                      />
+                      <span className="text-xs font-semibold text-[#F5F0E1]/70 uppercase tracking-wider">
+                        Queue Activity
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center justify-between p-2 rounded-none bg-[#34445C]/30 dark:bg-[#111111]/30 border border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                        <span className="text-[#F5F0E1]/60 text-xs">
+                          Players in Pool
+                        </span>
+                        <span className="font-bold text-[#DCFF37]">
+                          {poolStats.total_players}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-none bg-[#34445C]/30 dark:bg-[#111111]/30 border border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                        <span className="text-[#F5F0E1]/60 text-xs">
+                          Queue Health
+                        </span>
+                        <Chip
+                          size="sm"
+                          variant="flat"
+                          className={`rounded-none text-xs font-bold ${
+                            poolStats.queue_health === "healthy"
+                              ? "bg-green-500/20 text-green-400"
+                              : poolStats.queue_health === "moderate"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {poolStats.queue_health?.toUpperCase()}
+                        </Chip>
+                      </div>
+                    </div>
+                    {/* Player Distribution */}
+                    {poolStats.players_by_tier && (
+                      <div className="mt-3">
+                        <span className="text-[#F5F0E1]/60 text-xs block mb-2">
+                          Players by Tier
+                        </span>
+                        <div className="flex gap-1 justify-center">
+                          {Object.entries(poolStats.players_by_tier).map(
+                            ([tier, count]) => (
+                              <Chip
+                                key={tier}
+                                size="sm"
+                                variant="flat"
+                                className={`rounded-none text-xs ${
+                                  tier === "elite"
+                                    ? "bg-purple-500/20 text-purple-300"
+                                    : tier === "pro"
+                                      ? "bg-blue-500/20 text-blue-300"
+                                      : tier === "premium"
+                                        ? "bg-yellow-500/20 text-yellow-300"
+                                        : "bg-gray-500/20 text-gray-300"
+                                }`}
+                              >
+                                {tier}: {count}
+                              </Chip>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </div>
             </CardBody>
           </Card>

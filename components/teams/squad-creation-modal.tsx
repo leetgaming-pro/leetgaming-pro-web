@@ -22,14 +22,11 @@ import {
   Textarea,
   Avatar,
   Chip,
-  Progress,
   Card,
   CardBody,
   Divider,
   Switch,
   User,
-  Autocomplete,
-  AutocompleteItem,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import AvatarUploader from "@/components/avatar/avatar-uploader";
@@ -84,7 +81,7 @@ export function SquadCreationModal({
   isOpen,
   onClose,
 }: SquadCreationModalProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
   const { sdk } = useReplayApi();
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -178,11 +175,11 @@ export function SquadCreationModal({
     try {
       // Map form game ID to API GameIDKey
       const gameIdMap: Record<string, GameIDKey> = {
-        cs2: "cs2",
-        valorant: "vlrnt",
-        csgo: "csgo",
-        lol: "lol",
-        dota2: "dota2",
+        cs2: GameIDKey.CounterStrike2,
+        valorant: GameIDKey.Valorant,
+        csgo: GameIDKey.CounterStrikeGO,
+        lol: GameIDKey.LeagueOfLegends,
+        dota2: GameIDKey.Dota2,
       };
 
       // Create squad via API
@@ -198,6 +195,10 @@ export function SquadCreationModal({
       };
 
       const createdSquad = await sdk.squads.createSquad(squadData);
+
+      if (!createdSquad) {
+        throw new Error("Failed to create squad - no response from server");
+      }
 
       logger.info("Squad created successfully", {
         squadId: createdSquad.id,

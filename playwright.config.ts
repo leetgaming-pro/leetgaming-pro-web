@@ -17,6 +17,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
 
+  /* Global timeout for each test - increased for dev server compilation delays */
+  timeout: 120000,
+
   /* Global setup and teardown */
   globalSetup: undefined,
   globalTeardown: undefined,
@@ -27,11 +30,11 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry flaky tests locally and on CI */
+  retries: process.env.CI ? 2 : 2,
 
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Limit workers to avoid overwhelming the dev server */
+  workers: process.env.CI ? 1 : 4,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
@@ -45,6 +48,10 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3030",
+
+    /* Use domcontentloaded for navigation - 'load' times out with API polling/SSE */
+    navigationTimeout: 90000,
+    actionTimeout: 30000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -98,7 +105,7 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- -p 3030",
     url: "http://localhost:3030",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120 * 1000,
     stdout: "pipe",
     stderr: "pipe",

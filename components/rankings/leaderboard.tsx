@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardBody,
@@ -30,6 +30,8 @@ import { Icon } from "@iconify/react";
 
 import { GAME_CONFIGS, getRankTier, getActiveGames } from "@/config/games";
 import type { GameId, RankTier } from "@/types/games";
+import { useSDK } from "@/contexts/sdk-context";
+import { logger } from "@/lib/logger";
 
 export interface LeaderboardProps {
   /** Selected game ID */
@@ -74,93 +76,6 @@ export interface LeaderboardEntry {
   lastActive?: Date;
 }
 
-// Mock data generator
-const generateMockLeaderboard = (
-  gameId: GameId,
-  count: number
-): LeaderboardEntry[] => {
-  const names = [
-    "s1mple",
-    "ZywOo",
-    "NiKo",
-    "device",
-    "m0NESY",
-    "Kscerato",
-    "sh1ro",
-    "b1t",
-    "YEKINDAR",
-    "Jame",
-    "stavn",
-    "blameF",
-    "Magisk",
-    "cadiaN",
-    "dupreeh",
-    "electroNic",
-    "Perfecto",
-    "Boombl4",
-    "rain",
-    "karrigan",
-    "ropz",
-    "Twistzz",
-    "EliGE",
-    "NAF",
-    "Glaive",
-    "k0nfig",
-    "broky",
-    "olof",
-    "flusha",
-    "krimz",
-  ];
-
-  return Array.from({ length: count }, (_, i) => {
-    const rating = Math.max(
-      100,
-      3500 - i * 35 - Math.floor(Math.random() * 50)
-    );
-    const tier = getRankTier(gameId, rating);
-    const wins = Math.floor(Math.random() * 300) + 100;
-    const losses = Math.floor(Math.random() * 200) + 50;
-
-    return {
-      rank: i + 1,
-      previousRank: i + 1 + Math.floor(Math.random() * 5) - 2,
-      playerId: `player-${i + 1}`,
-      playerName:
-        names[i % names.length] +
-        (i >= names.length ? `_${Math.floor(i / names.length)}` : ""),
-      rating,
-      tier: tier || {
-        id: "unranked",
-        name: "Unranked",
-        minRating: 0,
-        icon: "❓",
-      },
-      wins,
-      losses,
-      winRate: Math.round((wins / (wins + losses)) * 100),
-      gamesPlayed: wins + losses,
-      streak:
-        Math.random() > 0.5
-          ? {
-              type: Math.random() > 0.5 ? "win" : "loss",
-              count: Math.floor(Math.random() * 8) + 1,
-            }
-          : undefined,
-      badges:
-        Math.random() > 0.7
-          ? ["verified", Math.random() > 0.5 ? "pro" : "streamer"].filter(
-              () => Math.random() > 0.5
-            )
-          : [],
-      region: ["NA", "EU", "SA", "ASIA"][Math.floor(Math.random() * 4)],
-      country: ["US", "SE", "BR", "RU", "DK", "DE", "FR", "PL"][
-        Math.floor(Math.random() * 8)
-      ],
-      lastActive: new Date(Date.now() - Math.floor(Math.random() * 86400000)),
-    };
-  });
-};
-
 /**
  * Premium leaderboard component for competitive rankings.
  * Features:
@@ -180,20 +95,64 @@ export function Leaderboard({
   className = "",
   showGameSelector = true,
 }: LeaderboardProps) {
+  const { sdk, isReady } = useSDK();
   const [selectedGame, setSelectedGame] = useState<GameId>(
     initialGameId || "cs2"
   );
   const [selectedType, setSelectedType] = useState(type);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
 
   const game = GAME_CONFIGS[selectedGame];
   const activeGames = getActiveGames();
 
-  // Generate mock data (replace with API call)
-  const [leaderboardData] = useState<LeaderboardEntry[]>(() =>
-    generateMockLeaderboard(selectedGame, 100)
-  );
+  // Fetch real leaderboard data from API
+  const fetchLeaderboard = useCallback(async () => {
+    if (!isReady) return;
+    setIsLoading(true);
+    try {
+      const players = await sdk.playerProfiles.getLeaderboard({
+        game_id: selectedGame,
+        limit: 100,
+      });
+
+      const mapped: LeaderboardEntry[] = players.map(
+        (p: { id?: string; nickname?: string; avatar_uri?: string; rating?: number; stats?: { wins?: number; losses?: number; win_rate?: number }; country?: string }, index: number) => {
+          const rating = p.rating || 0;
+          const tier = getRankTier(selectedGame, rating);
+          const wins = p.stats?.wins || 0;
+          const losses = p.stats?.losses || 0;
+
+          return {
+            rank: index + 1,
+            previousRank: index + 1,
+            playerId: p.id || `player-${index}`,
+            playerName: p.nickname || "Unknown",
+            playerAvatar: p.avatar_uri,
+            rating,
+            tier: tier || { id: "unranked", name: "Unranked", minRating: 0, icon: "❓" },
+            wins,
+            losses,
+            winRate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0,
+            gamesPlayed: wins + losses,
+            country: p.country || "XX",
+          };
+        }
+      );
+
+      setLeaderboardData(mapped);
+    } catch (err) {
+      logger.error("[Leaderboard] Failed to fetch", err);
+      setLeaderboardData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sdk, isReady, selectedGame]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   const paginatedData = leaderboardData.slice(
     (currentPage - 1) * pageSize,
@@ -589,8 +548,54 @@ export function CompactLeaderboard({
   currentPlayerId?: string;
   className?: string;
 }) {
+  const { sdk, isReady } = useSDK();
   const game = GAME_CONFIGS[gameId];
-  const [data] = useState(() => generateMockLeaderboard(gameId, limit));
+  const [data, setData] = useState<LeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const players = await sdk.playerProfiles.getLeaderboard({
+          game_id: gameId,
+          limit,
+        });
+
+        const mapped: LeaderboardEntry[] = players.map(
+          (p: { id?: string; nickname?: string; avatar_uri?: string; rating?: number; stats?: { wins?: number; losses?: number }; country?: string }, index: number) => {
+            const rating = p.rating || 0;
+            const tier = getRankTier(gameId, rating);
+            const wins = p.stats?.wins || 0;
+            const losses = p.stats?.losses || 0;
+            return {
+              rank: index + 1,
+              playerId: p.id || `player-${index}`,
+              playerName: p.nickname || "Unknown",
+              playerAvatar: p.avatar_uri,
+              rating,
+              tier: tier || { id: "unranked", name: "Unranked", minRating: 0, icon: "❓" },
+              wins,
+              losses,
+              winRate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0,
+              gamesPlayed: wins + losses,
+              country: p.country || "XX",
+            };
+          }
+        );
+        setData(mapped);
+      } catch (err) {
+        logger.error("[CompactLeaderboard] Failed to fetch", err);
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [sdk, isReady, gameId, limit]);
 
   if (!game) return null;
 
@@ -603,6 +608,15 @@ export function CompactLeaderboard({
         </div>
       </CardHeader>
       <CardBody className="pt-2">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: limit }).map((_, i) => (
+              <Skeleton key={i} className="w-full h-10 rounded-lg" />
+            ))}
+          </div>
+        ) : data.length === 0 ? (
+          <p className="text-sm text-default-400 text-center py-4">No rankings yet</p>
+        ) : (
         <div className="space-y-2">
           {data.map((entry) => (
             <div
@@ -640,6 +654,7 @@ export function CompactLeaderboard({
             </div>
           ))}
         </div>
+        )}
         <Button
           variant="light"
           color="primary"

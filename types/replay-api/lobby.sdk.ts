@@ -23,6 +23,9 @@ import type {
   LobbyStats,
 } from './lobby.types';
 
+// Re-export types for convenience
+export type { CreateLobbyRequest, CreateLobbyResponse, ListLobbiesResponse, GetLobbyResponse } from './lobby.types';
+
 export class LobbyAPI {
   constructor(private client: ReplayApiClient) {}
 
@@ -170,4 +173,55 @@ export class LobbyAPI {
       clearInterval(intervalId);
     };
   }
+
+  /**
+   * Get featured lobbies for homepage display
+   */
+  async getFeaturedLobbies(gameId?: string, limit: number = 8): Promise<ListLobbiesResponse | null> {
+    const params = new URLSearchParams();
+    if (gameId) params.append('game_id', gameId);
+    params.append('limit', limit.toString());
+
+    const url = `/api/lobbies/featured${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.client.get<ListLobbiesResponse>(url);
+    return response.data || null;
+  }
+
+  /**
+   * Search lobbies with filters
+   */
+  async searchLobbies(request: SearchLobbiesRequest = {}): Promise<ListLobbiesResponse | null> {
+    const params = new URLSearchParams();
+
+    if (request.game_id) params.append('game_id', request.game_id);
+    if (request.game_mode) params.append('game_mode', request.game_mode);
+    if (request.region) params.append('region', request.region);
+    if (request.status) params.append('status', request.status);
+    if (request.visibility) params.append('visibility', request.visibility);
+    if (request.type) params.append('type', request.type);
+    if (request.featured !== undefined) params.append('featured', String(request.featured));
+    if (request.q) params.append('q', request.q);
+    if (request.offset) params.append('offset', request.offset.toString());
+    if (request.limit) params.append('limit', request.limit.toString());
+
+    const url = `/api/lobbies${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await this.client.get<ListLobbiesResponse>(url);
+    return response.data || null;
+  }
+
+  /**
+   * Seed demo lobbies (development only)
+   */
+  async seedDemoLobbies(): Promise<ListLobbiesResponse | null> {
+    const response = await this.client.post<ListLobbiesResponse>('/api/lobbies/seed', {});
+    return response.data || null;
+  }
+}
+
+// Extended search request
+export interface SearchLobbiesRequest extends ListLobbiesRequest {
+  visibility?: string;
+  type?: string;
+  featured?: boolean;
+  q?: string;  // Text search
 }

@@ -6,6 +6,7 @@ import { useToast } from "@/components/toast/toast-provider";
 
 import MultistepSidebar from "./multistep-sidebar";
 import TierSelectionForm from "./tier-selection-form";
+import GameSelectionForm from "./game-selection-form";
 import SquadForm from "./squad-form";
 import ScheduleInformationForm from "./schedule-information-form";
 import ChooseRegionForm from "./choose-region-form";
@@ -15,9 +16,21 @@ import { PrizeDistributionSelector } from "./prize-distribution-selector";
 import ReviewConfirmForm from "./review-confirm-form";
 import { WizardProvider, useWizard } from "./wizard-context";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfiles } from "@/contexts/profile-context";
+import { GameTitle } from "@/types/replay-api/player.types";
 
-// Total steps: Tier (0) → Region (1) → GameMode (2) → Squad (3) → Schedule (4) → Prize (5) → Review (6)
-const TOTAL_STEPS = 7;
+/**
+ * Matchmaking Wizard Steps:
+ * 0: Tier Selection (Free/Premium/Pro/Elite)
+ * 1: Game Selection (CS2/Valorant/etc) - with profile validation
+ * 2: Region Selection
+ * 3: Game Mode (Casual/Elimination/Bo3/Bo5)
+ * 4: Squad Selection (Solo/Duo/Squad)
+ * 5: Schedule (Now/Time-frames/Weekly)
+ * 6: Prize Distribution
+ * 7: Review & Confirm
+ */
+const TOTAL_STEPS = 8;
 
 const variants = {
   enter: (direction: number) => ({
@@ -39,35 +52,89 @@ const variants = {
 function WizardContent() {
   const { state, updateState, startMatchmaking, cancelMatchmaking } =
     useWizard();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
+  const { hasProfiles: _hasProfiles, hasProfileForGame, activeProfile: _activeProfile } = useProfiles();
   const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
 
-  const paginate = React.useCallback((newDirection: number) => {
-    setPage((prev) => {
-      const nextPage = prev[0] + newDirection;
+  // Validation for each step
+  const canProceed = React.useCallback(
+    (currentPage: number): boolean => {
+      switch (currentPage) {
+        case 0: // Tier
+          return !!state.tier;
+        case 1: // Game Selection - must have profile for selected game AND profile ID must be set
+          if (!state.selectedGame) return false;
+          if (!state.selectedProfileId) return false;
+          // Trust wizard state profileId OR check profile context
+          // This handles race condition after profile creation
+          const hasProfileInContext = hasProfileForGame(
+            state.selectedGame as GameTitle,
+          );
+          const profileExistsInState = !!state.selectedProfileId;
+          return hasProfileInContext || profileExistsInState;
+        case 2: // Region
+          return !!state.region;
+        case 3: // Game Mode
+          return !!state.gameMode;
+        case 4: // Squad
+          return true; // Optional
+        case 5: // Schedule
+          return true; // Optional
+        case 6: // Prize Distribution
+          return !!state.distributionRule;
+        case 7: // Review - must have valid game profile
+          return !!state.selectedProfileId && !!state.selectedGame;
+        default:
+          return true;
+      }
+    },
+    [state, hasProfileForGame],
+  );
 
-      if (nextPage < 0 || nextPage > TOTAL_STEPS - 1) return prev;
+  const paginate = React.useCallback(
+    (newDirection: number) => {
+      setPage((prev) => {
+        const nextPage = prev[0] + newDirection;
 
-      return [nextPage, newDirection];
-    });
-  }, []);
+        if (nextPage < 0 || nextPage > TOTAL_STEPS - 1) return prev;
 
-  const onChangePage = React.useCallback((newPage: number) => {
-    setPage((prev) => {
-      if (newPage < 0 || newPage > TOTAL_STEPS - 1) return prev;
-      const currentPage = prev[0];
+        // Validate before moving forward
+        if (newDirection > 0 && !canProceed(prev[0])) {
+          return prev;
+        }
 
-      return [newPage, newPage > currentPage ? 1 : -1];
-    });
-  }, []);
+        return [nextPage, newDirection];
+      });
+    },
+    [canProceed],
+  );
+
+  const onChangePage = React.useCallback(
+    (newPage: number) => {
+      setPage((prev) => {
+        if (newPage < 0 || newPage > TOTAL_STEPS - 1) return prev;
+        const currentPage = prev[0];
+
+        // Validate all steps between current and target if moving forward
+        if (newPage > currentPage) {
+          for (let i = currentPage; i < newPage; i++) {
+            if (!canProceed(i)) return prev;
+          }
+        }
+
+        return [newPage, newPage > currentPage ? 1 : -1];
+      });
+    },
+    [canProceed],
+  );
 
   const onBack = React.useCallback(() => {
     paginate(-1);
   }, [paginate]);
 
   const onNext = React.useCallback(async () => {
-    // If on final step (page 6 - Review), trigger matchmaking
+    // If on final step, trigger matchmaking
     if (page === TOTAL_STEPS - 1) {
       // If currently searching, allow cancel
       if (state.matchmaking?.isSearching) {
@@ -76,10 +143,31 @@ function WizardContent() {
         return;
       }
 
+      // Validate game selection and profile
+      if (!state.selectedGame) {
+        showToast("Please select a game", "error");
+        return;
+      }
+
+      if (!hasProfileForGame(state.selectedGame as GameTitle)) {
+        showToast(
+          "Please create a profile for the selected game first",
+          "error",
+        );
+        return;
+      }
+
       try {
-        // Use user.id if authenticated, otherwise startMatchmaking will create a guest session
-        const playerId = isAuthenticated && user?.id ? user.id : "";
-        await startMatchmaking(playerId);
+        // MUST use game profile ID - never fall back to auth user ID
+        if (!state.selectedProfileId) {
+          showToast(
+            "Please select a game and ensure you have a profile for it",
+            "error",
+          );
+          return;
+        }
+
+        await startMatchmaking(state.selectedProfileId);
         showToast("Searching for opponents...", "success");
       } catch (error) {
         const errorMessage =
@@ -89,21 +177,47 @@ function WizardContent() {
         showToast(errorMessage, "error");
       }
     } else {
+      // Validate current step before proceeding
+      if (!canProceed(page)) {
+        switch (page) {
+          case 0:
+            showToast("Please select a tier", "error");
+            break;
+          case 1:
+            if (!state.selectedGame) {
+              showToast("Please select a game", "error");
+            } else {
+              showToast(
+                "Please create a profile for the selected game",
+                "error",
+              );
+            }
+            break;
+          case 2:
+            showToast("Please select a region", "error");
+            break;
+          case 3:
+            showToast("Please select a game mode", "error");
+            break;
+          default:
+            break;
+        }
+        return;
+      }
       paginate(1);
     }
   }, [
     paginate,
     page,
-    isAuthenticated,
-    user,
     startMatchmaking,
     cancelMatchmaking,
     showToast,
-    state.matchmaking?.isSearching,
+    state,
+    canProceed,
+    hasProfileForGame,
   ]);
 
   const content = React.useMemo(() => {
-    // Steps: Tier (0) → Region (1) → GameMode (2) → Squad (3) → Schedule (4) → Prize (5) → Review (6)
     let component = <TierSelectionForm />;
 
     switch (page) {
@@ -111,18 +225,21 @@ function WizardContent() {
         component = <TierSelectionForm />;
         break;
       case 1:
-        component = <ChooseRegionForm />;
+        component = <GameSelectionForm />;
         break;
       case 2:
-        component = <GameModeForm />;
+        component = <ChooseRegionForm />;
         break;
       case 3:
-        component = <SquadForm />;
+        component = <GameModeForm />;
         break;
       case 4:
-        component = <ScheduleInformationForm />;
+        component = <SquadForm />;
         break;
       case 5:
+        component = <ScheduleInformationForm />;
+        break;
+      case 6:
         component = (
           <PrizeDistributionSelector
             currentPool={state.expectedPool || 100}
@@ -131,7 +248,7 @@ function WizardContent() {
           />
         );
         break;
-      case 6:
+      case 7:
         component = <ReviewConfirmForm />;
         break;
     }
@@ -184,8 +301,12 @@ function WizardContent() {
             children: state.matchmaking?.isSearching
               ? "Cancel Search"
               : page === TOTAL_STEPS - 1
-              ? "Find Match"
-              : "Next",
+                ? "Find Match"
+                : "Next",
+            isDisabled:
+              page < TOTAL_STEPS - 1 &&
+              !canProceed(page) &&
+              !state.matchmaking?.isSearching,
           }}
           onBack={onBack}
           onNext={onNext}

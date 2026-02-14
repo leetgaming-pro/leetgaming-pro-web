@@ -1,844 +1,647 @@
 "use client";
 
 /**
- * Matches Page - State-of-the-Art Match Browser
- * Browse live, completed, and upcoming matches with beautiful UI
+ * Matches Page - Professional Match Browser with Esports Branding
+ * Browse matches with award-winning UX matching LobbiesShowcase style
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card,
-  CardBody,
-  CardHeader,
   Chip,
-  Input,
+  RadioGroup,
   Select,
   SelectItem,
-  Avatar,
-  AvatarGroup,
-  Pagination,
+  Input,
   Button,
-  Skeleton,
-  Tooltip,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { useMatches, Match } from "@/hooks/use-matches";
-import { PageContainer } from "@/components/layouts/centered-content";
+import { useRouter } from "next/navigation";
+import { useOptionalAuth } from "@/hooks";
+import {
+  LazyMotion,
+  domAnimation,
+  m,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import clsx from "clsx";
+import { Orbitron } from "next/font/google";
+import { useTheme } from "next-themes";
 
-// Status configuration
-const statusConfig = {
-  live: {
-    color: "danger" as const,
-    icon: "solar:play-circle-bold",
-    label: "LIVE",
-    bgColor: "#FF4654",
-  },
-  completed: {
-    color: "success" as const,
-    icon: "solar:check-circle-bold",
-    label: "Completed",
-    bgColor: "#06FFA5",
-  },
-  upcoming: {
-    color: "warning" as const,
-    icon: "solar:clock-circle-bold",
-    label: "Upcoming",
-    bgColor: "#FFC700",
-  },
-};
+import GameRadioItem from "@/components/filters/game-filter/game-radio-item";
+import { useSDK } from "@/contexts/sdk-context";
+import { logger } from "@/lib/logger";
+import { ensureSession } from "@/types/replay-api/auth";
+import { MatchData } from "@/types/replay-api/sdk";
+import { MatchCardGrid } from "@/components/match/MatchCard";
+import { NoMatchesFound, ErrorState } from "@/components/ui/empty-states";
+import { MobileNavigation } from "@/components/ui";
 
-// Game configurations
-const gameConfig: Record<string, { icon: string; color: string; name: string }> = {
-  "cs2": { icon: "simple-icons:counterstrike", color: "#F7941D", name: "Counter-Strike 2" },
-  "Counter-Strike 2": { icon: "simple-icons:counterstrike", color: "#F7941D", name: "Counter-Strike 2" },
-  "valorant": { icon: "simple-icons:valorant", color: "#FF4655", name: "Valorant" },
-  "Valorant": { icon: "simple-icons:valorant", color: "#FF4655", name: "Valorant" },
-  "lol": { icon: "simple-icons:leagueoflegends", color: "#C89B3C", name: "League of Legends" },
-  "League of Legends": { icon: "simple-icons:leagueoflegends", color: "#C89B3C", name: "League of Legends" },
-  "dota2": { icon: "simple-icons:dota2", color: "#A1252F", name: "Dota 2" },
-  "Dota 2": { icon: "simple-icons:dota2", color: "#A1252F", name: "Dota 2" },
-};
+const orbitron = Orbitron({
+  weight: ["400", "700", "900"],
+  subsets: ["latin"],
+});
 
-const gameOptions = [
-  { key: "all", label: "All Games" },
-  { key: "Counter-Strike 2", label: "Counter-Strike 2" },
-  { key: "Valorant", label: "Valorant" },
-  { key: "League of Legends", label: "League of Legends" },
-  { key: "Dota 2", label: "Dota 2" },
-];
-
-const mapThumbnails: Record<string, string> = {
-  de_dust2: "/images/maps/dust2.jpg",
-  de_mirage: "/images/maps/mirage.jpg",
-  de_inferno: "/images/maps/inferno.jpg",
-  de_nuke: "/images/maps/nuke.jpg",
-  de_ancient: "/images/maps/ancient.jpg",
-  de_anubis: "/images/maps/anubis.jpg",
-  de_vertigo: "/images/maps/vertigo.jpg",
-};
-
-// Generate mock matches for demo
-function generateMockMatches(count: number): Match[] {
-  const maps = ["de_dust2", "de_mirage", "de_inferno", "de_nuke", "de_ancient", "de_anubis"];
-  const modes = ["Competitive", "Premier", "Wingman"];
-  const teamNames = [
-    ["NAVI", "Vitality"],
-    ["FaZe", "G2"],
-    ["Cloud9", "Liquid"],
-    ["Astralis", "Heroic"],
-    ["ENCE", "BIG"],
-    ["NIP", "fnatic"],
-    ["MOUZ", "Spirit"],
-    ["Virtus.pro", "Eternal Fire"],
-  ];
-  const tournaments = ["BLAST Premier", "ESL Pro League", "IEM Katowice", "PGL Major", null, null];
-  const statuses: Match["status"][] = ["live", "completed", "completed", "completed", "upcoming", "completed"];
-  const playerNames = ["s1mple", "ZywOo", "NiKo", "device", "Twistzz", "electronic", "ropz", "b1t", "m0NESY", "broky"];
-
-  return Array.from({ length: count }, (_, i) => {
-    const status = statuses[i % statuses.length];
-    const teamPair = teamNames[i % teamNames.length];
-    const map = maps[i % maps.length];
-    const isLive = status === "live";
-    const isCompleted = status === "completed";
-
-    const team1Score = isCompleted ? Math.floor(Math.random() * 16) + 8 : isLive ? Math.floor(Math.random() * 12) : 0;
-    const team2Score = isCompleted 
-      ? (team1Score >= 13 ? Math.floor(Math.random() * (team1Score - 3)) + 1 : Math.floor(Math.random() * 16) + 8)
-      : isLive ? Math.floor(Math.random() * 12) : 0;
-
-    return {
-      id: `match-${i + 1}-${Date.now()}`,
-      game: "Counter-Strike 2",
-      gameIcon: "simple-icons:counterstrike",
-      map,
-      mode: modes[i % modes.length],
-      teams: [
-        {
-          name: teamPair[0],
-          score: team1Score,
-          players: Array.from({ length: 5 }, (_, j) => ({
-            name: playerNames[(i * 5 + j) % playerNames.length],
-            avatar: `/avatars/default-player.svg`,
-          })),
-        },
-        {
-          name: teamPair[1],
-          score: team2Score,
-          players: Array.from({ length: 5 }, (_, j) => ({
-            name: playerNames[(i * 5 + j + 5) % playerNames.length],
-            avatar: `/avatars/default-player.svg`,
-          })),
-        },
-      ],
-      status,
-      timestamp: new Date(Date.now() - (isCompleted ? Math.random() * 7 * 24 * 60 * 60 * 1000 : isLive ? 0 : -Math.random() * 2 * 24 * 60 * 60 * 1000)),
-      duration: isCompleted ? `${Math.floor(Math.random() * 20) + 30}m` : undefined,
-      tournament: tournaments[i % tournaments.length] || undefined,
-    };
-  });
+interface MatchListState {
+  matches: MatchData[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  hasMore: boolean;
 }
 
-// Match Card Component
-function MatchCard({ match, variant = "default" }: { match: Match; variant?: "default" | "featured" | "live" }) {
-  const config = statusConfig[match.status];
-  const gameInfo = gameConfig[match.game] || { icon: "solar:gameboy-bold", color: "#DCFF37", name: match.game };
-  const winner = match.status === "completed"
-    ? match.teams[0].score > match.teams[1].score ? 0 : match.teams[0].score < match.teams[1].score ? 1 : null
-    : null;
+// Animated counter component
+function AnimatedCounter({
+  value,
+  duration = 1,
+}: {
+  value: number;
+  duration?: number;
+}) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+  const [displayValue, setDisplayValue] = useState(0);
 
-  const mapBg = mapThumbnails[match.map] || "/images/maps/dust2.jpg";
+  useEffect(() => {
+    const controls = animate(count, value, { duration });
+    return controls.stop;
+  }, [value, count, duration]);
 
-  if (variant === "live" || (variant === "default" && match.status === "live")) {
-    return (
-      <Link href={`/match/${match.id}`}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.02 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card
-            className="relative overflow-hidden border-2 border-[#FF4654] hover:border-[#FF4654] transition-all cursor-pointer"
-            style={{
-              background: "linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)",
-              clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
-            }}
-          >
-            {/* Live indicator glow */}
-            <div className="absolute inset-0 animate-pulse opacity-20 bg-gradient-to-r from-[#FF4654] via-transparent to-[#FF4654]" />
-            
-            <CardBody className="p-5 relative z-10">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-10 h-10 flex items-center justify-center"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${gameInfo.color}30, ${gameInfo.color}10)`,
-                      clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
-                    }}
-                  >
-                    <Icon icon={gameInfo.icon} width={24} style={{ color: gameInfo.color }} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-[#F5F0E1]">{gameInfo.name}</p>
-                    <p className="text-xs text-[#F5F0E1]/50">{match.map} • {match.mode}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4654] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FF4654]"></span>
-                  </span>
-                  <Chip 
-                    className="rounded-none font-bold uppercase text-xs"
-                    style={{ backgroundColor: "#FF4654", color: "#0a0a0a" }}
-                  >
-                    LIVE
-                  </Chip>
-                </div>
-              </div>
-
-              {/* Teams & Score */}
-              <div className="flex items-center justify-between gap-4">
-                {/* Team 1 */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <AvatarGroup max={3} size="sm">
-                      {match.teams[0]?.players.slice(0, 3).map((player, i) => (
-                        <Avatar
-                          key={i}
-                          name={player.name?.[0]}
-                          src={player.avatar}
-                          size="sm"
-                          className="ring-1 ring-[#FF4654]/50"
-                        />
-                      ))}
-                    </AvatarGroup>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-[#F5F0E1] truncate">{match.teams[0]?.name}</p>
-                      <p className="text-xs text-[#F5F0E1]/40">{match.teams[0]?.players.length} players</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Score */}
-                <div className="flex items-center gap-3 px-4 py-2 bg-[#0a0a0a]/80 rounded-none">
-                  <span className="text-3xl font-black text-[#F5F0E1]">{match.teams[0]?.score ?? 0}</span>
-                  <span className="text-[#F5F0E1]/30 text-xl">:</span>
-                  <span className="text-3xl font-black text-[#F5F0E1]">{match.teams[1]?.score ?? 0}</span>
-                </div>
-
-                {/* Team 2 */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 justify-end">
-                    <div className="flex-1 min-w-0 text-right">
-                      <p className="font-bold text-[#F5F0E1] truncate">{match.teams[1]?.name}</p>
-                      <p className="text-xs text-[#F5F0E1]/40">{match.teams[1]?.players.length} players</p>
-                    </div>
-                    <AvatarGroup max={3} size="sm">
-                      {match.teams[1]?.players.slice(0, 3).map((player, i) => (
-                        <Avatar
-                          key={i}
-                          name={player.name?.[0]}
-                          src={player.avatar}
-                          size="sm"
-                          className="ring-1 ring-[#FF4654]/50"
-                        />
-                      ))}
-                    </AvatarGroup>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              {match.tournament && (
-                <div className="mt-4 pt-3 border-t border-[#FF4654]/20 flex items-center gap-2 text-xs text-[#F5F0E1]/50">
-                  <Icon icon="solar:cup-bold" width={14} className="text-[#FFC700]" />
-                  <span>{match.tournament}</span>
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </motion.div>
-      </Link>
+  useEffect(() => {
+    const unsubscribe = rounded.on("change", (latest) =>
+      setDisplayValue(latest),
     );
-  }
+    return unsubscribe;
+  }, [rounded]);
 
-  // Default card for completed/upcoming
-  return (
-    <Link href={`/match/${match.id}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.01, y: -2 }}
-        transition={{ duration: 0.2 }}
-      >
-        <Card
-          className="group relative overflow-hidden border border-[#34445C]/30 dark:border-[#DCFF37]/10 hover:border-[#DCFF37]/40 transition-all cursor-pointer"
-          style={{
-            background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)",
-            clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
-          }}
-        >
-          <CardBody className="p-4">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Icon icon={gameInfo.icon} width={18} style={{ color: gameInfo.color }} />
-                <span className="text-sm text-[#F5F0E1]/70">{match.map}</span>
-                <span className="text-[#F5F0E1]/30">•</span>
-                <span className="text-sm text-[#F5F0E1]/50">{match.mode}</span>
-              </div>
-              <Chip 
-                size="sm"
-                className="rounded-none text-xs"
-                style={{ 
-                  backgroundColor: `${config.bgColor}20`,
-                  color: config.bgColor,
-                }}
-                startContent={<Icon icon={config.icon} width={12} />}
-              >
-                {config.label}
-              </Chip>
-            </div>
-
-            {/* Teams & Score */}
-            <div className="flex items-center justify-between gap-3">
-              {/* Team 1 */}
-              <div className={`flex-1 ${winner === 1 ? "opacity-50" : ""}`}>
-                <div className="flex items-center gap-2">
-                  <AvatarGroup max={2} size="sm">
-                    {match.teams[0]?.players.slice(0, 2).map((player, i) => (
-                      <Avatar
-                        key={i}
-                        name={player.name?.[0]}
-                        src={player.avatar}
-                        size="sm"
-                        className="ring-1 ring-[#34445C]/30"
-                      />
-                    ))}
-                  </AvatarGroup>
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold truncate ${winner === 0 ? "text-[#06FFA5]" : "text-[#F5F0E1]"}`}>
-                      {match.teams[0]?.name}
-                      {winner === 0 && <Icon icon="solar:crown-bold" width={14} className="inline ml-1 text-[#FFC700]" />}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Score */}
-              <div className="flex items-center gap-2 px-3 py-1 bg-[#0a0a0a]/60">
-                <span className={`text-xl font-bold ${winner === 0 ? "text-[#06FFA5]" : "text-[#F5F0E1]"}`}>
-                  {match.teams[0]?.score ?? 0}
-                </span>
-                <span className="text-[#F5F0E1]/20">-</span>
-                <span className={`text-xl font-bold ${winner === 1 ? "text-[#06FFA5]" : "text-[#F5F0E1]"}`}>
-                  {match.teams[1]?.score ?? 0}
-                </span>
-              </div>
-
-              {/* Team 2 */}
-              <div className={`flex-1 ${winner === 0 ? "opacity-50" : ""}`}>
-                <div className="flex items-center gap-2 justify-end">
-                  <div className="flex-1 min-w-0 text-right">
-                    <p className={`font-semibold truncate ${winner === 1 ? "text-[#06FFA5]" : "text-[#F5F0E1]"}`}>
-                      {winner === 1 && <Icon icon="solar:crown-bold" width={14} className="inline mr-1 text-[#FFC700]" />}
-                      {match.teams[1]?.name}
-                    </p>
-                  </div>
-                  <AvatarGroup max={2} size="sm">
-                    {match.teams[1]?.players.slice(0, 2).map((player, i) => (
-                      <Avatar
-                        key={i}
-                        name={player.name?.[0]}
-                        src={player.avatar}
-                        size="sm"
-                        className="ring-1 ring-[#34445C]/30"
-                      />
-                    ))}
-                  </AvatarGroup>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="mt-3 pt-2 border-t border-[#34445C]/20 flex items-center justify-between text-xs text-[#F5F0E1]/40">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <Icon icon="solar:calendar-linear" width={12} />
-                  {match.timestamp.toLocaleDateString()}
-                </span>
-                {match.duration && (
-                  <span className="flex items-center gap-1">
-                    <Icon icon="solar:clock-circle-linear" width={12} />
-                    {match.duration}
-                  </span>
-                )}
-              </div>
-              {match.tournament && (
-                <span className="flex items-center gap-1 text-[#FFC700]/70">
-                  <Icon icon="solar:cup-linear" width={12} />
-                  <span className="truncate max-w-[120px]">{match.tournament}</span>
-                </span>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-      </motion.div>
-    </Link>
-  );
+  return <span>{displayValue}</span>;
 }
 
-function MatchSkeleton() {
+// Live pulse indicator
+function LivePulse({ className }: { className?: string }) {
   return (
-    <Card 
-      className="overflow-hidden border border-[#34445C]/20"
-      style={{
-        background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)",
-        clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
-      }}
-    >
-      <CardBody className="p-4 gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Skeleton className="w-5 h-5 rounded" />
-            <Skeleton className="h-4 w-20 rounded" />
-          </div>
-          <Skeleton className="h-6 w-20 rounded-none" />
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Skeleton className="w-8 h-8 rounded-full" />
-            <Skeleton className="h-5 w-24 rounded" />
-          </div>
-          <Skeleton className="h-8 w-16 rounded" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-24 rounded" />
-            <Skeleton className="w-8 h-8 rounded-full" />
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-3 w-24 rounded" />
-          <Skeleton className="h-3 w-20 rounded" />
-        </div>
-      </CardBody>
-    </Card>
+    <span className={clsx("relative flex h-2 w-2", className)}>
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4654] opacity-75" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4654]" />
+    </span>
   );
 }
 
 export default function MatchesPage() {
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [gameFilter, setGameFilter] = useState<string>("all");
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 12;
-
-  // Fetch matches from real API
-  const { matches: apiMatches, total, isLoading, isError, refresh } = useMatches({
-    status: statusFilter,
-    game: gameFilter,
-    limit: 50,
-    offset: 0,
+  const { isAuthenticated } = useOptionalAuth();
+  const router = useRouter();
+  const { theme } = useTheme();
+  const [state, setState] = useState<MatchListState>({
+    matches: [],
+    loading: true,
+    error: null,
+    total: 0,
+    page: 1,
+    hasMore: true,
   });
 
-  // Use mock data if API returns empty or errors
-  const mockMatches = useMemo(() => generateMockMatches(20), []);
-  const matches = apiMatches.length > 0 ? apiMatches : mockMatches;
+  // Filters state
+  const [selectedGame, setSelectedGame] = useState<string>("cs2");
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  const [selectedVisibility, setSelectedVisibility] =
+    useState<string>("public");
+  const [sortBy, setSortBy] = useState<string>("most_recent");
 
-  // Client-side filtering for search
-  const filteredMatches = useMemo(() => {
-    return matches.filter((match) => {
-      const matchesSearch =
-        search === "" ||
-        match.game.toLowerCase().includes(search.toLowerCase()) ||
-        match.map.toLowerCase().includes(search.toLowerCase()) ||
-        match.teams.some((t) => t.name.toLowerCase().includes(search.toLowerCase()));
+  // Handle visibility change - private/shared require auth
+  const handleVisibilityChange = (value: string) => {
+    if ((value === "private" || value === "shared") && !isAuthenticated) {
+      router.push("/signin?callbackUrl=/matches");
+      return;
+    }
+    setSelectedVisibility(value);
+  };
 
-      const matchesStatus = statusFilter === "all" || match.status === statusFilter;
-      const matchesGame = gameFilter === "all" || match.game.toLowerCase().includes(gameFilter.toLowerCase());
+  // Use SDK context for consistent auth-aware API access
+  const { sdk, isReady } = useSDK();
 
-      return matchesSearch && matchesStatus && matchesGame;
-    });
-  }, [matches, search, statusFilter, gameFilter]);
+  // Search state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
 
-  // Separate by status
-  const liveMatches = filteredMatches.filter((m) => m.status === "live");
-  const upcomingMatches = filteredMatches.filter((m) => m.status === "upcoming");
-  const completedMatches = filteredMatches.filter((m) => m.status === "completed");
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  // Pagination for completed matches
-  const totalPages = Math.ceil(completedMatches.length / itemsPerPage);
-  const paginatedCompleted = completedMatches.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  // Fetch matches - uses SDK context for consistent auth
+  const fetchMatches = useCallback(
+    async (page: number = 1, append: boolean = false) => {
+      if (!isReady) return;
 
-  // Stats for header
-  const stats = {
-    live: liveMatches.length,
-    completed: completedMatches.length,
-    upcoming: upcomingMatches.length,
-    total: filteredMatches.length,
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+
+      try {
+        if (isAuthenticated || selectedVisibility !== "public") {
+          const hasSession = await ensureSession();
+          if (!hasSession) {
+            throw new Error(
+              "Failed to establish session. Please try refreshing the page.",
+            );
+          }
+        }
+
+        const response = await sdk.matches.listMatches({
+          game_id: selectedGame,
+          search_term: debouncedSearchTerm || undefined,
+          limit: 20,
+          offset: (page - 1) * 20,
+        });
+
+        setState((prev) => ({
+          ...prev,
+          matches: append ? [...prev.matches, ...response] : response,
+          loading: false,
+          total: response.length,
+          page,
+          hasMore: response.length === 20,
+        }));
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load matches";
+        logger.error("[MatchesPage] Failed to fetch matches", error);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: errorMessage,
+        }));
+      }
+    },
+    [
+      isAuthenticated,
+      selectedVisibility,
+      sdk,
+      isReady,
+      selectedGame,
+      debouncedSearchTerm,
+    ],
+  );
+
+  // Load matches on mount and filter change
+  useEffect(() => {
+    fetchMatches(1, false);
+  }, [fetchMatches]);
+
+  // Load more handler
+  const handleLoadMore = () => {
+    if (!state.loading && state.hasMore) {
+      fetchMatches(state.page + 1, true);
+    }
+  };
+
+  const handleUpload = () => {
+    router.push("/upload");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a0a] via-[#121212] to-[#0a0a0a]">
-      <PageContainer title="" description="" maxWidth="6xl">
-        {/* Hero Header */}
-        <div className="relative mb-12 py-12 -mx-4 px-4 overflow-hidden">
-          {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a]" />
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-1/3 w-80 h-80 bg-[#06FFA5] rounded-full filter blur-[120px] animate-pulse" />
-            <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-[#FF4654] rounded-full filter blur-[120px] animate-pulse delay-700" />
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="flex justify-center mb-6">
-                <div
-                  className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-[#06FFA5] to-[#00D9FF]"
-                  style={{
-                    clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
-                  }}
-                >
-                  <Icon icon="solar:gameboy-bold" className="text-[#0a0a0a]" width={48} />
-                </div>
-              </div>
-
-              <h1 className="text-5xl md:text-7xl font-black text-[#F5F0E1] mb-4 tracking-tight">
-                MATCHES
-              </h1>
-              <p className="text-xl text-[#F5F0E1]/60 max-w-2xl mx-auto">
-                Live, upcoming, and recent competitive matches
-              </p>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex justify-center gap-8 mt-8"
-            >
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4654] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4654]"></span>
-                  </span>
-                  <p className="text-3xl font-bold text-[#FF4654]">{stats.live}</p>
-                </div>
-                <p className="text-sm text-[#F5F0E1]/50">Live Now</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-[#FFC700]">{stats.upcoming}</p>
-                <p className="text-sm text-[#F5F0E1]/50">Upcoming</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-[#06FFA5]">{stats.completed}</p>
-                <p className="text-sm text-[#F5F0E1]/50">Completed</p>
-              </div>
-            </motion.div>
-          </div>
+    <LazyMotion features={domAnimation}>
+      <section
+        className={clsx(
+          "relative w-full min-h-screen overflow-hidden pb-24 md:pb-0",
+          "bg-gradient-to-b from-background via-background/95 to-background",
+        )}
+      >
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
+                               linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+              backgroundSize: "60px 60px",
+            }}
+          />
+          {/* Glowing orbs */}
+          <m.div
+            animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+            className="absolute top-20 left-1/4 w-96 h-96 bg-[#FF4654]/10 rounded-full blur-[120px]"
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          <m.div
+            animate={{ x: [0, -80, 0], y: [0, 60, 0] }}
+            className="absolute bottom-20 right-1/4 w-80 h-80 bg-[#DCFF37]/10 rounded-full blur-[100px]"
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          />
         </div>
 
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="relative container mx-auto px-4 sm:px-6 py-8 lg:py-20">
+          {/* Section Header */}
+          <m.div
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8 md:mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Live indicator */}
+            <div className="flex items-center justify-center gap-2 mb-4 md:mb-6">
+              <LivePulse />
+              <span
+                className={clsx(
+                  "text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em]",
+                  theme === "dark" ? "text-[#DCFF37]" : "text-[#FF4654]",
+                  orbitron.className,
+                )}
+              >
+                Match Library
+              </span>
+            </div>
+
+            {/* Main title */}
+            <h1
+              className={clsx(
+                "text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight mb-3 md:mb-4",
+                orbitron.className,
+              )}
+            >
+              <span className="text-foreground">View All </span>
+              <span
+                className={clsx(
+                  "bg-clip-text text-transparent",
+                  theme === "dark"
+                    ? "bg-gradient-to-r from-[#DCFF37] via-[#FFC700] to-[#FF4654]"
+                    : "bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37]",
+                )}
+              >
+                Matches
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-base md:text-lg text-default-500 max-w-2xl mx-auto mb-6 md:mb-8 px-4">
+              Browse and analyze competitive matches from the community. Filter
+              by game, visibility, and more.
+            </p>
+
+            {/* Stats Bar - Mobile optimized horizontal scroll */}
+            <m.div
+              animate={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-4 sm:gap-8 px-4 sm:px-8 py-3 sm:py-4 rounded-none border border-default-200/30 bg-default-100/30 backdrop-blur-sm overflow-x-auto max-w-full"
+              initial={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              <div className="text-center min-w-[70px]">
+                <div
+                  className={clsx(
+                    "text-xl sm:text-2xl font-black",
+                    theme === "dark" ? "text-[#DCFF37]" : "text-[#FF4654]",
+                    orbitron.className,
+                  )}
+                >
+                  <AnimatedCounter value={state.total || 247} />
+                </div>
+                <div className="text-[10px] sm:text-xs text-default-400 uppercase tracking-wider whitespace-nowrap">
+                  Total Matches
+                </div>
+              </div>
+              <div className="w-px h-8 sm:h-10 bg-default-200/50 flex-shrink-0" />
+              <div className="text-center min-w-[60px]">
+                <div
+                  className={clsx(
+                    "text-xl sm:text-2xl font-black text-[#FFC700]",
+                    orbitron.className,
+                  )}
+                >
+                  {selectedGame.toUpperCase()}
+                </div>
+                <div className="text-[10px] sm:text-xs text-default-400 uppercase tracking-wider whitespace-nowrap">
+                  Selected Game
+                </div>
+              </div>
+              <div className="w-px h-8 sm:h-10 bg-default-200/50 flex-shrink-0" />
+              <div className="text-center min-w-[70px]">
+                <div
+                  className={clsx(
+                    "text-xl sm:text-2xl font-black",
+                    theme === "dark" ? "text-[#DCFF37]" : "text-[#FF4654]",
+                    orbitron.className,
+                  )}
+                >
+                  <AnimatedCounter value={98} />%
+                </div>
+                <div className="text-[10px] sm:text-xs text-default-400 uppercase tracking-wider whitespace-nowrap">
+                  Success Rate
+                </div>
+              </div>
+            </m.div>
+          </m.div>
+
+          {/* Filters Row - Mobile optimized with horizontal scroll */}
+          <m.div
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            {/* Search Input - Full width on mobile */}
             <Input
-              placeholder="Search teams, maps..."
-              value={search}
-              onValueChange={setSearch}
+              type="text"
+              placeholder="Search matches..."
+              value={searchTerm}
+              onValueChange={setSearchTerm}
               startContent={
-                <Icon icon="solar:magnifer-linear" width={20} className="text-[#DCFF37]" />
+                <Icon
+                  icon="solar:magnifer-bold"
+                  className="text-default-400"
+                  width={18}
+                />
               }
-              isClearable
-              onClear={() => setSearch("")}
-              className="max-w-xs"
+              endContent={
+                searchTerm && (
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={() => setSearchTerm("")}
+                    className="h-8 w-8 min-w-8 touch-target"
+                  >
+                    <Icon icon="solar:close-circle-bold" width={16} />
+                  </Button>
+                )
+              }
               classNames={{
-                inputWrapper: "rounded-none border-[#34445C]/30 bg-[#1a1a1a]",
-                input: "text-[#F5F0E1]",
+                base: "w-full sm:w-64",
+                input: "text-base sm:text-sm",
+                inputWrapper: clsx(
+                  "bg-default-100/50 backdrop-blur-sm rounded-none min-h-[48px] sm:min-h-[40px]",
+                  "border border-default-200/50",
+                  theme === "dark"
+                    ? "hover:border-[#DCFF37]/50"
+                    : "hover:border-[#FF4654]/50",
+                ),
               }}
             />
-            <div className="flex gap-2 flex-wrap">
-              {/* Status Filter */}
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button
-                    variant="bordered"
-                    className="rounded-none border-[#34445C]/30 min-w-[120px]"
-                    endContent={<Icon icon="solar:alt-arrow-down-linear" width={16} />}
-                  >
-                    {statusFilter === "all" ? "All Status" : statusConfig[statusFilter as keyof typeof statusConfig]?.label || statusFilter}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Status filter"
-                  selectionMode="single"
-                  selectedKeys={[statusFilter]}
-                  onSelectionChange={(keys) => {
-                    setStatusFilter(Array.from(keys)[0] as string);
-                    setPage(1);
-                  }}
-                >
-                  <DropdownItem key="all">All Status</DropdownItem>
-                  <DropdownItem key="live" startContent={<span className="w-2 h-2 rounded-full bg-[#FF4654]" />}>Live</DropdownItem>
-                  <DropdownItem key="upcoming" startContent={<span className="w-2 h-2 rounded-full bg-[#FFC700]" />}>Upcoming</DropdownItem>
-                  <DropdownItem key="completed" startContent={<span className="w-2 h-2 rounded-full bg-[#06FFA5]" />}>Completed</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
 
+            {/* Filters row - horizontal scroll on mobile */}
+            <div className="flex items-center gap-3 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
               {/* Game Filter */}
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button
-                    variant="bordered"
-                    className="rounded-none border-[#34445C]/30 min-w-[140px]"
-                    endContent={<Icon icon="solar:alt-arrow-down-linear" width={16} />}
-                  >
-                    {gameFilter === "all" ? "All Games" : gameFilter}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Game filter"
-                  selectionMode="single"
-                  selectedKeys={[gameFilter]}
-                  onSelectionChange={(keys) => {
-                    setGameFilter(Array.from(keys)[0] as string);
-                    setPage(1);
-                  }}
-                >
-                  {gameOptions.map((opt) => (
-                    <DropdownItem key={opt.key}>{opt.label}</DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+              <RadioGroup
+                aria-label="Game"
+                classNames={{
+                  wrapper: "gap-2 flex-shrink-0",
+                }}
+                orientation="horizontal"
+                value={selectedGame}
+                onValueChange={setSelectedGame}
+              >
+                <GameRadioItem color="#FF4654" tooltip="CS:2" value="cs2" />
+                <GameRadioItem color="#FFC700" tooltip="CS:GO" value="csgo" />
+                <GameRadioItem
+                  color="#DCFF37"
+                  tooltip="Valorant"
+                  value="valorant"
+                />
+              </RadioGroup>
 
-              {/* Refresh Button */}
-              <Button
-                isIconOnly
+              {/* Visibility Filter */}
+              <Select
+                aria-label="Visibility"
+                classNames={{
+                  base: "w-32 sm:w-40 flex-shrink-0",
+                  trigger: clsx(
+                    "bg-default-100/50 backdrop-blur-sm rounded-none min-h-[44px] sm:min-h-[40px]",
+                    "border border-default-200/50",
+                    theme === "dark"
+                      ? "hover:border-[#DCFF37]/50"
+                      : "hover:border-[#FF4654]/50",
+                  ),
+                }}
+                selectedKeys={[selectedVisibility]}
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0] as string;
+                  handleVisibilityChange(value);
+                }}
+                placeholder="Visibility"
                 variant="bordered"
-                className="rounded-none border-[#34445C]/30"
-                onPress={() => refresh()}
               >
-                <Icon icon="solar:refresh-linear" width={20} />
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+                <SelectItem key="public" value="public">
+                  Public
+                </SelectItem>
+                <SelectItem key="private" value="private">
+                  Private {!isAuthenticated && "🔒"}
+                </SelectItem>
+                <SelectItem key="shared" value="shared">
+                  Shared {!isAuthenticated && "🔒"}
+                </SelectItem>
+                <SelectItem key="all" value="all">
+                  All
+                </SelectItem>
+              </Select>
 
-        {/* Error State */}
-        {isError && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-6 p-4 bg-[#FF4654]/10 border border-[#FF4654]/30 rounded-none"
-          >
-            <div className="flex items-center gap-3">
-              <Icon icon="solar:danger-triangle-bold" width={24} className="text-[#FF4654]" />
-              <div className="flex-1">
-                <p className="font-semibold text-[#FF4654]">Unable to connect to server</p>
-                <p className="text-sm text-[#F5F0E1]/60">Showing cached/demo data</p>
-              </div>
-              <Button size="sm" variant="flat" className="rounded-none" onPress={() => refresh()}>
-                Retry
-              </Button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && apiMatches.length === 0 ? (
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <MatchSkeleton key={i} />
-            ))}
-          </div>
-        ) : filteredMatches.length === 0 ? (
-          /* Empty State */
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20"
-          >
-            <div
-              className="w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-[#34445C]/20"
-              style={{
-                clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
-              }}
-            >
-              <Icon icon="solar:gameboy-linear" width={48} className="text-[#DCFF37]/50" />
-            </div>
-            <h3 className="text-xl font-bold text-[#F5F0E1] mb-2">No matches found</h3>
-            <p className="text-[#F5F0E1]/50 mb-6">
-              Try adjusting your filters or check back later
-            </p>
-            <Button
-              className="rounded-none bg-[#DCFF37] text-[#0a0a0a] font-semibold"
-              onPress={() => {
-                setSearch("");
-                setStatusFilter("all");
-                setGameFilter("all");
-              }}
-            >
-              Clear Filters
-            </Button>
-          </motion.div>
-        ) : (
-          <>
-            {/* Live Matches Section */}
-            {liveMatches.length > 0 && statusFilter !== "completed" && statusFilter !== "upcoming" && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="mb-10"
+              {/* Sort Filter */}
+              <Select
+                aria-label="Sort by"
+                classNames={{
+                  base: "w-32 sm:w-40 flex-shrink-0",
+                  trigger: clsx(
+                    "bg-default-100/50 backdrop-blur-sm rounded-none min-h-[44px] sm:min-h-[40px]",
+                    "border border-default-200/50",
+                    theme === "dark"
+                      ? "hover:border-[#DCFF37]/50"
+                      : "hover:border-[#FF4654]/50",
+                  ),
+                }}
+                selectedKeys={[sortBy]}
+                onSelectionChange={(keys) =>
+                  setSortBy(Array.from(keys)[0] as string)
+                }
+                placeholder="Sort by"
+                variant="bordered"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4654] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FF4654]"></span>
-                  </span>
-                  <h2 className="text-2xl font-bold text-[#F5F0E1]">Live Now</h2>
-                  <Chip size="sm" className="rounded-none bg-[#FF4654]/20 text-[#FF4654]">
-                    {liveMatches.length}
-                  </Chip>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {liveMatches.map((match) => (
-                    <MatchCard key={match.id} match={match} variant="live" />
-                  ))}
-                </div>
-              </motion.section>
+                <SelectItem key="newest" value="newest">
+                  Newest
+                </SelectItem>
+                <SelectItem key="top_rated" value="top_rated">
+                  Top Rated
+                </SelectItem>
+                <SelectItem key="most_popular" value="most_popular">
+                  Most Popular
+                </SelectItem>
+              </Select>
+            </div>
+          </m.div>
+
+          {/* Active filters display - Mobile swipeable chips */}
+          {(selectedGame !== "cs2" ||
+            selectedVisibility !== "public" ||
+            selectedTeams.length > 0) && (
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6 sm:mb-8 px-2 overflow-x-auto scrollbar-hide">
+              {selectedGame !== "cs2" && (
+                <Chip
+                  classNames={{
+                    base: "h-8 touch-target",
+                    content: "text-default-700 text-sm",
+                    closeButton: "text-default-500 w-5 h-5",
+                  }}
+                  variant="flat"
+                  onClose={() => setSelectedGame("cs2")}
+                >
+                  Game: {selectedGame.toUpperCase()}
+                </Chip>
+              )}
+              {selectedVisibility !== "public" && (
+                <Chip
+                  classNames={{
+                    base: "h-8 touch-target",
+                    content: "text-default-700 text-sm",
+                    closeButton: "text-default-500 w-5 h-5",
+                  }}
+                  variant="flat"
+                  onClose={() => setSelectedVisibility("public")}
+                >
+                  Visibility: {selectedVisibility}
+                </Chip>
+              )}
+              {selectedTeams.map((team) => (
+                <Chip
+                  key={team}
+                  classNames={{
+                    base: "h-8 touch-target",
+                    content: "text-default-700 text-sm",
+                    closeButton: "text-default-500 w-5 h-5",
+                  }}
+                  variant="flat"
+                  onClose={() =>
+                    setSelectedTeams((prev) => prev.filter((t) => t !== team))
+                  }
+                >
+                  Team: {team}
+                </Chip>
+              ))}
+            </div>
+          )}
+
+          {/* Content Area */}
+          <div className="mb-12">
+            {/* Error state */}
+            {state.error && (
+              <ErrorState
+                title="Error Loading Matches"
+                message={state.error}
+                onRetry={() => fetchMatches(1, false)}
+              />
             )}
 
-            {/* Upcoming Matches Section */}
-            {upcomingMatches.length > 0 && statusFilter !== "completed" && statusFilter !== "live" && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mb-10"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Icon icon="solar:clock-circle-bold" width={24} className="text-[#FFC700]" />
-                  <h2 className="text-2xl font-bold text-[#F5F0E1]">Upcoming</h2>
-                  <Chip size="sm" className="rounded-none bg-[#FFC700]/20 text-[#FFC700]">
-                    {upcomingMatches.length}
-                  </Chip>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {upcomingMatches.slice(0, 4).map((match) => (
-                    <MatchCard key={match.id} match={match} />
-                  ))}
-                </div>
-              </motion.section>
-            )}
-
-            {/* Completed Matches Section */}
-            {completedMatches.length > 0 && statusFilter !== "live" && statusFilter !== "upcoming" && (
-              <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Icon icon="solar:history-bold" width={24} className="text-[#06FFA5]" />
-                  <h2 className="text-2xl font-bold text-[#F5F0E1]">Match History</h2>
-                  <Chip size="sm" className="rounded-none bg-[#06FFA5]/20 text-[#06FFA5]">
-                    {completedMatches.length}
-                  </Chip>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <AnimatePresence mode="popLayout">
-                    {paginatedCompleted.map((match, i) => (
-                      <motion.div
-                        key={match.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.2, delay: i * 0.05 }}
-                        layout
-                      >
-                        <MatchCard match={match} />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center mt-8">
-                    <Pagination
-                      total={totalPages}
-                      page={page}
-                      onChange={setPage}
-                      showControls
-                      classNames={{
-                        wrapper: "gap-2",
-                        item: "rounded-none bg-[#1a1a1a] border border-[#34445C]/30",
-                        cursor: "rounded-none bg-[#DCFF37] text-[#0a0a0a]",
-                      }}
+            {/* Loading state - Mobile optimized skeleton */}
+            {state.loading && state.matches.length === 0 && !state.error && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <AnimatePresence mode="popLayout">
+                  {[...Array(6)].map((_, i) => (
+                    <m.div
+                      key={`skeleton-${i}`}
+                      animate={{ opacity: 1 }}
+                      className="h-56 sm:h-64 rounded-none bg-default-100/50 animate-pulse"
+                      exit={{ opacity: 0 }}
+                      initial={{ opacity: 0 }}
                     />
-                  </div>
-                )}
-              </motion.section>
-            )}
-          </>
-        )}
-
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="mt-16 relative overflow-hidden"
-        >
-          <div
-            className="p-8 md:p-12 bg-gradient-to-r from-[#06FFA5] via-[#00D9FF] to-[#DCFF37] relative"
-            style={{
-              clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%)",
-            }}
-          >
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <h3 className="text-2xl md:text-3xl font-black text-[#0a0a0a] mb-2">
-                  Ready to Compete?
-                </h3>
-                <p className="text-[#0a0a0a]/70 max-w-lg">
-                  Join matchmaking and find your next competitive match. Play ranked or casual with players at your skill level.
-                </p>
+                  ))}
+                </AnimatePresence>
               </div>
-              <Button
-                size="lg"
-                as={Link}
-                href="/match-making"
-                className="rounded-none bg-[#0a0a0a] text-[#F5F0E1] font-bold px-8"
-                startContent={<Icon icon="solar:play-bold" width={24} />}
-              >
-                Find Match
-              </Button>
-            </div>
+            )}
+
+            {/* Empty state */}
+            {!state.loading && state.matches.length === 0 && !state.error && (
+              <NoMatchesFound
+                searchTerm={debouncedSearchTerm}
+                onClearSearch={
+                  debouncedSearchTerm ? () => setSearchTerm("") : undefined
+                }
+              />
+            )}
+
+            {/* Matches grid */}
+            {state.matches.length > 0 && (
+              <>
+                <MatchCardGrid
+                  matches={state.matches}
+                  gameId={selectedGame}
+                  isLoading={false}
+                  columns={3}
+                />
+
+                {/* Load more button - Touch optimized */}
+                {state.hasMore && (
+                  <m.div
+                    className="flex justify-center mt-8 sm:mt-12"
+                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                  >
+                    <Button
+                      className={clsx(
+                        "h-12 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-bold uppercase tracking-wider border-2 touch-target w-full sm:w-auto",
+                        orbitron.className,
+                      )}
+                      endContent={<Icon icon="solar:refresh-bold" width={20} />}
+                      radius="none"
+                      size="lg"
+                      variant="bordered"
+                      onPress={handleLoadMore}
+                      isLoading={state.loading}
+                      disabled={state.loading}
+                    >
+                      {state.loading ? "Loading..." : "Load More"}
+                    </Button>
+                  </m.div>
+                )}
+              </>
+            )}
           </div>
-        </motion.div>
-      </PageContainer>
-    </div>
+
+          {/* Action Buttons - Mobile stack */}
+          <m.div
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0"
+            initial={{ opacity: 0, y: 20 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <Button
+              className={clsx(
+                "h-14 px-6 sm:px-10 text-sm sm:text-base font-black uppercase tracking-wider touch-target",
+                orbitron.className,
+              )}
+              color="primary"
+              endContent={<Icon icon="solar:upload-bold" width={22} />}
+              radius="none"
+              size="lg"
+              style={{
+                backgroundColor: theme === "dark" ? "#DCFF37" : "#FF4654",
+                color: theme === "dark" ? "#0a0a0a" : "#ffffff",
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+              }}
+              onPress={handleUpload}
+            >
+              Upload Replay
+            </Button>
+            <Button
+              className={clsx(
+                "h-14 px-6 sm:px-10 text-sm sm:text-base font-bold uppercase tracking-wider border-2 touch-target",
+                orbitron.className,
+              )}
+              endContent={<Icon icon="solar:home-2-bold" width={22} />}
+              radius="none"
+              size="lg"
+              variant="bordered"
+              onPress={() => router.push("/")}
+            >
+              Back to Home
+            </Button>
+          </m.div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <MobileNavigation />
+      </section>
+    </LazyMotion>
   );
 }

@@ -12,7 +12,7 @@ import {
   isAuthenticatedSync,
 } from "@/types/replay-api/auth";
 import { IdentifierSourceType } from "@/types/replay-api/entities.types";
-import { logger } from "@/lib/logger";
+import { logger as _logger } from "@/lib/logger";
 
 /** Extended session user type with RID and provider data */
 interface SessionUserExtended {
@@ -63,9 +63,8 @@ export function AuthSync({ children }: AuthSyncProps) {
             syncInProgress.current = true;
             await getRIDTokenManager().clearToken();
             lastSyncedRid.current = null;
-            logger.debug("[AuthSync] Cleared RID token - no session");
           } catch (error) {
-            logger.warn("[AuthSync] Failed to clear RID token:", error);
+            console.warn("[AuthSync] Failed to clear RID token:", error);
           } finally {
             syncInProgress.current = false;
           }
@@ -73,17 +72,45 @@ export function AuthSync({ children }: AuthSyncProps) {
         return;
       }
 
-      // If session has no RID, backend onboarding may have failed
+      // If session has no RID, try to refresh it from backend
       if (!sessionRid) {
-        logger.debug(
-          "[AuthSync] Session has no RID - backend onboarding may have failed"
-        );
+        // Try to get RID from refresh endpoint
+        try {
+          syncInProgress.current = true;
+          const response = await fetch("/api/auth/rid-refresh", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.rid) {
+              // Use the refreshed RID to set up auth
+              await getRIDTokenManager().setFromOnboarding({
+                profile: {
+                  id: data.uid || "",
+                  rid_source: IdentifierSourceType.Google,
+                  source_key: sessionUser?.email || "",
+                },
+                rid: data.rid,
+                user_id: data.uid || "",
+              });
+              lastSyncedRid.current = data.rid;
+            }
+          } else {
+            const errorData = await response.json();
+            console.warn("[AuthSync] RID refresh failed:", errorData);
+          }
+        } catch (error) {
+          console.error("[AuthSync] Error refreshing RID:", error);
+        } finally {
+          syncInProgress.current = false;
+        }
         return;
       }
 
       // Check if we already synced this RID
       if (lastSyncedRid.current === sessionRid && isAuthenticatedSync()) {
-        logger.debug("[AuthSync] RID token already synced for this session");
         return;
       }
 
@@ -118,12 +145,8 @@ export function AuthSync({ children }: AuthSyncProps) {
         });
 
         lastSyncedRid.current = sessionRid;
-        logger.info("[AuthSync] Synced RID token from session", {
-          sourceType,
-          hasRid: !!sessionRid,
-        });
       } catch (error) {
-        logger.error("[AuthSync] Failed to sync RID token:", error);
+        console.error("[AuthSync] Failed to sync RID token:", error);
         // Reset to allow retry
         lastSyncedRid.current = null;
       } finally {

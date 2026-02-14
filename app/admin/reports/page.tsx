@@ -22,7 +22,6 @@ export default function AdminReportsPage() {
     
     if (isAuthenticated) {
       // Check if user is admin
-      // @ts-expect-error - role may not be in user type
       const isAdmin = user?.role === "admin" || user?.isAdmin;
 
       if (!isAdmin) {

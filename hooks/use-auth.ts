@@ -19,6 +19,8 @@ interface SessionUserWithRID {
   image?: string | null;
   rid?: string;
   uid?: string;
+  role?: string;
+  isAdmin?: boolean;
 }
 
 export interface AuthState {
@@ -34,6 +36,8 @@ export interface AuthState {
     image?: string | null;
     rid?: string;
     uid?: string;
+    role?: string;
+    isAdmin?: boolean;
   } | null;
   /** Sign out function that clears both NextAuth and RID tokens */
   signOut: () => Promise<void>;
@@ -84,6 +88,8 @@ export function useAuth(): AuthState {
       image: session.user.image,
       rid: sessionUser.rid,
       uid: sessionUser.uid,
+      role: sessionUser.role,
+      isAdmin: sessionUser.isAdmin,
     };
   }, [session]);
 

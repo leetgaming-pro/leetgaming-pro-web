@@ -37,9 +37,10 @@ export type Team = {
 export type TeamCardProps = React.HTMLAttributes<HTMLDivElement> & Team;
 
 const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props, ref): any => {
     const {
-      children,
+      children: _children,
       id,
       avatar,
       name,

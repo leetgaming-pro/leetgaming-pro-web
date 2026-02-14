@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 /**
  * Email Verification Modal
  * Uses SDK via useAuthExtensions hook - DO NOT use direct fetch calls
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,9 +15,9 @@ import {
   Button,
   Input,
   Spinner,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useAuthExtensions } from '@/hooks/use-auth-extensions';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useAuthExtensions } from "@/hooks/use-auth-extensions";
 
 interface EmailVerificationModalProps {
   isOpen: boolean;
@@ -34,14 +34,14 @@ export function EmailVerificationModal({
 }: EmailVerificationModalProps) {
   // Use SDK-powered auth hook instead of direct fetch
   const {
-    isEmailVerificationLoading,
+    isEmailVerificationLoading: _isEmailVerificationLoading,
     emailVerificationError,
     sendVerificationEmail,
     verifyEmail,
     clearErrors,
   } = useAuthExtensions();
 
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +54,7 @@ export function EmailVerificationModal({
     if (isOpen && !codeSent) {
       sendVerificationCode();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: codeSent is a guard flag, sendVerificationCode is stable; only re-trigger on isOpen change
   }, [isOpen]);
 
   // Cooldown timer
@@ -79,10 +80,11 @@ export function EmailVerificationModal({
         setCodeSent(true);
         setCooldown(60); // 60 second cooldown before resending
       } else {
-        setError(emailVerificationError || 'Failed to send verification code');
+        setError(emailVerificationError || "Failed to send verification code");
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send verification code';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to send verification code";
       setError(errorMessage);
     } finally {
       setIsSending(false);
@@ -102,23 +104,29 @@ export function EmailVerificationModal({
     }
 
     // Auto-submit when all digits entered
-    if (newCode.every((digit) => digit !== '') && newCode.join('').length === 6) {
-      verifyCode(newCode.join(''));
+    if (
+      newCode.every((digit) => digit !== "") &&
+      newCode.join("").length === 6
+    ) {
+      verifyCode(newCode.join(""));
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
 
     if (pastedData.length === 6) {
-      const newCode = pastedData.split('');
+      const newCode = pastedData.split("");
       setCode(newCode);
       verifyCode(pastedData);
     }
@@ -135,14 +143,15 @@ export function EmailVerificationModal({
       if (success) {
         onVerified();
       } else {
-        setError(emailVerificationError || 'Invalid verification code');
-        setCode(['', '', '', '', '', '']);
+        setError(emailVerificationError || "Invalid verification code");
+        setCode(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Verification failed';
+      const errorMessage =
+        err instanceof Error ? err.message : "Verification failed";
       setError(errorMessage);
-      setCode(['', '', '', '', '', '']);
+      setCode(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
@@ -150,7 +159,7 @@ export function EmailVerificationModal({
   };
 
   const handleClose = () => {
-    setCode(['', '', '', '', '', '']);
+    setCode(["", "", "", "", "", ""]);
     setError(null);
     clearErrors();
     onClose();
@@ -162,8 +171,8 @@ export function EmailVerificationModal({
       onClose={handleClose}
       placement="center"
       classNames={{
-        backdrop: 'bg-black/80 backdrop-blur-sm',
-        base: 'bg-content1 border border-content3',
+        backdrop: "bg-black/80 backdrop-blur-sm",
+        base: "bg-content1 border border-content3",
       }}
     >
       <ModalContent>
@@ -177,7 +186,10 @@ export function EmailVerificationModal({
         <ModalBody>
           <div className="text-center mb-6">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-              <Icon icon="solar:mailbox-bold" className="w-8 h-8 text-primary" />
+              <Icon
+                icon="solar:mailbox-bold"
+                className="w-8 h-8 text-primary"
+              />
             </div>
             <p className="text-default-500 text-sm">
               We sent a 6-digit verification code to
@@ -190,7 +202,9 @@ export function EmailVerificationModal({
             {code.map((digit, index) => (
               <Input
                 key={index}
-                ref={(el) => { inputRefs.current[index] = el as HTMLInputElement | null; }}
+                ref={(el) => {
+                  inputRefs.current[index] = el as HTMLInputElement | null;
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -198,9 +212,9 @@ export function EmailVerificationModal({
                 onChange={(e) => handleCodeChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 classNames={{
-                  base: 'w-12',
-                  input: 'text-center text-xl font-bold',
-                  inputWrapper: 'h-14',
+                  base: "w-12",
+                  input: "text-center text-xl font-bold",
+                  inputWrapper: "h-14",
                 }}
                 isDisabled={isLoading}
                 autoFocus={index === 0}
@@ -211,7 +225,10 @@ export function EmailVerificationModal({
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-2 p-3 bg-danger/10 border border-danger/20 rounded-lg text-sm">
-              <Icon icon="solar:danger-triangle-bold" className="w-4 h-4 text-danger" />
+              <Icon
+                icon="solar:danger-triangle-bold"
+                className="w-4 h-4 text-danger"
+              />
               <span className="text-danger">{error}</span>
             </div>
           )}
@@ -227,7 +244,7 @@ export function EmailVerificationModal({
           {/* Resend Code */}
           <div className="text-center mt-4">
             <p className="text-sm text-default-400">
-              Didn&apos;t receive the code?{' '}
+              Didn&apos;t receive the code?{" "}
               {cooldown > 0 ? (
                 <span className="text-default-500">Resend in {cooldown}s</span>
               ) : (

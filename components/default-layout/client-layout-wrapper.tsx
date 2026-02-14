@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * ClientLayoutWrapper
@@ -17,12 +17,13 @@
  *                                       └── Application Content
  */
 
-import { Providers } from './providers';
-import { Navbar } from '@/components/navbar';
-import { BreadcrumbBar } from '@/components/breadcrumb';
-import FooterColumns from '../footer-columns/app';
-import Box from './box';
-import { DevelopmentNotice } from '@/components/development-notice';
+import { Providers } from "./providers";
+import { Navbar } from "@/components/navbar";
+import { BreadcrumbBar } from "@/components/breadcrumb";
+import FooterColumns from "../footer-columns/app";
+import { MobileNavigation } from "@/components/ui/mobile-navigation";
+import Box from "./box";
+import { DevelopmentNotice } from "@/components/development-notice";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
@@ -36,11 +37,12 @@ export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
           <Navbar />
           <BreadcrumbBar />
           <DevelopmentNotice />
-          <main className="flex w-full flex-col items-center flex-grow">
+          <main className="flex w-full flex-col items-center flex-grow pb-20 md:pb-0">
             <div className="w-full max-w-[1400px] mx-auto px-4 lg:px-6">
               {children}
             </div>
           </main>
+          <MobileNavigation />
           <FooterColumns />
         </div>
       </Providers>
@@ -49,4 +51,3 @@ export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
 }
 
 export default ClientLayoutWrapper;
-

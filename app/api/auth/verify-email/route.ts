@@ -10,8 +10,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../[...nextauth]/options";
 import { forwardAuthenticatedRequest } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
-const BACKEND_URL = process.env.REPLAY_API_URL || "https://api.leetgaming.pro";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/auth/verify-email?token=xxx

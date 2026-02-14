@@ -1,9 +1,8 @@
-import {Chip, LinkIcon, Spacer} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import { Chip } from "@nextui-org/react";
 
-import {type SidebarItem, SidebarItemType} from "./sidebar";
+import { type SidebarItem, SidebarItemType } from "./sidebar";
 import TeamAvatar from "./team-avatar";
-import { PlusIcon } from '../icons';
+import { PlusIcon } from "../icons";
 
 /**
  * Please check the https://nextui.org/docs/guide/routing to have a seamless router integration
@@ -86,7 +85,7 @@ export const sectionItems: SidebarItem[] = [
         href: "/upload",
         icon: "solar:cloud-upload-bold",
         title: "Upload Replay",
-        endContent: <PlusIcon />
+        endContent: <PlusIcon />,
       },
       {
         key: "onboarding",
@@ -267,7 +266,11 @@ export const brandItems: SidebarItem[] = [
         icon: "solar:gamepad-bold",
         title: "Play Now",
         endContent: (
-          <Chip className="bg-primary-foreground font-medium text-primary" size="sm" variant="flat">
+          <Chip
+            className="bg-primary-foreground font-medium text-primary"
+            size="sm"
+            variant="flat"
+          >
             Live
           </Chip>
         ),

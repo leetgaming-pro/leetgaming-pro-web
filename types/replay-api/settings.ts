@@ -41,18 +41,18 @@ export enum ReplayApiResourceType {
   Side = "sides",
   Team = "teams",
   Squad = "squads",
-  
+
   // IAM
   User = "users",
   Group = "groups",
   Profile = "profiles",
   Membership = "memberships",
-  
+
   // Onboarding
   Onboarding = "onboarding",
   Steam = "steam",
   Google = "google",
-  
+
   // Sharing
   ShareToken = "share-tokens",
 }
@@ -62,11 +62,11 @@ export enum ReplayApiResourceType {
  * Based on replay-api/pkg/domain/game_id_key.go
  */
 export enum GameIDKey {
-  CounterStrike2 = 'cs2',
-  CounterStrikeGO = 'csgo',
-  Valorant = 'valorant',
-  LeagueOfLegends = 'lol',
-  Dota2 = 'dota2',
+  CounterStrike2 = "cs2",
+  CounterStrikeGO = "csgo",
+  Valorant = "valorant",
+  LeagueOfLegends = "lol",
+  Dota2 = "dota2",
 }
 
 /**
@@ -74,34 +74,57 @@ export enum GameIDKey {
  * Based on replay-api/pkg/domain/network_id_key.go
  */
 export enum NetworkIDKey {
-  Valve = 'valve',
-  FACEIT = 'faceit',
-  ESEA = 'esea',
-  Community = 'community',
-  LAN = 'lan',
-  Unknown = 'unknown',
+  Valve = "valve",
+  FACEIT = "faceit",
+  ESEA = "esea",
+  Community = "community",
+  LAN = "lan",
+  Unknown = "unknown",
 }
 
 /**
  * Visibility type enumeration
  * Based on replay-api/pkg/domain/entity.go
+ * String values for display, numeric values for API
  */
 export enum VisibilityTypeKey {
-  Public = 'public',
-  Restricted = 'restricted',
-  Private = 'private',
-  Custom = 'custom',
+  Public = "public",
+  Restricted = "restricted",
+  Private = "private",
+  Custom = "custom",
 }
+
+/**
+ * Numeric visibility values for API communication
+ * Matches resource-ownership/go-common/pkg/common/types.go
+ */
+export enum VisibilityTypeValue {
+  Public = 1,
+  Restricted = 2,
+  Private = 4,
+  Custom = 8,
+}
+
+/**
+ * Map from string visibility to numeric value
+ */
+export const VisibilityTypeMap: Record<VisibilityTypeKey, VisibilityTypeValue> =
+  {
+    [VisibilityTypeKey.Public]: VisibilityTypeValue.Public,
+    [VisibilityTypeKey.Restricted]: VisibilityTypeValue.Restricted,
+    [VisibilityTypeKey.Private]: VisibilityTypeValue.Private,
+    [VisibilityTypeKey.Custom]: VisibilityTypeValue.Custom,
+  };
 
 /**
  * Bit flags representing access levels in the resource hierarchy
  * Based on replay-api/pkg/domain/resource_owner.go
  */
 export enum IntendedAudienceKey {
-  UserAudienceIDKey = 1,    // bit 0
-  GroupAudienceIDKey = 2,   // bit 1
-  ClientAudienceIDKey = 4,  // bit 2
-  TenantAudienceIDKey = 8,  // bit 3
+  UserAudienceIDKey = 1, // bit 0
+  GroupAudienceIDKey = 2, // bit 1
+  ClientAudienceIDKey = 4, // bit 2
+  TenantAudienceIDKey = 8, // bit 3
 }
 
 /**
@@ -109,10 +132,10 @@ export enum IntendedAudienceKey {
  * Based on replay-api/pkg/domain/share_token.go
  */
 export enum ShareTokenStatus {
-  Active = 'active',
-  Used = 'used',
-  Expired = 'expired',
-  Revoked = 'revoked',
+  Active = "active",
+  Used = "used",
+  Expired = "expired",
+  Revoked = "revoked",
 }
 
 /**
@@ -120,9 +143,9 @@ export enum ShareTokenStatus {
  * Based on replay-api/pkg/domain/rid_token.go
  */
 export enum GrantType {
-  AuthorizationCode = 'authorization_code',
-  ClientCredentials = 'client_credentials',
-  RefreshToken = 'refresh_token',
+  AuthorizationCode = "authorization_code",
+  ClientCredentials = "client_credentials",
+  RefreshToken = "refresh_token",
 }
 
 /**
@@ -168,7 +191,12 @@ const Resources: ApiResource[] = [
     dynamic: true,
     paramName: "playerId",
   },
-  { type: ReplayApiResourceType.Team, path: "teams/:teamId", dynamic: true, paramName: "teamId" },
+  {
+    type: ReplayApiResourceType.Team,
+    path: "teams/:teamId",
+    dynamic: true,
+    paramName: "teamId",
+  },
   { type: ReplayApiResourceType.Event, path: "events" },
   { type: ReplayApiResourceType.Highlight, path: "highlights" },
   {
@@ -186,28 +214,41 @@ const Resources: ApiResource[] = [
   { type: ReplayApiResourceType.Steam, path: "steam" },
 ];
 
-
 /**
  * Get the base URL for the replay API based on environment configuration
  * Supports multi-region deployments via REPLAY_API_URL and REPLAY_API_REGION
+ *
+ * For client-side (browser) requests, always uses /api to route through Next.js
+ * API routes, which avoids CORS issues since requests stay on the same origin.
+ * For server-side requests, uses REPLAY_API_URL (internal K8s service URL)
  */
 function getReplayApiBaseUrl(): string {
-  // Primary: Use explicit REPLAY_API_URL if set
+  // Client-side: Always use Next.js API routes to avoid CORS issues
+  // Requests to /api/* are proxied server-side to the backend
+  if (typeof window !== "undefined") {
+    return "/api";
+  }
+
+  // Server-side: Use internal service URL if available, else public URL
   if (process.env.REPLAY_API_URL) {
     return process.env.REPLAY_API_URL;
   }
 
-  // Secondary: Build URL from region if specified
-  const region = process.env.REPLAY_API_REGION || 'local';
+  if (process.env.NEXT_PUBLIC_REPLAY_API_URL) {
+    return process.env.NEXT_PUBLIC_REPLAY_API_URL;
+  }
+
+  // Fallback: Build URL from region if specified
+  const region = process.env.REPLAY_API_REGION || "local";
   const regionUrls: Record<string, string> = {
-    local: 'http://localhost:8080',
-    'na-east': 'https://api-na-east.leetgaming.pro',
-    'na-west': 'https://api-na-west.leetgaming.pro',
-    'eu-west': 'https://api-eu-west.leetgaming.pro',
-    'eu-east': 'https://api-eu-east.leetgaming.pro',
-    'sa': 'https://api-sa.leetgaming.pro',
-    'asia': 'https://api-asia.leetgaming.pro',
-    'oce': 'https://api-oce.leetgaming.pro',
+    local: "http://localhost:8080",
+    "na-east": "https://api-na-east.leetgaming.pro",
+    "na-west": "https://api-na-west.leetgaming.pro",
+    "eu-west": "https://api-eu-west.leetgaming.pro",
+    "eu-east": "https://api-eu-east.leetgaming.pro",
+    sa: "https://api-sa.leetgaming.pro",
+    asia: "https://api-asia.leetgaming.pro",
+    oce: "https://api-oce.leetgaming.pro",
   };
 
   return regionUrls[region] || regionUrls.local;
@@ -216,9 +257,12 @@ function getReplayApiBaseUrl(): string {
 /**
  * Replay API Settings
  * Note: Named "Mock" for historical reasons but connects to real backend
+ * Uses a getter for baseUrl to ensure it's evaluated at runtime, not build time
  */
 export const ReplayApiSettingsMock: ReplayApiSettings = {
-  baseUrl: getReplayApiBaseUrl(),
+  get baseUrl(): string {
+    return getReplayApiBaseUrl();
+  },
   resources: Resources,
 };
 
@@ -228,15 +272,22 @@ export const ReplayApiSettingsMock: ReplayApiSettings = {
  */
 export function getRegionApiUrl(region: string): string {
   const regionUrls: Record<string, string> = {
-    'na-east': process.env.REPLAY_API_URL_NA_EAST || 'https://api-na-east.leetgaming.pro',
-    'na-west': process.env.REPLAY_API_URL_NA_WEST || 'https://api-na-west.leetgaming.pro',
-    'eu-west': process.env.REPLAY_API_URL_EU_WEST || 'https://api-eu-west.leetgaming.pro',
-    'eu-east': process.env.REPLAY_API_URL_EU_EAST || 'https://api-eu-east.leetgaming.pro',
-    'sa': process.env.REPLAY_API_URL_SA || 'https://api-sa.leetgaming.pro',
-    'asia': process.env.REPLAY_API_URL_ASIA || 'https://api-asia.leetgaming.pro',
-    'oce': process.env.REPLAY_API_URL_OCE || 'https://api-oce.leetgaming.pro',
+    "na-east":
+      process.env.REPLAY_API_URL_NA_EAST ||
+      "https://api-na-east.leetgaming.pro",
+    "na-west":
+      process.env.REPLAY_API_URL_NA_WEST ||
+      "https://api-na-west.leetgaming.pro",
+    "eu-west":
+      process.env.REPLAY_API_URL_EU_WEST ||
+      "https://api-eu-west.leetgaming.pro",
+    "eu-east":
+      process.env.REPLAY_API_URL_EU_EAST ||
+      "https://api-eu-east.leetgaming.pro",
+    sa: process.env.REPLAY_API_URL_SA || "https://api-sa.leetgaming.pro",
+    asia: process.env.REPLAY_API_URL_ASIA || "https://api-asia.leetgaming.pro",
+    oce: process.env.REPLAY_API_URL_OCE || "https://api-oce.leetgaming.pro",
   };
 
   return regionUrls[region] || ReplayApiSettingsMock.baseUrl;
 }
-

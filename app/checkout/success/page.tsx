@@ -12,6 +12,7 @@ import {
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { Payment, PaymentStatus } from '@/components/checkout/types';
+import { useRequireAuth } from '@/hooks/use-auth';
 
 // Force runtime rendering for client-side features
 export const runtime = 'edge';
@@ -20,6 +21,8 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export default function CheckoutSuccessPage() {
+  const { isLoading: isAuthLoading, isAuthenticated, isRedirecting } = useRequireAuth({ callbackUrl: '/checkout/success' });
+  const isReady = !isAuthLoading && !isRedirecting;
   const searchParams = useSearchParams();
   const router = useRouter();
   const paymentId = searchParams.get('payment_id');
@@ -29,6 +32,8 @@ export default function CheckoutSuccessPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isReady || !isAuthenticated) return;
+
     const fetchPayment = async () => {
       if (!paymentId) {
         setError('No payment ID provided');
@@ -54,7 +59,15 @@ export default function CheckoutSuccessPage() {
     };
 
     fetchPayment();
-  }, [paymentId]);
+  }, [paymentId, isReady, isAuthenticated]);
+
+  if (!isReady || !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   const formatAmount = (amount: number, currency: string): string => {
     return new Intl.NumberFormat('en-US', {

@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardBody,
   Chip,
-  Avatar,
   Button,
   Spinner,
   Tabs,
@@ -53,7 +52,10 @@ import {
 const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
 // Status colors for visual feedback
-const statusColors: Record<ChallengeStatus, "default" | "primary" | "secondary" | "success" | "warning" | "danger"> = {
+const statusColors: Record<
+  ChallengeStatus,
+  "default" | "primary" | "secondary" | "success" | "warning" | "danger"
+> = {
   pending: "warning",
   in_review: "primary",
   vote_pending: "secondary",
@@ -76,7 +78,10 @@ const typeIcons: Record<ChallengeType, string> = {
 };
 
 // Priority colors
-const priorityColors: Record<ChallengePriority, "default" | "primary" | "secondary" | "success" | "warning" | "danger"> = {
+const priorityColors: Record<
+  ChallengePriority,
+  "default" | "primary" | "secondary" | "success" | "warning" | "danger"
+> = {
   low: "default",
   normal: "primary",
   high: "warning",
@@ -84,7 +89,7 @@ const priorityColors: Record<ChallengePriority, "default" | "primary" | "seconda
 };
 
 export default function ChallengesPage() {
-  const { user, isAuthenticated } = useOptionalAuth();
+  const { user } = useOptionalAuth();
   const [challenges, setChallenges] = useState<ChallengeResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +100,9 @@ export default function ChallengesPage() {
   const [typeFilter, setTypeFilter] = useState<ChallengeType | "">("");
   const [statusFilter, setStatusFilter] = useState<ChallengeStatus | "">("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null
+  );
 
   const ITEMS_PER_PAGE = 10;
 
@@ -206,8 +213,7 @@ export default function ChallengesPage() {
             selectedKey={activeTab}
             onSelectionChange={(key) => setActiveTab(key as string)}
             classNames={{
-              tabList:
-                "bg-default-100 dark:bg-default-50/10 p-1 rounded-none",
+              tabList: "bg-default-100 dark:bg-default-50/10 p-1 rounded-none",
               cursor: "bg-[#FF4654] dark:bg-[#DCFF37] rounded-none",
               tab: "h-10 rounded-none",
               tabContent:
@@ -277,7 +283,9 @@ export default function ChallengesPage() {
                   placeholder="Challenge Type"
                   selectedKeys={typeFilter ? [typeFilter] : []}
                   onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as ChallengeType | undefined;
+                    const value = Array.from(keys)[0] as
+                      | ChallengeType
+                      | undefined;
                     setTypeFilter(value || "");
                   }}
                   classNames={{
@@ -295,7 +303,9 @@ export default function ChallengesPage() {
                   placeholder="Status"
                   selectedKeys={statusFilter ? [statusFilter] : []}
                   onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as ChallengeStatus | undefined;
+                    const value = Array.from(keys)[0] as
+                      | ChallengeStatus
+                      | undefined;
                     setStatusFilter(value || "");
                   }}
                   classNames={{
@@ -314,7 +324,9 @@ export default function ChallengesPage() {
                 </Select>
                 <Button
                   className="bg-[#FF4654] dark:bg-[#DCFF37] text-white dark:text-[#34445C] rounded-none font-medium"
-                  startContent={<Icon icon="solar:add-circle-bold" width={20} />}
+                  startContent={
+                    <Icon icon="solar:add-circle-bold" width={20} />
+                  }
                   onPress={() => {
                     // Navigate to create challenge page or open modal
                     window.location.href = "/match-making";
@@ -401,10 +413,16 @@ export default function ChallengesPage() {
                     {challenges.map((challenge) => (
                       <TableRow key={challenge.id}>
                         <TableCell>
-                          <Tooltip content={getTypeLabel(challenge.type as ChallengeType)}>
+                          <Tooltip
+                            content={getTypeLabel(
+                              challenge.type as ChallengeType
+                            )}
+                          >
                             <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10">
                               <Icon
-                                icon={typeIcons[challenge.type as ChallengeType]}
+                                icon={
+                                  typeIcons[challenge.type as ChallengeType]
+                                }
                                 width={24}
                                 className="text-[#FF4654] dark:text-[#DCFF37]"
                               />
@@ -433,7 +451,9 @@ export default function ChallengesPage() {
                         <TableCell>
                           <Chip
                             size="sm"
-                            color={statusColors[challenge.status as ChallengeStatus]}
+                            color={
+                              statusColors[challenge.status as ChallengeStatus]
+                            }
                             variant="flat"
                             className="rounded-none capitalize"
                           >
@@ -443,7 +463,11 @@ export default function ChallengesPage() {
                         <TableCell>
                           <Chip
                             size="sm"
-                            color={priorityColors[challenge.priority as ChallengePriority]}
+                            color={
+                              priorityColors[
+                                challenge.priority as ChallengePriority
+                              ]
+                            }
                             variant="dot"
                             className="rounded-none capitalize"
                           >
@@ -657,10 +681,10 @@ export default function ChallengesPage() {
                                           ev.type === "screenshot"
                                             ? "solar:gallery-bold"
                                             : ev.type === "video"
-                                              ? "solar:videocamera-bold"
-                                              : ev.type === "replay_clip"
-                                                ? "solar:play-circle-bold"
-                                                : "solar:document-bold"
+                                            ? "solar:videocamera-bold"
+                                            : ev.type === "replay_clip"
+                                            ? "solar:play-circle-bold"
+                                            : "solar:document-bold"
                                         }
                                         width={20}
                                         className="text-default-500"
@@ -698,7 +722,7 @@ export default function ChallengesPage() {
                                 <span className="text-success font-medium">
                                   {
                                     selectedChallenge.votes.filter(
-                                      (v) => v.vote_type === 'approve'
+                                      (v) => v.vote_type === "approve"
                                     ).length
                                   }
                                 </span>
@@ -712,7 +736,7 @@ export default function ChallengesPage() {
                                 <span className="text-danger font-medium">
                                   {
                                     selectedChallenge.votes.filter(
-                                      (v) => v.vote_type === 'reject'
+                                      (v) => v.vote_type === "reject"
                                     ).length
                                   }
                                 </span>
@@ -762,4 +786,3 @@ export default function ChallengesPage() {
     </PageContainer>
   );
 }
-

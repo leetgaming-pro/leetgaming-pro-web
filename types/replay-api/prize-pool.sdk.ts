@@ -32,7 +32,7 @@ export class PrizePoolAPI {
     if (request.game_id) params.append('game_id', request.game_id);
     if (request.region) params.append('region', request.region);
 
-    const url = `/api/prize-pools${params.toString() ? `?${params.toString()}` : ''}`;
+    const url = `/match-making/prize-pools${params.toString() ? `?${params.toString()}` : ''}`;
     const response = await this.client.get<GetPrizePoolResponse>(url);
     return response.data || null;
   }
@@ -44,7 +44,7 @@ export class PrizePoolAPI {
     const params = new URLSearchParams({ game_id: gameId });
     if (region) params.append('region', region);
 
-    const url = `/api/prize-pools/stats?${params.toString()}`;
+    const url = `/match-making/prize-pools/stats?${params.toString()}`;
     const response = await this.client.get<PrizePoolStats>(url);
     return response.data || null;
   }
@@ -54,7 +54,7 @@ export class PrizePoolAPI {
    */
   async lockPrizePool(request: LockPrizePoolRequest): Promise<PrizePool | null> {
     const response = await this.client.post<PrizePool>(
-      `/api/prize-pools/${request.pool_id}/lock`,
+      `/match-making/prize-pools/${request.pool_id}/lock`,
       request
     );
     return response.data || null;
@@ -67,7 +67,7 @@ export class PrizePoolAPI {
     request: DistributePrizePoolRequest
   ): Promise<DistributePrizePoolResponse | null> {
     const response = await this.client.post<DistributePrizePoolResponse>(
-      `/api/prize-pools/${request.pool_id}/distribute`,
+      `/match-making/prize-pools/${request.pool_id}/distribute`,
       request
     );
     return response.data || null;
@@ -78,7 +78,7 @@ export class PrizePoolAPI {
    */
   async refundPrizePool(request: RefundPrizePoolRequest): Promise<RefundPrizePoolResponse | null> {
     const response = await this.client.post<RefundPrizePoolResponse>(
-      `/api/prize-pools/${request.pool_id}/refund`,
+      `/match-making/prize-pools/${request.pool_id}/refund`,
       request
     );
     return response.data || null;
@@ -89,7 +89,7 @@ export class PrizePoolAPI {
    */
   async fileDispute(request: FileDisputeRequest): Promise<PrizePool | null> {
     const response = await this.client.post<PrizePool>(
-      `/api/prize-pools/${request.pool_id}/dispute`,
+      `/match-making/prize-pools/${request.pool_id}/dispute`,
       request
     );
     return response.data || null;
@@ -100,7 +100,7 @@ export class PrizePoolAPI {
    */
   async resolveDispute(request: ResolveDisputeRequest): Promise<PrizePool | null> {
     const response = await this.client.post<PrizePool>(
-      `/api/prize-pools/${request.pool_id}/resolve-dispute`,
+      `/match-making/prize-pools/${request.pool_id}/resolve-dispute`,
       request
     );
     return response.data || null;

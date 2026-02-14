@@ -7,6 +7,7 @@ WORKDIR /app
 # Set environment
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=3030
 ENV HOSTNAME="0.0.0.0"
 

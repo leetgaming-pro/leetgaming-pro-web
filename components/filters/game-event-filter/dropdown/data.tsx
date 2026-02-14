@@ -198,6 +198,7 @@ const PistolRoundStatusDescription: Record<PistolRoundStatusOptions, string> = {
 
 export const GameEventVariationsMap = {
     [GameEventCategoryOption.ClutchSituation]: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         icon: (props: any) => <GameEventClutchSituationIcon {...props} />,
         description: "Clutch Situation",
         emptySelectionPlaceholder: "Any Clutch Situation",
@@ -205,6 +206,7 @@ export const GameEventVariationsMap = {
         values: ClutchStatusDescription,
     },
     [GameEventCategoryOption.PistolRound]: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         icon: (props: any) => <GameEventPistolRoundIcon {...props} />,
         description: "Pistol Round",
         emptySelectionPlaceholder: "All Pistol Rounds",

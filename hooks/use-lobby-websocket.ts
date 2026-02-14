@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { logger } from '@/lib/logger';
-import type { MatchmakingLobby, PlayerSlot, LobbyStatus } from '@/types/replay-api/lobby.types';
+import type { MatchmakingLobby, LobbyStatus } from '@/types/replay-api/lobby.types';
 
 // WebSocket message types (must match backend constants)
 const MessageTypes = {

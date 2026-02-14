@@ -1,15 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   PaymentElement,
   useStripe,
   useElements,
-} from '@stripe/react-stripe-js';
-import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useCheckout } from './checkout-context';
-import { PaymentStatus } from './types';
+} from "@stripe/react-stripe-js";
+import { Button, Card, CardBody } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useCheckout } from "./checkout-context";
 
 interface StripeCheckoutFormProps {
   clientSecret: string;
@@ -23,7 +22,7 @@ interface StripeCheckoutFormProps {
  * PCI DSS compliant - card data never touches our servers
  */
 export function StripeCheckoutForm({
-  clientSecret,
+  clientSecret: _clientSecret,
   paymentId,
   onSuccess,
   onError,
@@ -59,22 +58,22 @@ export function StripeCheckoutForm({
         confirmParams: {
           return_url: `${window.location.origin}/checkout/success?payment_id=${paymentId}`,
         },
-        redirect: 'if_required',
+        redirect: "if_required",
       });
 
       if (error) {
-        if (error.type === 'card_error' || error.type === 'validation_error') {
-          setErrorMessage(error.message || 'Payment failed');
-          onError(error.message || 'Payment failed');
+        if (error.type === "card_error" || error.type === "validation_error") {
+          setErrorMessage(error.message || "Payment failed");
+          onError(error.message || "Payment failed");
         } else {
-          setErrorMessage('An unexpected error occurred');
-          onError('An unexpected error occurred');
+          setErrorMessage("An unexpected error occurred");
+          onError("An unexpected error occurred");
         }
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
         onSuccess();
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Payment failed';
+      const message = err instanceof Error ? err.message : "Payment failed";
       setErrorMessage(message);
       onError(message);
     } finally {
@@ -83,8 +82,8 @@ export function StripeCheckoutForm({
   };
 
   const formatAmount = (amount: number, currency: string): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency.toUpperCase(),
     }).format(amount / 100);
   };
@@ -95,7 +94,10 @@ export function StripeCheckoutForm({
         <CardBody className="p-6">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <Icon icon="solar:shield-check-bold" className="text-success w-5 h-5" />
+              <Icon
+                icon="solar:shield-check-bold"
+                className="text-success w-5 h-5"
+              />
               <span className="text-sm text-default-500">
                 Secure payment powered by Stripe
               </span>
@@ -123,11 +125,11 @@ export function StripeCheckoutForm({
             <PaymentElement
               id="payment-element"
               options={{
-                layout: 'tabs',
+                layout: "tabs",
                 defaultValues: {
                   billingDetails: {
-                    name: '',
-                    email: '',
+                    name: "",
+                    email: "",
                   },
                 },
               }}
@@ -137,7 +139,10 @@ export function StripeCheckoutForm({
 
           {errorMessage && (
             <div className="flex items-center gap-2 p-3 bg-danger/10 border border-danger/20 rounded-lg mb-4">
-              <Icon icon="solar:danger-triangle-bold" className="text-danger w-5 h-5" />
+              <Icon
+                icon="solar:danger-triangle-bold"
+                className="text-danger w-5 h-5"
+              />
               <p className="text-sm text-danger">{errorMessage}</p>
             </div>
           )}
@@ -150,10 +155,12 @@ export function StripeCheckoutForm({
             isLoading={isLoading}
             isDisabled={!stripe || !elements || !isReady}
             startContent={
-              !isLoading && <Icon icon="solar:lock-keyhole-bold" className="w-5 h-5" />
+              !isLoading && (
+                <Icon icon="solar:lock-keyhole-bold" className="w-5 h-5" />
+              )
             }
           >
-            {isLoading ? 'Processing...' : 'Pay securely'}
+            {isLoading ? "Processing..." : "Pay securely"}
           </Button>
 
           <div className="flex items-center justify-center gap-4 mt-4 text-xs text-default-400">

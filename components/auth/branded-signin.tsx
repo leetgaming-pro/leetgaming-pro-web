@@ -4,7 +4,7 @@ import React from "react";
 import { Input, Checkbox, Link, Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -14,6 +14,8 @@ import { AuthBackground } from "./auth-background";
 
 export default function BrandedSignIn() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/match-making";
   const [isVisible, setIsVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -42,8 +44,8 @@ export default function BrandedSignIn() {
             : result.error
         );
       } else if (result?.ok) {
-        // Refresh the page to let signin page check for RID and redirect properly
-        router.refresh();
+        // Redirect to the callback URL after successful login
+        router.push(callbackUrl);
       }
     } catch {
       setError("An unexpected error occurred");
@@ -271,7 +273,7 @@ export default function BrandedSignIn() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("steam", { callbackUrl: "/signin?callbackUrl=/match-making" })
+                    signIn("steam", { callbackUrl })
                   }
                 >
                   <SteamIcon className="w-5 h-5" />
@@ -282,7 +284,7 @@ export default function BrandedSignIn() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("google", { callbackUrl: "/signin?callbackUrl=/match-making" })
+                    signIn("google", { callbackUrl })
                   }
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />

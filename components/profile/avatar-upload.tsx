@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Avatar, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Slider, Spinner } from "@nextui-org/react";
+import {
+  Avatar,
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Slider,
+  Spinner,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -32,9 +42,9 @@ export default function AvatarUpload({
   size = "lg",
   editable = true,
 }: AvatarUploadProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated: _isAuthenticated } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,33 +52,36 @@ export default function AvatarUpload({
   const [zoom, setZoom] = useState(1);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    // Validate file type
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
-      return;
-    }
+      // Validate file type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setError("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+        return;
+      }
 
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      setError("Image size must be less than 5MB");
-      return;
-    }
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        setError("Image size must be less than 5MB");
+        return;
+      }
 
-    setError(null);
-    setSelectedFile(file);
+      setError(null);
+      setSelectedFile(file);
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewImage(e.target?.result as string);
-      setIsModalOpen(true);
-    };
-    reader.readAsDataURL(file);
-  }, []);
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewImage(e.target?.result as string);
+        setIsModalOpen(true);
+      };
+      reader.readAsDataURL(file);
+    },
+    []
+  );
 
   const handleUpload = async () => {
     if (!selectedFile || !previewImage) return;
@@ -97,7 +110,7 @@ export default function AvatarUpload({
       }
 
       const updatedProfile = await response.json();
-      
+
       if (onAvatarChange && updatedProfile.avatar) {
         onAvatarChange(updatedProfile.avatar);
       }
@@ -136,12 +149,14 @@ export default function AvatarUpload({
         <Avatar
           src={currentAvatar}
           name={playerName?.[0]?.toUpperCase()}
-          className={`${sizeClasses[size]} ring-4 ring-default-100 transition-all ${
+          className={`${
+            sizeClasses[size]
+          } ring-4 ring-default-100 transition-all ${
             editable ? "cursor-pointer group-hover:ring-primary/50" : ""
           }`}
           onClick={triggerFileInput}
         />
-        
+
         {editable && (
           <Button
             isIconOnly
@@ -164,8 +179,8 @@ export default function AvatarUpload({
       </div>
 
       {/* Preview & Crop Modal */}
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={handleCancel}
         size="md"
         classNames={{
@@ -180,7 +195,7 @@ export default function AvatarUpload({
               Preview your new avatar before uploading
             </p>
           </ModalHeader>
-          
+
           <ModalBody>
             {error && (
               <div className="bg-danger/10 border border-danger/20 rounded-lg p-3 mb-4">
@@ -189,7 +204,7 @@ export default function AvatarUpload({
             )}
 
             <div className="flex justify-center">
-              <div 
+              <div
                 className="relative w-48 h-48 rounded-full overflow-hidden bg-default-100"
                 style={{ transform: `scale(${zoom})` }}
               >
@@ -250,4 +265,3 @@ export default function AvatarUpload({
     </>
   );
 }
-

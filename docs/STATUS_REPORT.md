@@ -40,7 +40,7 @@ LeetGaming Pro is a competitive gaming platform with replay analysis, matchmakin
 **Backend (replay-api):**
 - Go 1.21
 - MongoDB
-- Redis for caching
+- Dragonfly for caching
 - Kubernetes deployment
 
 **Infrastructure:**

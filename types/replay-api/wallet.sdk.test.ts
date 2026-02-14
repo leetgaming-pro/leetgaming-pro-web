@@ -136,7 +136,7 @@ describe('WalletAPI', () => {
     const withdrawRequest: WithdrawRequest = {
       currency: 'USD',
       amount: 2500,
-      destination_address: '0x1234567890abcdef',
+      to_address: '0x1234567890abcdef',
     };
 
     it('should return transaction on successful withdrawal', async () => {

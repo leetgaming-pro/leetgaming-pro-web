@@ -1,14 +1,6 @@
-'use client'; // Make sure to enable Client Components for next/link
+"use client"; // Make sure to enable Client Components for next/link
 
-import {
-  Image,
-  Button,
-  Spacer,
-  Divider,
-  Card,
-  Link,
-} from "@nextui-org/react";
-import DefaultLogo from '@/components/logo/logo-default';
+import { Image, Spacer, Divider, Card } from "@nextui-org/react";
 import { title, subtitle, logo } from "@/components/primitives";
 import BattleButton from "@/components/filters/ctas/battle-button/battle-button";
 
@@ -30,16 +22,17 @@ export default function Home() {
           {/* <DefaultLogo /> */}
           <Spacer y={2} />
           <h1 className={title()}>
-
-            
-          <span className={title({ color: "green" })}>Stop Guessing.</span> <span className={title({ color: "cyan" })}>Start Winning.</span>
+            <span className={title({ color: "green" })}>Stop Guessing.</span>{" "}
+            <span className={title({ color: "cyan" })}>Start Winning.</span>
           </h1>
           <h3 className={subtitle()}>
-          Don&apos;t just dream of victory, engineer it.
+            Don&apos;t just dream of victory, engineer it.
           </h3>
           <Spacer y={2} />
           <p style={{ lineHeight: "$md" }}>
-            <span className={logo()}>LeetGaming.PRO</span> gives you the tools to <strong>outthink</strong> and <strong>outplay</strong> the competition.
+            <span className={logo()}>LeetGaming.PRO</span> gives you the tools
+            to <strong>outthink</strong> and <strong>outplay</strong> the
+            competition.
           </p>
           <Spacer y={4} />
           <BattleButton
@@ -57,7 +50,11 @@ export default function Home() {
             alt="Gameplay Screenshot"
             // objectFit="cover"
             className="rounded-lg h-full w-auto"
-            style={{ overflow: "hidden", objectFit: "cover", maxHeight: "512px"}}
+            style={{
+              overflow: "hidden",
+              objectFit: "cover",
+              maxHeight: "512px",
+            }}
           />
         </Card>
       </div>
@@ -72,9 +69,6 @@ export default function Home() {
         }}
       >
         {/* ... additional sections ... */}
-
-       
-
       </div>
     </div>
   );

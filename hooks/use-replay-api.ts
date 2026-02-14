@@ -12,14 +12,18 @@ import { logger } from "@/lib/logger";
 
 /**
  * Get the API base URL from environment variables
- * Priority: NEXT_PUBLIC_REPLAY_API_URL > REPLAY_API_URL > default localhost
+ *
+ * On the client-side, we always use "/api" to route through Next.js API routes.
+ * This avoids CORS issues since the request stays on the same origin.
+ *
+ * On the server-side, we can call the backend directly.
  */
 function getApiBaseUrl(): string {
   if (typeof window !== "undefined") {
-    // Client-side: use NEXT_PUBLIC_ prefixed env var
-    return process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
+    // Client-side: always use Next.js API routes to avoid CORS issues
+    return "/api";
   }
-  // Server-side: can access both
+  // Server-side: can call backend directly
   return (
     process.env.NEXT_PUBLIC_REPLAY_API_URL ||
     process.env.REPLAY_API_URL ||
@@ -48,7 +52,7 @@ function getApiBaseUrl(): string {
  * const tx = await sdk.wallet.withdraw({
  *   currency: 'USDC',
  *   amount: 100,
- *   destination_address: '0x...'
+ *   to_address: '0x...'
  * });
  *
  * // Get transaction history
@@ -69,7 +73,7 @@ export function useReplayApi() {
         ...ReplayApiSettingsMock,
         baseUrl,
       },
-      logger
+      logger,
     );
   }, []);
 

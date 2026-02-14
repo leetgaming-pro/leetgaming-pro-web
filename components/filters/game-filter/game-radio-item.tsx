@@ -29,7 +29,7 @@ const GameRadioItem = React.forwardRef<HTMLInputElement, GameRadioItemProps>(
             )}
             style={{
               backgroundColor: color,
-              // @ts-ignore
+              // @ts-expect-error - CSS custom property
               "--tw-ring-color":
                 isSelected || isFocusVisible ? "hsl(var(--nextui-primary))" : "transparent",
             }}

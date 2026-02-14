@@ -3,24 +3,26 @@
  * Clean, minimal API wrapper for matchmaking operations using ReplayApiClient
  */
 
-import { ReplayApiClient } from './replay-api.client';
+import { ReplayApiClient } from "./replay-api.client";
 import type {
   JoinQueueRequest,
   JoinQueueResponse,
   PoolStatsResponse,
   SessionStatusResponse,
-} from './matchmaking.types';
+} from "./matchmaking.types";
 
 export class MatchmakingAPI {
   private pollingInterval: NodeJS.Timeout | null = null;
 
-  constructor(private client: ReplayApiClient) { }
+  constructor(private client: ReplayApiClient) {}
 
   /**
    * Join the matchmaking queue
    * Transforms frontend request format to match backend API structure
    */
-  async joinQueue(request: JoinQueueRequest): Promise<JoinQueueResponse | null> {
+  async joinQueue(
+    request: JoinQueueRequest,
+  ): Promise<JoinQueueResponse | null> {
     // Transform to backend's expected flat structure
     const backendRequest = {
       player_id: request.player_id,
@@ -38,11 +40,16 @@ export class MatchmakingAPI {
       skill_range_min: request.preferences.skill_range.min_mmr,
       skill_range_max: request.preferences.skill_range.max_mmr,
       allow_cross_platform: request.preferences.allow_cross_platform,
+      distribution_rule: request.distribution_rule,
+      entry_fee_cents: request.entry_fee_cents,
     };
 
-    const response = await this.client.post<JoinQueueResponse>('/match-making/queue', backendRequest);
+    const response = await this.client.post<JoinQueueResponse>(
+      "/match-making/queue",
+      backendRequest,
+    );
     if (response.error) {
-      console.error('Failed to join queue:', response.error);
+      console.error("Failed to join queue:", response.error);
       return null;
     }
     return response.data || null;
@@ -51,7 +58,11 @@ export class MatchmakingAPI {
   /**
    * Start polling for session status updates
    */
-  startPolling(sessionId: string, callback: (status: SessionStatusResponse) => void, intervalMs: number = 2000): void {
+  startPolling(
+    sessionId: string,
+    callback: (status: SessionStatusResponse) => void,
+    intervalMs: number = 2000,
+  ): void {
     this.stopPolling();
     this.pollingInterval = setInterval(async () => {
       const status = await this.getSessionStatus(sessionId);
@@ -75,17 +86,23 @@ export class MatchmakingAPI {
    * Leave the matchmaking queue
    */
   async leaveQueue(sessionId: string): Promise<boolean> {
-    const response = await this.client.delete(`/match-making/queue/${sessionId}`);
+    const response = await this.client.delete(
+      `/match-making/queue/${sessionId}`,
+    );
     return response.status === 204 || response.status === 200;
   }
 
   /**
    * Get session status
    */
-  async getSessionStatus(sessionId: string): Promise<SessionStatusResponse | null> {
-    const response = await this.client.get<SessionStatusResponse>(`/match-making/session/${sessionId}`);
+  async getSessionStatus(
+    sessionId: string,
+  ): Promise<SessionStatusResponse | null> {
+    const response = await this.client.get<SessionStatusResponse>(
+      `/match-making/session/${sessionId}`,
+    );
     if (response.error) {
-      console.error('Failed to get session status:', response.error);
+      console.error("Failed to get session status:", response.error);
       return null;
     }
     return response.data || null;
@@ -94,10 +111,14 @@ export class MatchmakingAPI {
   /**
    * Get pool statistics
    */
-  async getPoolStats(gameId: string, gameMode?: string, region?: string): Promise<PoolStatsResponse | null> {
+  async getPoolStats(
+    gameId: string,
+    gameMode?: string,
+    region?: string,
+  ): Promise<PoolStatsResponse | null> {
     const params = new URLSearchParams();
-    if (gameMode) params.set('game_mode', gameMode);
-    if (region) params.set('region', region);
+    if (gameMode) params.set("game_mode", gameMode);
+    if (region) params.set("region", region);
 
     const queryString = params.toString();
     const url = queryString
@@ -106,7 +127,7 @@ export class MatchmakingAPI {
 
     const response = await this.client.get<PoolStatsResponse>(url);
     if (response.error) {
-      console.error('Failed to get pool stats:', response.error);
+      console.error("Failed to get pool stats:", response.error);
       return null;
     }
     return response.data || null;
@@ -119,7 +140,7 @@ export class MatchmakingAPI {
   subscribeToPoolUpdates(
     gameId: string,
     callback: (stats: PoolStatsResponse) => void,
-    intervalMs: number = 5000
+    intervalMs: number = 5000,
   ): () => void {
     const interval = setInterval(async () => {
       const stats = await this.getPoolStats(gameId);
@@ -139,7 +160,7 @@ export type {
   JoinQueueResponse,
   SessionStatusResponse,
   PoolStatsResponse,
-} from './matchmaking.types';
+} from "./matchmaking.types";
 
 // Alias for backward compatibility
 export { MatchmakingAPI as MatchmakingSDK };

@@ -4,7 +4,7 @@ import React from "react";
 import { Input, Checkbox, Link, Divider, Progress } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 
 import { SteamIcon } from "../icons";
@@ -14,6 +14,8 @@ import DefaultLogo from "../logo/logo-default";
 
 export default function BrandedSignUp() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/onboarding";
   const [isVisible, setIsVisible] = React.useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
@@ -99,7 +101,7 @@ export default function BrandedSignUp() {
           setError(result.error);
         }
       } else if (result?.ok) {
-        router.push("/onboarding");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {
@@ -421,7 +423,7 @@ export default function BrandedSignUp() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("steam", { callbackUrl: "/onboarding" })
+                    signIn("steam", { callbackUrl })
                   }
                 >
                   <SteamIcon className="w-5 h-5" />
@@ -432,7 +434,7 @@ export default function BrandedSignUp() {
                   size="md"
                   fullWidth
                   onClick={() =>
-                    signIn("google", { callbackUrl: "/onboarding" })
+                    signIn("google", { callbackUrl })
                   }
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />

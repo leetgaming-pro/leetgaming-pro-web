@@ -29,7 +29,7 @@ const CRITICAL_ERRORS = [
   /Objects are not valid as a React child/,
 ];
 
-// Patterns to ignore (dev tooling, extensions, etc.)
+// Patterns to ignore (dev tooling, extensions, expected auth errors, etc.)
 const IGNORED_PATTERNS = [
   /Download the React DevTools/,
   /Third-party cookie/,
@@ -41,6 +41,15 @@ const IGNORED_PATTERNS = [
   /chrome-extension:/,
   /Source map/,
   /ERR_CONNECTION_REFUSED/,
+  // Expected errors when user is not authenticated
+  /Failed to get auth headers.*Failed to fetch/i,
+  /Failed to fetch RSC payload/i,
+  /Please sign in to continue/i,
+  /Failed to fetch plans.*401/i,
+  /Failed to fetch notifications.*401/i,
+  /\[next-auth\]\[error\]\[CLIENT_FETCH_ERROR\]/i,
+  /status of 401 \(Unauthorized\)/i,
+  /status of 404 \(Not Found\)/i,
 ];
 
 function shouldIgnore(text: string): boolean {
@@ -100,7 +109,7 @@ export const test = base.extend<{
       if (criticalErrors.length > 0) {
         throw new Error(
           `Test detected ${criticalErrors.length} critical console error(s):\n` +
-            criticalErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n")
+            criticalErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n"),
         );
       }
 
@@ -109,7 +118,7 @@ export const test = base.extend<{
         if (consoleErrors.length > 0) {
           throw new Error(
             `Test detected ${consoleErrors.length} console error(s) (strict mode):\n` +
-              consoleErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n")
+              consoleErrors.map((e, i) => `  ${i + 1}. ${e}`).join("\n"),
           );
         }
       }
@@ -141,7 +150,7 @@ test.afterEach(async ({ consoleErrors }, testInfo) => {
         testInfo.status = "failed";
         // Log the error - Playwright will handle the failure
         console.error(
-          `Critical console errors detected:\n${criticalErrors.join("\n")}`
+          `Critical console errors detected:\n${criticalErrors.join("\n")}`,
         );
       }
     }

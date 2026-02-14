@@ -4,27 +4,27 @@
  * Implements DRY and Single Responsibility principles
  */
 
-import { Page, Locator, FrameLocator, expect } from '@playwright/test';
+import { Page, Locator, FrameLocator, expect } from "@playwright/test";
 
 /**
  * Payment status enum for type safety
  */
 export enum PaymentStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  SUCCEEDED = 'succeeded',
-  FAILED = 'failed',
-  CANCELED = 'canceled',
-  REFUNDED = 'refunded',
+  PENDING = "pending",
+  PROCESSING = "processing",
+  SUCCEEDED = "succeeded",
+  FAILED = "failed",
+  CANCELED = "canceled",
+  REFUNDED = "refunded",
 }
 
 /**
  * Payment provider enum
  */
 export enum PaymentProvider {
-  STRIPE = 'stripe',
-  PAYPAL = 'paypal',
-  CRYPTO = 'crypto',
+  STRIPE = "stripe",
+  PAYPAL = "paypal",
+  CRYPTO = "crypto",
 }
 
 /**
@@ -83,7 +83,9 @@ export class PaymentPage {
     this.errorMessage = page.locator('[data-testid="error-message"]');
     this.successMessage = page.locator('[data-testid="success-message"]');
     this.loadingSpinner = page.locator('[data-testid="loading-spinner"]');
-    this.stripeCardFrame = page.frameLocator('iframe[name^="__privateStripeFrame"]');
+    this.stripeCardFrame = page.frameLocator(
+      'iframe[name^="__privateStripeFrame"]',
+    );
     this.stripeSubmitButton = page.locator('button[data-testid="stripe-pay"]');
   }
 
@@ -91,8 +93,8 @@ export class PaymentPage {
    * Navigate to wallet page (deposit functionality is within modals)
    */
   async gotoDeposit(): Promise<void> {
-    await this.page.goto('/wallet');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/wallet", { waitUntil: "domcontentloaded" });
+    await this.page.waitForLoadState("domcontentloaded");
     await this.page.waitForTimeout(2000);
   }
 
@@ -100,8 +102,8 @@ export class PaymentPage {
    * Navigate to wallet page (payments history is part of the wallet page)
    */
   async gotoHistory(): Promise<void> {
-    await this.page.goto('/wallet');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/wallet", { waitUntil: "domcontentloaded" });
+    await this.page.waitForLoadState("domcontentloaded");
     await this.page.waitForTimeout(2000);
   }
 
@@ -109,8 +111,8 @@ export class PaymentPage {
    * Navigate to checkout page
    */
   async gotoCheckout(): Promise<void> {
-    await this.page.goto('/wallet');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/wallet", { waitUntil: "domcontentloaded" });
+    await this.page.waitForLoadState("domcontentloaded");
     await this.page.waitForTimeout(2000);
   }
 
@@ -144,8 +146,8 @@ export class PaymentPage {
   async waitForPaymentProcessing(): Promise<void> {
     // Wait for loading spinner to appear and disappear
     try {
-      await this.loadingSpinner.waitFor({ state: 'visible', timeout: 2000 });
-      await this.loadingSpinner.waitFor({ state: 'hidden', timeout: 30000 });
+      await this.loadingSpinner.waitFor({ state: "visible", timeout: 2000 });
+      await this.loadingSpinner.waitFor({ state: "hidden", timeout: 30000 });
     } catch {
       // Spinner might not appear for fast responses
     }
@@ -157,12 +159,16 @@ export class PaymentPage {
    */
   async fillStripeCard(card: StripeCardDetails): Promise<void> {
     // Wait for Stripe iframe to load
-    const cardNumberFrame = this.page.frameLocator('iframe[name*="card-number"]');
+    const cardNumberFrame = this.page.frameLocator(
+      'iframe[name*="card-number"]',
+    );
     const expiryFrame = this.page.frameLocator('iframe[name*="expiry"]');
     const cvcFrame = this.page.frameLocator('iframe[name*="cvc"]');
 
     // Fill card number
-    await cardNumberFrame.locator('input[name="cardnumber"]').fill(card.cardNumber);
+    await cardNumberFrame
+      .locator('input[name="cardnumber"]')
+      .fill(card.cardNumber);
 
     // Fill expiry
     await expiryFrame.locator('input[name="exp-date"]').fill(card.expiry);
@@ -197,8 +203,8 @@ export class PaymentPage {
    * Get payment status from UI
    */
   async getPaymentStatus(): Promise<string> {
-    await this.statusBadge.waitFor({ state: 'visible' });
-    return await this.statusBadge.textContent() || '';
+    await this.statusBadge.waitFor({ state: "visible" });
+    return (await this.statusBadge.textContent()) || "";
   }
 
   /**
@@ -206,7 +212,7 @@ export class PaymentPage {
    */
   async getErrorMessage(): Promise<string | null> {
     try {
-      await this.errorMessage.waitFor({ state: 'visible', timeout: 2000 });
+      await this.errorMessage.waitFor({ state: "visible", timeout: 2000 });
       return await this.errorMessage.textContent();
     } catch {
       return null;
@@ -218,7 +224,7 @@ export class PaymentPage {
    */
   async getSuccessMessage(): Promise<string | null> {
     try {
-      await this.successMessage.waitFor({ state: 'visible', timeout: 2000 });
+      await this.successMessage.waitFor({ state: "visible", timeout: 2000 });
       return await this.successMessage.textContent();
     } catch {
       return null;
@@ -260,7 +266,7 @@ export class PaymentPage {
   async viewPaymentDetails(index: number): Promise<void> {
     const payment = this.getPaymentByIndex(index);
     await payment.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 }
 
@@ -270,27 +276,27 @@ export class PaymentPage {
  */
 export const TestCards = {
   SUCCESS: {
-    cardNumber: '4242424242424242',
-    expiry: '12/34',
-    cvc: '123',
-    zip: '12345',
+    cardNumber: "4242424242424242",
+    expiry: "12/34",
+    cvc: "123",
+    zip: "12345",
   },
   DECLINED: {
-    cardNumber: '4000000000000002',
-    expiry: '12/34',
-    cvc: '123',
-    zip: '12345',
+    cardNumber: "4000000000000002",
+    expiry: "12/34",
+    cvc: "123",
+    zip: "12345",
   },
   INSUFFICIENT_FUNDS: {
-    cardNumber: '4000000000009995',
-    expiry: '12/34',
-    cvc: '123',
-    zip: '12345',
+    cardNumber: "4000000000009995",
+    expiry: "12/34",
+    cvc: "123",
+    zip: "12345",
   },
   REQUIRES_AUTH: {
-    cardNumber: '4000002500003155',
-    expiry: '12/34',
-    cvc: '123',
-    zip: '12345',
+    cardNumber: "4000002500003155",
+    expiry: "12/34",
+    cvc: "123",
+    zip: "12345",
   },
 } as const;

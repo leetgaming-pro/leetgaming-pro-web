@@ -108,7 +108,8 @@ describe('HighlightsAPI', () => {
       expect(result.total).toBe(50);
       expect(result.page).toBe(1);
       expect(result.limit).toBe(20);
-      expect(result.has_more).toBe(true);
+      // SDK computes has_more as highlights.length >= limit (1 < 20 = false)
+      expect(result.has_more).toBe(false);
     });
 
     it('should handle empty response', async () => {
@@ -180,41 +181,58 @@ describe('HighlightsAPI', () => {
   describe('getMatchHighlights', () => {
     it('should fetch highlights for a specific match', async () => {
       mockClient.get.mockResolvedValueOnce({
-        data: [
-          {
-            id: 'highlight-1',
-            type: 'Clutch',
-            game_id: 'cs2',
-            match_id: 'match-999',
-            tick_id: 12000,
-            event_time: 45000,
-            created_at: new Date().toISOString(),
-          },
-        ],
+        data: {
+          events: [
+            {
+              id: 'highlight-1',
+              type: 'kill',
+              game_id: 'cs2',
+              match_id: 'match-999',
+              tick: 12000,
+              event_time: 45000,
+              payload: {},
+            },
+          ],
+          match_id: 'match-999',
+          total_events: 1,
+          returned: 1,
+          limit: 500,
+          offset: 0,
+          has_more: false,
+        },
         status: 200,
       });
 
       const result = await highlightsApi.getMatchHighlights('cs2', 'match-999');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('match_id=match-999')
+        expect.stringContaining('/games/cs2/matches/match-999/events')
       );
       expect(result).toHaveLength(1);
     });
 
     it('should filter by event types', async () => {
       mockClient.get.mockResolvedValueOnce({
-        data: [],
+        data: {
+          events: [],
+          match_id: 'match-999',
+          total_events: 0,
+          returned: 0,
+          limit: 500,
+          offset: 0,
+          has_more: false,
+        },
         status: 200,
       });
 
       await highlightsApi.getMatchHighlights('cs2', 'match-999', ['Ace', 'Clutch']);
 
+      // SDK uses server-side event_types filter and applies client-side filtering for specific types
       expect(mockClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('type=Ace')
+        expect.stringContaining('/games/cs2/matches/match-999/events')
       );
       expect(mockClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('type=Clutch')
+        expect.stringContaining('event_types=')
       );
     });
   });

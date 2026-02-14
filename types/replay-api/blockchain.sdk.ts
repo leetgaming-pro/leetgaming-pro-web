@@ -88,10 +88,12 @@ export class SmartWalletAPI {
   async deployWallet(
     request: DeployWalletRequest
   ): Promise<{ tx_hash: string; address: string } | null> {
-    const response = await this.client.post<{ tx_hash: string; address: string }>(
-      `/blockchain/wallets/${request.wallet_id}/deploy`,
-      { chain_id: request.chain_id }
-    );
+    const response = await this.client.post<{
+      tx_hash: string;
+      address: string;
+    }>(`/blockchain/wallets/${request.wallet_id}/deploy`, {
+      chain_id: request.chain_id,
+    });
     if (response.error) {
       console.error("Failed to deploy wallet:", response.error);
       return null;
@@ -132,10 +134,7 @@ export class SmartWalletAPI {
   /**
    * Update daily spending limit
    */
-  async setDailyLimit(
-    walletId: string,
-    dailyLimit: string
-  ): Promise<boolean> {
+  async setDailyLimit(walletId: string, dailyLimit: string): Promise<boolean> {
     const response = await this.client.put(
       `/blockchain/wallets/${walletId}/limits`,
       { daily_limit: dailyLimit }
@@ -462,9 +461,9 @@ export class PrizePoolAPI {
       ? `/blockchain/vault/balance?token=${tokenAddress}`
       : "/blockchain/vault/balance";
 
-    const response = await this.client.get<{ balances: Record<string, string> }>(
-      url
-    );
+    const response = await this.client.get<{
+      balances: Record<string, string>;
+    }>(url);
     if (response.error) {
       return null;
     }
@@ -560,11 +559,13 @@ export class LedgerAPI {
     const response = await this.client.get<{
       is_valid: boolean;
       error?: string;
-    }>(
-      `/blockchain/ledger/verify?start=${startIndex}&end=${endIndex}`
-    );
+    }>(`/blockchain/ledger/verify?start=${startIndex}&end=${endIndex}`);
     if (response.error) {
-      return { is_valid: false, error: response.error };
+      const errorMessage =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message;
+      return { is_valid: false, error: errorMessage };
     }
     return response.data || { is_valid: false, error: "Unknown error" };
   }
@@ -649,7 +650,11 @@ export class GasSponsorshipAPI {
     chainId: ChainID,
     operation: string,
     params: Record<string, unknown>
-  ): Promise<{ gas_limit: number; gas_price: string; estimated_cost_usd: number } | null> {
+  ): Promise<{
+    gas_limit: number;
+    gas_price: string;
+    estimated_cost_usd: number;
+  } | null> {
     const response = await this.client.post<{
       gas_limit: number;
       gas_price: string;
@@ -682,7 +687,11 @@ export class GasSponsorshipAPI {
       estimated_gas: estimatedGas,
     });
     if (response.error) {
-      return { is_sponsored: false, reason: response.error };
+      const errorMessage =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message;
+      return { is_sponsored: false, reason: errorMessage };
     }
     return response.data || { is_sponsored: false };
   }
@@ -807,4 +816,3 @@ export type {
   BlockchainTransaction,
   GasCreditsBalance,
 } from "./blockchain.types";
-

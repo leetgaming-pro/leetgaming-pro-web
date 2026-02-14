@@ -4,34 +4,32 @@
  * Connected to real /api/payments endpoint
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
   Input,
   Card,
   CardBody,
-  Tabs,
-  Tab,
   Chip,
   Progress,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { modalAnimations, springs, staggerAnimations } from '@/lib/design/animations';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { SuccessCelebration } from '@/components/ui/success-confetti';
-import type { UserWallet } from '@/types/replay-api/wallet.types';
+  Button,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { springs, staggerAnimations } from "@/lib/design/animations";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { SuccessCelebration } from "@/components/ui/success-confetti";
+import type { UserWallet } from "@/types/replay-api/wallet.types";
 
-type PaymentMethod = 'crypto' | 'credit_card' | 'paypal' | 'bank_transfer';
-type PaymentProvider = 'stripe' | 'paypal' | 'crypto' | 'bank_transfer';
-type DepositStep = 'amount' | 'method' | 'payment' | 'confirmation' | 'success';
+type PaymentMethod = "crypto" | "credit_card" | "paypal" | "bank_transfer";
+type PaymentProvider = "stripe" | "paypal" | "crypto" | "bank_transfer";
+type DepositStep = "amount" | "method" | "payment" | "confirmation" | "success";
 
 interface PaymentIntentResponse {
   payment_id: string;
@@ -47,26 +45,31 @@ interface DepositModalProps {
   onSuccess?: (amount: number, method: PaymentMethod) => void;
 }
 
-export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) {
-  const [step, setStep] = useState<DepositStep>('amount');
-  const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('crypto');
+export function DepositModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: DepositModalProps) {
+  const [step, setStep] = useState<DepositStep>("amount");
+  const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [wallet, setWallet] = useState<UserWallet | null>(null);
-  const [paymentIntent, setPaymentIntent] = useState<PaymentIntentResponse | null>(null);
+  const [_paymentIntent, setPaymentIntent] =
+    useState<PaymentIntentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch wallet when modal opens
   const fetchWallet = useCallback(async () => {
     try {
-      const response = await fetch('/api/wallet/balance');
+      const response = await fetch("/api/wallet/balance");
       if (response.ok) {
         const data = await response.json();
         setWallet(data);
       }
     } catch (err) {
-      console.error('Failed to fetch wallet:', err);
+      console.error("Failed to fetch wallet:", err);
     }
   }, []);
 
@@ -80,9 +83,9 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
-        setStep('amount');
-        setAmount('');
-        setPaymentMethod('crypto');
+        setStep("amount");
+        setAmount("");
+        setPaymentMethod("crypto");
         setIsProcessing(false);
         setShowSuccess(false);
         setPaymentIntent(null);
@@ -94,21 +97,27 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   // Map payment method to provider
   const getProvider = (method: PaymentMethod): PaymentProvider => {
     switch (method) {
-      case 'credit_card':
-        return 'stripe';
-      case 'paypal':
-        return 'paypal';
-      case 'crypto':
-        return 'crypto';
-      case 'bank_transfer':
-        return 'bank_transfer';
+      case "credit_card":
+        return "stripe";
+      case "paypal":
+        return "paypal";
+      case "crypto":
+        return "crypto";
+      case "bank_transfer":
+        return "bank_transfer";
       default:
-        return 'stripe';
+        return "stripe";
     }
   };
 
   const handleNext = () => {
-    const steps: DepositStep[] = ['amount', 'method', 'payment', 'confirmation', 'success'];
+    const steps: DepositStep[] = [
+      "amount",
+      "method",
+      "payment",
+      "confirmation",
+      "success",
+    ];
     const currentIndex = steps.indexOf(step);
     if (currentIndex < steps.length - 1) {
       setStep(steps[currentIndex + 1]);
@@ -116,7 +125,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   };
 
   const handleBack = () => {
-    const steps: DepositStep[] = ['amount', 'method', 'payment', 'confirmation'];
+    const steps: DepositStep[] = [
+      "amount",
+      "method",
+      "payment",
+      "confirmation",
+    ];
     const currentIndex = steps.indexOf(step);
     if (currentIndex > 0) {
       setStep(steps[currentIndex - 1]);
@@ -125,7 +139,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
   const handleConfirm = async () => {
     if (!wallet?.id) {
-      setError('Wallet not found. Please try again.');
+      setError("Wallet not found. Please try again.");
       return;
     }
 
@@ -134,51 +148,54 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
     try {
       // Step 1: Create payment intent
-      const createResponse = await fetch('/api/payments', {
-        method: 'POST',
+      const createResponse = await fetch("/api/payments", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           wallet_id: wallet.id,
           amount: parseFloat(amount),
-          currency: 'usd',
-          payment_type: 'deposit',
+          currency: "usd",
+          payment_type: "deposit",
           provider: getProvider(paymentMethod),
           metadata: {
             payment_method: paymentMethod,
-            source: 'deposit_modal',
+            source: "deposit_modal",
           },
         }),
       });
 
       if (!createResponse.ok) {
         const errorData = await createResponse.json();
-        throw new Error(errorData.error || 'Failed to create payment');
+        throw new Error(errorData.error || "Failed to create payment");
       }
 
       const { data: intentData } = await createResponse.json();
       setPaymentIntent(intentData);
 
       // Step 2: Confirm payment (in production, this would handle Stripe/PayPal SDK flows)
-      const confirmResponse = await fetch(`/api/payments/${intentData.payment_id}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const confirmResponse = await fetch(
+        `/api/payments/${intentData.payment_id}/confirm`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            payment_method_id: paymentMethod,
+          }),
         },
-        body: JSON.stringify({
-          payment_method_id: paymentMethod,
-        }),
-      });
+      );
 
       if (!confirmResponse.ok) {
         const errorData = await confirmResponse.json();
-        throw new Error(errorData.error || 'Failed to confirm payment');
+        throw new Error(errorData.error || "Failed to confirm payment");
       }
 
       // Success!
       setIsProcessing(false);
-      setStep('success');
+      setStep("success");
       setShowSuccess(true);
 
       // Call success callback
@@ -190,9 +207,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       }, 3500);
     } catch (err: unknown) {
       setIsProcessing(false);
-      const message = err instanceof Error ? err.message : 'Payment failed. Please try again.';
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Payment failed. Please try again.";
       setError(message);
-      console.error('Payment failed:', message);
+      console.error("Payment failed:", message);
     }
   };
 
@@ -205,7 +225,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   }[step];
 
   const amountValue = parseFloat(amount) || 0;
-  const feePercentage = paymentMethod === 'crypto' ? 1 : paymentMethod === 'credit_card' ? 2.9 : 1.5;
+  const feePercentage =
+    paymentMethod === "crypto"
+      ? 1
+      : paymentMethod === "credit_card"
+        ? 2.9
+        : 1.5;
   const fee = (amountValue * feePercentage) / 100;
   const total = amountValue + fee;
 
@@ -216,9 +241,9 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         onClose={onClose}
         size="2xl"
         classNames={{
-          base: 'leet-modal',
-          wrapper: 'leet-modal-backdrop',
-          backdrop: 'leet-modal-backdrop',
+          base: "leet-modal",
+          wrapper: "leet-modal-backdrop",
+          backdrop: "leet-modal-backdrop",
         }}
         motionProps={{
           variants: {
@@ -249,17 +274,28 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 <h2 className="text-2xl font-bold">Deposit Funds</h2>
               </div>
               <span className="leet-modal-chip px-3 py-1 text-xs">
-                Step {['amount', 'method', 'payment', 'confirmation', 'success'].indexOf(step) + 1} of 5
+                Step{" "}
+                {[
+                  "amount",
+                  "method",
+                  "payment",
+                  "confirmation",
+                  "success",
+                ].indexOf(step) + 1}{" "}
+                of 5
               </span>
             </div>
             <div className="leet-modal-progress">
-              <div className="leet-modal-progress-bar" style={{ width: `${progress}%` }} />
+              <div
+                className="leet-modal-progress-bar"
+                style={{ width: `${progress}%` }}
+              />
             </div>
           </ModalHeader>
 
           <ModalBody className="leet-modal-body gap-6 py-6">
             <AnimatePresence mode="wait">
-              {step === 'amount' && (
+              {step === "amount" && (
                 <AmountStep
                   key="amount"
                   amount={amount}
@@ -268,7 +304,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 />
               )}
 
-              {step === 'method' && (
+              {step === "method" && (
                 <MethodStep
                   key="method"
                   selected={paymentMethod}
@@ -278,7 +314,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 />
               )}
 
-              {step === 'payment' && (
+              {step === "payment" && (
                 <PaymentStep
                   key="payment"
                   method={paymentMethod}
@@ -288,7 +324,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 />
               )}
 
-              {step === 'confirmation' && (
+              {step === "confirmation" && (
                 <ConfirmationStep
                   key="confirmation"
                   amount={amountValue}
@@ -302,7 +338,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 />
               )}
 
-              {step === 'success' && (
+              {step === "success" && (
                 <SuccessStep
                   key="success"
                   amount={total}
@@ -312,7 +348,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
             </AnimatePresence>
           </ModalBody>
 
-          {step !== 'success' && (
+          {step !== "success" && (
             <ModalFooter className="leet-modal-footer">
               <Button
                 className="leet-modal-btn leet-modal-btn-secondary"
@@ -326,7 +362,10 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         </ModalContent>
       </Modal>
 
-      <SuccessCelebration show={showSuccess} message={`Deposited $${total.toFixed(2)}!`} />
+      <SuccessCelebration
+        show={showSuccess}
+        message={`Deposited $${total.toFixed(2)}!`}
+      />
     </>
   );
 }
@@ -361,7 +400,7 @@ function AmountStep({
           startContent={<span className="text-default-400">$</span>}
           size="lg"
           classNames={{
-            input: 'text-2xl font-bold',
+            input: "text-2xl font-bold",
           }}
           autoFocus
         />
@@ -381,8 +420,8 @@ function AmountStep({
                 onPress={() => setAmount(preset.toString())}
                 className={`border-2 ${
                   amount === preset.toString()
-                    ? 'border-primary bg-primary/10'
-                    : 'border-transparent'
+                    ? "border-primary bg-primary/10"
+                    : "border-transparent"
                 }`}
               >
                 <CardBody className="py-3 text-center">
@@ -424,36 +463,36 @@ function MethodStep({
 }) {
   const methods = [
     {
-      id: 'crypto' as PaymentMethod,
-      name: 'Cryptocurrency',
-      icon: 'cryptocurrency:btc',
-      fee: '1%',
-      time: 'Instant',
-      description: 'Bitcoin, Ethereum, USDT',
+      id: "crypto" as PaymentMethod,
+      name: "Cryptocurrency",
+      icon: "cryptocurrency:btc",
+      fee: "1%",
+      time: "Instant",
+      description: "Bitcoin, Ethereum, USDT",
     },
     {
-      id: 'credit_card' as PaymentMethod,
-      name: 'Credit/Debit Card',
-      icon: 'solar:card-bold',
-      fee: '2.9%',
-      time: 'Instant',
-      description: 'Visa, Mastercard, Amex',
+      id: "credit_card" as PaymentMethod,
+      name: "Credit/Debit Card",
+      icon: "solar:card-bold",
+      fee: "2.9%",
+      time: "Instant",
+      description: "Visa, Mastercard, Amex",
     },
     {
-      id: 'paypal' as PaymentMethod,
-      name: 'PayPal',
-      icon: 'logos:paypal',
-      fee: '1.5%',
-      time: '1-2 minutes',
-      description: 'Pay with your PayPal balance',
+      id: "paypal" as PaymentMethod,
+      name: "PayPal",
+      icon: "logos:paypal",
+      fee: "1.5%",
+      time: "1-2 minutes",
+      description: "Pay with your PayPal balance",
     },
     {
-      id: 'bank_transfer' as PaymentMethod,
-      name: 'Bank Transfer',
-      icon: 'solar:bank-bold',
-      fee: '0%',
-      time: '1-3 business days',
-      description: 'Direct bank deposit',
+      id: "bank_transfer" as PaymentMethod,
+      name: "Bank Transfer",
+      icon: "solar:bank-bold",
+      fee: "0%",
+      time: "1-3 business days",
+      description: "Direct bank deposit",
     },
   ];
 
@@ -465,15 +504,15 @@ function MethodStep({
       exit="exit"
       className="space-y-4"
     >
-      {methods.map((method, index) => (
+      {methods.map((method, _index) => (
         <motion.div key={method.id} variants={staggerAnimations.item}>
           <Card
             isPressable
             onPress={() => onSelect(method.id)}
             className={`border-2 transition-all ${
               selected === method.id
-                ? 'border-primary bg-primary/5 shadow-lg'
-                : 'border-transparent hover:border-default-300'
+                ? "border-primary bg-primary/5 shadow-lg"
+                : "border-transparent hover:border-default-300"
             }`}
           >
             <CardBody className="p-4">
@@ -483,14 +522,22 @@ function MethodStep({
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold">{method.name}</h4>
-                  <p className="text-xs text-default-500">{method.description}</p>
+                  <p className="text-xs text-default-500">
+                    {method.description}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-success">{method.fee} fee</p>
+                  <p className="text-sm font-medium text-success">
+                    {method.fee} fee
+                  </p>
                   <p className="text-xs text-default-500">{method.time}</p>
                 </div>
                 {selected === method.id && (
-                  <Icon icon="solar:check-circle-bold" width={24} className="text-primary" />
+                  <Icon
+                    icon="solar:check-circle-bold"
+                    width={24}
+                    className="text-primary"
+                  />
                 )}
               </div>
             </CardBody>
@@ -502,7 +549,12 @@ function MethodStep({
         <Button variant="flat" onPress={onBack} className="flex-1">
           Back
         </Button>
-        <Button color="primary" onPress={onNext} className="flex-1" endContent={<Icon icon="solar:arrow-right-bold" />}>
+        <Button
+          color="primary"
+          onPress={onNext}
+          className="flex-1"
+          endContent={<Icon icon="solar:arrow-right-bold" />}
+        >
           Continue
         </Button>
       </motion.div>
@@ -530,16 +582,21 @@ function PaymentStep({
       transition={springs.gentle}
       className="space-y-6"
     >
-      {method === 'crypto' && <CryptoPayment amount={amount} />}
-      {method === 'credit_card' && <CreditCardPayment />}
-      {method === 'paypal' && <PayPalPayment amount={amount} />}
-      {method === 'bank_transfer' && <BankTransferPayment />}
+      {method === "crypto" && <CryptoPayment amount={amount} />}
+      {method === "credit_card" && <CreditCardPayment />}
+      {method === "paypal" && <PayPalPayment amount={amount} />}
+      {method === "bank_transfer" && <BankTransferPayment />}
 
       <div className="flex gap-2 pt-4">
         <Button variant="flat" onPress={onBack} className="flex-1">
           Back
         </Button>
-        <Button color="primary" onPress={onNext} className="flex-1" endContent={<Icon icon="solar:arrow-right-bold" />}>
+        <Button
+          color="primary"
+          onPress={onNext}
+          className="flex-1"
+          endContent={<Icon icon="solar:arrow-right-bold" />}
+        >
           Continue
         </Button>
       </div>
@@ -555,13 +612,15 @@ function CryptoPayment({ amount }: { amount: number }) {
   React.useEffect(() => {
     const fetchCryptoAddress = async () => {
       try {
-        const response = await fetch('/api/payments/crypto-address?currency=btc');
+        const response = await fetch(
+          "/api/payments/crypto-address?currency=btc",
+        );
         if (response.ok) {
           const data = await response.json();
           setAddress(data.address);
         }
       } catch (err) {
-        console.error('Failed to fetch crypto address:', err);
+        console.error("Failed to fetch crypto address:", err);
       } finally {
         setIsLoading(false);
       }
@@ -572,7 +631,12 @@ function CryptoPayment({ amount }: { amount: number }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Progress size="sm" isIndeterminate aria-label="Loading crypto address..." className="max-w-md" />
+        <Progress
+          size="sm"
+          isIndeterminate
+          aria-label="Loading crypto address..."
+          className="max-w-md"
+        />
       </div>
     );
   }
@@ -580,8 +644,14 @@ function CryptoPayment({ amount }: { amount: number }) {
   if (!address) {
     return (
       <div className="rounded-lg bg-warning/10 p-6 text-center">
-        <Icon icon="solar:danger-triangle-bold" width={48} className="mx-auto mb-4 text-warning" />
-        <p className="text-default-600">Unable to generate deposit address. Please try again later.</p>
+        <Icon
+          icon="solar:danger-triangle-bold"
+          width={48}
+          className="mx-auto mb-4 text-warning"
+        />
+        <p className="text-default-600">
+          Unable to generate deposit address. Please try again later.
+        </p>
       </div>
     );
   }
@@ -591,9 +661,15 @@ function CryptoPayment({ amount }: { amount: number }) {
       <div className="rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 p-6 text-center">
         {/* QR Code Placeholder */}
         <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-lg bg-white">
-          <Icon icon="solar:qr-code-bold" width={160} className="text-default-300" />
+          <Icon
+            icon="solar:qr-code-bold"
+            width={160}
+            className="text-default-300"
+          />
         </div>
-        <p className="mb-2 text-sm text-default-600">Scan QR code or copy address</p>
+        <p className="mb-2 text-sm text-default-600">
+          Scan QR code or copy address
+        </p>
         <div className="flex items-center gap-2 rounded-lg bg-background/50 p-3">
           <code className="flex-1 truncate text-xs">{address}</code>
           <Button
@@ -613,7 +689,9 @@ function CryptoPayment({ amount }: { amount: number }) {
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-default-600">Network</span>
-            <Chip size="sm" variant="flat">Bitcoin (BTC)</Chip>
+            <Chip size="sm" variant="flat">
+              Bitcoin (BTC)
+            </Chip>
           </div>
           <div className="flex justify-between text-xs text-warning">
             <span>⚠️ Waiting for confirmation</span>
@@ -646,7 +724,8 @@ function PayPalPayment({ amount }: { amount: number }) {
         <Icon icon="logos:paypal" width={80} className="mx-auto mb-4" />
         <p className="mb-4 text-lg font-semibold">Continue to PayPal</p>
         <p className="text-sm text-default-600">
-          You will be redirected to PayPal to complete your ${amount.toFixed(2)} deposit
+          You will be redirected to PayPal to complete your ${amount.toFixed(2)}{" "}
+          deposit
         </p>
       </div>
     </div>
@@ -692,7 +771,7 @@ function ConfirmationStep({
   amount,
   fee,
   total,
-  method,
+  method: _method,
   isProcessing,
   error,
   onConfirm,
@@ -743,7 +822,11 @@ function ConfirmationStep({
         <Card className="border-2 border-danger/50 bg-danger/10">
           <CardBody className="p-4">
             <div className="flex items-center gap-3">
-              <Icon icon="solar:danger-triangle-bold" className="text-danger" width={24} />
+              <Icon
+                icon="solar:danger-triangle-bold"
+                className="text-danger"
+                width={24}
+              />
               <div>
                 <p className="font-semibold text-danger">Payment Error</p>
                 <p className="text-sm text-danger/80">{error}</p>
@@ -754,7 +837,12 @@ function ConfirmationStep({
       )}
 
       <div className="flex gap-2">
-        <Button variant="flat" onPress={onBack} className="flex-1" isDisabled={isProcessing}>
+        <Button
+          variant="flat"
+          onPress={onBack}
+          className="flex-1"
+          isDisabled={isProcessing}
+        >
           Back
         </Button>
         <Button
@@ -765,7 +853,7 @@ function ConfirmationStep({
           isLoading={isProcessing}
           endContent={!isProcessing && <Icon icon="solar:check-circle-bold" />}
         >
-          {isProcessing ? 'Processing...' : 'Confirm Deposit'}
+          {isProcessing ? "Processing..." : "Confirm Deposit"}
         </Button>
       </div>
     </motion.div>
@@ -773,7 +861,13 @@ function ConfirmationStep({
 }
 
 // Step 5: Success
-function SuccessStep({ amount, method }: { amount: number; method: PaymentMethod }) {
+function SuccessStep({
+  amount,
+  method,
+}: {
+  amount: number;
+  method: PaymentMethod;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -787,7 +881,11 @@ function SuccessStep({ amount, method }: { amount: number; method: PaymentMethod
         transition={{ delay: 0.2, ...springs.elastic }}
         className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-success"
       >
-        <Icon icon="solar:check-circle-bold" width={48} className="text-white" />
+        <Icon
+          icon="solar:check-circle-bold"
+          width={48}
+          className="text-white"
+        />
       </motion.div>
 
       <h3 className="mb-2 text-2xl font-bold">Deposit Successful!</h3>
@@ -804,11 +902,13 @@ function SuccessStep({ amount, method }: { amount: number; method: PaymentMethod
             </div>
             <div className="flex justify-between">
               <span className="text-default-600">Method</span>
-              <span className="capitalize">{method.replace('_', ' ')}</span>
+              <span className="capitalize">{method.replace("_", " ")}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-default-600">Status</span>
-              <Chip color="success" size="sm" variant="flat">Completed</Chip>
+              <Chip color="success" size="sm" variant="flat">
+                Completed
+              </Chip>
             </div>
           </div>
         </CardBody>

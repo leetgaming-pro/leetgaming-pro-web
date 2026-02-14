@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useCheckout } from './checkout-context';
+import React, { useState } from "react";
+import { Button, Card, CardBody } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useCheckout } from "./checkout-context";
 
 interface PayPalCheckoutProps {
   redirectUrl: string;
@@ -23,22 +23,22 @@ export function PayPalCheckout({
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const formatAmount = (amount: number, currency: string): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency.toUpperCase(),
     }).format(amount);
   };
 
   const handlePayPalRedirect = () => {
     if (!redirectUrl) {
-      onError('PayPal redirect URL not available');
+      onError("PayPal redirect URL not available");
       return;
     }
 
     setIsRedirecting(true);
 
     // Store payment ID for return handling
-    sessionStorage.setItem('pending_payment_id', paymentId);
+    sessionStorage.setItem("pending_payment_id", paymentId);
 
     // Redirect to PayPal
     window.location.href = redirectUrl;
@@ -49,12 +49,10 @@ export function PayPalCheckout({
       <Card className="bg-content2/50 border border-content3">
         <CardBody className="p-6">
           <div className="text-center mb-6">
-            <Icon
-              icon="logos:paypal"
-              className="w-32 h-8 mx-auto mb-4"
-            />
+            <Icon icon="logos:paypal" className="w-32 h-8 mx-auto mb-4" />
             <p className="text-default-500">
-              You will be redirected to PayPal to complete your payment securely.
+              You will be redirected to PayPal to complete your payment
+              securely.
             </p>
           </div>
 
@@ -79,19 +77,30 @@ export function PayPalCheckout({
 
           <div className="space-y-4">
             <div className="flex items-start gap-3 p-3 bg-primary/10 rounded-lg">
-              <Icon icon="solar:shield-check-bold" className="text-primary w-5 h-5 mt-0.5" />
+              <Icon
+                icon="solar:shield-check-bold"
+                className="text-primary w-5 h-5 mt-0.5"
+              />
               <div className="text-sm">
-                <p className="font-medium text-primary">PayPal Buyer Protection</p>
+                <p className="font-medium text-primary">
+                  PayPal Buyer Protection
+                </p>
                 <p className="text-default-500">
-                  Your purchase is protected by PayPal&apos;s secure payment system.
+                  Your purchase is protected by PayPal&apos;s secure payment
+                  system.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-content1 rounded-lg">
-              <Icon icon="solar:wallet-bold" className="text-default-500 w-5 h-5 mt-0.5" />
+              <Icon
+                icon="solar:wallet-bold"
+                className="text-default-500 w-5 h-5 mt-0.5"
+              />
               <div className="text-sm">
-                <p className="font-medium">Pay with PayPal balance or linked accounts</p>
+                <p className="font-medium">
+                  Pay with PayPal balance or linked accounts
+                </p>
                 <p className="text-default-500">
                   Use your PayPal balance, bank account, or saved cards.
                 </p>
@@ -107,12 +116,12 @@ export function PayPalCheckout({
             isLoading={isRedirecting}
             onPress={handlePayPalRedirect}
             startContent={
-              !isRedirecting && (
-                <Icon icon="logos:paypal" className="w-5 h-5" />
-              )
+              !isRedirecting && <Icon icon="logos:paypal" className="w-5 h-5" />
             }
           >
-            {isRedirecting ? 'Redirecting to PayPal...' : 'Continue with PayPal'}
+            {isRedirecting
+              ? "Redirecting to PayPal..."
+              : "Continue with PayPal"}
           </Button>
         </CardBody>
       </Card>

@@ -3,11 +3,11 @@
  * React hook for matchmaking operations with state management and polling
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useSDK } from '@/contexts/sdk-context';
-import { logger } from '@/lib/logger';
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useSDK } from "@/contexts/sdk-context";
+import { logger } from "@/lib/logger";
 import type {
   JoinQueueRequest,
   JoinQueueResponse,
@@ -16,8 +16,11 @@ import type {
   SessionStatus,
   MatchmakingError,
   MatchmakingErrorResponse,
-} from '@/types/replay-api/matchmaking.types';
-import { isSessionTerminal, isSessionActive } from '@/types/replay-api/matchmaking.types';
+} from "@/types/replay-api/matchmaking.types";
+import {
+  isSessionTerminal,
+  isSessionActive,
+} from "@/types/replay-api/matchmaking.types";
 
 export interface UseMatchmakingResult {
   // State
@@ -33,7 +36,11 @@ export interface UseMatchmakingResult {
   joinQueue: (request: JoinQueueRequest) => Promise<JoinQueueResponse | null>;
   leaveQueue: () => Promise<boolean>;
   refreshSession: () => Promise<void>;
-  fetchPoolStats: (gameId: string, gameMode?: string, region?: string) => Promise<void>;
+  fetchPoolStats: (
+    gameId: string,
+    gameMode?: string,
+    region?: string
+  ) => Promise<void>;
   joinLobby: (lobbyId: string) => Promise<boolean>;
   acceptMatch: () => Promise<boolean>;
   declineMatch: () => Promise<boolean>;
@@ -81,40 +88,46 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
   }, []);
 
   // Start polling for session status
-  const startPolling = useCallback((sessionId: string) => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-    }
-
-    const poll = async () => {
-      try {
-        const status = await sdk.matchmaking.getSessionStatus(sessionId);
-        if (status) {
-          setSession(status);
-          if (isSessionTerminal(status.status as SessionStatus)) {
-            stopPolling();
-            stopElapsedTimer();
-          }
-        }
-      } catch (err) {
-        logger.error('[useMatchmaking] Polling error:', err);
+  const startPolling = useCallback(
+    (sessionId: string) => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
       }
-    };
 
-    // Initial poll
-    poll();
+      const poll = async () => {
+        try {
+          const status = await sdk.matchmaking.getSessionStatus(sessionId);
+          if (status) {
+            setSession(status);
+            if (isSessionTerminal(status.status as SessionStatus)) {
+              stopPolling();
+              stopElapsedTimer();
+            }
+          }
+        } catch (err) {
+          logger.error("[useMatchmaking] Polling error:", err);
+        }
+      };
 
-    // Set up interval
-    pollingRef.current = setInterval(poll, pollIntervalMs);
-    logger.info('[useMatchmaking] Started polling', { sessionId, intervalMs: pollIntervalMs });
-  }, [sdk, pollIntervalMs, stopElapsedTimer]);
+      // Initial poll
+      poll();
+
+      // Set up interval
+      pollingRef.current = setInterval(poll, pollIntervalMs);
+      logger.info("[useMatchmaking] Started polling", {
+        sessionId,
+        intervalMs: pollIntervalMs,
+      });
+    },
+    [sdk, pollIntervalMs, stopElapsedTimer]
+  );
 
   // Stop polling
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
-      logger.info('[useMatchmaking] Stopped polling');
+      logger.info("[useMatchmaking] Stopped polling");
     }
   }, []);
 
@@ -126,45 +139,50 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     };
   }, [stopPolling, stopElapsedTimer]);
 
-  const joinQueue = useCallback(async (request: JoinQueueRequest): Promise<JoinQueueResponse | null> => {
-    setIsLoading(true);
-    setError(null);
+  const joinQueue = useCallback(
+    async (request: JoinQueueRequest): Promise<JoinQueueResponse | null> => {
+      setIsLoading(true);
+      setError(null);
 
-    // Store last action for retry
-    lastActionRef.current = () => joinQueue(request);
+      // Store last action for retry
+      lastActionRef.current = async () => {
+        await joinQueue(request);
+      };
 
-    try {
-      const result = await sdk.matchmaking.joinQueue(request);
-      if (result) {
-        setSession({
-          session_id: result.session_id,
-          status: result.status,
-          elapsed_time: 0,
-          estimated_wait: result.estimated_wait_seconds,
-          queue_position: result.queue_position,
-        });
-        startPolling(result.session_id);
-        startElapsedTimer();
-      } else {
-        setError('NETWORK_ERROR');
+      try {
+        const result = await sdk.matchmaking.joinQueue(request);
+        if (result) {
+          setSession({
+            session_id: result.session_id,
+            status: result.status,
+            elapsed_time: 0,
+            estimated_wait: result.estimated_wait_seconds,
+            queue_position: result.queue_position,
+          });
+          startPolling(result.session_id);
+          startElapsedTimer();
+        } else {
+          setError("NETWORK_ERROR");
+        }
+        return result;
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error joining queue:", err);
+
+        // Try to parse error response for specific error types
+        let matchmakingError: MatchmakingError = "NETWORK_ERROR";
+        if (err && typeof err === "object" && "error" in err) {
+          const errorResponse = err as MatchmakingErrorResponse;
+          matchmakingError = errorResponse.error;
+        }
+
+        setError(matchmakingError);
+        return null;
+      } finally {
+        setIsLoading(false);
       }
-      return result;
-    } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error joining queue:', err);
-
-      // Try to parse error response for specific error types
-      let matchmakingError: MatchmakingError = 'NETWORK_ERROR';
-      if (err && typeof err === 'object' && 'error' in err) {
-        const errorResponse = err as MatchmakingErrorResponse;
-        matchmakingError = errorResponse.error;
-      }
-
-      setError(matchmakingError);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [sdk, startPolling, startElapsedTimer]);
+    },
+    [sdk, startPolling, startElapsedTimer]
+  );
 
   const leaveQueue = useCallback(async (): Promise<boolean> => {
     if (!session) return false;
@@ -180,12 +198,12 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
         setSession(null);
         setElapsedTime(0);
       } else {
-        setError('Failed to leave queue');
+        setError("LOBBY_ERROR" as MatchmakingError);
       }
       return success;
     } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error leaving queue:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      logger.error("[useMatchmaking] Error leaving queue:", err);
+      setError("LOBBY_ERROR" as MatchmakingError);
       return false;
     } finally {
       setIsLoading(false);
@@ -201,27 +219,34 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
         setSession(status);
       }
     } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error refreshing session:', err);
+      logger.error("[useMatchmaking] Error refreshing session:", err);
     }
   }, [sdk, session]);
 
-  const fetchPoolStats = useCallback(async (gameId: string, gameMode?: string, region?: string) => {
-    setIsLoading(true);
-    setError(null);
+  const fetchPoolStats = useCallback(
+    async (gameId: string, gameMode?: string, region?: string) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const stats = await sdk.matchmaking.getPoolStats(gameId, gameMode, region);
-      setPoolStats(stats);
-      if (!stats) {
-        setError('Failed to fetch pool stats');
+      try {
+        const stats = await sdk.matchmaking.getPoolStats(
+          gameId,
+          gameMode,
+          region
+        );
+        setPoolStats(stats);
+        if (!stats) {
+          setError("LOBBY_ERROR" as MatchmakingError);
+        }
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error fetching pool stats:", err);
+        setError("LOBBY_ERROR" as MatchmakingError);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error fetching pool stats:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [sdk]);
+    },
+    [sdk]
+  );
 
   const clearError = useCallback(() => {
     setError(null);
@@ -233,35 +258,40 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     }
   }, []);
 
-  const joinLobby = useCallback(async (lobbyId: string): Promise<boolean> => {
-    if (!session) return false;
+  const joinLobby = useCallback(
+    async (lobbyId: string): Promise<boolean> => {
+      if (!session) return false;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Use lobby SDK from context
-      const lobbySdk = sdk.lobbies;
-      await lobbySdk.joinLobby(lobbyId);
-      await lobbySdk.setPlayerReady(lobbyId, {
-        player_id: session.session_id, // This should be the actual player ID
-        is_ready: false, // Initially not ready
-      });
+      try {
+        // Use lobby SDK from context
+        const lobbySdk = sdk.lobbies;
+        await lobbySdk.joinLobby(lobbyId, {
+          player_id: session.session_id, // This should be the actual player ID
+        });
+        await lobbySdk.setPlayerReady(lobbyId, {
+          player_id: session.session_id, // This should be the actual player ID
+          is_ready: false, // Initially not ready
+        });
 
-      setLobbyId(lobbyId);
+        setLobbyId(lobbyId);
 
-      // Start lobby polling
-      startLobbyPolling(lobbyId);
+        // Start lobby polling
+        startLobbyPolling(lobbyId);
 
-      return true;
-    } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error joining lobby:', err);
-      setError('LOBBY_ERROR');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [sdk, session]);
+        return true;
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error joining lobby:", err);
+        setError("LOBBY_ERROR");
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sdk, session]
+  );
 
   const acceptMatch = useCallback(async (): Promise<boolean> => {
     if (!lobbyId || !session) return false;
@@ -281,8 +311,8 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
 
       return true;
     } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error accepting match:', err);
-      setError('LOBBY_ERROR');
+      logger.error("[useMatchmaking] Error accepting match:", err);
+      setError("LOBBY_ERROR");
       return false;
     } finally {
       setIsLoading(false);
@@ -298,7 +328,9 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     try {
       // Leave the lobby
       const lobbySdk = sdk.lobbies;
-      await lobbySdk.leaveLobby(lobbyId);
+      await lobbySdk.leaveLobby(lobbyId, {
+        player_id: session.session_id,
+      });
 
       // Leave the queue
       await leaveQueue();
@@ -308,8 +340,8 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
 
       return true;
     } catch (err: unknown) {
-      logger.error('[useMatchmaking] Error declining match:', err);
-      setError('LOBBY_ERROR');
+      logger.error("[useMatchmaking] Error declining match:", err);
+      setError("LOBBY_ERROR");
       return false;
     } finally {
       setIsLoading(false);
@@ -317,43 +349,51 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
   }, [sdk, lobbyId, session, leaveQueue]);
 
   // Lobby polling functions
-  const startLobbyPolling = useCallback((lobbyId: string) => {
-    if (lobbyPollingRef.current) {
-      clearInterval(lobbyPollingRef.current);
-    }
-
-    const poll = async () => {
-      try {
-        const lobbySdk = sdk.lobbies;
-        const lobby = await lobbySdk.getLobbyStatus(lobbyId);
-
-        if (lobby) {
-          // Update session with lobby info
-          if (lobby.match_id) {
-            setMatchId(lobby.match_id);
-            setSession(prev => prev ? {
-              ...prev,
-              match_id: lobby.match_id,
-              lobby_id: lobbyId,
-            } : null);
-          }
-
-          // Check if lobby is ready to start
-          if (lobby.status === 'starting' || lobby.status === 'started') {
-            stopLobbyPolling();
-          }
-        }
-      } catch (err) {
-        logger.error('[useMatchmaking] Lobby polling error:', err);
+  const startLobbyPolling = useCallback(
+    (lobbyId: string) => {
+      if (lobbyPollingRef.current) {
+        clearInterval(lobbyPollingRef.current);
       }
-    };
 
-    // Initial poll
-    poll();
+      const poll = async () => {
+        try {
+          const lobbySdk = sdk.lobbies;
+          const result = await lobbySdk.getLobby(lobbyId);
 
-    // Set up interval
-    lobbyPollingRef.current = setInterval(poll, 1500); // Poll every 1.5 seconds
-  }, [sdk]);
+          if (result?.lobby) {
+            const lobby = result.lobby;
+            // Update session with lobby info
+            if (lobby.match_id) {
+              setMatchId(lobby.match_id);
+              setSession((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      match_id: lobby.match_id,
+                      lobby_id: lobbyId,
+                    }
+                  : null
+              );
+            }
+
+            // Check if lobby is ready to start
+            if (lobby.status === "starting" || lobby.status === "started") {
+              stopLobbyPolling();
+            }
+          }
+        } catch (err) {
+          logger.error("[useMatchmaking] Lobby polling error:", err);
+        }
+      };
+
+      // Initial poll
+      poll();
+
+      // Set up interval
+      lobbyPollingRef.current = setInterval(poll, 1500); // Poll every 1.5 seconds
+    },
+    [sdk]
+  );
 
   const stopLobbyPolling = useCallback(() => {
     if (lobbyPollingRef.current) {
@@ -393,4 +433,9 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
 }
 
 // Re-export types
-export type { JoinQueueRequest, JoinQueueResponse, SessionStatusResponse, PoolStatsResponse };
+export type {
+  JoinQueueRequest,
+  JoinQueueResponse,
+  SessionStatusResponse,
+  PoolStatsResponse,
+};

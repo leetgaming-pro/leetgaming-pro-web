@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
@@ -16,7 +17,7 @@ export async function DELETE(
   { params }: { params: { session_id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({
         success: false,

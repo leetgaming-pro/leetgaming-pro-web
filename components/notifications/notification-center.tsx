@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Notification Center Component
@@ -6,7 +6,7 @@
  * Uses SDK via useNotifications hook - DO NOT use direct fetch calls
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Popover,
   PopoverTrigger,
@@ -19,9 +19,13 @@ import {
   Tabs,
   Tab,
   ScrollShadow,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useNotifications, Notification, NotificationType } from '@/hooks/use-notifications';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import {
+  useNotifications,
+  Notification,
+  NotificationType,
+} from "@/hooks/use-notifications";
 
 // Re-export Notification type for backwards compatibility
 export type { Notification };
@@ -38,24 +42,24 @@ export interface NotificationCenterProps {
 }
 
 const notificationIcons: Record<NotificationType, string> = {
-  match: 'solar:gameboy-bold',
-  team: 'solar:users-group-rounded-bold',
-  friend: 'solar:user-plus-bold',
-  system: 'solar:bell-bold',
-  achievement: 'solar:cup-star-bold',
-  message: 'solar:chat-round-bold',
+  match: "solar:gameboy-bold",
+  team: "solar:users-group-rounded-bold",
+  friend: "solar:user-plus-bold",
+  system: "solar:bell-bold",
+  achievement: "solar:cup-star-bold",
+  message: "solar:chat-round-bold",
 };
 
 const notificationColors: Record<
   NotificationType,
-  'primary' | 'secondary' | 'success' | 'warning' | 'danger'
+  "primary" | "secondary" | "success" | "warning" | "danger"
 > = {
-  match: 'primary',
-  team: 'secondary',
-  friend: 'success',
-  system: 'warning',
-  achievement: 'warning',
-  message: 'primary',
+  match: "primary",
+  team: "secondary",
+  friend: "success",
+  system: "warning",
+  achievement: "warning",
+  message: "primary",
 };
 
 export function NotificationCenter({
@@ -64,16 +68,22 @@ export function NotificationCenter({
   onMarkAllAsRead,
   enableRealtime = false,
 }: NotificationCenterProps) {
-  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [selectedTab, setSelectedTab] = useState<string>("all");
 
   // Use SDK-powered notifications hook instead of direct fetch
   const {
-    notifications,
+    notifications = [],
     unreadCount,
     markAsRead,
     markAllAsRead,
     getByType,
   } = useNotifications(true, {}, enableRealtime, 30000);
+
+  // Ensure filteredNotifications is always an array
+  const filteredNotifications =
+    selectedTab === "all"
+      ? notifications || []
+      : getByType(selectedTab as NotificationType) || [];
 
   const handleMarkAsRead = async (notificationId: string) => {
     const success = await markAsRead(notificationId);
@@ -101,35 +111,37 @@ export function NotificationCenter({
     }
   };
 
-  const filteredNotifications =
-    selectedTab === 'all'
-      ? notifications
-      : getByType(selectedTab as NotificationType);
-
   const renderNotification = (notification: Notification) => {
-    const icon = notification.metadata?.icon || notificationIcons[notification.type];
+    const icon =
+      notification.metadata?.icon || notificationIcons[notification.type];
     const color = notificationColors[notification.type];
 
     return (
       <Card
         key={notification.id}
         isPressable
-        className={`mb-2 ${notification.read ? 'opacity-60' : ''}`}
+        className={`mb-2 ${notification.read ? "opacity-60" : ""}`}
         onPress={() => handleNotificationClick(notification)}
       >
         <CardBody className="p-3">
           <div className="flex items-start gap-3">
-            <div className={`w-10 h-10 bg-${color}/10 rounded-full flex items-center justify-center flex-shrink-0`}>
+            <div
+              className={`w-10 h-10 bg-${color}/10 rounded-full flex items-center justify-center flex-shrink-0`}
+            >
               <Icon icon={icon} width={20} className={`text-${color}`} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h4 className="font-semibold text-sm truncate">{notification.title}</h4>
+                <h4 className="font-semibold text-sm truncate">
+                  {notification.title}
+                </h4>
                 {!notification.read && (
                   <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />
                 )}
               </div>
-              <p className="text-xs text-default-600 line-clamp-2">{notification.message}</p>
+              <p className="text-xs text-default-600 line-clamp-2">
+                {notification.message}
+              </p>
               <p className="text-xs text-default-400 mt-1">
                 {formatTimestamp(notification.timestamp)}
               </p>
@@ -144,7 +156,11 @@ export function NotificationCenter({
     <Popover placement="bottom-end" offset={10}>
       <PopoverTrigger>
         <Button isIconOnly variant="light" className="relative">
-          <Badge content={unreadCount > 0 ? unreadCount : ''} color="danger" size="sm">
+          <Badge
+            content={unreadCount > 0 ? unreadCount : ""}
+            color="danger"
+            size="sm"
+          >
             <Icon icon="solar:bell-bold" width={24} />
           </Badge>
         </Button>
@@ -189,7 +205,11 @@ export function NotificationCenter({
           <ScrollShadow className="max-h-[500px] p-4">
             {filteredNotifications.length === 0 ? (
               <div className="text-center py-12">
-                <Icon icon="solar:bell-off-linear" width={48} className="mx-auto mb-3 text-default-300" />
+                <Icon
+                  icon="solar:bell-off-linear"
+                  width={48}
+                  className="mx-auto mb-3 text-default-300"
+                />
                 <p className="text-default-500">No notifications</p>
               </div>
             ) : (
@@ -205,7 +225,7 @@ export function NotificationCenter({
               className="w-full"
               variant="flat"
               color="primary"
-              onPress={() => (window.location.href = '/notifications')}
+              onPress={() => (window.location.href = "/notifications")}
             >
               View All Notifications
             </Button>
@@ -225,11 +245,10 @@ function formatTimestamp(timestamp: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
+  if (diffMins < 1) return "Just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
 
   return date.toLocaleDateString();
 }
-

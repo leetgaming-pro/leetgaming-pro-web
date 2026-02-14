@@ -40,6 +40,7 @@ const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 interface PlayerCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess?: (profile: any) => void;
 }
 
@@ -66,10 +67,10 @@ const RANKS = {
 
 export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreationModalProps) {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [_submitError, setSubmitError] = useState<string | null>(null);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -184,9 +185,9 @@ export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreati
 
       // Navigate to the new profile
       router.push(`/players/${formData.slug}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to create player profile', error);
-      setSubmitError(error.message || 'Failed to create profile. Please try again.');
+      setSubmitError(error instanceof Error ? error.message : 'Failed to create profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

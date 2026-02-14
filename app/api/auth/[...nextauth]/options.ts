@@ -3,8 +3,8 @@
  * Shared auth configuration for server-side session access
  */
 
-import type { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+import type { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
 // GoogleProfile is declared globally in types/next-auth.d.ts
 
@@ -12,25 +12,33 @@ import GoogleProvider from 'next-auth/providers/google';
  * Base auth options for getServerSession calls
  * Note: Steam provider requires request context and is handled in route.ts
  */
+// Fail fast if NEXTAUTH_SECRET is not configured — prevents JWT forgery with empty string signing
+const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+if (!nextAuthSecret && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "CRITICAL: NEXTAUTH_SECRET environment variable is required in production",
+  );
+}
+
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET!,
+  secret: nextAuthSecret || "dev-secret-do-not-use-in-prod",
   pages: {
-    signIn: '/signin',
-    error: '/api/auth/error',
+    signIn: "/signin",
+    error: "/api/auth/error",
   },
   session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 days — reduced from 30 for financial platform security
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       authorization: {
         params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
         },
       },
     }),
@@ -38,7 +46,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
       // Preserve existing token data
-      if (account?.provider === 'google') {
+      if (account?.provider === "google") {
         token.google = profile as GoogleProfile;
       }
       return token;

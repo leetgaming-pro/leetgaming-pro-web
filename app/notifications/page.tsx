@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Notifications Page
@@ -6,7 +6,8 @@
  * Uses SDK via useNotifications hook - DO NOT use direct fetch calls
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import {
   Card,
   CardBody,
@@ -15,51 +16,58 @@ import {
   Tabs,
   Tab,
   Skeleton,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { PageContainer } from '@/components/layouts/centered-content';
-import { useNotifications, Notification, NotificationType } from '@/hooks/use-notifications';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { PageContainer } from "@/components/layouts/centered-content";
+import {
+  useNotifications,
+  Notification,
+  NotificationType,
+} from "@/hooks/use-notifications";
 
 const notificationIcons: Record<NotificationType, string> = {
-  match: 'solar:gameboy-bold',
-  team: 'solar:users-group-rounded-bold',
-  friend: 'solar:user-plus-bold',
-  system: 'solar:bell-bold',
-  achievement: 'solar:cup-star-bold',
-  message: 'solar:chat-round-bold',
+  match: "solar:gameboy-bold",
+  team: "solar:users-group-rounded-bold",
+  friend: "solar:user-plus-bold",
+  system: "solar:bell-bold",
+  achievement: "solar:cup-star-bold",
+  message: "solar:chat-round-bold",
 };
 
 const notificationColors: Record<
   NotificationType,
-  'primary' | 'secondary' | 'success' | 'warning' | 'danger'
+  "primary" | "secondary" | "success" | "warning" | "danger"
 > = {
-  match: 'primary',
-  team: 'secondary',
-  friend: 'success',
-  system: 'warning',
-  achievement: 'warning',
-  message: 'primary',
+  match: "primary",
+  team: "secondary",
+  friend: "success",
+  system: "warning",
+  achievement: "warning",
+  message: "primary",
 };
 
 // Pre-defined Tailwind classes for dynamic color support
 const colorBgClasses: Record<string, string> = {
-  primary: 'bg-primary/10',
-  secondary: 'bg-secondary/10',
-  success: 'bg-success/10',
-  warning: 'bg-warning/10',
-  danger: 'bg-danger/10',
+  primary: "bg-primary/10",
+  secondary: "bg-secondary/10",
+  success: "bg-success/10",
+  warning: "bg-warning/10",
+  danger: "bg-danger/10",
 };
 
 const colorTextClasses: Record<string, string> = {
-  primary: 'text-primary',
-  secondary: 'text-secondary',
-  success: 'text-success',
-  warning: 'text-warning',
-  danger: 'text-danger',
+  primary: "text-primary",
+  secondary: "text-secondary",
+  success: "text-success",
+  warning: "text-warning",
+  danger: "text-danger",
 };
 
 export default function NotificationsPage() {
-  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting } = useRequireAuth({
+    callbackUrl: '/notifications'
+  });
+  const [selectedTab, setSelectedTab] = useState<string>("all");
   const [filterUnread, setFilterUnread] = useState(false);
 
   // Use SDK-powered notifications hook instead of direct fetch
@@ -72,7 +80,7 @@ export default function NotificationsPage() {
     deleteNotification,
     deleteAll,
     getByType,
-    getUnread,
+    getUnread: _getUnread,
   } = useNotifications(true);
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -88,43 +96,51 @@ export default function NotificationsPage() {
   };
 
   const handleClearAll = async () => {
-    if (!confirm('Are you sure you want to delete all notifications?')) return;
+    if (!confirm("Are you sure you want to delete all notifications?")) return;
     await deleteAll();
   };
 
   // Filter notifications using hook's helper methods
   const filteredNotifications = useMemo(() => {
-    let filtered = selectedTab === 'all' 
-      ? notifications 
-      : getByType(selectedTab as NotificationType);
-    
+    let filtered =
+      selectedTab === "all"
+        ? notifications
+        : getByType(selectedTab as NotificationType);
+
     if (filterUnread) {
       filtered = filtered.filter((n) => !n.read);
     }
-    
+
     return filtered;
   }, [notifications, selectedTab, filterUnread, getByType]);
 
   const renderNotification = (notification: Notification) => {
-    const icon = notification.metadata?.icon || notificationIcons[notification.type];
+    const icon =
+      notification.metadata?.icon || notificationIcons[notification.type];
     const color = notificationColors[notification.type];
 
     return (
       <Card
         key={notification.id}
-        className={`mb-4 ${notification.read ? 'opacity-70' : ''}`}
+        className={`mb-4 ${notification.read ? "opacity-70" : ""}`}
       >
         <CardBody className="p-4">
           <div className="flex items-start gap-4">
             <div
               className={`w-12 h-12 ${colorBgClasses[color]} rounded-full flex items-center justify-center flex-shrink-0`}
             >
-              <Icon icon={icon} width={24} className={colorTextClasses[color]} />
+              <Icon
+                icon={icon}
+                width={24}
+                className={colorTextClasses[color]}
+              />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-lg">{notification.title}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {notification.title}
+                  </h3>
                   {!notification.read && (
                     <div className="w-2 h-2 bg-primary rounded-full mt-1" />
                   )}
@@ -136,7 +152,11 @@ export default function NotificationsPage() {
               <p className="text-default-700 mb-3">{notification.message}</p>
               <div className="flex items-center justify-between">
                 <p className="text-sm text-default-500">
-                  <Icon icon="solar:clock-circle-linear" width={16} className="inline mr-1" />
+                  <Icon
+                    icon="solar:clock-circle-linear"
+                    width={16}
+                    className="inline mr-1"
+                  />
                   {formatTimestamp(notification.timestamp)}
                 </p>
                 <div className="flex gap-2">
@@ -146,7 +166,9 @@ export default function NotificationsPage() {
                       variant="flat"
                       color="primary"
                       onPress={() => handleMarkAsRead(notification.id)}
-                      startContent={<Icon icon="solar:check-circle-bold" width={18} />}
+                      startContent={
+                        <Icon icon="solar:check-circle-bold" width={18} />
+                      }
                     >
                       Mark as Read
                     </Button>
@@ -158,9 +180,11 @@ export default function NotificationsPage() {
                       color="secondary"
                       onPress={() => {
                         handleMarkAsRead(notification.id);
-                        window.location.href = notification.actionUrl!;
+                        window.location.href = notification.actionUrl ?? '';
                       }}
-                      startContent={<Icon icon="solar:arrow-right-bold" width={18} />}
+                      startContent={
+                        <Icon icon="solar:arrow-right-bold" width={18} />
+                      }
                     >
                       View
                     </Button>
@@ -195,10 +219,20 @@ export default function NotificationsPage() {
     );
   }
 
+  if (isAuthLoading || isRedirecting || !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <PageContainer
       title="Notifications"
-      description={`You have ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
+      description={`You have ${unreadCount} unread notification${
+        unreadCount !== 1 ? "s" : ""
+      }`}
       maxWidth="5xl"
     >
       {/* Action Bar */}
@@ -208,12 +242,12 @@ export default function NotificationsPage() {
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
-                variant={filterUnread ? 'solid' : 'bordered'}
+                variant={filterUnread ? "solid" : "bordered"}
                 color="primary"
                 onPress={() => setFilterUnread(!filterUnread)}
                 startContent={<Icon icon="solar:filter-bold" width={18} />}
               >
-                {filterUnread ? 'Showing Unread' : 'Show Unread Only'}
+                {filterUnread ? "Showing Unread" : "Show Unread Only"}
               </Button>
             </div>
             <div className="flex gap-2">
@@ -223,7 +257,9 @@ export default function NotificationsPage() {
                   variant="flat"
                   color="primary"
                   onPress={handleMarkAllAsRead}
-                  startContent={<Icon icon="solar:check-read-bold" width={18} />}
+                  startContent={
+                    <Icon icon="solar:check-read-bold" width={18} />
+                  }
                 >
                   Mark All Read
                 </Button>
@@ -234,7 +270,9 @@ export default function NotificationsPage() {
                   variant="flat"
                   color="danger"
                   onPress={handleClearAll}
-                  startContent={<Icon icon="solar:trash-bin-trash-bold" width={18} />}
+                  startContent={
+                    <Icon icon="solar:trash-bin-trash-bold" width={18} />
+                  }
                 >
                   Clear All
                 </Button>
@@ -325,8 +363,8 @@ export default function NotificationsPage() {
               <p className="text-default-600">
                 {filterUnread
                   ? "You're all caught up! No unread notifications."
-                  : selectedTab === 'all'
-                  ? 'You have no notifications yet.'
+                  : selectedTab === "all"
+                  ? "You have no notifications yet."
                   : `No ${selectedTab} notifications.`}
               </p>
             </CardBody>
@@ -348,17 +386,16 @@ function formatTimestamp(timestamp: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
+  if (diffMins < 1) return "Just now";
   if (diffMins < 60) return `${diffMins} minutes ago`;
   if (diffHours < 24) return `${diffHours} hours ago`;
   if (diffDays < 7) return `${diffDays} days ago`;
 
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
-

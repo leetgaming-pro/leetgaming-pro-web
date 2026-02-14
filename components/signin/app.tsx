@@ -1,10 +1,17 @@
 "use client";
 
 import React from "react";
-import {Button, Input, Link, Divider, User, Checkbox} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import {
+  Button,
+  Input,
+  Link,
+  Divider,
+  User,
+  Checkbox,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 
-import {AcmeIcon} from "./social";
+import { AcmeIcon as _AcmeIcon } from "./social";
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -25,7 +32,9 @@ export default function SignIn() {
         <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
           <div className="w-full text-left">
             <p className="pb-2 text-xl font-medium">Welcome Back</p>
-            <p className="text-small text-default-500">Log in to your account to continue</p>
+            <p className="text-small text-default-500">
+              Log in to your account to continue
+            </p>
           </div>
 
           <div className="flex w-full flex-col gap-2">
@@ -36,7 +45,13 @@ export default function SignIn() {
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="fe:github"
+                  width={24}
+                />
+              }
               variant="bordered"
             >
               Continue with Github
@@ -49,7 +64,10 @@ export default function SignIn() {
             <Divider className="flex-1" />
           </div>
 
-          <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="flex w-full flex-col gap-3"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <Input
               label="Email Address"
               name="email"
@@ -127,7 +145,8 @@ export default function SignIn() {
           <p className="w-full text-right text-2xl text-black/60">
             <span className="font-medium">&ldquo;</span>
             <span className="font-normal italic">
-              Level up your competitive gaming experience. Track replays, analyze performance, and climb the ranks.
+              Level up your competitive gaming experience. Track replays,
+              analyze performance, and climb the ranks.
             </span>
             <span className="font-medium">&rdquo;</span>
           </p>

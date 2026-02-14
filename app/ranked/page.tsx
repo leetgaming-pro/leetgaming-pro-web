@@ -7,12 +7,10 @@ import {
   CardBody,
   CardHeader,
   Progress,
-  Avatar,
   Chip,
   Button,
   Tabs,
   Tab,
-  Spacer,
   Divider,
   Spinner,
 } from "@nextui-org/react";
@@ -56,15 +54,69 @@ interface PlayerRankStats {
 }
 
 const RANK_TIERS: RankTier[] = [
-  { name: "Iron", division: "I", icon: "mdi:shield", color: "#8B7355", minRating: 0 },
-  { name: "Bronze", division: "I", icon: "mdi:shield", color: "#CD7F32", minRating: 1000 },
-  { name: "Silver", division: "I", icon: "mdi:shield-star", color: "#C0C0C0", minRating: 1500 },
-  { name: "Gold", division: "I", icon: "mdi:shield-star", color: "#FFD700", minRating: 2000 },
-  { name: "Platinum", division: "I", icon: "mdi:shield-crown", color: "#E5E4E2", minRating: 2500 },
-  { name: "Diamond", division: "I", icon: "mdi:shield-crown", color: "#B9F2FF", minRating: 3000 },
-  { name: "Master", division: "I", icon: "mdi:crown", color: "#9B59B6", minRating: 3500 },
-  { name: "Grandmaster", division: "I", icon: "mdi:crown-circle", color: "#E74C3C", minRating: 4000 },
-  { name: "Challenger", division: "I", icon: "mdi:trophy", color: "#DCFF37", minRating: 4500 },
+  {
+    name: "Iron",
+    division: "I",
+    icon: "mdi:shield",
+    color: "#8B7355",
+    minRating: 0,
+  },
+  {
+    name: "Bronze",
+    division: "I",
+    icon: "mdi:shield",
+    color: "#CD7F32",
+    minRating: 1000,
+  },
+  {
+    name: "Silver",
+    division: "I",
+    icon: "mdi:shield-star",
+    color: "#C0C0C0",
+    minRating: 1500,
+  },
+  {
+    name: "Gold",
+    division: "I",
+    icon: "mdi:shield-star",
+    color: "#FFD700",
+    minRating: 2000,
+  },
+  {
+    name: "Platinum",
+    division: "I",
+    icon: "mdi:shield-crown",
+    color: "#E5E4E2",
+    minRating: 2500,
+  },
+  {
+    name: "Diamond",
+    division: "I",
+    icon: "mdi:shield-crown",
+    color: "#B9F2FF",
+    minRating: 3000,
+  },
+  {
+    name: "Master",
+    division: "I",
+    icon: "mdi:crown",
+    color: "#9B59B6",
+    minRating: 3500,
+  },
+  {
+    name: "Grandmaster",
+    division: "I",
+    icon: "mdi:crown-circle",
+    color: "#E74C3C",
+    minRating: 4000,
+  },
+  {
+    name: "Challenger",
+    division: "I",
+    icon: "mdi:trophy",
+    color: "#DCFF37",
+    minRating: 4500,
+  },
 ];
 
 interface RecentMatch {
@@ -72,6 +124,7 @@ interface RecentMatch {
   result: string;
   ratingChange: number;
   map: string;
+  map_name?: string;
   kda: string;
   date: string;
 }
@@ -95,8 +148,12 @@ export default function RankedPage() {
   }
 
   // Helper to get next tier info
-  function getNextTierInfo(rating: number): { nextTier: RankTier | null; progress: number } {
-    const currentTierIndex = RANK_TIERS.findIndex(t => t.minRating > rating) - 1;
+  function getNextTierInfo(rating: number): {
+    nextTier: RankTier | null;
+    progress: number;
+  } {
+    const currentTierIndex =
+      RANK_TIERS.findIndex((t) => t.minRating > rating) - 1;
     const nextTierIndex = currentTierIndex + 1;
 
     if (nextTierIndex >= RANK_TIERS.length) {
@@ -107,7 +164,10 @@ export default function RankedPage() {
     const nextTier = RANK_TIERS[nextTierIndex];
     const ratingInTier = rating - currentTier.minRating;
     const tierRange = nextTier.minRating - currentTier.minRating;
-    const progress = Math.min(100, Math.round((ratingInTier / tierRange) * 100));
+    const progress = Math.min(
+      100,
+      Math.round((ratingInTier / tierRange) * 100)
+    );
 
     return { nextTier, progress };
   }
@@ -127,7 +187,8 @@ export default function RankedPage() {
         setError(null);
 
         // Fetch current user's player profile
-        const player = await sdk.playerProfiles.getMyProfile() as PlayerProfileWithStats | null;
+        const player =
+          (await sdk.playerProfiles.getMyProfile()) as PlayerProfileWithStats | null;
 
         if (player) {
           const rating = player.rating || 0;
@@ -152,7 +213,8 @@ export default function RankedPage() {
           });
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load ranked data";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load ranked data";
         logger.error("Failed to fetch ranked data", err);
         setError(errorMessage);
         // Show empty state on error - no mock data fallback
@@ -170,14 +232,33 @@ export default function RankedPage() {
     <div className="flex w-full flex-col items-center gap-8 px-4 py-8 lg:px-24">
       {/* Header */}
       <div className="flex w-full max-w-6xl flex-col items-center text-center gap-4">
-        <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-          <Icon icon="solar:ranking-bold" width={28} className="text-[#F5F0E1] dark:text-[#34445C]" />
+        <div
+          className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+          style={{
+            clipPath:
+              "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+          }}
+        >
+          <Icon
+            icon="solar:ranking-bold"
+            width={28}
+            className="text-[#F5F0E1] dark:text-[#34445C]"
+          />
         </div>
-        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">Competitive Gaming</h2>
-        <h1 className={title({ size: "lg", class: "text-[#34445C] dark:text-[#F5F0E1]" })}>Ranked Mode</h1>
+        <h2 className="text-[#FF4654] dark:text-[#DCFF37] font-medium">
+          Competitive Gaming
+        </h2>
+        <h1
+          className={title({
+            size: "lg",
+            class: "text-[#34445C] dark:text-[#F5F0E1]",
+          })}
+        >
+          Ranked Mode
+        </h1>
         <p className={subtitle({ class: "mt-2 max-w-2xl" })}>
-          Compete against players of similar skill level. Climb the ranks and prove your worth in competitive matches.
+          Compete against players of similar skill level. Climb the ranks and
+          prove your worth in competitive matches.
         </p>
       </div>
 
@@ -192,10 +273,16 @@ export default function RankedPage() {
       {error && !loading && (
         <Card className="w-full max-w-md">
           <CardBody className="text-center">
-            <Icon icon="mdi:alert-circle" className="text-danger mx-auto mb-4" width={48} />
-            <p className="text-danger font-semibold mb-2">Error loading ranked data</p>
+            <Icon
+              icon="mdi:alert-circle"
+              className="text-danger mx-auto mb-4"
+              width={48}
+            />
+            <p className="text-danger font-semibold mb-2">
+              Error loading ranked data
+            </p>
             <p className="text-default-500 mb-4">{error}</p>
-            <p className="text-xs text-default-400">Showing cached data</p>
+            <p className="text-xs text-default-400">Try refreshing the page</p>
           </CardBody>
         </Card>
       )}
@@ -204,18 +291,33 @@ export default function RankedPage() {
       {!loading && !isAuthenticated && (
         <Card className="w-full max-w-6xl rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)' }}>
-              <Icon icon="mdi:account-lock" className="text-[#34445C] dark:text-[#DCFF37]" width={32} />
+            <div
+              className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+              }}
+            >
+              <Icon
+                icon="mdi:account-lock"
+                className="text-[#34445C] dark:text-[#DCFF37]"
+                width={32}
+              />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">Sign In Required</h3>
+            <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">
+              Sign In Required
+            </h3>
             <p className="text-default-500 mb-4">
-              Sign in to view your ranked stats and start climbing the leaderboards.
+              Sign in to view your ranked stats and start climbing the
+              leaderboards.
             </p>
-            <Button 
+            <Button
               className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-              as="a" 
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+              }}
+              as="a"
               href="/api/auth/signin"
             >
               <Icon icon="mdi:login" width={20} />
@@ -229,8 +331,13 @@ export default function RankedPage() {
       {!loading && isAuthenticated && !stats && (
         <Card className="w-full max-w-6xl">
           <CardBody className="text-center py-12">
-            <Icon icon="mdi:chart-timeline-variant" className="text-6xl text-default-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No Ranked Data Available</h3>
+            <Icon
+              icon="mdi:chart-timeline-variant"
+              className="text-6xl text-default-300 mx-auto mb-4"
+            />
+            <h3 className="text-xl font-semibold mb-2">
+              No Ranked Data Available
+            </h3>
             <p className="text-default-500 mb-4">
               Play ranked matches to see your stats and climb the leaderboards.
             </p>
@@ -244,242 +351,288 @@ export default function RankedPage() {
 
       {/* Current Rank Card */}
       {stats && (
-      <Card className="w-full max-w-6xl bg-gradient-to-br from-default-100 to-default-50">
-        <CardBody className="p-8">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* Rank Icon */}
-            <div className="flex flex-col items-center gap-4">
-              <div
-                className="relative flex h-40 w-40 items-center justify-center rounded-full"
-                style={{
-                  background: `radial-gradient(circle, ${stats.tier.color}40, transparent)`,
-                }}
-              >
-                <Icon
-                  icon={stats.tier.icon}
-                  className="text-8xl"
-                  style={{ color: stats.tier.color }}
-                />
-              </div>
-              <div className="flex flex-col items-center">
-                <h2 className="text-2xl font-bold" style={{ color: stats.tier.color }}>
-                  {stats.tier.name}
-                </h2>
-                <p className="text-default-500">{stats.tier.division}</p>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="flex-1 w-full">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                <div className="flex flex-col">
-                  <span className="text-default-500 text-sm">Rating</span>
-                  <span className="text-2xl font-bold">{stats.currentRating}</span>
-                  <Chip
-                    size="sm"
-                    color={stats.ratingChange > 0 ? "success" : "danger"}
-                    variant="flat"
-                    className="mt-1 w-fit"
+        <Card className="w-full max-w-6xl bg-gradient-to-br from-default-100 to-default-50">
+          <CardBody className="p-8">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              {/* Rank Icon */}
+              <div className="flex flex-col items-center gap-4">
+                <div
+                  className="relative flex h-40 w-40 items-center justify-center rounded-full"
+                  style={{
+                    background: `radial-gradient(circle, ${stats.tier.color}40, transparent)`,
+                  }}
+                >
+                  <Icon
+                    icon={stats.tier.icon}
+                    className="text-8xl"
+                    style={{ color: stats.tier.color }}
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <h2
+                    className="text-2xl font-bold"
+                    style={{ color: stats.tier.color }}
                   >
-                    {stats.ratingChange > 0 ? "+" : ""}{stats.ratingChange}
-                  </Chip>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-default-500 text-sm">Win Rate</span>
-                  <span className="text-2xl font-bold">{stats.winRate}%</span>
-                  <span className="text-xs text-default-400 mt-1">
-                    {stats.wins}W / {stats.losses}L
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-default-500 text-sm">Total Matches</span>
-                  <span className="text-2xl font-bold">{stats.totalMatches}</span>
-                  <span className="text-xs text-default-400 mt-1">This season</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-default-500 text-sm">Next Rank</span>
-                  <span className="text-2xl font-bold">Platinum</span>
-                  <span className="text-xs text-default-400 mt-1">+150 rating</span>
+                    {stats.tier.name}
+                  </h2>
+                  <p className="text-default-500">{stats.tier.division}</p>
                 </div>
               </div>
 
-              {/* Progress to Next Rank */}
-              <div className="w-full">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-default-600">Progress to Platinum</span>
-                  <span className="text-sm font-semibold">{stats.progressToNext}%</span>
+              {/* Stats */}
+              <div className="flex-1 w-full">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                  <div className="flex flex-col">
+                    <span className="text-default-500 text-sm">Rating</span>
+                    <span className="text-2xl font-bold">
+                      {stats.currentRating}
+                    </span>
+                    <Chip
+                      size="sm"
+                      color={stats.ratingChange > 0 ? "success" : "danger"}
+                      variant="flat"
+                      className="mt-1 w-fit"
+                    >
+                      {stats.ratingChange > 0 ? "+" : ""}
+                      {stats.ratingChange}
+                    </Chip>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-default-500 text-sm">Win Rate</span>
+                    <span className="text-2xl font-bold">{stats.winRate}%</span>
+                    <span className="text-xs text-default-400 mt-1">
+                      {stats.wins}W / {stats.losses}L
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-default-500 text-sm">
+                      Total Matches
+                    </span>
+                    <span className="text-2xl font-bold">
+                      {stats.totalMatches}
+                    </span>
+                    <span className="text-xs text-default-400 mt-1">
+                      This season
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-default-500 text-sm">Next Rank</span>
+                    <span className="text-2xl font-bold">Platinum</span>
+                    <span className="text-xs text-default-400 mt-1">
+                      +150 rating
+                    </span>
+                  </div>
                 </div>
-                <Progress
-                  value={stats.progressToNext}
-                  color="warning"
-                  className="w-full"
-                  size="md"
-                />
-                <div className="flex justify-between mt-1 text-xs text-default-400">
-                  <span>{stats.currentRating}</span>
-                  <span>{stats.nextTierRating}</span>
+
+                {/* Progress to Next Rank */}
+                <div className="w-full">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-default-600">
+                      Progress to Platinum
+                    </span>
+                    <span className="text-sm font-semibold">
+                      {stats.progressToNext}%
+                    </span>
+                  </div>
+                  <Progress
+                    value={stats.progressToNext}
+                    color="warning"
+                    className="w-full"
+                    size="md"
+                  />
+                  <div className="flex justify-between mt-1 text-xs text-default-400">
+                    <span>{stats.currentRating}</span>
+                    <span>{stats.nextTierRating}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
       )}
 
       {/* Tabs Section */}
       {stats && (
-      <div className="w-full max-w-6xl">
-        <Tabs
-          selectedKey={selectedTab}
-          onSelectionChange={(key) => setSelectedTab(key as string)}
-          variant="underlined"
-          classNames={{
-            tabList: "gap-6",
-            cursor: "bg-primary",
-            tab: "h-12",
-          }}
-        >
-          <Tab key="overview" title="Overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              {/* Recent Matches */}
-              <Card>
-                <CardHeader className="flex justify-between">
-                  <h3 className="text-lg font-semibold">Recent Matches</h3>
-                  <Button size="sm" variant="light" color="primary">
-                    View All
-                  </Button>
-                </CardHeader>
-                <Divider />
-                <CardBody className="gap-3">
-                  {recentMatches.map((match) => (
-                    <div
-                      key={match.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-default-100 hover:bg-default-200 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Chip
-                          size="sm"
-                          color={match.result === "win" ? "success" : "danger"}
-                          variant="flat"
-                          className="uppercase font-bold min-w-16"
-                        >
-                          {match.result}
-                        </Chip>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{match.map}</span>
-                          <span className="text-xs text-default-500">{match.date}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm font-mono">{match.kda}</span>
-                        <span
-                          className={`text-xs font-semibold ${
-                            match.ratingChange > 0 ? "text-success" : "text-danger"
-                          }`}
-                        >
-                          {match.ratingChange > 0 ? "+" : ""}{match.ratingChange}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </CardBody>
-              </Card>
-
-              {/* Season Info */}
-              <Card>
-                <CardHeader>
-                  <h3 className="text-lg font-semibold">Season Information</h3>
-                </CardHeader>
-                <Divider />
-                <CardBody className="gap-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-default-600">Current Season</span>
-                    <Chip color="primary" variant="flat">Season 5</Chip>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-default-600">Season End</span>
-                    <span className="font-medium">45 days remaining</span>
-                  </div>
+        <div className="w-full max-w-6xl">
+          <Tabs
+            selectedKey={selectedTab}
+            onSelectionChange={(key) => setSelectedTab(key as string)}
+            variant="underlined"
+            classNames={{
+              tabList: "gap-6",
+              cursor: "bg-primary",
+              tab: "h-12",
+            }}
+          >
+            <Tab key="overview" title="Overview">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Recent Matches */}
+                <Card>
+                  <CardHeader className="flex justify-between">
+                    <h3 className="text-lg font-semibold">Recent Matches</h3>
+                    <Button size="sm" variant="light" color="primary">
+                      View All
+                    </Button>
+                  </CardHeader>
                   <Divider />
-                  <div className="flex justify-between items-center">
-                    <span className="text-default-600">Peak Rating</span>
-                    <span className="font-bold text-warning">2420</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-default-600">Peak Rank</span>
-                    <span className="font-bold" style={{ color: "#FFD700" }}>Gold II</span>
-                  </div>
-                  <Divider />
-                  <Button color="primary" variant="shadow" className="w-full mt-2">
-                    <Icon icon="mdi:sword-cross" width={20} />
-                    Find Match
-                  </Button>
-                </CardBody>
-              </Card>
-            </div>
-          </Tab>
-
-          <Tab key="ranks" title="Rank System">
-            <div className="mt-6">
-              <Card>
-                <CardHeader>
-                  <h3 className="text-lg font-semibold">All Ranks</h3>
-                </CardHeader>
-                <Divider />
-                <CardBody>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {RANK_TIERS.map((tier, index) => (
+                  <CardBody className="gap-3">
+                    {recentMatches.map((match) => (
                       <div
-                        key={index}
-                        className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
-                          tier.name === stats.tier.name
-                            ? "border-primary bg-primary-50"
-                            : "border-default-200 bg-default-50 hover:border-default-300"
-                        }`}
+                        key={match.id}
+                        className="flex items-center justify-between p-3 rounded-lg bg-default-100 hover:bg-default-200 transition-colors"
                       >
-                        <Icon
-                          icon={tier.icon}
-                          className="text-4xl"
-                          style={{ color: tier.color }}
-                        />
-                        <div className="flex flex-col">
-                          <span className="font-bold" style={{ color: tier.color }}>
-                            {tier.name}
-                          </span>
-                          <span className="text-xs text-default-500">
-                            {tier.minRating}+ rating
+                        <div className="flex items-center gap-3">
+                          <Chip
+                            size="sm"
+                            color={
+                              match.result === "win" ? "success" : "danger"
+                            }
+                            variant="flat"
+                            className="uppercase font-bold min-w-16"
+                          >
+                            {match.result}
+                          </Chip>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {match.map_name || match.map}
+                            </span>
+                            <span className="text-xs text-default-500">
+                              {match.date}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-sm font-mono">{match.kda}</span>
+                          <span
+                            className={`text-xs font-semibold ${
+                              match.ratingChange > 0
+                                ? "text-success"
+                                : "text-danger"
+                            }`}
+                          >
+                            {match.ratingChange > 0 ? "+" : ""}
+                            {match.ratingChange}
                           </span>
                         </div>
-                        {tier.name === stats.tier.name && (
-                          <Chip size="sm" color="primary" variant="flat" className="ml-auto">
-                            Current
-                          </Chip>
-                        )}
                       </div>
                     ))}
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-          </Tab>
+                  </CardBody>
+                </Card>
 
-          <Tab key="rewards" title="Rewards">
-            <div className="mt-6">
-              <Card>
-                <CardHeader>
-                  <h3 className="text-lg font-semibold">Season Rewards</h3>
-                </CardHeader>
-                <Divider />
-                <CardBody>
-                  <p className="text-default-500 text-center py-8">
-                    Season rewards will be displayed here. Complete ranked matches to earn exclusive rewards and unlock achievements.
-                  </p>
-                </CardBody>
-              </Card>
-            </div>
-          </Tab>
-        </Tabs>
-      </div>
+                {/* Season Info */}
+                <Card>
+                  <CardHeader>
+                    <h3 className="text-lg font-semibold">
+                      Season Information
+                    </h3>
+                  </CardHeader>
+                  <Divider />
+                  <CardBody className="gap-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-default-600">Current Season</span>
+                      <Chip color="primary" variant="flat">
+                        Season 5
+                      </Chip>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-default-600">Season End</span>
+                      <span className="font-medium">45 days remaining</span>
+                    </div>
+                    <Divider />
+                    <div className="flex justify-between items-center">
+                      <span className="text-default-600">Peak Rating</span>
+                      <span className="font-bold text-warning">2420</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-default-600">Peak Rank</span>
+                      <span className="font-bold" style={{ color: "#FFD700" }}>
+                        Gold II
+                      </span>
+                    </div>
+                    <Divider />
+                    <Button
+                      color="primary"
+                      variant="shadow"
+                      className="w-full mt-2"
+                    >
+                      <Icon icon="mdi:sword-cross" width={20} />
+                      Find Match
+                    </Button>
+                  </CardBody>
+                </Card>
+              </div>
+            </Tab>
+
+            <Tab key="ranks" title="Rank System">
+              <div className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <h3 className="text-lg font-semibold">All Ranks</h3>
+                  </CardHeader>
+                  <Divider />
+                  <CardBody>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {RANK_TIERS.map((tier, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
+                            tier.name === stats.tier.name
+                              ? "border-primary bg-primary-50"
+                              : "border-default-200 bg-default-50 hover:border-default-300"
+                          }`}
+                        >
+                          <Icon
+                            icon={tier.icon}
+                            className="text-4xl"
+                            style={{ color: tier.color }}
+                          />
+                          <div className="flex flex-col">
+                            <span
+                              className="font-bold"
+                              style={{ color: tier.color }}
+                            >
+                              {tier.name}
+                            </span>
+                            <span className="text-xs text-default-500">
+                              {tier.minRating}+ rating
+                            </span>
+                          </div>
+                          {tier.name === stats.tier.name && (
+                            <Chip
+                              size="sm"
+                              color="primary"
+                              variant="flat"
+                              className="ml-auto"
+                            >
+                              Current
+                            </Chip>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
+            </Tab>
+
+            <Tab key="rewards" title="Rewards">
+              <div className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <h3 className="text-lg font-semibold">Season Rewards</h3>
+                  </CardHeader>
+                  <Divider />
+                  <CardBody>
+                    <p className="text-default-500 text-center py-8">
+                      Season rewards will be displayed here. Complete ranked
+                      matches to earn exclusive rewards and unlock achievements.
+                    </p>
+                  </CardBody>
+                </Card>
+              </div>
+            </Tab>
+          </Tabs>
+        </div>
       )}
     </div>
   );

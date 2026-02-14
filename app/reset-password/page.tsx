@@ -23,7 +23,7 @@ function ResetPasswordContent() {
 
   // Use SDK-powered auth hook instead of direct fetch
   const {
-    isPasswordResetLoading,
+    isPasswordResetLoading: _isPasswordResetLoading,
     passwordResetError,
     confirmPasswordReset,
     clearErrors,
@@ -54,7 +54,9 @@ function ResetPasswordContent() {
       // Note: Token validation still uses fetch as it's a read-only check
       // The actual reset uses the SDK hook
       const response = await fetch(
-        `/api/auth/password-reset/validate?token=${encodeURIComponent(resetToken)}`
+        `/api/auth/password-reset/validate?token=${encodeURIComponent(
+          resetToken
+        )}`
       );
       const data = await response.json();
 
@@ -129,7 +131,11 @@ function ResetPasswordContent() {
     }
   };
 
-  const getPasswordStrength = (): { level: number; label: string; color: string } => {
+  const getPasswordStrength = (): {
+    level: number;
+    label: string;
+    color: string;
+  } => {
     if (!password) return { level: 0, label: "", color: "" };
 
     let strength = 0;
@@ -196,7 +202,9 @@ function ResetPasswordContent() {
                     className="w-8 h-8 text-[#DCFF37]"
                   />
                 </div>
-                <p className="text-[#34445C]/60 dark:text-white/60">Validating reset link...</p>
+                <p className="text-[#34445C]/60 dark:text-white/60">
+                  Validating reset link...
+                </p>
               </div>
             )}
 
@@ -218,7 +226,8 @@ function ResetPasswordContent() {
                   Invalid Reset Link
                 </h2>
                 <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">
-                  {error || "This password reset link is invalid or has expired."}
+                  {error ||
+                    "This password reset link is invalid or has expired."}
                 </p>
 
                 <Button
@@ -253,7 +262,9 @@ function ResetPasswordContent() {
                   {email && (
                     <p className="text-[#34445C]/60 dark:text-white/60 text-sm">
                       Resetting password for{" "}
-                      <span className="text-[#34445C] dark:text-white font-medium">{email}</span>
+                      <span className="text-[#34445C] dark:text-white font-medium">
+                        {email}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -406,7 +417,10 @@ function ResetPasswordContent() {
                   size="lg"
                 >
                   Continue to Sign In
-                  <Icon icon="solar:arrow-right-bold" className="w-5 h-5 ml-2" />
+                  <Icon
+                    icon="solar:arrow-right-bold"
+                    className="w-5 h-5 ml-2"
+                  />
                 </Button>
               </div>
             )}
@@ -428,7 +442,9 @@ function ResetPasswordContent() {
                 <h2 className="text-xl font-bold text-[#34445C] dark:text-white mb-2">
                   Reset Failed
                 </h2>
-                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">{error}</p>
+                <p className="text-[#34445C]/60 dark:text-white/60 text-sm mb-8">
+                  {error}
+                </p>
 
                 <div className="space-y-3">
                   <Button
@@ -501,7 +517,9 @@ export default function ResetPasswordPage() {
             className="max-w-md"
             size="sm"
           />
-          <span className="text-[#34445C]/50 dark:text-white/50 mt-4">Loading...</span>
+          <span className="text-[#34445C]/50 dark:text-white/50 mt-4">
+            Loading...
+          </span>
         </div>
       }
     >
@@ -509,4 +527,3 @@ export default function ResetPasswordPage() {
     </Suspense>
   );
 }
-

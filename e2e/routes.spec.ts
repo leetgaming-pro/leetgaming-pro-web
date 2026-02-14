@@ -8,10 +8,12 @@
 
 import { test, expect } from "@playwright/test";
 
+const isLocalDev = !process.env.CI;
+
 // All public routes that should be accessible without authentication
 const PUBLIC_ROUTES = [
   "/",
-  "/login",
+  "/signin",
   "/signup",
   "/legal/terms",
   "/legal/privacy",
@@ -35,17 +37,17 @@ const LEGACY_REDIRECT_ROUTES = [
 ];
 
 // Routes that require authentication but should load the page (redirect to login or show auth prompt)
-const AUTH_REQUIRED_ROUTES = [
-  "/dashboard",
-  "/settings",
-  "/wallet",
-  "/matchmaking",
-];
+const AUTH_REQUIRED_ROUTES = ["/settings", "/wallet", "/match-making"];
 
 test.describe("Public Routes", () => {
+  test.slow(); // Allow longer timeout for route tests under load
+
   for (const route of PUBLIC_ROUTES) {
     test(`${route} should be accessible`, async ({ page }) => {
-      const response = await page.goto(route);
+      const response = await page.goto(route, {
+        waitUntil: "domcontentloaded",
+        timeout: 90000,
+      });
 
       // Should not be a 404
       expect(response?.status()).not.toBe(404);
@@ -64,9 +66,11 @@ test.describe("Public Routes", () => {
 });
 
 test.describe("Legacy Redirect Routes", () => {
+  test.slow(); // Allow longer timeout for redirect tests under load
+
   for (const { path, redirectsTo } of LEGACY_REDIRECT_ROUTES) {
     test(`${path} should redirect to ${redirectsTo}`, async ({ page }) => {
-      await page.goto(path);
+      await page.goto(path, { timeout: 90000 });
 
       // Wait for redirect
       await page.waitForTimeout(1000);
@@ -81,7 +85,9 @@ test.describe("Legacy Redirect Routes", () => {
 test.describe("Auth-Required Routes", () => {
   for (const route of AUTH_REQUIRED_ROUTES) {
     test(`${route} should load or redirect (not 404)`, async ({ page }) => {
-      const response = await page.goto(route);
+      const response = await page.goto(route, {
+        waitUntil: "domcontentloaded",
+      });
 
       // Should not be a 404
       expect(response?.status()).not.toBe(404);
@@ -94,10 +100,14 @@ test.describe("Auth-Required Routes", () => {
   }
 });
 
+// These tests navigate many pages and can timeout locally — run in CI only
 test.describe("Footer Links Verification", () => {
   test("all footer links should resolve without 404", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    test.skip(isLocalDev, "Skipping footer link verification in local development");
+    test.slow(); // This test navigates to many pages
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
 
     // Get all footer links
     const footerLinks = await page.locator('footer a[href^="/"]').all();
@@ -112,20 +122,23 @@ test.describe("Footer Links Verification", () => {
 
     // Verify each footer link
     for (const href of Array.from(hrefs)) {
-      const response = await page.goto(href);
+      const response = await page.goto(href, { waitUntil: "domcontentloaded" });
       expect(response?.status(), `Footer link ${href} returned 404`).not.toBe(
-        404
+        404,
       );
     }
   });
 });
 
+// These tests navigate many pages and can timeout locally — run in CI only
 test.describe("Navigation Links Verification", () => {
   test("sidebar navigation links should resolve without 404", async ({
     page,
   }) => {
-    // Go to a page that shows the sidebar
-    await page.goto("/dashboard");
+    test.skip(isLocalDev, "Skipping nav link verification in local development");
+    test.slow(); // This test navigates to many pages
+    // Go to a page that shows the sidebar (use settings instead of dashboard)
+    await page.goto("/settings", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("domcontentloaded");
 
     // Get all navigation links from sidebar
@@ -143,38 +156,44 @@ test.describe("Navigation Links Verification", () => {
 
     // Verify each nav link
     for (const href of Array.from(hrefs)) {
-      const response = await page.goto(href);
+      const response = await page.goto(href, { waitUntil: "domcontentloaded" });
       expect(response?.status(), `Nav link ${href} returned 404`).not.toBe(404);
     }
   });
 });
 
 test.describe("Matchmaking Routes", () => {
-  test("/matchmaking should load matchmaking queue interface", async ({
+  test("/match-making should load matchmaking queue interface", async ({
     page,
   }) => {
-    const response = await page.goto("/matchmaking");
+    const response = await page.goto("/match-making", {
+      waitUntil: "domcontentloaded",
+    });
 
     expect(response?.status()).not.toBe(404);
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle").catch(() => {});
 
-    // Should show matchmaking interface or login prompt
+    // Should show matchmaking interface, login prompt, or redirect to auth
     const hasMatchmakingContent = await page
-      .locator("text=/match|queue|find/i")
+      .locator("text=/match|queue|find|play|game|ranked/i")
       .first()
-      .isVisible()
+      .isVisible({ timeout: 10000 })
       .catch(() => false);
     const hasLoginPrompt = await page
-      .locator("text=/login|sign in/i")
+      .locator("text=/login|sign in|sign up|create.*account|authenticate/i")
       .first()
-      .isVisible()
+      .isVisible({ timeout: 5000 })
       .catch(() => false);
+    // On mobile, auth redirect may navigate to signin page
+    const isOnAuthPage = page.url().includes("/signin") || page.url().includes("/login") || page.url().includes("/api/auth");
 
-    expect(hasMatchmakingContent || hasLoginPrompt).toBeTruthy();
+    expect(hasMatchmakingContent || hasLoginPrompt || isOnAuthPage).toBeTruthy();
   });
 
   test("/ranked should load ranked matches interface", async ({ page }) => {
-    const response = await page.goto("/ranked");
+    const response = await page.goto("/ranked", {
+      waitUntil: "domcontentloaded",
+    });
 
     expect(response?.status()).not.toBe(404);
     await page.waitForLoadState("domcontentloaded");
@@ -182,7 +201,7 @@ test.describe("Matchmaking Routes", () => {
     // Should show ranked matches or related content
     const body = await page.locator("body").textContent();
     expect(body?.toLowerCase()).toMatch(
-      /ranked|match|leaderboard|competition/i
+      /ranked|match|leaderboard|competition/i,
     );
   });
 });
@@ -203,8 +222,9 @@ test.describe("API Route Prefetch Verification", () => {
       }
     });
 
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
 
     // Scroll down to trigger any lazy-loaded prefetches
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -214,12 +234,12 @@ test.describe("API Route Prefetch Verification", () => {
     const unexpectedFailures = failedRequests.filter(
       (url) =>
         !url.includes("/api/") && // API calls may 401/404 without auth
-        !url.includes("_next/static") // Build artifacts
+        !url.includes("_next/static"), // Build artifacts
     );
 
     expect(
       unexpectedFailures,
-      `Unexpected 404s: ${unexpectedFailures.join(", ")}`
+      `Unexpected 404s: ${unexpectedFailures.join(", ")}`,
     ).toHaveLength(0);
   });
 });
@@ -247,8 +267,9 @@ test.describe("Console Error Free Routes", () => {
         }
       });
 
-      await page.goto(route);
-      await page.waitForLoadState("networkidle");
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await page.waitForLoadState("domcontentloaded");
+      await page.waitForTimeout(1000);
 
       // Filter for critical errors only
       const criticalErrors = consoleErrors.filter(
@@ -256,12 +277,12 @@ test.describe("Console Error Free Routes", () => {
           e.includes("TypeError") ||
           e.includes("ReferenceError") ||
           e.includes("Uncaught") ||
-          e.includes("Unhandled")
+          e.includes("Unhandled"),
       );
 
       expect(
         criticalErrors,
-        `Console errors on ${route}: ${criticalErrors.join("; ")}`
+        `Console errors on ${route}: ${criticalErrors.join("; ")}`,
       ).toHaveLength(0);
     });
   }

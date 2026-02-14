@@ -3,12 +3,11 @@
  * GET /api/search - Search across all entities
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/search
@@ -17,9 +16,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q') || '';
-    const category = searchParams.get('category') || undefined;
-    const limit = parseInt(searchParams.get('limit') || '5', 10);
+    const query = searchParams.get("q") || "";
+    const category = searchParams.get("category") || undefined;
+    const limit = parseInt(searchParams.get("limit") || "5", 10);
 
     if (query.length < 2) {
       return NextResponse.json({
@@ -28,7 +27,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+    const sdk = createAuthenticatedSDK();
     const result = await sdk.search.search(query, { category, limit });
 
     return NextResponse.json({
@@ -39,7 +38,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    logger.error('[API] Search error:', error);
+    logger.error("[API] Search error:", error);
     // Return empty results on error
     return NextResponse.json({
       success: true,

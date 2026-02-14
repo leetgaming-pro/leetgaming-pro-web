@@ -1,28 +1,32 @@
 "use client";
 
 import React from "react";
-import { Avatar, Button, ScrollShadow, Tooltip, Spacer, User, Link, LinkIcon, DropdownItem, DropdownSection, DropdownMenu, Dropdown, DropdownTrigger } from "@nextui-org/react";
+import {
+  Avatar,
+  Button,
+  ScrollShadow,
+  Spacer,
+  Tooltip,
+  User,
+  DropdownItem,
+  DropdownSection,
+  DropdownMenu,
+  Dropdown,
+  DropdownTrigger,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useMediaQuery } from "usehooks-ts";
 
-import { AcmeLogo } from "./acme";
 import { sectionItemsWithTeams } from "./sidebar-items";
-import { LoginButton } from '../login-button';
+import { LoginButton } from "../login-button";
 import Sidebar from "./sidebar";
 
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
-import { Providers } from '../default-layout/providers';
-import Box from '../default-layout/box';
-import { logo } from '../primitives';
-import { useAuth } from '@/hooks';
-import DefaultLogo from '../logo/logo-default';
-import { useTheme } from 'next-themes';
-
-import { DefaultLogoOnlyIcon } from '../logo/logo-default-only-icon';
-import DefaultLogoNoIcon from '../logo/logo-default-no-icon';
-import LogoGrayscale from '@/components/logo/logo-grayscale'
+import { useAuth } from "@/hooks";
+import { useTheme } from "next-themes";
+import LogoGrayscale from "@/components/logo/logo-grayscale";
 import { cl } from "../cl";
 
 export const metadata: Metadata = {
@@ -39,12 +43,12 @@ export const metadata: Metadata = {
 };
 
 const viewport: Viewport = {
-  colorScheme: 'light',
+  colorScheme: "light",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
 };
 
@@ -55,15 +59,18 @@ export default function ConsoleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated, signOut } = useAuth()
-  const { theme: rawTheme, setTheme: _setTheme, systemTheme: _systemTheme } = useTheme()
+  const { user, isAuthenticated, signOut } = useAuth();
+  const {
+    theme: rawTheme,
+    setTheme: _setTheme,
+    systemTheme: _systemTheme,
+  } = useTheme();
 
-  const theme = rawTheme ?? "light"
-  const backfilter = theme === "light" ? "brightness(1)" : "brightness(0.4)"
-
+  const theme = rawTheme ?? "light";
+  const backfilter = theme === "light" ? "brightness(1)" : "brightness(0.4)";
 
   const isCompact = useMediaQuery("(max-width: 768px)");
-  const [isHidden, setIsHidden] = React.useState(false);
+  const [_isHidden, _setIsHidden] = React.useState(false);
 
   const sessionAvatar = (): React.ReactNode => {
     if (isAuthenticated && user) {
@@ -75,40 +82,38 @@ export default function ConsoleLayout({
             size="sm"
             src={user?.image || ""}
           />
-        </div>)
+        </div>
+      );
     }
 
-    return (<div></div>)
-  }
+    return <div></div>;
+  };
 
   return (
     <div className="flex h-dvh w-full">
-      <div className="absolute top-0 left-0 w-full h-full z-[-1]"
-
+      <div
+        className="absolute top-0 left-0 w-full h-full z-[-1]"
         style={{
           // backgroundImage: `url('/1337gg/crowd_arena.png')`,
           backgroundImage: `url('/blur-glow-pry-gh.svg')`,
           backgroundSize: "cover",
           filter: backfilter,
-          content: '',
+          content: "",
           position: "absolute",
           top: "0",
           left: "0",
           width: "100%",
           height: "100%",
           zIndex: -1,
-          opacity: (theme === "light" ? "10%" : "100%")
+          opacity: theme === "light" ? "10%" : "100%",
         }}
-      >
-
-
-      </div>
+      ></div>
       <div
         className={cl(
           "relative flex h-full w-72 flex-col !border-r-small border-divider p-6 transition-width",
           {
             "w-16 items-center px-2 py-6": isCompact,
-          },
+          }
         )}
       >
         <div
@@ -117,7 +122,7 @@ export default function ConsoleLayout({
 
             {
               "justify-center gap-0": isCompact,
-            },
+            }
           )}
         >
           {/* <div className="flex h-8 w-2 items-center rounded-full">
@@ -143,12 +148,18 @@ export default function ConsoleLayout({
           </span> */}
         </div>
         <div className="flex items-center gap-3 px-3 w-[82px]">
-        <LogoGrayscale />
+          <LogoGrayscale />
         </div>
         <div className="flex items-center gap-3 px-3 w-[82px]">
           <Dropdown showArrow placement="bottom-start">
             <DropdownTrigger>
-              <Button disableRipple isIconOnly className="-mr-1" radius="full" variant="light">
+              <Button
+                disableRipple
+                isIconOnly
+                className="-mr-1"
+                radius="full"
+                variant="light"
+              >
                 <Avatar
                   className="h-6 w-6 cursor-pointer"
                   name="My Group"
@@ -156,7 +167,10 @@ export default function ConsoleLayout({
                 />
               </Button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Custom item styles" disabledKeys={["profile"]}>
+            <DropdownMenu
+              aria-label="Custom item styles"
+              disabledKeys={["profile"]}
+            >
               <DropdownSection showDivider aria-label="Profile & Actions">
                 <DropdownItem
                   key="profile"
@@ -189,7 +203,9 @@ export default function ConsoleLayout({
                 <DropdownItem
                   key="upload"
                   href="/upload"
-                  endContent={<Icon className="text-large" icon="lucide:plus" />}
+                  endContent={
+                    <Icon className="text-large" icon="lucide:plus" />
+                  }
                 >
                   Upload Replay
                 </DropdownItem>
@@ -199,21 +215,39 @@ export default function ConsoleLayout({
                 <DropdownItem
                   key="subscription"
                   href="/checkout"
-                  startContent={<Icon className="text-warning" icon="solar:crown-bold" width={18} />}
+                  startContent={
+                    <Icon
+                      className="text-warning"
+                      icon="solar:crown-bold"
+                      width={18}
+                    />
+                  }
                 >
                   Subscription
                 </DropdownItem>
                 <DropdownItem
                   key="billing"
                   href="/settings?tab=billing"
-                  startContent={<Icon className="text-default-500" icon="solar:card-bold" width={18} />}
+                  startContent={
+                    <Icon
+                      className="text-default-500"
+                      icon="solar:card-bold"
+                      width={18}
+                    />
+                  }
                 >
                   Billing
                 </DropdownItem>
                 <DropdownItem
                   key="privacy"
                   href="/settings?tab=privacy"
-                  startContent={<Icon className="text-default-500" icon="solar:shield-check-bold" width={18} />}
+                  startContent={
+                    <Icon
+                      className="text-default-500"
+                      icon="solar:shield-check-bold"
+                      width={18}
+                    />
+                  }
                 >
                   Privacy & Data
                 </DropdownItem>
@@ -249,7 +283,12 @@ export default function ConsoleLayout({
                 <DropdownItem key="help_and_feedback" href="/help">
                   Help & Feedback
                 </DropdownItem>
-                <DropdownItem key="logout" className="text-danger" color="danger" onClick={() => signOut()}>
+                <DropdownItem
+                  key="logout"
+                  className="text-danger"
+                  color="danger"
+                  onClick={() => signOut()}
+                >
                   Log Out
                 </DropdownItem>
               </DropdownSection>
@@ -259,13 +298,23 @@ export default function ConsoleLayout({
         <Spacer y={8} />
         <div className="flex items-center gap-3 px-3">
           {sessionAvatar()}
-          <div className={cl("flex max-w-full flex-col", { hidden: isCompact })}>
-            <p className="truncate text-small font-medium text-default-600">{isAuthenticated && user?.name ? user.name : LoginButton()}</p>
-            <p className="truncate text-tiny text-default-400">{user?.email || ""}</p>
+          <div
+            className={cl("flex max-w-full flex-col", { hidden: isCompact })}
+          >
+            <p className="truncate text-small font-medium text-default-600">
+              {isAuthenticated && user?.name ? user.name : LoginButton()}
+            </p>
+            <p className="truncate text-tiny text-default-400">
+              {user?.email || ""}
+            </p>
           </div>
         </div>
         <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
-          <Sidebar defaultSelectedKey="home" isCompact={isCompact} items={sectionItemsWithTeams} />
+          <Sidebar
+            defaultSelectedKey="home"
+            isCompact={isCompact}
+            items={sectionItemsWithTeams}
+          />
         </ScrollShadow>
         <Spacer y={2} />
         <div
@@ -273,14 +322,18 @@ export default function ConsoleLayout({
             "items-center": isCompact,
           })}
         >
-          <Tooltip content="Help & Feedback" isDisabled={!isCompact} placement="right">
+          <Tooltip
+            content="Help & Feedback"
+            isDisabled={!isCompact}
+            placement="right"
+          >
             <Button
               fullWidth
               className={cl(
                 "justify-start truncate text-default-500 data-[hover=true]:text-foreground",
                 {
                   "justify-center": isCompact,
-                },
+                }
               )}
               isIconOnly={isCompact}
               startContent={
@@ -307,9 +360,12 @@ export default function ConsoleLayout({
           </Tooltip>
           <Tooltip content="Log Out" isDisabled={!isCompact} placement="right">
             <Button
-              className={cl("justify-start text-default-500 data-[hover=true]:text-foreground", {
-                "justify-center": isCompact,
-              })}
+              className={cl(
+                "justify-start text-default-500 data-[hover=true]:text-foreground",
+                {
+                  "justify-center": isCompact,
+                }
+              )}
               isIconOnly={isCompact}
               onClick={() => signOut()}
               startContent={

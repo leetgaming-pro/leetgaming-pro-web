@@ -7,8 +7,6 @@ import { cn } from "@nextui-org/react";
 
 import SupportCard from "./support-card";
 import VerticalSteps from "./vertical-steps";
-
-import RowSteps from "./row-steps";
 import MultistepNavigationButtons from "./multistep-navigation-buttons";
 
 export type MultiStepSidebarProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -35,7 +33,7 @@ const stepperClasses = cn(
   "dark:[--active-border-color:rgba(220,255,55,0.8)]",
   "dark:[--inactive-border-color:rgba(220,255,55,0.3)]",
   "dark:[--inactive-bar-color:rgba(220,255,55,0.2)]",
-  "dark:[--inactive-color:rgba(255,255,255,0.4)]"
+  "dark:[--inactive-color:rgba(255,255,255,0.4)]",
 );
 
 const MultiStepSidebar = React.forwardRef<
@@ -52,14 +50,16 @@ const MultiStepSidebar = React.forwardRef<
       onChangePage,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
         ref={ref}
         className={cn(
           "flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden",
-          className
+          // Account for mobile nav at bottom - different padding on mobile vs desktop
+          "pb-0 md:pb-0",
+          className,
         )}
         {...props}
       >
@@ -106,6 +106,10 @@ const MultiStepSidebar = React.forwardRef<
                 description: "Select your competitive level.",
               },
               {
+                title: "Select Game",
+                description: "Choose your game for matchmaking.",
+              },
+              {
                 title: "Select Region",
                 description: "Choose your battleground server location.",
               },
@@ -136,58 +140,83 @@ const MultiStepSidebar = React.forwardRef<
         </div>
 
         {/* Main content area */}
-        <div className="flex h-full w-full flex-col items-center gap-4 md:p-4">
-          {/* Mobile header - LeetGaming brand gradient */}
-          <div className="sticky top-0 z-10 w-full rounded-none bg-gradient-to-r from-[#34445C] via-[#2a3749] to-[#34445C] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] py-4 shadow-lg md:max-w-xl lg:hidden border-b border-[#FF4654]/30 dark:border-[#DCFF37]/30">
-            <div className="flex justify-center">
-              {/* Mobile Steps */}
-              <RowSteps
-                className={cn("pl-6", stepperClasses)}
-                currentStep={currentPage}
-                steps={[
-                  {
-                    title: "Tier",
-                  },
-                  {
-                    title: "Region",
-                  },
-                  {
-                    title: "Mode",
-                  },
-                  {
-                    title: "Squad",
-                  },
-                  {
-                    title: "Time",
-                  },
-                  {
-                    title: "Prizes",
-                  },
-                  {
-                    title: "GO!",
-                  },
-                ]}
-                onStepChange={onChangePage}
-              />
+        <div className="flex h-full w-full flex-col items-center gap-0 md:gap-4">
+          {/* Mobile header - LeetGaming brand gradient with horizontal scrollable steps */}
+          <div className="sticky top-0 z-10 w-full rounded-none bg-gradient-to-r from-[#34445C] via-[#2a3749] to-[#34445C] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] py-3 shadow-lg lg:hidden border-b border-[#FF4654]/30 dark:border-[#DCFF37]/30">
+            {/* Step indicator - compact for mobile */}
+            <div className="flex items-center justify-between px-4 mb-2">
+              <span className="text-xs font-semibold text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wider">
+                Step {currentPage + 1} of 8
+              </span>
+              <span className="text-xs font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                {
+                  [
+                    "Tier",
+                    "Game",
+                    "Region",
+                    "Mode",
+                    "Squad",
+                    "Schedule",
+                    "Prizes",
+                    "Ready",
+                  ][currentPage]
+                }
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div className="px-4">
+              <div className="h-1.5 bg-[#34445C]/50 dark:bg-[#DCFF37]/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:to-[#34445C] transition-all duration-300 rounded-full"
+                  style={{ width: `${((currentPage + 1) / 8) * 100}%` }}
+                />
+              </div>
+            </div>
+            {/* Scrollable step dots */}
+            <div className="flex justify-center gap-1.5 mt-2 px-4 overflow-x-auto scrollbar-hide">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((step) => (
+                <button
+                  key={step}
+                  onClick={() => {
+                    // Only allow navigation to completed steps or current step
+                    if (step <= currentPage) {
+                      onChangePage(step);
+                    }
+                  }}
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full transition-all duration-200 flex-shrink-0",
+                    step === currentPage
+                      ? "bg-[#FF4654] dark:bg-[#DCFF37] scale-125"
+                      : step < currentPage
+                        ? "bg-[#FF4654]/50 dark:bg-[#DCFF37]/50 cursor-pointer hover:bg-[#FF4654]/70 dark:hover:bg-[#DCFF37]/70"
+                        : "bg-white/20 dark:bg-white/10",
+                  )}
+                  aria-label={`Step ${step + 1}`}
+                />
+              ))}
             </div>
           </div>
-          <div className="h-full w-full p-4 sm:max-w-md md:max-w-lg">
+          {/* Content area with proper mobile scrolling - account for both step navigation buttons AND bottom app nav */}
+          <div className="flex-1 w-full overflow-y-auto p-4 pb-44 sm:pb-8 sm:max-w-md md:max-w-lg lg:pb-4">
             {children}
+          </div>
+          {/* Fixed bottom navigation for mobile - positioned ABOVE the app's mobile navigation bar */}
+          <div className="fixed bottom-[88px] left-0 right-0 z-30 lg:hidden bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-[#FF4654]/20 dark:border-[#DCFF37]/20 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
             <MultistepNavigationButtons
               backButtonProps={{ isDisabled: currentPage === 0 }}
-              className="lg:hidden"
               nextButtonProps={{
-                children: currentPage === 6 ? "FIND MATCH" : "CONTINUE",
+                children: currentPage === 7 ? "🎮 FIND MATCH" : "CONTINUE →",
               }}
               onBack={onBack}
               onNext={onNext}
             />
-            <SupportCard className="mx-auto w-full max-w-[252px] lg:hidden" />
           </div>
+          {/* Support card - hidden on mobile, shown only on tablet/desktop */}
+          <SupportCard className="hidden sm:block mx-auto w-full max-w-[252px] lg:hidden mb-4" />
         </div>
       </div>
     );
-  }
+  },
 );
 
 MultiStepSidebar.displayName = "MultiStepSidebar";

@@ -13,6 +13,8 @@ export type HighlightEventType =
   | 'Clutch'           // 1vX situations
   | 'Ace'              // All enemy team killed by one player
   | 'MultiKill'        // 3+ kills in rapid succession
+  | 'QuadraKill'       // 4 kills in rapid succession
+  | 'TripleKill'       // 3 kills in rapid succession
   | 'Headshot'         // Clean headshot kill
   | 'Wallbang'         // Kill through penetrable surface
   | 'NoScope'          // AWP/Scout kill without scoping
@@ -115,7 +117,9 @@ export interface HighlightResponse {
   game_id: string;
   match_id: string;
   tick_id: number;
+  tick?: number; // Alias for tick_id
   event_time: number;
+  round_number?: number; // Round number (1-indexed)
   stats?: Record<string, unknown>;
   created_at: string;
   // Payload may contain additional event-specific data

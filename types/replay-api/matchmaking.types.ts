@@ -9,9 +9,11 @@ export type SessionStatus =
   | "queued"
   | "searching"
   | "matched"
+  | "match_found"
   | "ready"
   | "cancelled"
-  | "expired";
+  | "expired"
+  | "error";
 
 export type QueueHealth = "healthy" | "moderate" | "slow" | "degraded";
 
@@ -40,6 +42,8 @@ export interface JoinQueueRequest {
   squad_id?: string;
   preferences: MatchPreferences;
   player_mmr: number;
+  distribution_rule?: string;
+  entry_fee_cents?: number;
 }
 
 export interface JoinQueueResponse {
@@ -83,6 +87,7 @@ export type MatchmakingError =
   | "CONCURRENT_SESSION"
   | "LOBBY_ERROR"
   | "NETWORK_ERROR"
+  | "QUEUE_TIMEOUT"
   | "AUTHENTICATION_FAILED"
   | "SESSION_EXPIRED"
   | "QUEUE_FULL"
@@ -380,7 +385,7 @@ export const TEAM_FORMATS: Record<string, TeamFormatOption> = {
  * Get session status display config
  */
 export const getSessionStatusConfig = (
-  status: SessionStatus
+  status: SessionStatus,
 ): {
   color: "success" | "warning" | "danger" | "default" | "primary";
   label: string;
@@ -416,6 +421,16 @@ export const getSessionStatusConfig = (
       icon: "solar:close-circle-bold",
     },
     expired: { color: "danger", label: "Expired", icon: "solar:alarm-bold" },
+    match_found: {
+      color: "success",
+      label: "Match Found",
+      icon: "solar:check-circle-bold",
+    },
+    error: {
+      color: "danger",
+      label: "Error",
+      icon: "solar:danger-triangle-bold",
+    },
   };
   return config[status] ?? config.queued;
 };
@@ -424,7 +439,7 @@ export const getSessionStatusConfig = (
  * Get queue health display config
  */
 export const getQueueHealthConfig = (
-  health: QueueHealth
+  health: QueueHealth,
 ): {
   color: "success" | "warning" | "danger" | "default";
   label: string;
@@ -520,7 +535,9 @@ export const getPlayerRole = (roleId: string): PlayerRoleOption | undefined => {
 /**
  * Get team format by ID
  */
-export const getTeamFormat = (formatId: string): TeamFormatOption | undefined => {
+export const getTeamFormat = (
+  formatId: string,
+): TeamFormatOption | undefined => {
   return TEAM_FORMATS[formatId];
 };
 
@@ -541,8 +558,12 @@ export const getAvailableTeamFormats = (): TeamFormatOption[] => {
 /**
  * Get team formats for a specific player count
  */
-export const getTeamFormatsForPlayerCount = (playerCount: number): TeamFormatOption[] => {
-  return Object.values(TEAM_FORMATS).filter(format => format.playerCount === playerCount);
+export const getTeamFormatsForPlayerCount = (
+  playerCount: number,
+): TeamFormatOption[] => {
+  return Object.values(TEAM_FORMATS).filter(
+    (format) => format.playerCount === playerCount,
+  );
 };
 
 /**
@@ -558,7 +579,7 @@ export const getPairSizeFromTeamFormat = (teamFormat: string): number => {
  */
 export const calculateWaitReduction = (
   baseSeconds: number,
-  tier: MatchmakingTier
+  tier: MatchmakingTier,
 ): number => {
   const benefits = TIER_BENEFITS[tier];
   const reduction = (baseSeconds * benefits.waitTimeReduction) / 100;

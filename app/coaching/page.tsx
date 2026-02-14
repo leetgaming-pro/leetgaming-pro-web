@@ -4,278 +4,17 @@
  * Coaching Marketplace Page
  * Main entry point for the coaching marketplace
  * Per PRD D.4.3 - Coaching Marketplace
+ *
+ * Note: The coaching API is not yet available.
+ * This page shows a "Coming Soon" state with feature previews.
  */
 
-import React, { useState } from "react";
-import { CoachDirectory, FeaturedCoaches } from "@/components/coaching";
-import { Button, Tabs, Tab } from "@nextui-org/react";
+import React from "react";
+import { Button, Card, CardBody, Chip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import type { Coach } from "@/types/coaching";
-
-// Helper to create sample coaches that match the type definition
-function createSampleCoaches(): Coach[] {
-  return [
-    {
-      id: "coach-1",
-      userId: "user-1",
-      displayName: "ProAnalyst",
-      tagline: "Former pro player, 5+ years coaching experience",
-      bio: "Specializing in aim training, positioning, and game sense development.",
-      avatar: "/avatars/coach1.jpg",
-      country: "US",
-      languages: ["English", "Mandarin"],
-      timezone: "America/Los_Angeles",
-      expertise: [
-        {
-          gameId: "cs2",
-          roles: ["Rifler", "AWPer"],
-          rankAchieved: "Global Elite",
-          yearsPlaying: 8,
-          yearsCoaching: 5,
-          specialties: ["Aim Training", "Positioning"],
-        },
-      ],
-      achievements: [
-        {
-          id: "ach-1",
-          title: "ESL Pro League Season 14",
-          description: "Top 8 finish",
-          type: "tournament",
-          date: "2021-06-01",
-          verified: true,
-        },
-        {
-          id: "ach-2",
-          title: "500+ Students Coached",
-          description: "Milestone achievement",
-          type: "individual",
-          date: "2023-01-01",
-          verified: true,
-        },
-      ],
-      pricing: [
-        { sessionType: "vod-review", durationMinutes: 60, priceUsd: 40 },
-        { sessionType: "1on1", durationMinutes: 60, priceUsd: 50 },
-      ],
-      availability: [
-        {
-          dayOfWeek: 1,
-          startTime: "10:00",
-          endTime: "18:00",
-          timezone: "America/Los_Angeles",
-        },
-        {
-          dayOfWeek: 3,
-          startTime: "10:00",
-          endTime: "18:00",
-          timezone: "America/Los_Angeles",
-        },
-        {
-          dayOfWeek: 5,
-          startTime: "10:00",
-          endTime: "18:00",
-          timezone: "America/Los_Angeles",
-        },
-      ],
-      status: "available",
-      acceptingStudents: true,
-      stats: {
-        totalSessions: 523,
-        totalStudents: 187,
-        avgRating: 4.9,
-        totalReviews: 142,
-        responseRate: 98,
-        responseTime: 120,
-        completionRate: 98,
-        repeatStudentRate: 45,
-        hoursCoached: 1200,
-        earnings: { totalUsd: 25000, thisMonthUsd: 2500, pendingUsd: 500 },
-      },
-      reviews: [],
-      socialLinks: {
-        twitch: "https://twitch.tv/proanalyst",
-        twitter: "https://twitter.com/proanalyst",
-      },
-      verified: true,
-      identityVerified: true,
-      proVerified: true,
-      stripeConnected: true,
-      createdAt: "2023-01-15T00:00:00Z",
-      updatedAt: new Date().toISOString(),
-      lastActive: new Date().toISOString(),
-    },
-    {
-      id: "coach-2",
-      userId: "user-2",
-      displayName: "TacticalMind",
-      tagline: "IGL specialist, team coordination expert",
-      bio: "Helping teams reach competitive milestones through strategy development.",
-      avatar: "/avatars/coach2.jpg",
-      country: "US",
-      languages: ["English", "Spanish"],
-      timezone: "America/New_York",
-      expertise: [
-        {
-          gameId: "valorant",
-          roles: ["Controller", "IGL"],
-          rankAchieved: "Radiant",
-          yearsPlaying: 4,
-          yearsCoaching: 3,
-          specialties: ["Team Strategy", "Communication"],
-        },
-      ],
-      achievements: [
-        {
-          id: "ach-3",
-          title: "VCT Game Changers Champion",
-          description: "First place finish",
-          type: "tournament",
-          date: "2023-06-01",
-          verified: true,
-        },
-      ],
-      pricing: [
-        { sessionType: "vod-review", durationMinutes: 60, priceUsd: 55 },
-        { sessionType: "1on1", durationMinutes: 60, priceUsd: 70 },
-        { sessionType: "team-coaching", durationMinutes: 120, priceUsd: 200 },
-      ],
-      availability: [
-        {
-          dayOfWeek: 2,
-          startTime: "14:00",
-          endTime: "22:00",
-          timezone: "America/New_York",
-        },
-        {
-          dayOfWeek: 4,
-          startTime: "14:00",
-          endTime: "22:00",
-          timezone: "America/New_York",
-        },
-      ],
-      status: "available",
-      acceptingStudents: true,
-      stats: {
-        totalSessions: 312,
-        totalStudents: 89,
-        avgRating: 4.95,
-        totalReviews: 78,
-        responseRate: 100,
-        responseTime: 60,
-        completionRate: 100,
-        repeatStudentRate: 60,
-        hoursCoached: 800,
-        earnings: { totalUsd: 35000, thisMonthUsd: 3500, pendingUsd: 700 },
-      },
-      reviews: [],
-      socialLinks: { youtube: "https://youtube.com/@tacticalmind" },
-      verified: true,
-      identityVerified: true,
-      proVerified: true,
-      stripeConnected: true,
-      createdAt: "2023-03-20T00:00:00Z",
-      updatedAt: new Date().toISOString(),
-      lastActive: new Date().toISOString(),
-    },
-    {
-      id: "coach-3",
-      userId: "user-3",
-      displayName: "AimGod",
-      tagline: "Aim training specialist with sports psychology background",
-      bio: "Custom training routines that improve accuracy by 30%+ on average.",
-      avatar: "/avatars/coach3.jpg",
-      country: "GB",
-      languages: ["English"],
-      timezone: "Europe/London",
-      expertise: [
-        {
-          gameId: "cs2",
-          roles: ["AWPer"],
-          rankAchieved: "Faceit Level 10",
-          yearsPlaying: 10,
-          yearsCoaching: 4,
-          specialties: ["Aim Training", "Muscle Memory"],
-        },
-        {
-          gameId: "valorant",
-          roles: ["Sentinel"],
-          rankAchieved: "Immortal 2",
-          yearsPlaying: 2,
-          yearsCoaching: 1,
-          specialties: ["Aim Training"],
-        },
-      ],
-      achievements: [
-        {
-          id: "ach-4",
-          title: "Kovaaks Top 100",
-          description: "Global ranking",
-          type: "individual",
-          date: "2024-01-01",
-          verified: true,
-        },
-      ],
-      pricing: [
-        { sessionType: "vod-review", durationMinutes: 60, priceUsd: 30 },
-        { sessionType: "1on1", durationMinutes: 60, priceUsd: 40 },
-      ],
-      availability: [
-        {
-          dayOfWeek: 0,
-          startTime: "10:00",
-          endTime: "20:00",
-          timezone: "Europe/London",
-        },
-        {
-          dayOfWeek: 6,
-          startTime: "10:00",
-          endTime: "20:00",
-          timezone: "Europe/London",
-        },
-      ],
-      status: "busy",
-      acceptingStudents: true,
-      stats: {
-        totalSessions: 892,
-        totalStudents: 445,
-        avgRating: 4.8,
-        totalReviews: 367,
-        responseRate: 95,
-        responseTime: 180,
-        completionRate: 96,
-        repeatStudentRate: 35,
-        hoursCoached: 2000,
-        earnings: { totalUsd: 40000, thisMonthUsd: 3000, pendingUsd: 400 },
-      },
-      reviews: [],
-      socialLinks: {},
-      verified: true,
-      identityVerified: true,
-      proVerified: false,
-      stripeConnected: true,
-      createdAt: "2022-11-01T00:00:00Z",
-      updatedAt: new Date().toISOString(),
-      lastActive: new Date().toISOString(),
-    },
-  ];
-}
 
 export default function CoachingPage() {
-  const [activeTab, setActiveTab] = useState("browse");
-  const sampleCoaches = createSampleCoaches();
-  const featuredCoaches = sampleCoaches.filter(
-    (c) => c.verified && c.stats.avgRating >= 4.5
-  );
-
-  const handleViewCoach = (coach: Coach) => {
-    window.location.href = `/coaching/${coach.id}`;
-  };
-
-  const handleBookSession = (coach: Coach) => {
-    window.location.href = `/coaching/${coach.id}?book=true`;
-  };
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -291,6 +30,15 @@ export default function CoachingPage() {
         />
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] relative z-10">
           <div className="max-w-3xl lg:max-w-4xl mx-auto text-center">
+            <Chip
+              color="warning"
+              variant="flat"
+              size="lg"
+              className="mb-6"
+              startContent={<Icon icon="mdi:clock-outline" className="text-lg" />}
+            >
+              Coming Soon
+            </Chip>
             <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 lg:mb-6">
               Level Up with Expert{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFC700] to-[#DCFF37]">
@@ -303,120 +51,96 @@ export default function CoachingPage() {
               perfect mentor for your journey.
             </p>
             <div className="flex gap-4 lg:gap-6 justify-center">
-              <Link href="/coaching/become-a-coach">
+              <Link href="/match-making">
+                <Button
+                  color="primary"
+                  size="lg"
+                  startContent={<Icon icon="mdi:gamepad-variant" />}
+                >
+                  Play Now
+                </Button>
+              </Link>
+              <Link href="/leaderboards">
                 <Button
                   color="warning"
                   variant="flat"
                   size="lg"
-                  startContent={<Icon icon="mdi:teach" />}
+                  startContent={<Icon icon="mdi:trophy" />}
                 >
-                  Become a Coach
+                  Leaderboards
                 </Button>
               </Link>
-              <Button
-                color="primary"
-                size="lg"
-                startContent={<Icon icon="mdi:magnify" />}
-                onPress={() => setActiveTab("browse")}
-              >
-                Find a Coach
-              </Button>
             </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mt-12 lg:mt-16 max-w-3xl lg:max-w-4xl mx-auto">
-            {[
-              { value: "500+", label: "Verified Coaches" },
-              { value: "50K+", label: "Sessions Completed" },
-              { value: "4.8", label: "Average Rating" },
-              { value: "24/7", label: "Global Availability" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#FFC700]">
-                  {stat.value}
-                </p>
-                <p className="text-sm lg:text-base text-default-500 mt-1">{stat.label}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] py-8 lg:py-12">
-        <Tabs
-          selectedKey={activeTab}
-          onSelectionChange={(key) => setActiveTab(key as string)}
-          classNames={{
-            tabList: "mb-8",
-          }}
-        >
-          <Tab
-            key="featured"
-            title={
-              <div className="flex items-center gap-2">
-                <Icon icon="mdi:star" />
-                <span>Featured Coaches</span>
-              </div>
-            }
-          >
-            <FeaturedCoaches
-              coaches={featuredCoaches}
-              onBook={handleBookSession}
-              onMessage={handleViewCoach}
-            />
-          </Tab>
-
-          <Tab
-            key="browse"
-            title={
-              <div className="flex items-center gap-2">
-                <Icon icon="mdi:view-grid" />
-                <span>Browse All</span>
-              </div>
-            }
-          >
-            <CoachDirectory
-              coaches={sampleCoaches}
-              onBook={handleBookSession}
-              onMessage={handleViewCoach}
-            />
-          </Tab>
-
-          <Tab
-            key="my-sessions"
-            title={
-              <div className="flex items-center gap-2">
-                <Icon icon="mdi:calendar-clock" />
-                <span>My Sessions</span>
-              </div>
-            }
-          >
-            <div className="text-center py-12">
-              <Icon
-                icon="mdi:calendar-blank"
-                className="text-6xl text-default-300 mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2">No Sessions Yet</h3>
-              <p className="text-default-500 mb-4">
-                Book your first coaching session to start improving your game.
-              </p>
-              <Button
-                color="primary"
-                onPress={() => setActiveTab("browse")}
-                startContent={<Icon icon="mdi:magnify" />}
-              >
-                Find a Coach
-              </Button>
-            </div>
-          </Tab>
-        </Tabs>
+      {/* Features Preview */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] py-12 lg:py-16">
+        <h2 className="text-2xl lg:text-3xl font-bold text-center mb-4">
+          What&apos;s Coming
+        </h2>
+        <p className="text-default-500 text-center mb-10 max-w-2xl mx-auto">
+          The coaching marketplace is under active development. Here&apos;s what
+          you&apos;ll be able to do when it launches.
+        </p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {[
+            {
+              icon: "mdi:account-search",
+              title: "Browse Verified Coaches",
+              description:
+                "Find coaches verified by the platform with proven competitive backgrounds.",
+            },
+            {
+              icon: "mdi:video",
+              title: "1-on-1 & VOD Reviews",
+              description:
+                "Book live coaching sessions or submit VODs for expert analysis.",
+            },
+            {
+              icon: "mdi:calendar-check",
+              title: "Flexible Scheduling",
+              description:
+                "Schedule sessions around your availability with timezone-aware booking.",
+            },
+            {
+              icon: "mdi:shield-check",
+              title: "Escrow-Protected Payments",
+              description:
+                "Payments are held in escrow until sessions are completed successfully.",
+            },
+            {
+              icon: "mdi:star",
+              title: "Ratings & Reviews",
+              description:
+                "Read verified reviews from real students before booking.",
+            },
+            {
+              icon: "mdi:chart-line",
+              title: "Progress Tracking",
+              description:
+                "Track your improvement over time with coaching milestones and metrics.",
+            },
+          ].map((feature, i) => (
+            <Card key={i} className="bg-default-50/50 border border-default-200/50">
+              <CardBody className="p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Icon icon={feature.icon} className="text-2xl text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <p className="text-sm text-default-500">{feature.description}</p>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
       </section>
 
       {/* How It Works */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 max-w-[1600px] py-16 lg:py-24">
-        <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-center mb-12 lg:mb-16">How It Works</h2>
+        <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-center mb-12 lg:mb-16">
+          How It Will Work
+        </h2>
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-12 max-w-6xl mx-auto">
           {[
             {
@@ -444,10 +168,17 @@ export default function CoachingPage() {
           ].map((step, i) => (
             <div key={i} className="text-center">
               <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto mb-4 lg:mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <Icon icon={step.icon} className="text-3xl lg:text-4xl text-primary" />
+                <Icon
+                  icon={step.icon}
+                  className="text-3xl lg:text-4xl text-primary"
+                />
               </div>
-              <h3 className="font-semibold text-base lg:text-lg mb-2 lg:mb-3">{step.title}</h3>
-              <p className="text-sm lg:text-base text-default-500">{step.description}</p>
+              <h3 className="font-semibold text-base lg:text-lg mb-2 lg:mb-3">
+                {step.title}
+              </h3>
+              <p className="text-sm lg:text-base text-default-500">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>

@@ -1,10 +1,14 @@
-import type {Frequency, Tier} from "./pricing-types";
+import type { Frequency, Tier } from "./pricing-types";
 
-import {FrequencyEnum, TiersEnum} from "./pricing-types";
+import { FrequencyEnum, TiersEnum } from "./pricing-types";
 
 export const frequencies: Array<Frequency> = [
-  {key: FrequencyEnum.Monthly, label: "Pay Monthly", priceSuffix: "per month"},
-  {key: FrequencyEnum.Yearly, label: "Pay Yearly", priceSuffix: "per year"},
+  {
+    key: FrequencyEnum.Monthly,
+    label: "Pay Monthly",
+    priceSuffix: "per month",
+  },
+  { key: FrequencyEnum.Yearly, label: "Pay Yearly", priceSuffix: "per month" }, // Shows monthly rate even when billed yearly
 ];
 
 export const tiers: Array<Tier> = [
@@ -15,7 +19,8 @@ export const tiers: Array<Tier> = [
     href: "/signup",
     featured: false,
     mostPopular: false,
-    description: "For casual players exploring competitive gaming and community features.",
+    description:
+      "For casual players exploring competitive gaming and community features.",
     targetAudience: "Casual Players",
     features: [
       "5 replay uploads/month",
@@ -34,7 +39,8 @@ export const tiers: Array<Tier> = [
   {
     key: TiersEnum.Pro,
     title: "Pro",
-    description: "For competitive players serious about improving their game with advanced tools.",
+    description:
+      "For competitive players serious about improving their game with advanced tools.",
     targetAudience: "Competitive Players",
     href: "/checkout?plan=pro",
     mostPopular: true,
@@ -69,7 +75,8 @@ export const tiers: Array<Tier> = [
     featured: true,
     mostPopular: false,
     badge: "Best for Teams",
-    description: "Complete team management with analytics, scrim scheduling, and shared resources.",
+    description:
+      "Complete team management with analytics, scrim scheduling, and shared resources.",
     targetAudience: "Esports Teams",
     price: {
       monthly: "$29.99",
@@ -101,7 +108,8 @@ export const tiers: Array<Tier> = [
     featured: false,
     mostPopular: false,
     badge: "Enterprise",
-    description: "Professional tournament hosting with white-label branding and automated prize distribution.",
+    description:
+      "Professional tournament hosting with white-label branding and automated prize distribution.",
     targetAudience: "Tournament Organizers",
     price: {
       monthly: "$99.99",
@@ -129,10 +137,10 @@ export const tiers: Array<Tier> = [
   },
 ];
 
-// Plan IDs for backend integration (stable UUIDs)
+// Plan IDs for backend integration (must match MongoDB seed data)
 export const PLAN_IDS = {
-  [TiersEnum.Free]: "00000000-0000-0000-0001-000000000001",
-  [TiersEnum.Pro]: "00000000-0000-0000-0001-000000000002",
-  [TiersEnum.Team]: "00000000-0000-0000-0001-000000000003",
-  [TiersEnum.Organizer]: "00000000-0000-0000-0001-000000000004",
+  [TiersEnum.Free]: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaa001",
+  [TiersEnum.Pro]: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaa002",
+  [TiersEnum.Team]: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaa004",
+  [TiersEnum.Organizer]: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaa003",
 } as const;

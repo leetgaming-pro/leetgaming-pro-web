@@ -1,15 +1,23 @@
 "use client";
 
 import React from "react";
-import {Button, Card, CardBody, CardFooter, Divider, Input, Link, cn} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Divider,
+  Input,
+  Link,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 import { cl } from "@/components/cl";
 
 interface DiscountCardProps {
   className?: string;
 }
 
-export default function Component({className}: DiscountCardProps) {
+export default function Component({ className }: DiscountCardProps) {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
   const content = isOpen ? (
@@ -64,13 +72,17 @@ export default function Component({className}: DiscountCardProps) {
       </li>
       <li className="flex items-center gap-1">
         <Icon className="text-default-600" icon="ci:check" width={24} />
-        <p className="text-small text-default-500">Affiliated with an Acme partner</p>
+        <p className="text-small text-default-500">
+          Affiliated with an Acme partner
+        </p>
       </li>
     </ul>
   );
 
   return (
-    <Card className={`relative w-full max-w-[400px] pb-[120px] ${className || ''}`}>
+    <Card
+      className={`relative w-full max-w-[400px] pb-[120px] ${className || ""}`}
+    >
       <Button
         className="absolute right-4 top-8 z-10"
         isIconOnly={isOpen}
@@ -96,7 +108,7 @@ export default function Component({className}: DiscountCardProps) {
           {
             "h-full": isOpen,
             "border-t-1 border-default-100": !isOpen,
-          },
+          }
         )}
       >
         {content}

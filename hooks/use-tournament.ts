@@ -14,8 +14,6 @@ import type {
   CreateTournamentRequest,
   UpdateTournamentRequest,
   RegisterPlayerRequest,
-  CompleteTournamentRequest,
-  CancelTournamentRequest,
   TournamentListFilters,
   TournamentWinner,
 } from '@/types/replay-api/tournament.types';

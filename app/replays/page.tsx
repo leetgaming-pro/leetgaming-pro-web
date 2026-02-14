@@ -1,41 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Icon } from "@iconify/react";
 import {
-  BreadcrumbItem,
-  Breadcrumbs,
-  CheckboxGroup,
   Chip,
   RadioGroup,
   Select,
   SelectItem,
-  Spinner,
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Tooltip,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useOptionalAuth } from "@/hooks";
-import { ShareButton } from "@/components/share/share-button";
+import { BreadcrumbBar } from "@/components/breadcrumb/breadcrumb-bar";
+import { PageContainer } from "@/components/layout/page-container";
 
 import GameRadioItem from "@/components/filters/game-filter/game-radio-item";
-import PopoverFilterWrapper from "@/components/filters/popover-filter-wrapper";
 import TagGroupItem from "@/components/filters/tag-filter/tag-group-item";
-import RatingRadioGroup from "@/components/filters/rating-filter/rating-radio-group";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import {
-  ReplayApiSettingsMock,
-  GameIDKey,
-  VisibilityTypeKey,
-} from "@/types/replay-api/settings";
-import {
-  SearchBuilder,
-  SortDirection,
-} from "@/types/replay-api/search-builder";
-import { logger } from "@/lib/logger";
+import { useSDK } from "@/contexts/sdk-context";
 import { ReplayFile } from "@/types/replay-api/replay-file";
+import { logger } from "@/lib/logger";
+import { ReplayCardGrid } from "@/components/replay/ReplayCard";
+import { NoReplaysFound, ErrorState } from "@/components/ui/empty-states";
+import { EsportsSpinner } from "@/components/ui/loading-states";
+import { MobileNavigation } from "@/components/ui";
 
 interface ReplayListState {
   replays: ReplayFile[];
@@ -46,99 +34,87 @@ interface ReplayListState {
   hasMore: boolean;
 }
 
-export default function Component() {
-  const {
-    isAuthenticated,
-    isLoading: authLoading,
-    redirectToSignIn,
-  } = useOptionalAuth();
+export default function ReplaysPage() {
   const router = useRouter();
+  const { isAuthenticated, isLoading: _isLoading } = useOptionalAuth();
+  const { sdk, isReady } = useSDK();
+
+  // Filter states
+  const [selectedGame, setSelectedGame] = useState<string>("cs2");
+  const [selectedVisibility, setSelectedVisibility] =
+    useState<string>("public");
+  const [sortBy, setSortBy] = useState<string>("newest");
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+
+  // Replay list state
   const [state, setState] = useState<ReplayListState>({
     replays: [],
     loading: true,
     error: null,
     total: 0,
     page: 1,
-    hasMore: true,
+    hasMore: false,
   });
 
-  // Filters state
-  const [selectedGame, setSelectedGame] = useState<string>("cs2");
-  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedVisibility, setSelectedVisibility] =
-    useState<string>("public");
-  const [sortBy, setSortBy] = useState<string>("most_recent");
-
-  // Handle visibility change - private/shared require auth
+  // Handle visibility change with authentication check
   const handleVisibilityChange = (value: string) => {
-    if ((value === "private" || value === "shared") && !isAuthenticated) {
-      redirectToSignIn("/replays");
-      return;
+    if (value === "private" || value === "shared") {
+      if (!isAuthenticated) {
+        router.push("/signin?callbackUrl=/replays");
+        return;
+      }
     }
     setSelectedVisibility(value);
   };
 
-  const sdk = useMemo(
-    () => new ReplayAPISDK(ReplayApiSettingsMock, logger),
-    []
+  // Fetch replays function - uses SDK context for consistent auth
+  const fetchReplays = useCallback(
+    async (page: number, append: boolean = false) => {
+      if (!isReady) return;
+
+      try {
+        setState((prev) => ({
+          ...prev,
+          loading: true,
+          error: null,
+        }));
+
+        const response = await sdk.replayFiles.searchReplayFiles({
+          game_id: selectedGame,
+          limit: 20,
+          offset: (page - 1) * 20,
+        });
+
+        const newReplays = response;
+        const total = response.length; // For now, assume we get all results
+        const hasMore = response.length === 20; // Assuming 20 is the limit
+
+        setState((prev) => ({
+          ...prev,
+          replays: append ? [...prev.replays, ...newReplays] : newReplays,
+          loading: false,
+          total,
+          page,
+          hasMore,
+        }));
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load replays";
+        logger.error("[ReplaysPage] Failed to fetch replays", error);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: errorMessage,
+        }));
+      }
+    },
+    [sdk, isReady, selectedGame],
   );
-
-  // Fetch replays
-  const fetchReplays = async (page: number = 1, append: boolean = false) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const searchBuilder = new SearchBuilder()
-        .withGameIds(selectedGame as GameIDKey)
-        .sortDesc(sortBy === "most_recent" ? "created_at" : "created_at")
-        .paginate(page, 20);
-
-      // Apply visibility filter - only add filter for non-all values
-      if (
-        selectedVisibility !== "all" &&
-        selectedVisibility !== "public" &&
-        selectedVisibility !== "private" &&
-        selectedVisibility !== "shared"
-      ) {
-        // Skip invalid visibility values
-      } else if (selectedVisibility !== "all") {
-        // Use raw string since SDK handles conversion
-        searchBuilder.withResourceVisibilities(selectedVisibility);
-      }
-
-      // Apply team filter if selected
-      if (selectedTeams.length > 0) {
-        searchBuilder.withTeamIds(selectedTeams);
-      }
-
-      const search = searchBuilder.build();
-      const response = await sdk.replayFiles.searchReplayFiles(search.filters);
-
-      setState((prev) => ({
-        ...prev,
-        replays: append ? [...prev.replays, ...response] : response,
-        loading: false,
-        total: response.length,
-        page,
-        hasMore: response.length === 20,
-      }));
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to load replays";
-      logger.error("[ReplaysPage] Failed to fetch replays", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: errorMessage,
-      }));
-    }
-  };
 
   // Load replays on mount and filter change
   useEffect(() => {
     fetchReplays(1, false);
-  }, [selectedGame, selectedVisibility, sortBy, selectedTeams]);
+  }, [fetchReplays, selectedVisibility, sortBy, selectedTeams]);
 
   // Load more handler
   const handleLoadMore = () => {
@@ -148,187 +124,221 @@ export default function Component() {
   };
 
   return (
-    <div className="h-full w-full max-w-7xl mx-auto px-4 lg:px-6 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div className="flex items-center gap-4">
-          <div
-            className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none"
-            style={{
-              clipPath:
-                "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
-            }}
-          >
-            <svg
-              className="w-6 h-6 text-[#F5F0E1] dark:text-[#1a1a1a]"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
-              Replay Library
-            </h1>
-            <p className="text-sm text-[#34445C]/60 dark:text-[#F5F0E1]/60">
-              Browse and analyze game replays
+    <PageContainer maxWidth="full" padding="none" className="min-h-screen">
+      <div className="flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden">
+        {/* Sidebar - LeetGaming brand: navy base with lime accent in dark, navy base with orange in light */}
+        <div className="flex hidden h-full w-[380px] flex-shrink-0 flex-col items-start gap-y-6 rounded-none px-6 py-6 shadow-2xl lg:flex relative overflow-hidden bg-gradient-to-b from-[#34445C] via-[#2a3749] to-[#1e2a38] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] border-r border-[#34445C]/30 dark:border-[#DCFF37]/20">
+          {/* Diagonal corner accent - LeetGaming signature battleOrange gradient */}
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FF4654]/20 via-[#FFC700]/10 to-transparent dark:from-[#DCFF37]/10 dark:to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
+
+          <div className="z-10">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="solar:gamepad-bold"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={28}
+              />
+              <h1 className="text-xl font-bold leading-7 text-white tracking-tight uppercase">
+                Replays
+              </h1>
+            </div>
+            <p className="mt-2 text-sm font-medium leading-6 text-white/70 dark:text-[#DCFF37]/70">
+              Relive epic moments and study the competition
             </p>
           </div>
-        </div>
-        <Breadcrumbs
-          classNames={{
-            base: "rounded-none",
-            list: "rounded-none",
-            separator: "text-[#FF4654] dark:text-[#DCFF37]",
-          }}
-        >
-          <BreadcrumbItem className="text-[#34445C] dark:text-[#F5F0E1]">
-            Home
-          </BreadcrumbItem>
-          <BreadcrumbItem className="text-[#FF4654] dark:text-[#DCFF37] font-semibold">
-            Replays
-          </BreadcrumbItem>
-        </Breadcrumbs>
-      </div>
-      <div className="flex gap-x-6">
-        <div className="w-full flex-1 flex-col">
-          <header className="relative z-10 flex flex-col gap-2 rounded-none bg-[#F5F0E1]/90 dark:bg-[#1a1a1a]/90 px-4 pb-3 pt-2 md:pt-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <div className="flex items-center gap-1 md:hidden md:gap-2">
-              <h2 className="text-large font-medium text-[#34445C] dark:text-[#F5F0E1]">
-                Replays
-              </h2>
-              <span className="text-small text-[#FF4654] dark:text-[#DCFF37]">
-                ({state.total})
-              </span>
+
+          {/* Stats Section */}
+          <div className="z-10 w-full">
+            <div className="rounded-lg bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white dark:text-[#DCFF37]">
+                  {state.total.toLocaleString()}
+                </div>
+                <div className="text-sm text-white/70 dark:text-[#DCFF37]/70">
+                  Epic Moments
+                </div>
+              </div>
             </div>
-            <div className="flex items-center justify-between gap-2 ">
-              <div className="flex flex-row gap-2">
-                <div className="hidden items-center gap-1 md:flex">
-                  <h2 className="text-medium font-medium text-[#34445C] dark:text-[#F5F0E1]">
-                    Replays
-                  </h2>
-                  <span className="text-small text-[#FF4654] dark:text-[#DCFF37]">
-                    ({state.total})
+          </div>
+
+          {/* Filters Section */}
+          <div className="z-10 w-full space-y-4">
+            <div className="text-sm font-semibold text-white dark:text-[#DCFF37] uppercase tracking-wide">
+              Filters
+            </div>
+
+            {/* Game Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Game
+              </div>
+              <RadioGroup
+                aria-label="Game"
+                classNames={{
+                  wrapper: "gap-2",
+                }}
+                orientation="vertical"
+                value={selectedGame}
+                onValueChange={setSelectedGame}
+              >
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem color="#006FEE" tooltip="CS:2" value="cs2" />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    CS2
                   </span>
                 </div>
-                {!isAuthenticated && !authLoading && (
-                  <Chip
-                    color="warning"
-                    variant="flat"
-                    size="sm"
-                    className="rounded-none cursor-pointer hover:bg-warning/20"
-                    onClick={() => redirectToSignIn("/replays")}
-                  >
-                    Sign in to upload replays
-                  </Chip>
-                )}
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem color="#F5A524" tooltip="CS:GO" value="csgo" />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    CS:GO
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem
+                    color="#F31260"
+                    tooltip="Valorant"
+                    value="valorant"
+                  />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    Valorant
+                  </span>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Visibility Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Visibility
               </div>
-              <div className="-ml-2 flex w-full flex-wrap items-center justify-start gap-2 md:ml-0 md:justify-end">
-                <PopoverFilterWrapper title="Game">
-                  <RadioGroup
-                    aria-label="Game"
-                    classNames={{
-                      wrapper: "gap-2",
-                    }}
-                    orientation="horizontal"
-                    value={selectedGame}
-                    onValueChange={setSelectedGame}
-                  >
-                    <GameRadioItem color="#006FEE" tooltip="CS:2" value="cs2" />
-                    <GameRadioItem
-                      color="#F5A524"
-                      tooltip="CS:GO"
-                      value="csgo"
-                    />
-                    <GameRadioItem
-                      color="#F31260"
-                      tooltip="Valorant"
-                      value="valorant"
-                    />
-                  </RadioGroup>
-                </PopoverFilterWrapper>
-                <PopoverFilterWrapper title="Visibility">
-                  <RadioGroup
-                    aria-label="Visibility"
-                    classNames={{
-                      wrapper: "gap-2",
-                    }}
-                    orientation="vertical"
-                    value={selectedVisibility}
-                    onValueChange={handleVisibilityChange}
-                  >
-                    <TagGroupItem value="public">Public</TagGroupItem>
-                    <Tooltip
-                      content={
-                        !isAuthenticated
-                          ? "Sign in to view your private replays"
-                          : undefined
-                      }
-                      isDisabled={isAuthenticated}
-                    >
-                      <div>
-                        <TagGroupItem
-                          value="private"
-                          isDisabled={!isAuthenticated}
-                        >
-                          Private {!isAuthenticated && "🔒"}
-                        </TagGroupItem>
-                      </div>
-                    </Tooltip>
-                    <Tooltip
-                      content={
-                        !isAuthenticated
-                          ? "Sign in to view shared replays"
-                          : undefined
-                      }
-                      isDisabled={isAuthenticated}
-                    >
-                      <div>
-                        <TagGroupItem
-                          value="shared"
-                          isDisabled={!isAuthenticated}
-                        >
-                          Shared {!isAuthenticated && "🔒"}
-                        </TagGroupItem>
-                      </div>
-                    </Tooltip>
-                    <TagGroupItem value="all">All</TagGroupItem>
-                  </RadioGroup>
-                </PopoverFilterWrapper>
-                <Select
-                  aria-label="Sort by"
-                  classNames={{
-                    base: "items-center justify-end max-w-fit",
-                    value: "w-[112px]",
-                  }}
-                  selectedKeys={[sortBy]}
-                  onSelectionChange={(keys) =>
-                    setSortBy(Array.from(keys)[0] as string)
+              <RadioGroup
+                aria-label="Visibility"
+                classNames={{
+                  wrapper: "gap-2",
+                }}
+                orientation="vertical"
+                value={selectedVisibility}
+                onValueChange={handleVisibilityChange}
+              >
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <TagGroupItem value="public">Public</TagGroupItem>
+                </div>
+                <Tooltip
+                  content={
+                    !isAuthenticated
+                      ? "Sign in to view your private replays"
+                      : undefined
                   }
-                  labelPlacement="outside-left"
-                  placeholder="Select an option"
-                  variant="bordered"
+                  isDisabled={isAuthenticated}
                 >
-                  <SelectItem key="newest" value="newest">
-                    Newest
-                  </SelectItem>
-                  <SelectItem key="top_rated" value="top_rated">
-                    Top Rated
-                  </SelectItem>
-                  <SelectItem key="most_popular" value="most_popular">
-                    Most Popular
-                  </SelectItem>
-                </Select>
+                  <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                    <TagGroupItem value="private" isDisabled={!isAuthenticated}>
+                      Private {!isAuthenticated && "🔒"}
+                    </TagGroupItem>
+                  </div>
+                </Tooltip>
+                <Tooltip
+                  content={
+                    !isAuthenticated
+                      ? "Sign in to view shared replays"
+                      : undefined
+                  }
+                  isDisabled={isAuthenticated}
+                >
+                  <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                    <TagGroupItem value="shared" isDisabled={!isAuthenticated}>
+                      Shared {!isAuthenticated && "🔒"}
+                    </TagGroupItem>
+                  </div>
+                </Tooltip>
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <TagGroupItem value="all">All</TagGroupItem>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Sort Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Sort By
+              </div>
+              <Select
+                aria-label="Sort by"
+                classNames={{
+                  base: "w-full",
+                  trigger:
+                    "bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-white dark:text-[#DCFF37]",
+                  value: "text-white dark:text-[#DCFF37]",
+                }}
+                selectedKeys={[sortBy]}
+                onSelectionChange={(keys) =>
+                  setSortBy(Array.from(keys)[0] as string)
+                }
+                placeholder="Select an option"
+                variant="bordered"
+              >
+                <SelectItem key="newest" value="newest">
+                  Newest
+                </SelectItem>
+                <SelectItem key="top_rated" value="top_rated">
+                  Top Rated
+                </SelectItem>
+                <SelectItem key="most_popular" value="most_popular">
+                  Most Popular
+                </SelectItem>
+              </Select>
+            </div>
+          </div>
+
+          {/* Upload Button */}
+          {isAuthenticated && (
+            <div className="z-10 mt-auto w-full">
+              <Button
+                as="a"
+                href="/upload"
+                className="w-full bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold rounded-none shadow-lg hover:shadow-xl transition-all"
+                startContent={
+                  <Icon icon="solar:cloud-upload-bold" width={18} />
+                }
+              >
+                Upload Replay
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Mobile Header */}
+          <div className="lg:hidden bg-gradient-to-r from-[#34445C] to-[#2a3749] dark:from-[#0a0a0a] dark:to-[#111111] p-4 border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="solar:gamepad-bold"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={24}
+              />
+              <div className="text-lg font-bold text-white dark:text-[#DCFF37] uppercase tracking-tight">
+                Replays
               </div>
             </div>
-          </header>
-          <main className="mt-4 h-full w-full overflow-visible px-1">
+            <div className="text-sm text-white/70 dark:text-[#DCFF37]/70 mt-1">
+              {state.total} epic moments captured
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-6">
+            {/* Breadcrumbs */}
+            <div className="mb-6">
+              <BreadcrumbBar />
+            </div>
+
             {/* Active filters display */}
             {(selectedGame !== "cs2" ||
               selectedVisibility !== "public" ||
               selectedTeams.length > 0) && (
-              <div className="mb-4 mt-2 flex flex-wrap items-center gap-2">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
                 {selectedGame !== "cs2" && (
                   <Chip
                     classNames={{
@@ -371,156 +381,68 @@ export default function Component() {
               </div>
             )}
 
-            {/* Error state */}
-            {state.error && (
-              <Card className="mb-4">
-                <CardBody className="text-center py-8">
-                  <p className="text-danger">{state.error}</p>
-                  <Button
-                    color="primary"
-                    className="mt-4"
-                    onPress={() => fetchReplays(1, false)}
-                  >
-                    Retry
-                  </Button>
-                </CardBody>
-              </Card>
-            )}
-
-            {/* Loading state */}
-            {state.loading && state.replays.length === 0 && (
-              <div className="flex justify-center items-center py-20">
-                <Spinner size="lg" label="Loading replays..." />
+            {/* Replays Grid */}
+            {state.loading && state.replays.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <EsportsSpinner size="lg" label="Loading replays..." />
               </div>
-            )}
-
-            {/* Empty state */}
-            {!state.loading && state.replays.length === 0 && !state.error && (
-              <Card className="mb-4 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-                <CardBody className="text-center py-12">
-                  <div
-                    className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                    style={{
-                      clipPath:
-                        "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
-                    }}
-                  >
-                    <span className="text-2xl text-[#F5F0E1] dark:text-[#34445C]">
-                      📹
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2 text-[#34445C] dark:text-[#F5F0E1]">
-                    No replays found
-                  </h3>
-                  <p className="text-default-500 mb-4">
-                    Try adjusting your filters or upload your first replay
-                  </p>
-                  <Button
-                    className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-[#F5F0E1] rounded-none"
-                    style={{
-                      clipPath:
-                        "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
-                    }}
-                    as="a"
-                    href="/upload"
-                  >
-                    Upload Replay
-                  </Button>
-                </CardBody>
-              </Card>
-            )}
-
-            {/* Replays grid */}
-            {state.replays.length > 0 && (
+            ) : state.error ? (
+              <ErrorState
+                title="Error Loading Replays"
+                message={state.error}
+                onRetry={() => fetchReplays(1, false)}
+              />
+            ) : state.replays.length === 0 ? (
+              <NoReplaysFound
+                isAuthenticated={isAuthenticated}
+                onUpload={() =>
+                  router.push(
+                    isAuthenticated ? "/upload" : "/signin?callbackUrl=/upload",
+                  )
+                }
+                hasFilters={
+                  selectedGame !== "cs2" ||
+                  selectedVisibility !== "public" ||
+                  selectedTeams.length > 0
+                }
+                onClearFilters={() => {
+                  setSelectedGame("cs2");
+                  setSelectedVisibility("public");
+                  setSelectedTeams([]);
+                }}
+              />
+            ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-                  {state.replays.map((replay) => (
-                    <Card
-                      key={replay.id}
-                      isPressable
-                      as="a"
-                      href={`/replays/${replay.id}`}
-                      className="hover:scale-[1.02] hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
-                    >
-                      <CardBody className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <Chip
-                            size="sm"
-                            className="rounded-none"
-                            color={
-                              replay.status === "Completed" ||
-                              replay.status === "Ready"
-                                ? "success"
-                                : replay.status === "Processing"
-                                ? "warning"
-                                : replay.status === "Failed"
-                                ? "danger"
-                                : "default"
-                            }
-                            variant="flat"
-                          >
-                            {replay.status}
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            variant="flat"
-                            className="rounded-none"
-                          >
-                            {replay.gameId.toUpperCase()}
-                          </Chip>
-                        </div>
-                        <h4 className="font-semibold text-md mb-1 truncate text-[#34445C] dark:text-[#F5F0E1]">
-                          Replay #{replay.id.slice(0, 8)}
-                        </h4>
-                        <p className="text-xs text-default-500 mb-2">
-                          {new Date(replay.createdAt).toLocaleDateString()}
-                        </p>
-                        <div className="flex justify-between items-center text-xs text-default-400">
-                          <span>
-                            {(replay.size / 1024 / 1024).toFixed(2)} MB
-                          </span>
-                          <span>{replay.networkId}</span>
-                        </div>
-                      </CardBody>
-                      <CardFooter className="pt-0 px-4 pb-4">
-                        <ShareButton
-                          contentType="replay"
-                          contentId={replay.id}
-                          title={`Replay #${replay.id.slice(0, 8)}`}
-                          description={`${replay.gameId.toUpperCase()} replay from ${new Date(
-                            replay.createdAt
-                          ).toLocaleDateString()}`}
-                          variant="flat"
-                          size="sm"
-                          className="w-full rounded-none"
-                        />
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
+                <ReplayCardGrid replays={state.replays} isLoading={false} />
 
-                {/* Load more button */}
+                {/* Load More */}
                 {state.hasMore && (
-                  <div className="flex justify-center mt-8 mb-12">
+                  <div className="flex justify-center mt-8">
                     <Button
-                      className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
-                      style={{
-                        clipPath:
-                          "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
-                      }}
-                      onPress={handleLoadMore}
+                      color="primary"
+                      variant="ghost"
+                      size="lg"
                       isLoading={state.loading}
-                      disabled={state.loading}
+                      onClick={handleLoadMore}
+                      className="min-w-[200px]"
+                      startContent={
+                        !state.loading && (
+                          <Icon icon="solar:refresh-bold" width={18} />
+                        )
+                      }
                     >
-                      {state.loading ? "Loading..." : "Load More"}
+                      {state.loading ? "Loading..." : "Load More Replays"}
                     </Button>
                   </div>
                 )}
               </>
             )}
-          </main>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Navigation */}
+      <MobileNavigation />
+    </PageContainer>
   );
 }

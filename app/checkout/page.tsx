@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useRequireAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import { CheckoutFlow } from '@/components/checkout';
@@ -10,11 +10,13 @@ import { ReplayAPISDK } from '@/types/replay-api/sdk';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth({
     callbackUrl: '/checkout'
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialPlanId = searchParams.get('plan') || undefined;
   const sdkRef = useRef<ReplayAPISDK>();
   const [walletId, setWalletId] = useState<string | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
@@ -32,12 +34,12 @@ export default function CheckoutPage() {
     setWalletLoading(true);
     setWalletError(null);
     try {
-      const balance = await sdkRef.current!.wallet.getBalance();
+      const balance = await sdkRef.current?.wallet.getBalance();
       if (balance?.wallet_id) {
         setWalletId(balance.wallet_id);
       } else {
         // Try to get wallet from player profile
-        const profile = await sdkRef.current!.playerProfiles.getMyProfile();
+        const profile = await sdkRef.current?.playerProfiles.getMyProfile();
         if (profile?.wallet_id) {
           setWalletId(profile.wallet_id);
         } else {
@@ -131,7 +133,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Checkout Flow */}
-      <CheckoutFlow walletId={walletId} />
+      <CheckoutFlow walletId={walletId} initialPlanId={initialPlanId} />
 
       {/* Help Section */}
       <div className="mt-16 lg:mt-24 text-center">
@@ -154,5 +156,17 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Spinner size="lg" color="primary" />
+      </div>
+    }>
+      <CheckoutPageContent />
+    </Suspense>
   );
 }

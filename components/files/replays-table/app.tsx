@@ -14,7 +14,6 @@ import {
   DropdownMenu,
   DropdownItem,
   Chip,
-  User,
   Pagination,
   LinkIcon,
   Spacer,
@@ -24,13 +23,13 @@ import {
 import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { SearchIcon } from "./SearchIcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
-import { columns, replayFiles, visibilityOptions, statusOptions, ReplayFileRow, Column } from "./data";
+import { columns, replayFiles, statusOptions, ReplayFileRow } from "./data";
 import { capitalize } from "./utils";
 import UploadModal from '@/components/replay/upload/upload-modal';
 import { DeleteDocumentIcon } from '@/components/icons';
 import Link from 'next/link';
 
-const statusColorMap = {
+const _statusColorMap = {
   ready: "success",
   processing: "warning",
   failed: "danger",
@@ -41,11 +40,11 @@ const INITIAL_VISIBLE_COLUMNS = ["game_id", "network_id", "filestamp", "map", "l
 
 export default function App() {
   const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [selectedKeys, _setSelectedKeys] = React.useState(new Set([]));
+  const [visibleColumns, _setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [statusFilter, _setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [_sortDescriptor, _setSortDescriptor] = React.useState({
     column: "created_at",
     direction: "ascending",
   });
@@ -78,7 +77,7 @@ export default function App() {
     }
 
     return filteredReplayFiles;
-  }, [replayFiles, filterValue, statusFilter]);
+  }, [filterValue, statusFilter, hasSearchFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -91,10 +90,10 @@ export default function App() {
 
   const sortedItems = React.useMemo(() => {
     return [...items];
-  }, [sortDescriptor, items]);
+  }, [items]);
 
   const renderCell = React.useCallback((replayFile: ReplayFileRow, columnKey: keyof ReplayFileRow | string) => {
-    const cellValue = replayFile[columnKey];
+    const cellValue = replayFile[columnKey] as string | number;
 
     switch (columnKey) {
       // const INITIAL_VISIBLE_COLUMNS = ["GameID", "NetworkID", "Type", "Map", "Duration", "ResourceOwner", "Status", "Size", "CreatedAt"];
@@ -260,9 +259,8 @@ export default function App() {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    replayFiles.length,
     onSearchChange,
-    hasSearchFilter,
+    onClear,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -292,7 +290,7 @@ export default function App() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, page, pages, filteredItems.length, onNextPage, onPreviousPage]);
 
   return (
     <Table

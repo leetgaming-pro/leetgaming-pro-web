@@ -28,9 +28,17 @@ interface MetricsSnapshot {
   fetches: FetchMetric[];
   logs: { level: string; message: string; ts: number }[];
   forecast: { projectedRequestsNextHour: number; basisMinutes: number };
-  aggregates: { totalRequests: number; avgLatencyMs: number; errorRate: number };
+  aggregates: {
+    totalRequests: number;
+    avgLatencyMs: number;
+    errorRate: number;
+  };
   env: Record<string, string | undefined>;
-  memory?: { jsHeapSizeLimit?: number; totalJSHeapSize?: number; usedJSHeapSize?: number };
+  memory?: {
+    jsHeapSizeLimit?: number;
+    totalJSHeapSize?: number;
+    usedJSHeapSize?: number;
+  };
   navigator?: { userAgent: string; language?: string; online?: boolean };
   lastUpdated: number;
 }
@@ -56,23 +64,45 @@ function persist(snapshot: MetricsSnapshot) {
 }
 
 export default function DebugPage() {
-  const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(() => (typeof window !== "undefined" ? loadPersisted() : null));
+  const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(() =>
+    typeof window !== "undefined" ? loadPersisted() : null
+  );
   const fetchMetricsRef = useRef<FetchMetric[]>(snapshot?.fetches || []);
   const logsRef = useRef<MetricsSnapshot["logs"]>(snapshot?.logs || []);
-  const [tick, setTick] = useState(0);
+  const [_tick, setTick] = useState(0);
+
+  const isProduction = process.env.NODE_ENV === "production";
 
   const capture = useCallback(() => {
     const now = Date.now();
     const lastHourCutoff = now - 60 * 60 * 1000;
-    const recentFetches = fetchMetricsRef.current.filter((f: FetchMetric) => f.start >= lastHourCutoff);
+    const recentFetches = fetchMetricsRef.current.filter(
+      (f: FetchMetric) => f.start >= lastHourCutoff
+    );
     const totalRequests = fetchMetricsRef.current.length;
-    const completed = fetchMetricsRef.current.filter((f: FetchMetric) => f.duration !== undefined);
-    const avgLatencyMs = completed.length ? completed.reduce((a: number, c: FetchMetric) => a + (c.duration || 0), 0) / completed.length : 0;
-    const errorRate = completed.length ? completed.filter((f: FetchMetric) => (f.status && f.status >= 400) || f.error).length / completed.length : 0;
+    const completed = fetchMetricsRef.current.filter(
+      (f: FetchMetric) => f.duration !== undefined
+    );
+    const avgLatencyMs = completed.length
+      ? completed.reduce(
+          (a: number, c: FetchMetric) => a + (c.duration || 0),
+          0
+        ) / completed.length
+      : 0;
+    const errorRate = completed.length
+      ? completed.filter(
+          (f: FetchMetric) => (f.status && f.status >= 400) || f.error
+        ).length / completed.length
+      : 0;
 
     // Simple linear projection: requests per minute * 60
-    const basisMinutes = Math.max(1, (now - (recentFetches[0]?.start || now)) / (60 * 1000));
-    const projectedRequestsNextHour = basisMinutes ? Math.round((recentFetches.length / basisMinutes) * 60) : recentFetches.length;
+    const basisMinutes = Math.max(
+      1,
+      (now - (recentFetches[0]?.start || now)) / (60 * 1000)
+    );
+    const projectedRequestsNextHour = basisMinutes
+      ? Math.round((recentFetches.length / basisMinutes) * 60)
+      : recentFetches.length;
 
     const env: Record<string, string | undefined> = {
       NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -146,7 +176,13 @@ export default function DebugPage() {
     const orig = { log: console.log, warn: console.warn, error: console.error };
     const wrap = (level: string, fn: (...a: unknown[]) => void) => {
       return (...args: unknown[]) => {
-        logsRef.current.push({ level, message: args.map(a => (typeof a === "string" ? a : JSON.stringify(a))).join(" "), ts: Date.now() });
+        logsRef.current.push({
+          level,
+          message: args
+            .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
+            .join(" "),
+          ts: Date.now(),
+        });
         fn(...args);
         setTick((t: number) => t + 1);
       };
@@ -182,6 +218,16 @@ export default function DebugPage() {
     setSnapshot(loadPersisted());
   };
 
+  // Only render in development
+  if (isProduction) {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-semibold">Not Found</h1>
+        <p>This page is not available.</p>
+      </div>
+    );
+  }
+
   if (!snapshot) {
     return (
       <div className="p-6 space-y-4">
@@ -198,8 +244,18 @@ export default function DebugPage() {
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Debug Dashboard</h1>
         <div className="flex gap-2">
-          <button onClick={capture} className="px-3 py-1 rounded bg-blue-600 text-white text-sm">Refresh</button>
-          <button onClick={clearAll} className="px-3 py-1 rounded bg-red-600 text-white text-sm">Clear</button>
+          <button
+            onClick={capture}
+            className="px-3 py-1 rounded bg-blue-600 text-white text-sm"
+          >
+            Refresh
+          </button>
+          <button
+            onClick={clearAll}
+            className="px-3 py-1 rounded bg-red-600 text-white text-sm"
+          >
+            Clear
+          </button>
         </div>
       </header>
 
@@ -209,21 +265,31 @@ export default function DebugPage() {
           <ul className="text-sm space-y-1">
             <li>Total Requests: {snapshot.aggregates.totalRequests}</li>
             <li>Avg Latency: {fmt(snapshot.aggregates.avgLatencyMs)} ms</li>
-            <li>Error Rate: {(snapshot.aggregates.errorRate * 100).toFixed(2)}%</li>
+            <li>
+              Error Rate: {(snapshot.aggregates.errorRate * 100).toFixed(2)}%
+            </li>
           </ul>
         </div>
         <div className="p-4 border rounded">
           <h2 className="font-medium mb-2">Forecast</h2>
-            <ul className="text-sm space-y-1">
-              <li>Projected Next Hour: {snapshot.forecast.projectedRequestsNextHour}</li>
-              <li>Basis Minutes: {snapshot.forecast.basisMinutes.toFixed(2)}</li>
-            </ul>
+          <ul className="text-sm space-y-1">
+            <li>
+              Projected Next Hour: {snapshot.forecast.projectedRequestsNextHour}
+            </li>
+            <li>Basis Minutes: {snapshot.forecast.basisMinutes.toFixed(2)}</li>
+          </ul>
         </div>
         <div className="p-4 border rounded">
           <h2 className="font-medium mb-2">Environment</h2>
           <ul className="text-sm space-y-1">
-            {Object.entries(snapshot.env).map(([k,v]) => <li key={k}>{k}: {v ?? "(unset)"}</li>)}
-            <li>Updated: {new Date(snapshot.lastUpdated).toLocaleTimeString()}</li>
+            {Object.entries(snapshot.env).map(([k, v]) => (
+              <li key={k}>
+                {k}: {v ?? "(unset)"}
+              </li>
+            ))}
+            <li>
+              Updated: {new Date(snapshot.lastUpdated).toLocaleTimeString()}
+            </li>
           </ul>
         </div>
       </section>
@@ -241,27 +307,49 @@ export default function DebugPage() {
               </tr>
             </thead>
             <tbody>
-              {snapshot.fetches.slice(-50).reverse().map((f,i) => (
-                <tr key={i} className="border-b last:border-b-0">
-                  <td className="py-1 font-mono">{f.method}</td>
-                  <td className="py-1 font-mono">{f.status ?? ""}</td>
-                  <td className="py-1 font-mono">{f.duration ? fmt(f.duration) : ""}</td>
-                  <td className="py-1 truncate max-w-[220px]" title={f.url}>{f.url}</td>
-                </tr>
-              ))}
+              {snapshot.fetches
+                .slice(-50)
+                .reverse()
+                .map((f, i) => (
+                  <tr key={i} className="border-b last:border-b-0">
+                    <td className="py-1 font-mono">{f.method}</td>
+                    <td className="py-1 font-mono">{f.status ?? ""}</td>
+                    <td className="py-1 font-mono">
+                      {f.duration ? fmt(f.duration) : ""}
+                    </td>
+                    <td className="py-1 truncate max-w-[220px]" title={f.url}>
+                      {f.url}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
         <div className="p-4 border rounded max-h-80 overflow-auto">
           <h2 className="font-medium mb-2">Logs</h2>
           <ul className="space-y-1 text-xs font-mono">
-            {snapshot.logs.slice(-100).reverse().map((l,i) => (
-              <li key={i} className="flex gap-2">
-                <span className={l.level === "error" ? "text-red-600" : l.level === "warn" ? "text-yellow-600" : "text-gray-700"}>{l.level.toUpperCase()}</span>
-                <span>{new Date(l.ts).toLocaleTimeString()}</span>
-                <span className="truncate" title={l.message}>{l.message}</span>
-              </li>
-            ))}
+            {snapshot.logs
+              .slice(-100)
+              .reverse()
+              .map((l, i) => (
+                <li key={i} className="flex gap-2">
+                  <span
+                    className={
+                      l.level === "error"
+                        ? "text-red-600"
+                        : l.level === "warn"
+                        ? "text-yellow-600"
+                        : "text-gray-700"
+                    }
+                  >
+                    {l.level.toUpperCase()}
+                  </span>
+                  <span>{new Date(l.ts).toLocaleTimeString()}</span>
+                  <span className="truncate" title={l.message}>
+                    {l.message}
+                  </span>
+                </li>
+              ))}
           </ul>
         </div>
       </section>
@@ -271,10 +359,15 @@ export default function DebugPage() {
           <h2 className="font-medium mb-2">Memory</h2>
           {snapshot.memory ? (
             <ul className="text-xs space-y-1 font-mono">
-              <li>Used: {snapshot.memory.usedJSHeapSize} / {snapshot.memory.totalJSHeapSize}</li>
+              <li>
+                Used: {snapshot.memory.usedJSHeapSize} /{" "}
+                {snapshot.memory.totalJSHeapSize}
+              </li>
               <li>Limit: {snapshot.memory.jsHeapSizeLimit}</li>
             </ul>
-          ) : <p className="text-xs text-gray-500">Not available</p>}
+          ) : (
+            <p className="text-xs text-gray-500">Not available</p>
+          )}
         </div>
         <div className="p-4 border rounded">
           <h2 className="font-medium mb-2">Navigator</h2>
@@ -285,7 +378,6 @@ export default function DebugPage() {
           </ul>
         </div>
       </section>
-
     </div>
   );
 }

@@ -17,6 +17,15 @@ import {
   PaymentProvider,
   PaymentIntent,
 } from './types';
+import { ReplayAPISDK } from '@/types/replay-api/sdk';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { logger } from '@/lib/logger';
+
+// SDK for checkout API calls
+const sdk = new ReplayAPISDK(
+  { ...ReplayApiSettingsMock, baseUrl: '/api' },
+  logger,
+);
 
 // ============================================================================
 // Step Indicator
@@ -47,11 +56,11 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
             <div className="flex items-center gap-2">
               <div
                 className={`
-                  w-10 h-10 rounded-full flex items-center justify-center
+                  w-10 h-10 rounded-none flex items-center justify-center
                   transition-all duration-300
-                  ${isCompleted ? 'bg-success text-white' : ''}
-                  ${isActive ? 'bg-primary text-white' : ''}
-                  ${!isActive && !isCompleted ? 'bg-content2 text-default-400' : ''}
+                  ${isCompleted ? 'bg-[#DCFF37] text-[#34445C]' : ''}
+                  ${isActive ? 'bg-[#FF4654] text-white' : ''}
+                  ${!isActive && !isCompleted ? 'bg-[#34445C] text-[#F5F0E1]/50' : ''}
                 `}
               >
                 {isCompleted ? (
@@ -62,10 +71,10 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
               </div>
               <span
                 className={`
-                  hidden sm:inline text-sm font-medium
-                  ${isActive ? 'text-primary' : ''}
-                  ${isCompleted ? 'text-success' : ''}
-                  ${!isActive && !isCompleted ? 'text-default-400' : ''}
+                  hidden sm:inline text-sm font-medium font-[Inter]
+                  ${isActive ? 'text-[#FF4654]' : ''}
+                  ${isCompleted ? 'text-[#DCFF37]' : ''}
+                  ${!isActive && !isCompleted ? 'text-[#F5F0E1]/40' : ''}
                 `}
               >
                 {step.label}
@@ -75,7 +84,7 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
               <div
                 className={`
                   w-8 sm:w-16 h-0.5
-                  ${index < currentIndex ? 'bg-success' : 'bg-content3'}
+                  ${index < currentIndex ? 'bg-[#DCFF37]' : 'bg-[#34445C]'}
                 `}
               />
             )}
@@ -92,9 +101,10 @@ function StepIndicator({ currentStep }: StepIndicatorProps) {
 
 interface CheckoutContentProps {
   walletId: string;
+  initialPlanId?: string;
 }
 
-function CheckoutContent({ walletId }: CheckoutContentProps) {
+function CheckoutContent({ walletId, initialPlanId }: CheckoutContentProps) {
   const router = useRouter();
   const { state, goToStep } = useCheckout();
   const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
@@ -128,7 +138,22 @@ function CheckoutContent({ walletId }: CheckoutContentProps) {
     }
   }, [state.step, state.paymentProvider, paymentIntent, isCreatingIntent, createPaymentIntent, walletId]);
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
+    // Activate subscription via checkout API
+    if (state.selectedPlan && paymentIntent) {
+      try {
+        const result = await sdk.subscriptions.checkout({
+          plan_id: state.selectedPlan.id,
+          payment_id: paymentIntent.paymentId,
+          billing_period: state.billingPeriod,
+        });
+        if (!result?.success) {
+          console.error('Failed to activate subscription:', result);
+        }
+      } catch (err) {
+        console.error('Failed to activate subscription after payment:', err);
+      }
+    }
     goToStep(CheckoutStep.SUCCESS);
     // Redirect to success page after short delay
     setTimeout(() => {
@@ -214,20 +239,20 @@ function CheckoutContent({ walletId }: CheckoutContentProps) {
     <div className="w-full max-w-4xl mx-auto">
       <StepIndicator currentStep={state.step} />
 
-      {state.step === CheckoutStep.SELECT_PLAN && <PlanSelection />}
+      {state.step === CheckoutStep.SELECT_PLAN && <PlanSelection initialPlanId={initialPlanId} />}
 
       {state.step === CheckoutStep.SELECT_PAYMENT && <PaymentMethodSelection />}
 
       {state.step === CheckoutStep.PAYMENT_DETAILS && renderPaymentForm()}
 
       {state.step === CheckoutStep.SUCCESS && (
-        <Card className="bg-success/10 border border-success/20">
+        <Card className="bg-[#DCFF37]/10 border border-[#DCFF37]/30 rounded-none">
           <CardBody className="p-8 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-4">
-              <Icon icon="solar:check-circle-bold" className="text-success w-10 h-10" />
+            <div className="w-16 h-16 rounded-none bg-[#DCFF37]/20 flex items-center justify-center mb-4">
+              <Icon icon="solar:check-circle-bold" className="text-[#DCFF37] w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-bold text-success mb-2">Payment Successful!</h2>
-            <p className="text-default-500 mb-4">
+            <h2 className="text-2xl font-bold text-[#DCFF37] mb-2 font-[Electrolize]">Payment Successful!</h2>
+            <p className="text-[#F5F0E1]/70 mb-4">
               Thank you for your purchase. Redirecting to your dashboard...
             </p>
             <Progress
@@ -235,7 +260,7 @@ function CheckoutContent({ walletId }: CheckoutContentProps) {
               isIndeterminate
               aria-label="Redirecting..."
               classNames={{
-                indicator: 'bg-success',
+                indicator: 'bg-[#DCFF37]',
               }}
               className="max-w-xs"
             />
@@ -252,12 +277,13 @@ function CheckoutContent({ walletId }: CheckoutContentProps) {
 
 interface CheckoutFlowProps {
   walletId: string;
+  initialPlanId?: string;
 }
 
-export function CheckoutFlow({ walletId }: CheckoutFlowProps) {
+export function CheckoutFlow({ walletId, initialPlanId }: CheckoutFlowProps) {
   return (
     <CheckoutProvider>
-      <CheckoutContent walletId={walletId} />
+      <CheckoutContent walletId={walletId} initialPlanId={initialPlanId} />
     </CheckoutProvider>
   );
 }

@@ -4,11 +4,11 @@
  * Uses SDK for type-safe API access - DO NOT use direct fetch calls
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSDK } from '@/contexts/sdk-context';
-import { logger } from '@/lib/logger';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSDK } from "@/contexts/sdk-context";
+import { logger } from "@/lib/logger";
 import {
   SubscriptionsAPI,
   Plan,
@@ -16,7 +16,7 @@ import {
   BillingPeriod,
   CreateSubscriptionRequest,
   UpdateSubscriptionRequest,
-} from '@/types/replay-api/subscriptions.sdk';
+} from "@/types/replay-api/subscriptions.sdk";
 
 export interface UseSubscriptionResult {
   // State
@@ -29,8 +29,12 @@ export interface UseSubscriptionResult {
   // Actions
   refreshPlans: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
-  subscribe: (request: CreateSubscriptionRequest) => Promise<Subscription | null>;
-  updateSubscription: (request: UpdateSubscriptionRequest) => Promise<Subscription | null>;
+  subscribe: (
+    request: CreateSubscriptionRequest,
+  ) => Promise<Subscription | null>;
+  updateSubscription: (
+    request: UpdateSubscriptionRequest,
+  ) => Promise<Subscription | null>;
   cancelSubscription: () => Promise<boolean>;
   reactivateSubscription: () => Promise<boolean>;
   pauseSubscription: () => Promise<boolean>;
@@ -47,11 +51,14 @@ export interface UseSubscriptionResult {
 export function useSubscription(autoFetch = true): UseSubscriptionResult {
   const { sdk } = useSDK();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
+  const [currentSubscription, setCurrentSubscription] =
+    useState<Subscription | null>(null);
   const [isLoadingPlans, setIsLoadingPlans] = useState(false);
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   const [plansError, setPlansError] = useState<string | null>(null);
-  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(
+    null,
+  );
 
   // Create API client using centralized SDK
   const api = useMemo(() => new SubscriptionsAPI(sdk.client), [sdk.client]);
@@ -64,11 +71,11 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       if (result) {
         setPlans(result.data);
       } else {
-        setPlansError('Failed to fetch plans');
+        setPlansError("Failed to fetch plans");
       }
     } catch (err: unknown) {
-      logger.error('[useSubscription] Error fetching plans:', err);
-      setPlansError(err instanceof Error ? err.message : 'Unknown error');
+      logger.error("[useSubscription] Error fetching plans:", err);
+      setPlansError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setIsLoadingPlans(false);
     }
@@ -80,41 +87,63 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
     try {
       const result = await api.getCurrentSubscription();
       setCurrentSubscription(result);
-      // No error if null - user might not have a subscription
+      // No error if null - user might not have a subscription (this is expected)
     } catch (err: unknown) {
-      logger.error('[useSubscription] Error fetching subscription:', err);
-      setSubscriptionError(err instanceof Error ? err.message : 'Unknown error');
+      // Handle "Invalid subscription ID" gracefully - it just means no subscription
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (
+        errorMessage.includes("Invalid subscription") ||
+        errorMessage.includes("not found") ||
+        errorMessage.includes("no subscription")
+      ) {
+        // This is expected - user has no subscription
+        setCurrentSubscription(null);
+      } else {
+        // Only log unexpected errors
+        logger.error("[useSubscription] Error fetching subscription:", err);
+        setSubscriptionError(errorMessage);
+      }
     } finally {
       setIsLoadingSubscription(false);
     }
   }, [api]);
 
-  const subscribe = useCallback(async (request: CreateSubscriptionRequest): Promise<Subscription | null> => {
-    try {
-      const result = await api.create(request);
-      if (result) {
-        setCurrentSubscription(result);
+  const subscribe = useCallback(
+    async (
+      request: CreateSubscriptionRequest,
+    ): Promise<Subscription | null> => {
+      try {
+        const result = await api.create(request);
+        if (result) {
+          setCurrentSubscription(result);
+        }
+        return result;
+      } catch (err: unknown) {
+        logger.error("[useSubscription] Subscribe failed:", err);
+        return null;
       }
-      return result;
-    } catch (err: unknown) {
-      logger.error('[useSubscription] Subscribe failed:', err);
-      return null;
-    }
-  }, [api]);
+    },
+    [api],
+  );
 
-  const updateSubscription = useCallback(async (request: UpdateSubscriptionRequest): Promise<Subscription | null> => {
-    if (!currentSubscription) return null;
-    try {
-      const result = await api.update(currentSubscription.id, request);
-      if (result) {
-        setCurrentSubscription(result);
+  const updateSubscription = useCallback(
+    async (
+      request: UpdateSubscriptionRequest,
+    ): Promise<Subscription | null> => {
+      if (!currentSubscription) return null;
+      try {
+        const result = await api.update(currentSubscription.id, request);
+        if (result) {
+          setCurrentSubscription(result);
+        }
+        return result;
+      } catch (err: unknown) {
+        logger.error("[useSubscription] Update failed:", err);
+        return null;
       }
-      return result;
-    } catch (err: unknown) {
-      logger.error('[useSubscription] Update failed:', err);
-      return null;
-    }
-  }, [api, currentSubscription]);
+    },
+    [api, currentSubscription],
+  );
 
   const cancelSubscription = useCallback(async (): Promise<boolean> => {
     if (!currentSubscription) return false;
@@ -126,7 +155,7 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       }
       return false;
     } catch (err: unknown) {
-      logger.error('[useSubscription] Cancel failed:', err);
+      logger.error("[useSubscription] Cancel failed:", err);
       return false;
     }
   }, [api, currentSubscription]);
@@ -141,7 +170,7 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       }
       return false;
     } catch (err: unknown) {
-      logger.error('[useSubscription] Reactivate failed:', err);
+      logger.error("[useSubscription] Reactivate failed:", err);
       return false;
     }
   }, [api, currentSubscription]);
@@ -156,7 +185,7 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       }
       return false;
     } catch (err: unknown) {
-      logger.error('[useSubscription] Pause failed:', err);
+      logger.error("[useSubscription] Pause failed:", err);
       return false;
     }
   }, [api, currentSubscription]);
@@ -171,31 +200,40 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       }
       return false;
     } catch (err: unknown) {
-      logger.error('[useSubscription] Resume failed:', err);
+      logger.error("[useSubscription] Resume failed:", err);
       return false;
     }
   }, [api, currentSubscription]);
 
-  const getPlanById = useCallback((planId: string): Plan | undefined => {
-    return plans.find(p => p.id === planId);
-  }, [plans]);
+  const getPlanById = useCallback(
+    (planId: string): Plan | undefined => {
+      return plans.find((p) => p.id === planId);
+    },
+    [plans],
+  );
 
   // Computed properties
-  const isSubscribed = useMemo(() => currentSubscription !== null, [currentSubscription]);
-  
-  const isActive = useMemo(() => 
-    currentSubscription?.status === 'active' || currentSubscription?.status === 'trialing',
-    [currentSubscription]
+  const isSubscribed = useMemo(
+    () => currentSubscription !== null,
+    [currentSubscription],
   );
-  
-  const isPaused = useMemo(() => 
-    currentSubscription?.status === 'paused',
-    [currentSubscription]
+
+  // Note: Backend returns status with capital letter (e.g., "Active"), so we do case-insensitive comparison
+  const isActive = useMemo(() => {
+    const status = currentSubscription?.status?.toLowerCase();
+    return status === "active" || status === "trialing";
+  }, [currentSubscription]);
+
+  const isPaused = useMemo(
+    () => currentSubscription?.status?.toLowerCase() === "paused",
+    [currentSubscription],
   );
-  
-  const isCanceled = useMemo(() => 
-    currentSubscription?.status === 'canceled' || currentSubscription?.cancel_at_period_end === true,
-    [currentSubscription]
+
+  const isCanceled = useMemo(
+    () =>
+      currentSubscription?.status?.toLowerCase() === "canceled" ||
+      currentSubscription?.cancel_at_period_end === true,
+    [currentSubscription],
   );
 
   const daysUntilRenewal = useMemo(() => {
@@ -239,6 +277,10 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
 }
 
 // Re-export types for convenience
-export type { Plan, Subscription, BillingPeriod, CreateSubscriptionRequest, UpdateSubscriptionRequest };
-
-
+export type {
+  Plan,
+  Subscription,
+  BillingPeriod,
+  CreateSubscriptionRequest,
+  UpdateSubscriptionRequest,
+};

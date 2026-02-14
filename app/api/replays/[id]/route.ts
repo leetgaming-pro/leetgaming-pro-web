@@ -5,9 +5,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
 import { logger } from '@/lib/logger';
-import { getAuthHeadersFromCookies, getUserIdFromToken } from '@/lib/auth/server-auth';
+import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,7 +83,7 @@ export async function DELETE(
 ) {
   try {
     // Authentication required for delete operations
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({
         success: false,
@@ -97,7 +98,6 @@ export async function DELETE(
     const gameId = searchParams.get('gameId') || 'cs2';
 
     const authHeaders = getAuthHeadersFromCookies();
-    const userId = getUserIdFromToken();
 
     // Forward delete request to backend with auth headers
     // Backend handles resource ownership verification
@@ -107,7 +107,6 @@ export async function DELETE(
         method: 'DELETE',
         headers: {
           ...authHeaders,
-          ...(userId && { 'X-User-ID': userId }),
         },
       }
     );
@@ -139,7 +138,7 @@ export async function DELETE(
       });
     }
 
-    logger.info('[API /api/replays/[id]] Replay deleted', { id, gameId, userId });
+    logger.info('[API /api/replays/[id]] Replay deleted', { id, gameId });
 
     return NextResponse.json({
       success: true,

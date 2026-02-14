@@ -136,7 +136,7 @@ export default function FooterColumns() {
         </ul>
       </div>
     ),
-    []
+    [],
   );
 
   let { theme } = useTheme();
@@ -146,8 +146,9 @@ export default function FooterColumns() {
   }
 
   return (
+    // Hide footer on mobile to show only app-like bottom nav bar
     <div
-      className="basis-1/5 sm:basis-full justify-center align-items align-center"
+      className="hidden md:block basis-1/5 sm:basis-full justify-center align-items align-center"
       style={{
         backgroundImage: `url('/blur-glow-pry-gh.svg')`,
         backgroundSize: "cover",

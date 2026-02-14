@@ -57,7 +57,7 @@ export class PaymentAPI {
    * Create a payment intent
    */
   async createPaymentIntent(request: CreatePaymentIntentRequest): Promise<PaymentIntentResult | null> {
-    const response = await this.client.post<PaymentIntentResult>('/payments/intent', request);
+    const response = await this.client.post<PaymentIntentResult>('/payments', request);
     if (response.error) {
       console.error('Failed to create payment intent:', response.error);
       return null;

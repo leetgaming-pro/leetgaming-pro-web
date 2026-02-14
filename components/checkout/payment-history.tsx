@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardBody,
@@ -15,21 +15,19 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import {
-  PaymentHistoryItem,
-  PaymentStatus,
-  PaymentType,
-  PAYMENT_STATUS_COLORS,
-} from './types';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
-import type { Payment } from '@/types/replay-api/payment.types';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { PaymentStatus, PaymentType, PAYMENT_STATUS_COLORS } from "./types";
+import { ReplayAPISDK } from "@/types/replay-api/sdk";
+import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { logger } from "@/lib/logger";
+import type { Payment } from "@/types/replay-api/payment.types";
 
 // Initialize SDK (uses /api proxy for client-side requests)
-const sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, baseUrl: '/api' }, logger);
+const sdk = new ReplayAPISDK(
+  { ...ReplayApiSettingsMock, baseUrl: "/api" },
+  logger
+);
 
 // ============================================================================
 // Types
@@ -45,41 +43,41 @@ interface PaymentHistoryProps {
 // ============================================================================
 
 const formatAmount = (amount: number, currency: string): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency: currency.toUpperCase(),
   }).format(amount / 100);
 };
 
 const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
 const getTypeIcon = (type: PaymentType): string => {
   switch (type) {
     case PaymentType.DEPOSIT:
-      return 'solar:arrow-down-bold';
+      return "solar:arrow-down-bold";
     case PaymentType.WITHDRAWAL:
-      return 'solar:arrow-up-bold';
+      return "solar:arrow-up-bold";
     case PaymentType.SUBSCRIPTION:
-      return 'solar:refresh-circle-bold';
+      return "solar:refresh-circle-bold";
     default:
-      return 'solar:wallet-bold';
+      return "solar:wallet-bold";
   }
 };
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
-    case 'deposit':
-      return 'Deposit';
-    case 'withdrawal':
-      return 'Withdrawal';
-    case 'subscription':
-      return 'Subscription';
+    case "deposit":
+      return "Deposit";
+    case "withdrawal":
+      return "Withdrawal";
+    case "subscription":
+      return "Subscription";
     default:
       return type;
   }
@@ -89,7 +87,10 @@ const getTypeLabel = (type: string): string => {
 // Component
 // ============================================================================
 
-export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHistoryProps) {
+export function PaymentHistory({
+  limit = 10,
+  showPagination = true,
+}: PaymentHistoryProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -105,10 +106,11 @@ export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHis
         if (result) {
           setPayments(result.payments);
         } else {
-          setError('Failed to load payment history');
+          setError("Failed to load payment history");
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to load payment history';
+        const message =
+          err instanceof Error ? err.message : "Failed to load payment history";
         setError(message);
       } finally {
         setIsLoading(false);
@@ -139,7 +141,10 @@ export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHis
     return (
       <Card className="bg-danger/10 border border-danger/20">
         <CardBody className="p-6 text-center">
-          <Icon icon="solar:danger-triangle-bold" className="text-danger w-8 h-8 mx-auto mb-2" />
+          <Icon
+            icon="solar:danger-triangle-bold"
+            className="text-danger w-8 h-8 mx-auto mb-2"
+          />
           <p className="text-danger">{error}</p>
         </CardBody>
       </Card>
@@ -177,8 +182,8 @@ export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHis
           aria-label="Payment history table"
           removeWrapper
           classNames={{
-            th: 'bg-transparent text-default-500 font-medium',
-            td: 'py-4',
+            th: "bg-transparent text-default-500 font-medium",
+            td: "py-4",
           }}
         >
           <TableHeader>
@@ -192,36 +197,46 @@ export function PaymentHistory({ limit = 10, showPagination = true }: PaymentHis
             {paginatedPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
-                  <span className="text-sm">{formatDate(payment.created_at)}</span>
+                  <span className="text-sm">
+                    {formatDate(payment.created_at)}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Icon
                       icon={getTypeIcon(payment.type as PaymentType)}
                       className={`w-4 h-4 ${
-                        payment.type === 'deposit' ? 'text-success' : 'text-default-500'
+                        payment.type === "deposit"
+                          ? "text-success"
+                          : "text-default-500"
                       }`}
                     />
-                    <span className="text-sm">{getTypeLabel(payment.type)}</span>
+                    <span className="text-sm">
+                      {getTypeLabel(payment.type)}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span
                     className={`font-medium ${
-                      payment.type === 'deposit' ? 'text-success' : ''
+                      payment.type === "deposit" ? "text-success" : ""
                     }`}
                   >
-                    {payment.type === 'deposit' ? '+' : ''}
+                    {payment.type === "deposit" ? "+" : ""}
                     {formatAmount(payment.amount, payment.currency)}
                   </span>
                 </TableCell>
                 <TableCell>
                   <Chip
-                    color={PAYMENT_STATUS_COLORS[payment.status as PaymentStatus] || 'default'}
+                    color={
+                      PAYMENT_STATUS_COLORS[payment.status as PaymentStatus] ||
+                      "default"
+                    }
                     variant="flat"
                     size="sm"
                   >
-                    {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                    {payment.status.charAt(0).toUpperCase() +
+                      payment.status.slice(1)}
                   </Chip>
                 </TableCell>
                 <TableCell>

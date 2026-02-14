@@ -1,16 +1,33 @@
-export type ReplayFileStatus = 'Pending' | 'Processing' | 'Failed' | 'Completed' | 'Ready';
+import { IntendedAudienceKey, VisibilityTypeKey } from "./settings";
+
+// Define BaseEntity interface locally to avoid circular dependency
+interface BaseEntity {
+  id: string;
+  visibility_level: IntendedAudienceKey;
+  visibility_type: VisibilityTypeKey;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type ReplayFileStatus =
+  | "Pending"
+  | "Processing"
+  | "Failed"
+  | "Completed"
+  | "Ready";
 
 /**
  * Default TeamPRO tenant ID
  * From replay-api/pkg/domain/resource_owner.go
  */
-export const DEFAULT_TENANT_ID = 'a3a80810-f91c-4391-9eff-6d47a13bebde';
+export const DEFAULT_TENANT_ID = "a3a80810-f91c-4391-9eff-6d47a13bebde";
 
 /**
  * Default TeamPRO client application ID
  * From replay-api/pkg/domain/resource_owner.go
  */
-export const DEFAULT_CLIENT_ID = 'ff96c01f-a741-4429-a0cd-2868d408c42f';
+export const DEFAULT_CLIENT_ID = "ff96c01f-a741-4429-a0cd-2868d408c42f";
 
 /**
  * Hierarchical resource ownership model
@@ -66,25 +83,38 @@ export class ResourceOwner {
   /**
    * Get the ownership level as a string
    */
-  getLevel(): 'tenant' | 'client' | 'group' | 'user' {
-    if (this.isUser()) return 'user';
-    if (this.isGroup()) return 'group';
-    if (this.isClient()) return 'client';
-    return 'tenant';
+  getLevel(): "tenant" | "client" | "group" | "user" {
+    if (this.isUser()) return "user";
+    if (this.isGroup()) return "group";
+    if (this.isClient()) return "client";
+    return "tenant";
   }
 
   /**
    * Create a ResourceOwner from a user ID (creates full hierarchy with defaults)
    */
-  static fromUser(userId: string, groupId: string | null = null): ResourceOwner {
-    return new ResourceOwner(DEFAULT_TENANT_ID, DEFAULT_CLIENT_ID, groupId, userId);
+  static fromUser(
+    userId: string,
+    groupId: string | null = null
+  ): ResourceOwner {
+    return new ResourceOwner(
+      DEFAULT_TENANT_ID,
+      DEFAULT_CLIENT_ID,
+      groupId,
+      userId
+    );
   }
 
   /**
    * Create a ResourceOwner from a group ID
    */
   static fromGroup(groupId: string): ResourceOwner {
-    return new ResourceOwner(DEFAULT_TENANT_ID, DEFAULT_CLIENT_ID, groupId, null);
+    return new ResourceOwner(
+      DEFAULT_TENANT_ID,
+      DEFAULT_CLIENT_ID,
+      groupId,
+      null
+    );
   }
 
   /**
@@ -98,7 +128,7 @@ export class ResourceOwner {
    * Create a tenant-level ResourceOwner
    */
   static fromTenant(tenantId: string = DEFAULT_TENANT_ID): ResourceOwner {
-    return new ResourceOwner(tenantId, '', null, null);
+    return new ResourceOwner(tenantId, "", null, null);
   }
 
   /**
@@ -143,16 +173,56 @@ export class ResourceOwner {
   }
 }
 
-export class ReplayFile {
+/**
+ * Helper function to safely get the primary ID from a ResourceOwner-like object
+ * Works with both class instances and plain JSON objects from API responses
+ */
+export function getResourceOwnerPrimaryId(
+  owner:
+    | ResourceOwner
+    | {
+        user_id?: string | null;
+        group_id?: string | null;
+        client_id?: string | null;
+        tenant_id?: string | null;
+        userId?: string | null;
+        groupId?: string | null;
+        clientId?: string | null;
+        tenantId?: string | null;
+      }
+    | null
+    | undefined
+): string {
+  if (!owner) return "Unknown";
+
+  // If it's a class instance with the method
+  if (typeof (owner as ResourceOwner).getPrimaryId === "function") {
+    return (owner as ResourceOwner).getPrimaryId();
+  }
+
+  // Handle snake_case (from API JSON) or camelCase properties
+  const userId = (owner as any).user_id || (owner as any).userId;
+  const groupId = (owner as any).group_id || (owner as any).groupId;
+  const clientId = (owner as any).client_id || (owner as any).clientId;
+  const tenantId = (owner as any).tenant_id || (owner as any).tenantId;
+
+  return userId || groupId || clientId || tenantId || "Unknown";
+}
+
+export class ReplayFile implements BaseEntity {
   id: string;
-  gameId: string;
-  networkId: string;
+  visibility_level: IntendedAudienceKey;
+  visibility_type: VisibilityTypeKey;
+  resource_owner: ResourceOwner;
+  created_at: Date;
+  updated_at: Date;
+  game_id: string;
+  network_id: string;
   size: number;
   uri: string;
   status: ReplayFileStatus;
-  resourceOwner: ResourceOwner;
-  createdAt: Date;
-  updatedAt: Date;
+  error?: string;
+  header?: any;
   // Extended metadata from Header field
   matchId?: string;
   duration?: number;
@@ -162,31 +232,37 @@ export class ReplayFile {
   title?: string;
   description?: string;
   tags?: string[];
-  visibility?: 'public' | 'private' | 'unlisted';
+  visibility?: "public" | "private" | "unlisted";
   views?: number;
   likes?: number;
-  error?: string;
 
   constructor(
-    gameId: string,
-    networkId: string,
+    id: string,
+    visibility_level: IntendedAudienceKey,
+    visibility_type: VisibilityTypeKey,
+    resource_owner: ResourceOwner,
+    created_at: Date,
+    updated_at: Date,
+    game_id: string,
+    network_id: string,
     size: number,
     uri: string,
     status: ReplayFileStatus,
-    resourceOwner: ResourceOwner,
-    createdAt: Date,
-    updatedAt: Date,
-    id?: string
+    error?: string,
+    header?: any
   ) {
-    this.id = id || crypto.randomUUID();
-    this.gameId = gameId;
-    this.networkId = networkId;
+    this.id = id;
+    this.visibility_level = visibility_level;
+    this.visibility_type = visibility_type;
+    this.resource_owner = resource_owner;
+    this.created_at = created_at;
+    this.updated_at = updated_at;
+    this.game_id = game_id;
+    this.network_id = network_id;
     this.size = size;
     this.uri = uri;
     this.status = status;
-    this.resourceOwner = resourceOwner;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.error = error;
+    this.header = header;
   }
 }
-

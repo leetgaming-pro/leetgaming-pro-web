@@ -1,47 +1,35 @@
 "use client";
 
 /**
- * Highlights Page - State-of-the-Art Game Events Showcase
- * Displays epic moments from CS2 matches: clutches, aces, multi-kills, etc.
- * Features infinite scroll, filtering, and stunning visual design
+ * Highlights Page - Professional Game Events Showcase with Esports Branding
+ * Displays epic moments from matches with award-winning UX and visibility controls
  */
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Button,
-  Chip,
-  Input,
-  Spinner,
-  Select,
-  SelectItem,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Modal,
-  ModalContent,
-  ModalBody,
-  Skeleton,
-} from "@nextui-org/react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Button, Chip, Input, Select, SelectItem } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import { useRouter } from "next/navigation";
 
-import { HighlightCard } from "@/components/highlights/highlight-card";
-import { PageContainer } from "@/components/layouts/centered-content";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { HighlightCard as _HighlightCard } from "@/components/highlights/highlight-card";
+import { useSDK } from "@/contexts/sdk-context";
 import { logger } from "@/lib/logger";
 import {
   GameEvent,
   HighlightEventType,
   HIGHLIGHT_CATEGORIES,
   HighlightFilters,
-  getEventTypeColor,
 } from "@/types/replay-api/highlights.types";
+import { useOptionalAuth } from "@/hooks";
+import { ensureSession } from "@/types/replay-api/auth";
+import { Card, CardBody, RadioGroup } from "@nextui-org/react";
 
-// Maps for filtering
-const MAPS = [
+// Reserved for future component migration
+void _HighlightCard;
+import GameRadioItem from "@/components/filters/game-filter/game-radio-item";
+import { PageContainer } from "@/components/layout/page-container";
+
+// Maps for filtering (reserved for future map filter feature)
+const _MAPS = [
   { key: "all", label: "All Maps" },
   { key: "de_dust2", label: "Dust II" },
   { key: "de_mirage", label: "Mirage" },
@@ -52,28 +40,54 @@ const MAPS = [
   { key: "de_vertigo", label: "Vertigo" },
 ];
 
-// Sort options
-const SORT_OPTIONS = [
+// Sort options (reserved for future sort feature)
+const _SORT_OPTIONS = [
   { key: "created_at", label: "Most Recent" },
   { key: "views_count", label: "Most Viewed" },
   { key: "likes_count", label: "Most Liked" },
   { key: "kill_count", label: "Kill Count" },
 ];
 
-// Generate mock highlights for demo when API is unavailable
-function generateMockHighlights(count: number, page: number): GameEvent[] {
-  const types: HighlightEventType[] = ["Clutch", "Ace", "MultiKill", "Headshot", "Wallbang", "NoScope", "FirstBlood"];
-  const clutchTypes: GameEvent["clutch_type"][] = ["1v1", "1v2", "1v3", "1v4", "1v5"];
+// Generate mock highlights for demo when API is unavailable (reserved for fallback)
+function _generateMockHighlights(count: number, page: number): GameEvent[] {
+  const types: HighlightEventType[] = [
+    "Clutch",
+    "Ace",
+    "MultiKill",
+    "Headshot",
+    "Wallbang",
+    "NoScope",
+    "FirstBlood",
+  ];
+  const clutchTypes: GameEvent["clutch_type"][] = [
+    "1v1",
+    "1v2",
+    "1v3",
+    "1v4",
+    "1v5",
+  ];
   const maps = ["de_dust2", "de_mirage", "de_inferno", "de_nuke", "de_ancient"];
   const weapons = ["AK-47", "M4A4", "AWP", "Deagle", "USP-S"];
-  const playerNames = ["s1mple", "ZywOo", "NiKo", "device", "Twistzz", "electronic", "ropz", "b1t", "m0NESY", "broky"];
+  const playerNames = [
+    "s1mple",
+    "ZywOo",
+    "NiKo",
+    "device",
+    "Twistzz",
+    "electronic",
+    "ropz",
+    "b1t",
+    "m0NESY",
+    "broky",
+  ];
 
   return Array.from({ length: count }, (_, i) => {
     const type = types[Math.floor(Math.random() * types.length)];
     const isClutch = type === "Clutch";
     const map = maps[Math.floor(Math.random() * maps.length)];
     const weapon = weapons[Math.floor(Math.random() * weapons.length)];
-    const playerName = playerNames[Math.floor(Math.random() * playerNames.length)];
+    const playerName =
+      playerNames[Math.floor(Math.random() * playerNames.length)];
 
     return {
       id: `highlight-${page}-${i}-${Date.now()}`,
@@ -91,9 +105,16 @@ function generateMockHighlights(count: number, page: number): GameEvent[] {
       is_headshot: Math.random() > 0.5,
       is_wallbang: Math.random() > 0.8,
       is_noscope: type === "NoScope" || Math.random() > 0.9,
-      clutch_type: isClutch ? clutchTypes[Math.floor(Math.random() * clutchTypes.length)] : undefined,
+      clutch_type: isClutch
+        ? clutchTypes[Math.floor(Math.random() * clutchTypes.length)]
+        : undefined,
       clutch_success: isClutch ? Math.random() > 0.3 : undefined,
-      kill_count: type === "MultiKill" ? Math.floor(Math.random() * 3) + 3 : type === "Ace" ? 5 : 1,
+      kill_count:
+        type === "MultiKill"
+          ? Math.floor(Math.random() * 3) + 3
+          : type === "Ace"
+            ? 5
+            : 1,
       primary_player: {
         id: `player-${i}`,
         display_name: playerName,
@@ -104,166 +125,193 @@ function generateMockHighlights(count: number, page: number): GameEvent[] {
       views_count: Math.floor(Math.random() * 50000) + 1000,
       likes_count: Math.floor(Math.random() * 5000) + 100,
       shares_count: Math.floor(Math.random() * 500) + 10,
-      created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(
+        Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
     };
   });
 }
 
-export default function HighlightsPage() {
-  // State
-  const [highlights, setHighlights] = useState<GameEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  
-  // Filters
-  const [selectedCategory, setSelectedCategory] = useState<HighlightEventType | "all">("all");
-  const [selectedMap, setSelectedMap] = useState("all");
-  const [sortBy, setSortBy] = useState<"created_at" | "views_count" | "likes_count" | "kill_count">("created_at");
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // Video modal
-  const [selectedHighlight, setSelectedHighlight] = useState<GameEvent | null>(null);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+interface HighlightsListState {
+  highlights: GameEvent[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  hasMore: boolean;
+}
 
-  // Intersection observer for infinite scroll
-  const { ref: loadMoreRef, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: false,
+export default function Component() {
+  const { isAuthenticated } = useOptionalAuth();
+  const router = useRouter();
+  const [state, setState] = useState<HighlightsListState>({
+    highlights: [],
+    loading: true,
+    error: null,
+    total: 0,
+    page: 1,
+    hasMore: true,
   });
 
-  // API SDK
-  const sdkRef = useRef<ReplayAPISDK | null>(null);
-  
-  // Initialize SDK
+  // Filters state
+  const [selectedGame, setSelectedGame] = useState<string>("cs2");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedMap, setSelectedMap] = useState<string>("all");
+  const [_selectedVisibility, _setSelectedVisibility] =
+    useState<string>("public");
+  const [sortBy, setSortBy] = useState<string>("most_recent");
+  const [_page, _setPage] = useState<number>(1);
+
+  // Search state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
+
+  // Use SDK context for consistent auth-aware API access
+  const { sdk, isReady } = useSDK();
+
+  // Debounce search term
   useEffect(() => {
-    sdkRef.current = new ReplayAPISDK(ReplayApiSettingsMock, logger);
-  }, []);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  // Fetch highlights
-  const fetchHighlights = useCallback(async (pageNum: number, reset = false) => {
-    if (!sdkRef.current) return;
-
-    try {
-      if (reset) {
-        setLoading(true);
-        setError(null);
-      } else {
-        setLoadingMore(true);
-      }
-
-      const filters: HighlightFilters = {
-        game_id: "cs2",
-        page: pageNum,
-        limit: 12,
-        sort_by: sortBy,
-        sort_order: "desc",
-      };
-
-      if (selectedCategory !== "all") {
-        filters.event_type = selectedCategory;
-      }
-
-      if (selectedMap !== "all") {
-        filters.map_name = selectedMap;
-      }
-
-      // Try fetching from API
-      let newHighlights: GameEvent[] = [];
-      let totalCount = 0;
+  // Fetch highlights - uses SDK context for consistent auth
+  const fetchHighlights = useCallback(
+    async (fetchPage: number = 1, append: boolean = false) => {
+      if (!isReady) return;
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
-        const response = await sdkRef.current.highlights.getHighlights(filters);
-        newHighlights = response.highlights;
-        totalCount = response.total;
-      } catch (apiError) {
-        // API unavailable - use mock data for demo
-        logger.warn("Highlights API unavailable, using mock data", apiError);
-        newHighlights = generateMockHighlights(12, pageNum);
-        totalCount = 100; // Simulate more data available
-      }
+        // For public highlights, we don't need authentication
+        // Only ensure session if user is authenticated or needs private highlights
+        if (isAuthenticated || _selectedVisibility !== "public") {
+          const hasSession = await ensureSession();
+          if (!hasSession) {
+            throw new Error(
+              "Failed to establish session. Please try refreshing the page.",
+            );
+          }
+        }
 
-      // If API returned no data but no error, use mock data
-      if (newHighlights.length === 0 && pageNum === 1) {
-        newHighlights = generateMockHighlights(12, pageNum);
-        totalCount = 100;
-      }
+        const filters: HighlightFilters = {
+          game_id: selectedGame as GameEvent["game_id"],
+          page: fetchPage,
+          limit: 20,
+          sort_by:
+            sortBy === "most_recent"
+              ? "created_at"
+              : sortBy === "most_viewed"
+                ? "views_count"
+                : "created_at",
+          sort_order: "desc",
+        };
 
-      // Apply client-side search filter if needed
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        newHighlights = newHighlights.filter(h => 
-          h.primary_player?.display_name?.toLowerCase().includes(query) ||
-          h.map_name?.toLowerCase().includes(query) ||
-          h.type.toLowerCase().includes(query) ||
-          h.weapon?.toLowerCase().includes(query)
-        );
-      }
+        if (selectedCategory !== "all") {
+          filters.event_type = selectedCategory as HighlightEventType;
+        }
 
-      if (reset) {
-        setHighlights(newHighlights);
-      } else {
-        setHighlights(prev => [...prev, ...newHighlights]);
-      }
+        if (selectedMap !== "all") {
+          filters.map_name = selectedMap;
+        }
 
-      setHasMore(newHighlights.length >= 12);
-      setPage(pageNum);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load highlights";
-      logger.error("Failed to fetch highlights", err);
-      setError(errorMessage);
-      
-      // Still show mock data on error
-      if (pageNum === 1) {
-        setHighlights(generateMockHighlights(12, 1));
-        setHasMore(true);
-      }
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [selectedCategory, selectedMap, sortBy, searchQuery]);
+        const response = await sdk.highlights.getHighlights(filters);
 
-  // Initial load
+        // Apply client-side search filtering if search term exists
+        let filteredHighlights = response.highlights;
+        if (debouncedSearchTerm) {
+          const searchLower = debouncedSearchTerm.toLowerCase();
+          filteredHighlights = response.highlights.filter(
+            (highlight) =>
+              highlight.primary_player?.display_name
+                ?.toLowerCase()
+                .includes(searchLower) ||
+              highlight.type.toLowerCase().includes(searchLower) ||
+              highlight.map_name?.toLowerCase().includes(searchLower) ||
+              highlight.weapon?.toLowerCase().includes(searchLower),
+          );
+        }
+
+        setState((prev) => ({
+          ...prev,
+          highlights: append
+            ? [...prev.highlights, ...filteredHighlights]
+            : filteredHighlights,
+          loading: false,
+          total: filteredHighlights.length,
+          page: fetchPage,
+          hasMore: response.highlights.length === 20,
+        }));
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load highlights";
+        logger.error("[HighlightsPage] Failed to fetch highlights", error);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: errorMessage,
+        }));
+      }
+    },
+    [
+      selectedGame,
+      selectedCategory,
+      selectedMap,
+      _selectedVisibility,
+      sortBy,
+      sdk,
+      debouncedSearchTerm,
+      isAuthenticated,
+      isReady,
+    ],
+  );
+
+  // Load highlights on mount and filter change
   useEffect(() => {
-    fetchHighlights(1, true);
-  }, [fetchHighlights]);
+    fetchHighlights(1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedGame,
+    selectedCategory,
+    selectedMap,
+    _selectedVisibility,
+    sortBy,
+    debouncedSearchTerm,
+  ]);
 
-  // Infinite scroll
-  useEffect(() => {
-    if (inView && hasMore && !loading && !loadingMore) {
-      fetchHighlights(page + 1, false);
+  // Load more handler
+  const handleLoadMore = () => {
+    if (!state.loading && state.hasMore) {
+      fetchHighlights(state.page + 1, true);
     }
-  }, [inView, hasMore, loading, loadingMore, page, fetchHighlights]);
+  };
 
   // Handle filter changes
   const handleCategoryChange = (category: HighlightEventType | "all") => {
     setSelectedCategory(category);
-    setPage(1);
+    _setPage(1);
     fetchHighlights(1, true);
   };
 
-  const handleMapChange = (map: string) => {
+  const _handleMapChange = (map: string) => {
     setSelectedMap(map);
-    setPage(1);
+    _setPage(1);
     fetchHighlights(1, true);
   };
 
   const handleSortChange = (sort: typeof sortBy) => {
     setSortBy(sort);
-    setPage(1);
+    _setPage(1);
     fetchHighlights(1, true);
   };
 
   // Video modal handlers
   const handlePlayHighlight = (highlight: GameEvent) => {
-    setSelectedHighlight(highlight);
-    setIsVideoModalOpen(true);
+    router.push(`/highlights/${highlight.id}`);
   };
 
-  const handleLikeHighlight = async (highlight: GameEvent) => {
+  const _handleLikeHighlight = async (highlight: GameEvent) => {
     // In production, this would call the API
     logger.info("Liked highlight", { id: highlight.id });
   };
@@ -278,467 +326,457 @@ export default function HighlightsPage() {
         });
       } catch (err) {
         // Fallback to clipboard
-        navigator.clipboard.writeText(`${window.location.origin}/highlights/${highlight.id}`);
+        navigator.clipboard.writeText(
+          `${window.location.origin}/highlights/${highlight.id}`,
+        );
       }
     } else {
-      navigator.clipboard.writeText(`${window.location.origin}/highlights/${highlight.id}`);
+      navigator.clipboard.writeText(
+        `${window.location.origin}/highlights/${highlight.id}`,
+      );
     }
   };
 
-  // Featured highlights (first 2)
-  const featuredHighlights = highlights.slice(0, 2);
-  const regularHighlights = highlights.slice(2);
+  // Featured highlights (first 2) - reserved for layout variations
+  const _featuredHighlights = state.highlights.slice(0, 2);
+  const _regularHighlights = state.highlights.slice(2);
 
   return (
-    <PageContainer title="" description="" maxWidth="7xl">
-      {/* Hero Header */}
-      <div className="relative mb-12 py-12 -mx-4 px-4 overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a]" />
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FF4654] rounded-full filter blur-[150px] animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#DCFF37] rounded-full filter blur-[150px] animate-pulse delay-1000" />
-        </div>
+    <PageContainer maxWidth="full" padding="none" className="min-h-screen">
+      <div className="flex h-[calc(100vh_-_40px)] w-full gap-x-2 overflow-x-hidden">
+        {/* Sidebar - LeetGaming brand: navy base with lime accent in dark, navy base with orange in light */}
+        <div className="flex hidden h-full w-[380px] flex-shrink-0 flex-col items-start gap-y-6 rounded-none px-6 py-6 shadow-2xl lg:flex relative overflow-hidden bg-gradient-to-b from-[#34445C] via-[#2a3749] to-[#1e2a38] dark:from-[#0a0a0a] dark:via-[#111111] dark:to-[#0a0a0a] border-r border-[#34445C]/30 dark:border-[#DCFF37]/20">
+          {/* Diagonal corner accent - LeetGaming signature battleOrange gradient */}
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FF4654]/20 via-[#FFC700]/10 to-transparent dark:from-[#DCFF37]/10 dark:to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
 
-        {/* Content */}
-        <div className="relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex justify-center mb-6">
-              <div
-                className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                style={{
-                  clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
-                }}
-              >
-                <Icon icon="solar:video-frame-play-bold" className="text-[#0a0a0a]" width={48} />
+          <div className="z-10">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="solar:play-bold"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={28}
+              />
+              <div className="text-xl font-bold leading-7 text-white tracking-tight uppercase">
+                Highlights
               </div>
             </div>
-
-            <h1 className="text-5xl md:text-7xl font-black text-[#F5F0E1] mb-4 tracking-tight">
-              HIGHLIGHTS
-            </h1>
-            <p className="text-xl text-[#F5F0E1]/60 max-w-2xl mx-auto">
-              Epic moments from the community. Watch clutches, aces, and incredible plays from CS2 matches.
-            </p>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex justify-center gap-8 mt-8"
-          >
-            <div className="text-center">
-              <p className="text-3xl font-bold text-[#DCFF37]">10K+</p>
-              <p className="text-sm text-[#F5F0E1]/50">Highlights</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-[#FF4654]">500+</p>
-              <p className="text-sm text-[#F5F0E1]/50">Aces</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-[#00D9FF]">2K+</p>
-              <p className="text-sm text-[#F5F0E1]/50">Clutches</p>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Filters Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="mb-8 space-y-4"
-      >
-        {/* Category chips */}
-        <div className="flex flex-wrap gap-2">
-          <Chip
-            size="lg"
-            variant={selectedCategory === "all" ? "solid" : "bordered"}
-            className={`cursor-pointer rounded-none transition-all ${
-              selectedCategory === "all"
-                ? "bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-[#0a0a0a]"
-                : "border-[#34445C]/30 dark:border-[#DCFF37]/30 hover:border-[#DCFF37]/60"
-            }`}
-            onClick={() => handleCategoryChange("all")}
-          >
-            All Highlights
-          </Chip>
-          {HIGHLIGHT_CATEGORIES.map((cat) => (
-            <Chip
-              key={cat.key}
-              size="lg"
-              variant={selectedCategory === cat.key ? "solid" : "bordered"}
-              className={`cursor-pointer rounded-none transition-all ${
-                selectedCategory === cat.key
-                  ? "text-[#0a0a0a]"
-                  : "border-[#34445C]/30 dark:border-[#DCFF37]/30 hover:border-opacity-60"
-              }`}
-              style={{
-                backgroundColor: selectedCategory === cat.key ? cat.color : undefined,
-                borderColor: selectedCategory !== cat.key ? `${cat.color}40` : undefined,
-              }}
-              startContent={<Icon icon={cat.icon} width={16} />}
-              onClick={() => handleCategoryChange(cat.key)}
-            >
-              {cat.label}
-            </Chip>
-          ))}
-        </div>
-
-        {/* Search & Sort */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <Input
-            className="max-w-xs"
-            placeholder="Search players, maps, weapons..."
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-            onKeyDown={(e) => e.key === "Enter" && fetchHighlights(1, true)}
-            startContent={
-              <Icon icon="solar:magnifer-linear" width={20} className="text-[#FF4654] dark:text-[#DCFF37]" />
-            }
-            isClearable
-            onClear={() => {
-              setSearchQuery("");
-              fetchHighlights(1, true);
-            }}
-            classNames={{
-              inputWrapper: "rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 bg-[#1a1a1a]",
-              input: "text-[#F5F0E1]",
-            }}
-          />
-
-          <div className="flex gap-2">
-            {/* Map Filter */}
-            <Select
-              size="sm"
-              label="Map"
-              selectedKeys={[selectedMap]}
-              onChange={(e) => handleMapChange(e.target.value)}
-              classNames={{
-                trigger: "rounded-none bg-[#1a1a1a] border-[#34445C]/30 min-w-[140px]",
-                popoverContent: "rounded-none bg-[#1a1a1a]",
-              }}
-            >
-              {MAPS.map((map) => (
-                <SelectItem key={map.key} value={map.key}>
-                  {map.label}
-                </SelectItem>
-              ))}
-            </Select>
-
-            {/* Sort Dropdown */}
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  variant="bordered"
-                  className="rounded-none border-[#34445C]/30 dark:border-[#DCFF37]/30"
-                  endContent={<Icon icon="solar:alt-arrow-down-linear" width={16} />}
-                >
-                  {SORT_OPTIONS.find((s) => s.key === sortBy)?.label}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="Sort options"
-                selectionMode="single"
-                selectedKeys={[sortBy]}
-                onSelectionChange={(keys) => handleSortChange(Array.from(keys)[0] as typeof sortBy)}
-                classNames={{
-                  base: "rounded-none",
-                }}
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <DropdownItem key={option.key}>{option.label}</DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Error State */}
-      {error && (
-        <div className="mb-6 p-4 bg-[#FF4654]/10 border border-[#FF4654]/30 rounded-none">
-          <div className="flex items-center gap-3">
-            <Icon icon="solar:danger-triangle-bold" width={24} className="text-[#FF4654]" />
-            <div>
-              <p className="font-semibold text-[#FF4654]">Error loading highlights</p>
-              <p className="text-sm text-[#F5F0E1]/60">{error}</p>
+            <div className="mt-2 text-sm font-medium leading-6 text-white/70 dark:text-[#DCFF37]/70">
+              Epic moments and game-changing plays
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Loading State */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-none overflow-hidden"
-              style={{
-                clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
-              }}
-            >
-              <Skeleton className="aspect-video w-full" />
-              <div className="p-4 bg-[#1a1a1a] space-y-3">
-                <Skeleton className="h-6 w-3/4 rounded-none" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <Skeleton className="h-4 w-1/2 rounded-none" />
+          {/* Stats Section */}
+          <div className="z-10 w-full">
+            <div className="rounded-lg bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 p-4 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white dark:text-[#DCFF37]">
+                  {state.total.toLocaleString()}
+                </div>
+                <div className="text-sm text-white/70 dark:text-[#DCFF37]/70">
+                  Epic Moments
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      ) : highlights.length === 0 ? (
-        /* Empty State */
-        <div className="text-center py-20">
-          <div
-            className="w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-[#34445C]/20"
-            style={{
-              clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)",
-            }}
-          >
-            <Icon icon="solar:video-frame-linear" width={48} className="text-[#DCFF37]/50" />
           </div>
-          <h3 className="text-xl font-bold text-[#F5F0E1] mb-2">No highlights found</h3>
-          <p className="text-[#F5F0E1]/50 mb-6">
-            Try adjusting your filters or check back later for new content.
-          </p>
-          <Button
-            className="rounded-none bg-[#DCFF37] text-[#0a0a0a] font-semibold"
-            onPress={() => {
-              setSelectedCategory("all");
-              setSelectedMap("all");
-              setSearchQuery("");
-              fetchHighlights(1, true);
-            }}
-          >
-            Clear Filters
-          </Button>
-        </div>
-      ) : (
-        <>
-          {/* Featured Highlights */}
-          {featuredHighlights.length > 0 && selectedCategory === "all" && page === 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="mb-8"
-            >
-              <h2 className="text-2xl font-bold text-[#F5F0E1] mb-4 flex items-center gap-3">
-                <Icon icon="solar:fire-bold" width={28} className="text-[#FF4654]" />
-                Trending Now
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {featuredHighlights.map((highlight, i) => (
-                  <motion.div
-                    key={highlight.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4, delay: 0.1 * i }}
-                  >
-                    <HighlightCard
-                      highlight={highlight}
-                      variant="featured"
-                      onPlay={handlePlayHighlight}
-                      onLike={handleLikeHighlight}
-                      onShare={handleShareHighlight}
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
 
-          {/* Regular Highlights Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-          >
-            <h2 className="text-2xl font-bold text-[#F5F0E1] mb-4 flex items-center gap-3">
-              <Icon icon="solar:play-circle-bold" width={28} className="text-[#DCFF37]" />
-              {selectedCategory === "all" ? "All Highlights" : `${selectedCategory} Highlights`}
-              <Chip size="sm" className="rounded-none bg-[#DCFF37]/20 text-[#DCFF37]">
-                {highlights.length}+
-              </Chip>
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <AnimatePresence mode="popLayout">
-                {regularHighlights.map((highlight, i) => (
-                  <motion.div
-                    key={highlight.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: Math.min(i * 0.05, 0.3) }}
-                    layout
-                  >
-                    <HighlightCard
-                      highlight={highlight}
-                      onPlay={handlePlayHighlight}
-                      onLike={handleLikeHighlight}
-                      onShare={handleShareHighlight}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          {/* Load More / Infinite Scroll Trigger */}
-          {hasMore && (
-            <div ref={loadMoreRef} className="flex justify-center py-12">
-              {loadingMore ? (
-                <div className="flex items-center gap-3">
-                  <Spinner color="warning" size="lg" />
-                  <span className="text-[#F5F0E1]/60">Loading more highlights...</span>
-                </div>
-              ) : (
-                <Button
-                  variant="bordered"
-                  className="rounded-none border-[#DCFF37]/30 text-[#DCFF37]"
-                  onPress={() => fetchHighlights(page + 1, false)}
-                  startContent={<Icon icon="solar:refresh-linear" width={20} />}
-                >
-                  Load More
-                </Button>
-              )}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Video Player Modal */}
-      <Modal
-        isOpen={isVideoModalOpen}
-        onClose={() => {
-          setIsVideoModalOpen(false);
-          setSelectedHighlight(null);
-        }}
-        size="5xl"
-        classNames={{
-          base: "rounded-none bg-[#0a0a0a] border border-[#DCFF37]/30",
-          closeButton: "text-[#F5F0E1] hover:bg-[#DCFF37]/20",
-        }}
-      >
-        <ModalContent>
-          <ModalBody className="p-0">
-            {selectedHighlight && (
-              <div className="relative">
-                {/* Video Player Placeholder */}
-                <div className="aspect-video bg-[#1a1a1a] flex items-center justify-center">
-                  {selectedHighlight.video_url ? (
-                    <video
-                      src={selectedHighlight.video_url}
-                      controls
-                      autoPlay
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <Icon
-                        icon="solar:video-frame-play-bold"
-                        width={80}
-                        className="text-[#DCFF37]/30 mb-4"
-                      />
-                      <p className="text-[#F5F0E1]/50">Video preview not available</p>
-                      <p className="text-sm text-[#F5F0E1]/30 mt-2">
-                        {selectedHighlight.type} by {selectedHighlight.primary_player?.display_name}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Highlight Info */}
-                <div className="p-6 border-t border-[#DCFF37]/10">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Chip
-                        size="sm"
-                        className="rounded-none mb-2"
-                        style={{
-                          backgroundColor: getEventTypeColor(selectedHighlight.type),
-                          color: "#0a0a0a",
-                        }}
-                      >
-                        {selectedHighlight.type}
-                      </Chip>
-                      <h3 className="text-xl font-bold text-[#F5F0E1]">
-                        {selectedHighlight.title || selectedHighlight.type}
-                      </h3>
-                      <p className="text-[#F5F0E1]/60 mt-1">
-                        {selectedHighlight.primary_player?.display_name} on {selectedHighlight.map_name}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        isIconOnly
-                        variant="flat"
-                        className="rounded-none bg-[#FF4654]/20 text-[#FF4654]"
-                        onPress={() => handleLikeHighlight(selectedHighlight)}
-                      >
-                        <Icon icon="solar:heart-bold" width={20} />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        variant="flat"
-                        className="rounded-none bg-[#DCFF37]/20 text-[#DCFF37]"
-                        onPress={() => handleShareHighlight(selectedHighlight)}
-                      >
-                        <Icon icon="solar:share-bold" width={20} />
-                      </Button>
-                    </div>
+          {/* Additional Stats */}
+          <div className="z-10 w-full space-y-3">
+            <div className="rounded-lg bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 p-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                    {state.loading ? "..." : Math.floor(state.total / 50)}
+                  </div>
+                  <div className="text-xs text-white/70 dark:text-[#DCFF37]/70">
+                    Highlights/Day
                   </div>
                 </div>
+                <Icon
+                  icon="solar:calendar-bold"
+                  className="text-[#FF4654]/60 dark:text-[#DCFF37]/60"
+                  width={20}
+                />
               </div>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
-      {/* Call to Action */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="mt-16 relative overflow-hidden"
-      >
-        <div
-          className="p-8 md:p-12 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37] relative"
-          style={{
-            clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%)",
-          }}
-        >
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl font-black text-[#0a0a0a] mb-2">
-                Got Epic Plays?
-              </h3>
-              <p className="text-[#0a0a0a]/70 max-w-lg">
-                Upload your replays and let our AI automatically detect and create highlights from your best moments.
-              </p>
             </div>
-            <Button
-              size="lg"
-              className="rounded-none bg-[#0a0a0a] text-[#F5F0E1] font-bold px-8"
-              startContent={<Icon icon="solar:upload-bold" width={24} />}
-            >
-              Upload Replay
-            </Button>
+
+            <div className="rounded-lg bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 p-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                    {state.loading ? "..." : "4.2M"}
+                  </div>
+                  <div className="text-xs text-white/70 dark:text-[#DCFF37]/70">
+                    Total Views
+                  </div>
+                </div>
+                <Icon
+                  icon="solar:eye-bold"
+                  className="text-[#FF4654]/60 dark:text-[#DCFF37]/60"
+                  width={20}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 p-3 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                    {state.loading ? "..." : "92%"}
+                  </div>
+                  <div className="text-xs text-white/70 dark:text-[#DCFF37]/70">
+                    Clutch Success
+                  </div>
+                </div>
+                <Icon
+                  icon="solar:trophy-bold"
+                  className="text-[#FF4654]/60 dark:text-[#DCFF37]/60"
+                  width={20}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Filters Section */}
+          <div className="z-10 w-full space-y-4">
+            <div className="text-sm font-semibold text-white dark:text-[#DCFF37] uppercase tracking-wide">
+              Filters
+            </div>
+
+            {/* Game Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Game
+              </div>
+              <RadioGroup
+                aria-label="Game"
+                classNames={{
+                  wrapper: "gap-2",
+                }}
+                orientation="vertical"
+                value={selectedGame}
+                onValueChange={setSelectedGame}
+              >
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem color="#006FEE" tooltip="CS:2" value="cs2" />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    CS2
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem color="#F5A524" tooltip="CS:GO" value="csgo" />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    CS:GO
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-[#34445C]/30 dark:hover:bg-[#DCFF37]/10">
+                  <GameRadioItem
+                    color="#F31260"
+                    tooltip="Valorant"
+                    value="valorant"
+                  />
+                  <span className="text-sm text-white/90 dark:text-[#DCFF37]/90">
+                    Valorant
+                  </span>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Category Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Category
+              </div>
+              <Select
+                aria-label="Category"
+                classNames={{
+                  base: "w-full",
+                  trigger:
+                    "bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-white dark:text-[#DCFF37]",
+                  value: "text-white dark:text-[#DCFF37]",
+                }}
+                selectedKeys={[selectedCategory]}
+                onSelectionChange={(keys) =>
+                  handleCategoryChange(
+                    Array.from(keys)[0] as HighlightEventType | "all",
+                  )
+                }
+                placeholder="All Categories"
+                variant="bordered"
+                items={[
+                  { key: "all", label: "All Categories" },
+                  ...HIGHLIGHT_CATEGORIES,
+                ]}
+              >
+                {(item) => (
+                  <SelectItem key={item.key} value={item.key}>
+                    {item.label}
+                  </SelectItem>
+                )}
+              </Select>
+            </div>
+
+            {/* Sort Filter */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-white/80 dark:text-[#DCFF37]/80 uppercase tracking-wide">
+                Sort By
+              </div>
+              <Select
+                aria-label="Sort by"
+                classNames={{
+                  base: "w-full",
+                  trigger:
+                    "bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-white dark:text-[#DCFF37]",
+                  value: "text-white dark:text-[#DCFF37]",
+                }}
+                selectedKeys={[sortBy]}
+                onSelectionChange={(keys) =>
+                  handleSortChange(Array.from(keys)[0] as typeof sortBy)
+                }
+                placeholder="Select an option"
+                variant="bordered"
+              >
+                <SelectItem key="most_recent" value="most_recent">
+                  Most Recent
+                </SelectItem>
+                <SelectItem key="most_viewed" value="most_viewed">
+                  Most Viewed
+                </SelectItem>
+                <SelectItem key="most_liked" value="most_liked">
+                  Most Liked
+                </SelectItem>
+              </Select>
+            </div>
+          </div>
+
+          {/* Upload Button */}
+          {isAuthenticated && (
+            <div className="z-10 mt-auto w-full">
+              <Button
+                as="a"
+                href="/upload"
+                className="w-full bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold rounded-none shadow-lg hover:shadow-xl transition-all"
+                startContent={
+                  <Icon icon="solar:cloud-upload-bold" width={18} />
+                }
+              >
+                Upload Replay
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Mobile Header */}
+          <div className="lg:hidden bg-gradient-to-r from-[#34445C] to-[#2a3749] dark:from-[#0a0a0a] dark:to-[#111111] p-4 border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <div className="flex items-center gap-2">
+              <Icon
+                icon="solar:play-bold"
+                className="text-[#FF4654] dark:text-[#DCFF37]"
+                width={24}
+              />
+              <div className="text-lg font-bold text-white dark:text-[#DCFF37] uppercase tracking-tight">
+                Highlights
+              </div>
+            </div>
+            <div className="text-sm text-white/70 dark:text-[#DCFF37]/70 mt-1">
+              {state.total} epic moments captured
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-6">
+            {/* Search Input */}
+            <div className="mb-6">
+              <Input
+                type="text"
+                placeholder="Search highlights by player, type, map, or weapon..."
+                value={searchTerm}
+                onValueChange={setSearchTerm}
+                startContent={
+                  <Icon
+                    icon="solar:magnifer-bold"
+                    className="text-default-400"
+                    width={18}
+                  />
+                }
+                endContent={
+                  searchTerm && (
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      onPress={() => setSearchTerm("")}
+                      className="h-6 w-6 min-w-6"
+                    >
+                      <Icon icon="solar:close-circle-bold" width={14} />
+                    </Button>
+                  )
+                }
+                classNames={{
+                  base: "max-w-md",
+                  input: "text-sm",
+                  inputWrapper:
+                    "bg-[#34445C]/50 dark:bg-[#1a1a1a]/50 border-[#FF4654]/30 dark:border-[#DCFF37]/30",
+                }}
+              />
+            </div>
+
+            {/* Highlights Grid */}
+            {state.error ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Icon
+                  icon="solar:danger-triangle-bold"
+                  className="text-red-500 mb-4"
+                  width={48}
+                />
+                <h3 className="text-lg font-semibold text-default-900 mb-2">
+                  Error Loading Highlights
+                </h3>
+                <p className="text-default-500 text-center max-w-md">
+                  {state.error}
+                </p>
+                <Button
+                  className="mt-4"
+                  color="primary"
+                  onClick={() => fetchHighlights(1, false)}
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : state.highlights.length === 0 && !state.loading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Icon
+                  icon="solar:play-bold"
+                  className="text-default-400 mb-4"
+                  width={48}
+                />
+                <h3 className="text-lg font-semibold text-default-900 mb-2">
+                  No Highlights Found
+                </h3>
+                <p className="text-default-500 text-center max-w-md">
+                  {selectedGame !== "cs2" || selectedCategory !== "all"
+                    ? "Try adjusting your filters to see more highlights."
+                    : "Be the first to upload a replay and share your epic moments!"}
+                </p>
+                {isAuthenticated && (
+                  <Button
+                    as="a"
+                    href="/upload"
+                    className="mt-4 bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white"
+                    startContent={
+                      <Icon icon="solar:cloud-upload-bold" width={18} />
+                    }
+                  >
+                    Upload First Replay
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                  {state.highlights.map((highlight) => (
+                    <Card
+                      key={highlight.id}
+                      className="group hover:shadow-xl transition-all duration-300 border border-default-200 dark:border-default-100 cursor-pointer"
+                      onClick={() => handlePlayHighlight(highlight)}
+                    >
+                      <CardBody className="p-0">
+                        <div className="aspect-video bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/10 dark:to-[#34445C]/20 relative overflow-hidden">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Icon
+                              icon="solar:play-bold"
+                              className="text-white/80"
+                              width={48}
+                            />
+                          </div>
+                          <div className="absolute top-2 left-2">
+                            <Chip
+                              size="sm"
+                              color="primary"
+                              variant="shadow"
+                              className="text-xs"
+                            >
+                              {highlight.type}
+                            </Chip>
+                          </div>
+                          <div className="absolute top-2 right-2">
+                            <Chip
+                              size="sm"
+                              color="success"
+                              variant="shadow"
+                              className="text-xs"
+                            >
+                              {highlight.primary_player?.team || "Unknown"}
+                            </Chip>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-default-900 line-clamp-2 mb-2">
+                            {highlight.type} by{" "}
+                            {highlight.primary_player?.display_name ||
+                              "Unknown"}
+                          </h3>
+                          <div className="flex items-center justify-between text-sm text-default-500 mb-3">
+                            <span>
+                              {new Date(
+                                highlight.created_at || Date.now(),
+                              ).toLocaleDateString()}
+                            </span>
+                            <span>{highlight.views_count || 0} views</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              color="primary"
+                              variant="ghost"
+                              className="flex-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePlayHighlight(highlight);
+                              }}
+                            >
+                              Watch
+                            </Button>
+                            <Button
+                              size="sm"
+                              color="default"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShareHighlight(highlight);
+                              }}
+                            >
+                              <Icon icon="solar:share-bold" width={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Load More */}
+                {state.hasMore && (
+                  <div className="flex justify-center">
+                    <Button
+                      color="primary"
+                      variant="ghost"
+                      size="lg"
+                      isLoading={state.loading}
+                      onClick={handleLoadMore}
+                      className="min-w-[200px]"
+                    >
+                      {state.loading ? "Loading..." : "Load More"}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
-      </motion.div>
+      </div>
     </PageContainer>
   );
 }

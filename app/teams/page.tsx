@@ -2,21 +2,16 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type {
-  Team,
-  Squad as TeamCardSquad,
-} from "@/components/teams/team-card/App";
+import type { Team } from "@/components/teams/team-card/App";
 import { useOptionalAuth } from "@/hooks";
 import { useReplayApi } from "@/hooks/use-replay-api";
 
 import {
   Button,
-  Spacer,
   Input,
   Spinner,
   Card,
   CardBody,
-  Chip,
   useDisclosure,
 } from "@nextui-org/react";
 
@@ -126,7 +121,7 @@ export default function TeamsPage() {
           // Generate unique seed for avatar from squad name + member position
           const avatarSeed =
             m.nickname || `${squad.symbol || squad.name}-${index + 1}`;
-          const memberRole =
+          const _memberRole =
             m.type ||
             m.role ||
             m.roles?.[0] ||

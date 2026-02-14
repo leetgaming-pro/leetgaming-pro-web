@@ -1,15 +1,11 @@
-import RootLayout from '@/components/default-layout/default-layout';
-
+/**
+ * Home Layout
+ * Simple wrapper - no RootLayout here since it's already in app/layout.tsx
+ */
 export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <RootLayout>
-      <div>
-        {children}
-      </div>
-    </RootLayout>
-  );
+  return <>{children}</>;
 }

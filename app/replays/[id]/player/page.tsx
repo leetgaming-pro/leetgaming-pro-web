@@ -5,7 +5,7 @@ import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
 import { Card, CardBody, Button, Chip, Spinner, Slider, Tabs, Tab, Avatar } from "@nextui-org/react";
-import { MatchKillEvent, ScoreboardPlayer } from "@/types/replay-api/match-analytics.sdk";
+import { ScoreboardPlayer } from "@/types/replay-api/match-analytics.sdk";
 
 interface ReplayMeta {
   id: string;
@@ -40,6 +40,7 @@ export default function ReplayPlayerPage() {
   const [team1Score, setTeam1Score] = useState<number>(0);
   const [team2Score, setTeam2Score] = useState<number>(0);
   const [eventsLoaded, setEventsLoaded] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [timeline, setTimeline] = useState<any[]>([]);
   const [totalRounds, setTotalRounds] = useState<number>(0);
   const animationRef = useRef<number>();
@@ -55,7 +56,7 @@ export default function ReplayPlayerPage() {
     setError(null);
     try {
       // Fetch replay metadata
-      const all = await sdkRef.current!.replayFiles.searchReplayFiles({ id: replayId });
+      const all = await sdkRef.current?.replayFiles.searchReplayFiles({ id: replayId }) ?? [];
       const found = Array.isArray(all) ? all.find(r => r.id === replayId) : null;
       if (!found) {
         setError("Replay not found");
@@ -64,23 +65,25 @@ export default function ReplayPlayerPage() {
 
       const replayMeta: ReplayMeta = {
         id: found.id,
-        gameId: found.gameId,
+        gameId: found.game_id,
         matchId: found.matchId,
         status: found.status,
-        createdAt: new Date(found.createdAt).toISOString(),
+        createdAt: new Date(found.created_at).toISOString(),
         size: found.size,
       };
       setMeta(replayMeta);
 
       // Fetch events, scoreboard, and timeline using replay-specific endpoints
-      if (found.gameId && found.id) {
+      if (found.game_id && found.id) {
         try {
           // Fetch replay events (kills, rounds, etc.)
-          const eventsData = await sdkRef.current!.replayFiles.getReplayEvents(found.gameId, found.id);
+          const eventsData = await sdkRef.current?.replayFiles.getReplayEvents(found.game_id, found.id) ?? null;
           if (eventsData && eventsData.events) {
             // Transform events to local format
             const kills: KillEvent[] = eventsData.events
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               .filter((e: any) => e.Type === 'kill' || e.type === 'kill')
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               .map((k: any) => ({
                 tick: k.TickID || k.tick || 0,
                 killer: k.killer_name || k.killer || 'Unknown',
@@ -94,12 +97,14 @@ export default function ReplayPlayerPage() {
           }
 
           // Fetch replay scoreboard
-          const scoreboardData = await sdkRef.current!.replayFiles.getReplayScoreboard(found.gameId, found.id);
+          const scoreboardData = await sdkRef.current?.replayFiles.getReplayScoreboard(found.game_id, found.id) ?? null;
           if (scoreboardData && scoreboardData.teams) {
             // Extract players from team scoreboards
             const allPlayers: ScoreboardPlayer[] = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             scoreboardData.teams.forEach((team: any, teamIdx: number) => {
               if (team.Players) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 team.Players.forEach((p: any) => {
                   allPlayers.push({
                     player_id: p.ID || p.id || `player-${teamIdx}`,
@@ -115,13 +120,13 @@ export default function ReplayPlayerPage() {
             });
             setScoreboard(allPlayers);
             if (scoreboardData.teams.length >= 2) {
-              setTeam1Score(scoreboardData.teams[0]?.TeamScore || 0);
-              setTeam2Score(scoreboardData.teams[1]?.TeamScore || 0);
+              setTeam1Score(scoreboardData.teams[0]?.team_score || 0);
+              setTeam2Score(scoreboardData.teams[1]?.team_score || 0);
             }
           }
 
           // Fetch replay timeline
-          const timelineData = await sdkRef.current!.replayFiles.getReplayTimeline(found.gameId, found.id);
+          const timelineData = await sdkRef.current?.replayFiles.getReplayTimeline(found.game_id, found.id) ?? null;
           if (timelineData && timelineData.timeline) {
             setTimeline(timelineData.timeline);
             setTotalRounds(timelineData.total_rounds || 0);

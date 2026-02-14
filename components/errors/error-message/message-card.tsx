@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import {Avatar, Badge, Button, Link, Tooltip} from "@nextui-org/react";
-import {useClipboard} from "@nextui-org/use-clipboard";
-import {Icon} from "@iconify/react";
+import { Avatar, Badge, Button, Link, Tooltip } from "@nextui-org/react";
+import { useClipboard } from "@nextui-org/use-clipboard";
+import { Icon } from "@iconify/react";
 import { cl } from "@/components/cl";
 
 export type MessageCardProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -40,20 +40,28 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
     ref,
   ) => {
     const [feedback, setFeedback] = React.useState<"like" | "dislike">();
-    const [attemptFeedback, setAttemptFeedback] = React.useState<"like" | "dislike" | "same">();
+    const [attemptFeedback, setAttemptFeedback] = React.useState<
+      "like" | "dislike" | "same"
+    >();
 
     const messageRef = React.useRef<HTMLDivElement>(null);
 
-    const {copied, copy} = useClipboard();
+    const { copied, copy } = useClipboard();
 
     const failedMessageClassName =
-      status === "failed" ? "bg-danger-100/50 border border-danger-100 text-foreground" : "";
+      status === "failed"
+        ? "bg-danger-100/50 dark:bg-[#FF4654]/10 border border-danger-100 dark:border-[#FF4654]/30 text-foreground"
+        : "";
     const failedMessage = (
       <p>
-        Something went wrong, if the issue persists please contact us through our help center
-        at&nbsp;
-        <Link href="mailto:support@acmeai.com" size="sm">
-          support@acmeai.com
+        An unexpected error occurred. If the issue persists, please contact our
+        support team at&nbsp;
+        <Link
+          href="mailto:support@leetgaming.pro"
+          size="sm"
+          className="text-[#FF4654] dark:text-[#DCFF37]"
+        >
+          support@leetgaming.pro
         </Link>
       </p>
     );
@@ -67,9 +75,10 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
         stringValue = message;
       } else if (Array.isArray(message)) {
         message.forEach((child) => {
-          // @ts-ignore
           const childString =
-            typeof child === "string" ? child : child?.props?.children?.toString();
+            typeof child === "string"
+              ? child
+              : child?.props?.children?.toString();
 
           if (childString) {
             stringValue += childString + "\n";
@@ -108,7 +117,12 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
           <Badge
             isOneChar
             color="danger"
-            content={<Icon className="text-background" icon="gravity-ui:circle-exclamation-fill" />}
+            content={
+              <Icon
+                className="text-background"
+                icon="gravity-ui:circle-exclamation-fill"
+              />
+            }
             isInvisible={!hasFailed}
             placement="bottom-right"
             shape="circle"
@@ -129,11 +143,23 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
             </div>
             {showFeedback && !hasFailed && (
               <div className="absolute right-2 top-2 flex rounded-full bg-content2 shadow-small">
-                <Button isIconOnly radius="full" size="sm" variant="light" onPress={handleCopy}>
+                <Button
+                  isIconOnly
+                  radius="full"
+                  size="sm"
+                  variant="light"
+                  onPress={handleCopy}
+                >
                   {copied ? (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:check" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:check"
+                    />
                   ) : (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:copy" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:copy"
+                    />
                   )}
                 </Button>
                 <Button
@@ -144,9 +170,15 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                   onPress={() => handleFeedback(true)}
                 >
                   {feedback === "like" ? (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up-fill" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:thumbs-up-fill"
+                    />
                   ) : (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:thumbs-up"
+                    />
                   )}
                 </Button>
                 <Button
@@ -157,9 +189,15 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                   onPress={() => handleFeedback(false)}
                 >
                   {feedback === "dislike" ? (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down-fill" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:thumbs-down-fill"
+                    />
                   ) : (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down" />
+                    <Icon
+                      className="text-lg text-default-600"
+                      icon="gravity-ui:thumbs-down"
+                    />
                   )}
                 </Button>
               </div>
@@ -167,7 +205,11 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
             {attempts > 1 && !hasFailed && (
               <div className="flex w-full items-center justify-end">
                 <button
-                  onClick={() => onAttemptChange?.(currentAttempt > 1 ? currentAttempt - 1 : 1)}
+                  onClick={() =>
+                    onAttemptChange?.(
+                      currentAttempt > 1 ? currentAttempt - 1 : 1,
+                    )
+                  }
                 >
                   <Icon
                     className="cursor-pointer text-default-400 hover:text-default-500"
@@ -176,7 +218,9 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                 </button>
                 <button
                   onClick={() =>
-                    onAttemptChange?.(currentAttempt < attempts ? currentAttempt + 1 : attempts)
+                    onAttemptChange?.(
+                      currentAttempt < attempts ? currentAttempt + 1 : attempts,
+                    )
                   }
                 >
                   <Icon
@@ -192,7 +236,9 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
           </div>
           {showFeedback && attempts > 1 && (
             <div className="flex items-center justify-between rounded-medium border-small border-default-100 px-4 py-3 shadow-small">
-              <p className="text-small text-default-600">Was this response better or worse?</p>
+              <p className="text-small text-default-600">
+                Was this response better or worse?
+              </p>
               <div className="flex gap-1">
                 <Tooltip content="Better">
                   <Button
@@ -203,9 +249,15 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                     onPress={() => handleAttemptFeedback("like")}
                   >
                     {attemptFeedback === "like" ? (
-                      <Icon className="text-lg text-primary" icon="gravity-ui:thumbs-up-fill" />
+                      <Icon
+                        className="text-lg text-primary"
+                        icon="gravity-ui:thumbs-up-fill"
+                      />
                     ) : (
-                      <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up" />
+                      <Icon
+                        className="text-lg text-default-600"
+                        icon="gravity-ui:thumbs-up"
+                      />
                     )}
                   </Button>
                 </Tooltip>
@@ -223,7 +275,10 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                         icon="gravity-ui:thumbs-down-fill"
                       />
                     ) : (
-                      <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down" />
+                      <Icon
+                        className="text-lg text-default-600"
+                        icon="gravity-ui:thumbs-down"
+                      />
                     )}
                   </Button>
                 </Tooltip>
@@ -236,9 +291,15 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                     onPress={() => handleAttemptFeedback("same")}
                   >
                     {attemptFeedback === "same" ? (
-                      <Icon className="text-lg text-danger" icon="gravity-ui:face-sad" />
+                      <Icon
+                        className="text-lg text-danger"
+                        icon="gravity-ui:face-sad"
+                      />
                     ) : (
-                      <Icon className="text-lg text-default-600" icon="gravity-ui:face-sad" />
+                      <Icon
+                        className="text-lg text-default-600"
+                        icon="gravity-ui:face-sad"
+                      />
                     )}
                   </Button>
                 </Tooltip>

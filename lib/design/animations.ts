@@ -374,7 +374,7 @@ export const gestures = {
     drag: 'y' as const,
     dragConstraints: { top: 0, bottom: 600 },
     dragElastic: { top: 0, bottom: 0.7 },
-    onDragEnd: (event: any, info: { offset: { y: number } }) => {
+    onDragEnd: (_event: unknown, info: { offset: { y: number } }) => {
       if (info.offset.y > 100) {
         // Trigger dismiss
         return true;

@@ -20,6 +20,7 @@ export interface ReplayFileRow {
   ticks: number;
   frames: number;
   signon_length: number;
+  [key: string]: unknown; // Allow string indexing
 }
 
 export interface Column {
@@ -36,7 +37,7 @@ const columns: Column[] = [
   { name: "URL", uid: "url" },
   { name: "Status", uid: "status" },
   { name: "CreatedAt", uid: "created_at" },
-  { name: "UpdatedAt", uid: "updated_at"},
+  { name: "UpdatedAt", uid: "updated_at" },
   { name: "ResourceOwner", uid: "resource_owner" },
   { name: "Error", uid: "error" },
   { name: "Filestamp", uid: "filestamp" },
@@ -58,7 +59,6 @@ const statusOptions = [
   { name: "Failed", uid: "failed" },
   { name: "Ready", uid: "ready" },
 ];
-
 
 const visibilityOptions = [
   { name: "Public (Everyone)", uid: "public" },
@@ -226,9 +226,7 @@ const replayFiles: ReplayFileRow[] = [
     ticks: 7,
     frames: 7,
     signon_length: 7,
-  }
-]
-
+  },
+];
 
 export { columns, visibilityOptions, replayFiles, statusOptions };
-export type { ReplayFileRow, Column };

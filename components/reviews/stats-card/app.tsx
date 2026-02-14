@@ -2,7 +2,7 @@ import React from "react";
 
 // import SummaryRatingCard from "./summary-rating-card";
 
-const ratings = [
+const _ratings = [
   {
     rating: 5,
     count: 120,

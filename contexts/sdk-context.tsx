@@ -20,18 +20,20 @@ import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
 
 /**
- * Get the API base URL from environment variables
- * Priority: NEXT_PUBLIC_REPLAY_API_URL > REPLAY_API_URL > default localhost
+ * Get the API base URL
+ * Client-side: Always use /api to route through Next.js API routes (avoids CORS)
+ * Server-side: Use environment variables for direct backend access
  */
 function getApiBaseUrl(): string {
   if (typeof window !== "undefined") {
-    // Client-side: use NEXT_PUBLIC_ prefixed env var
-    return process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
+    // Client-side: Always use Next.js API routes to avoid CORS issues
+    // Requests to /api/* are proxied server-side to the backend
+    return "/api";
   }
-  // Server-side: can access both
+  // Server-side: Use internal service URL or default
   return (
-    process.env.NEXT_PUBLIC_REPLAY_API_URL ||
     process.env.REPLAY_API_URL ||
+    process.env.NEXT_PUBLIC_REPLAY_API_URL ||
     "http://localhost:8080"
   );
 }
@@ -60,7 +62,7 @@ export function SDKProvider({ children }: SDKProviderProps) {
         ...ReplayApiSettingsMock,
         baseUrl,
       },
-      logger
+      logger,
     );
   }, []);
 
@@ -69,7 +71,7 @@ export function SDKProvider({ children }: SDKProviderProps) {
       sdk,
       isReady: true,
     }),
-    [sdk]
+    [sdk],
   );
 
   return <SDKContext.Provider value={value}>{children}</SDKContext.Provider>;
@@ -109,7 +111,7 @@ export function getServerSDK(): ReplayAPISDK {
         ...ReplayApiSettingsMock,
         baseUrl,
       },
-      logger
+      logger,
     );
   }
   return serverSDKInstance;

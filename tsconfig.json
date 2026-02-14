@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,7 +18,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -32,6 +32,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/cloud/[group_id]/dropzone/page.tsx_todo", "app/cloud/[group_id]/layout.tsx_todo", "app/cloud/[group_id]/page.tsx_todo", "app/cloud/layout.tsx_todo", "app/match/[matchid]/page.tsx_todo", "app/cloud/page.tsx_todo", "app/match/[matchid]/rounds/page.tsx_todo", "app/match/[matchid]/round/[roundnumber]/player/[player_id]/page.tsx_todo", "app/replays/[id]/page.tsx_todo", "components/replay/match-analyzer/app.tsx_todo", "components/filters/game-event-filter/sidebar/filters-wrapper.tsx_todo", "components/filters/game-event-filter/sidebar/app.tsx_todo", "components/replay/match-analyzer/order-summary-item.tsx_todo", "components/replay/game-events/mapcard/mapcard-area-editor.tsx_todo", "components/replay/game-events/mapcard/mapcard-large-view/app.tsx_todo"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

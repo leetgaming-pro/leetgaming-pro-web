@@ -6,13 +6,29 @@
 import { DistributionRule } from '@/components/match-making/prize-distribution-selector';
 
 // Lobby Status Lifecycle
-// IMPORTANT: These MUST match backend Go enum values in replay-api/pkg/domain/matchmaking/entities/lobby.go
+// IMPORTANT: These MUST match backend Go enum values
 export type LobbyStatus =
-  | 'open'           // Lobby accepting players (backend: LobbyStatusOpen)
-  | 'ready_check'    // Countdown active, checking player readiness (backend: LobbyStatusReadyCheck)
-  | 'starting'       // Creating match, all ready (backend: LobbyStatusStarting)
-  | 'started'        // Match in progress (backend: LobbyStatusStarted)
-  | 'cancelled';     // Lobby was cancelled (backend: LobbyStatusCancelled)
+  | 'open'           // Lobby accepting players
+  | 'ready_check'    // Countdown active, checking player readiness
+  | 'starting'       // Creating match, all ready
+  | 'started'        // Match in progress
+  | 'cancelled'      // Lobby was cancelled
+  | 'completed';     // Match finished
+
+// Lobby Visibility - Controls who can see and join
+export type LobbyVisibility =
+  | 'public'         // Anyone can see and join
+  | 'private'        // Invite only, hidden from browse
+  | 'matchmaking'    // System managed, limited info shown
+  | 'friends';       // Only friends can see/join
+
+// Lobby Type - Defines the purpose of the lobby
+export type LobbyType =
+  | 'custom'         // Player-created custom lobby
+  | 'ranked'         // Ranked competitive
+  | 'casual'         // Casual unranked
+  | 'tournament'     // Tournament match
+  | 'practice';      // Practice/scrimmage
 
 // Legacy status mappings for backwards compatibility
 export const LobbyStatusMap = {
@@ -23,7 +39,7 @@ export const LobbyStatusMap = {
   started: 'started',
   in_progress: 'started',       // Legacy alias
   cancelled: 'cancelled',
-  completed: 'started',         // Matches complete through match system
+  completed: 'completed',
   expired: 'cancelled',         // Expired lobbies are treated as cancelled
 } as const;
 
@@ -36,38 +52,72 @@ export interface PlayerSlot {
   joined_at?: string;
   mmr?: number;
   rank?: string;
+  team?: number;        // 0=unassigned, 1=team1, 2=team2
+  is_spectator?: boolean;
+}
+
+// Skill Range for matchmaking
+export interface SkillRange {
+  min_mmr: number;
+  max_mmr: number;
+}
+
+// Prize Pool Configuration
+export interface PrizePoolConfig {
+  entry_fee_cents: number;
+  prize_pool_id?: string;
+  distribution_rule: DistributionRule;
+}
+
+// Queue Stats for matchmaking lobbies
+export interface QueueStats {
+  players_waiting: number;
+  average_wait_time_seconds: number;
+  estimated_wait_time_seconds: number;
 }
 
 // Matchmaking Lobby
 export interface MatchmakingLobby {
   id: string;
+  tenant_id?: string;
+  client_id?: string;
   creator_id: string;
+  
+  // Game Configuration
   game_id: string;
   game_mode: string;
+  map_pool?: string[];
   region: string;
 
-  // Lobby Configuration
+  // Lobby Settings
+  name: string;
+  description?: string;
+  type: LobbyType;
+  visibility: LobbyVisibility;
+  is_featured?: boolean;
+  tags?: string[];
+
+  // Player Configuration
   max_players: number;
   min_players: number;
   requires_ready_check: boolean;
   allow_spectators: boolean;
+  allow_cross_platform: boolean;
 
-  // Player Management
+  // Players
   player_slots: PlayerSlot[];
-  spectator_ids: string[];
+  spectator_ids?: string[];
+
+  // Skill/Ranking
+  skill_range?: SkillRange;
+  max_ping?: number;
 
   // Prize Pool
-  prize_pool_id: string;
-  entry_fee_cents: number;
-  distribution_rule: DistributionRule;
-
-  // Match Settings
-  skill_range?: {
-    min_mmr: number;
-    max_mmr: number;
-  };
-  max_ping?: number;
-  allow_cross_platform: boolean;
+  prize_pool?: PrizePoolConfig;
+  // Legacy fields for compatibility
+  prize_pool_id?: string;
+  entry_fee_cents?: number;
+  distribution_rule?: DistributionRule;
 
   // Status & Timing
   status: LobbyStatus;
@@ -81,19 +131,50 @@ export interface MatchmakingLobby {
   match_id?: string;
   winner_player_ids?: string[];
 
+  // Queue Stats (for matchmaking type lobbies)
+  queue_stats?: QueueStats;
+
   // Metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
+}
+
+// Computed properties helper
+export function getLobbyPlayerCount(lobby: MatchmakingLobby): number {
+  return lobby.player_slots?.filter(s => s.player_id && !s.is_spectator).length || 0;
+}
+
+export function getLobbyReadyCount(lobby: MatchmakingLobby): number {
+  return lobby.player_slots?.filter(s => s.player_id && s.is_ready && !s.is_spectator).length || 0;
+}
+
+export function isLobbyFull(lobby: MatchmakingLobby): boolean {
+  return getLobbyPlayerCount(lobby) >= lobby.max_players;
+}
+
+export function canLobbyStart(lobby: MatchmakingLobby): boolean {
+  return getLobbyReadyCount(lobby) >= lobby.min_players;
 }
 
 // Create Lobby Request
 export interface CreateLobbyRequest {
+  // Required fields
+  creator_id: string;
   game_id: string;
-  game_mode: string;
-  region: string;
+  game_mode?: string;
+  region?: string;
   max_players: number;
+  
+  // Lobby settings
+  name: string;
+  description?: string;
+  type?: LobbyType;
+  visibility?: LobbyVisibility;
+  
+  // Optional settings
   min_players?: number;
-  distribution_rule: DistributionRule;
+  distribution_rule?: DistributionRule;
   entry_fee_cents?: number;
+  prize_pool?: PrizePoolConfig;
   skill_range?: {
     min_mmr: number;
     max_mmr: number;
@@ -102,7 +183,9 @@ export interface CreateLobbyRequest {
   allow_cross_platform?: boolean;
   requires_ready_check?: boolean;
   allow_spectators?: boolean;
-  metadata?: Record<string, any>;
+  map_pool?: string[];
+  tags?: string[];
+  metadata?: Record<string, unknown>;
 }
 
 // Create Lobby Response

@@ -201,7 +201,7 @@ export const services: ServiceStatus[] = [
     ],
   },
   {
-    name: "Redis Cache",
+    name: "Dragonfly Cache",
     status: "operational",
     latency: 5,
     uptime: 99.97,
@@ -577,7 +577,7 @@ export const roadmapPhases: RoadmapPhase[] = [
     items: [
       { name: "Multi-region DB replication", status: "planned" },
       { name: "CDN optimization", status: "planned" },
-      { name: "Redis caching layer", status: "in-progress" },
+      { name: "Dragonfly caching layer", status: "in-progress" },
       { name: "GraphQL layer (optional)", status: "planned" },
     ],
   },
@@ -604,7 +604,7 @@ export const techStack = [
   { name: "Next.js 15", icon: "logos:nextjs-icon", desc: "Frontend" },
   { name: "TypeScript", icon: "logos:typescript-icon", desc: "Type Safety" },
   { name: "MongoDB", icon: "logos:mongodb-icon", desc: "Database" },
-  { name: "Redis", icon: "logos:redis", desc: "Cache" },
+  { name: "Dragonfly", icon: "logos:redis", desc: "Cache" },
   { name: "Kafka", icon: "logos:kafka-icon", desc: "Events" },
   { name: "Kubernetes", icon: "logos:kubernetes", desc: "Orchestration" },
   { name: "Terraform", icon: "logos:terraform-icon", desc: "IaC" },

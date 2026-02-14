@@ -23,8 +23,8 @@ export default function TierSelectionForm() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      {/* Header - Compact for mobile */}
       <div className="text-center space-y-2">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -32,24 +32,24 @@ export default function TierSelectionForm() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="inline-block"
         >
-          <div className="rounded-full bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/30 dark:to-[#34445C]/30 p-4 mb-3 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
+          <div className="rounded-full bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/30 dark:to-[#34445C]/30 p-3 sm:p-4 mb-2 border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
             <Icon
               icon="solar:crown-bold-duotone"
-              width={48}
-              className="text-[#FF4654] dark:text-[#DCFF37]"
+              width={36}
+              className="text-[#FF4654] dark:text-[#DCFF37] sm:w-12 sm:h-12"
             />
           </div>
         </motion.div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
+        <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] bg-clip-text text-transparent">
           Choose Your Tier
         </h3>
-        <p className="text-default-500">
+        <p className="text-sm text-default-500">
           Select a tier that matches your competitive goals
         </p>
       </div>
 
-      {/* Tier Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Tier Grid - Single column on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {Object.values(TIER_BENEFITS).map((tier, index) => {
           const isSelected = state.tier === tier.tier;
 
@@ -76,12 +76,12 @@ export default function TierSelectionForm() {
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#FF4654] dark:from-[#DCFF37] dark:via-[#34445C] dark:to-[#DCFF37]" />
                 )}
 
-                <CardBody className="p-6 space-y-4">
+                <CardBody className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                   {/* Header with icon and price */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div
-                        className={`p-2 rounded-lg bg-gradient-to-br ${
+                        className={`p-1.5 sm:p-2 rounded-lg bg-gradient-to-br ${
                           isSelected
                             ? "from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/30 dark:to-[#34445C]/30"
                             : "from-default-100 to-default-200 dark:from-default-100/20 dark:to-default-200/20"
@@ -89,17 +89,17 @@ export default function TierSelectionForm() {
                       >
                         <Icon
                           icon={tier.icon}
-                          width={28}
-                          className={
+                          width={24}
+                          className={`sm:w-7 sm:h-7 ${
                             isSelected
                               ? "text-[#FF4654] dark:text-[#DCFF37]"
                               : "text-default-500"
-                          }
+                          }`}
                         />
                       </div>
                       <div>
                         <h4
-                          className={`text-lg font-bold ${
+                          className={`text-base sm:text-lg font-bold ${
                             isSelected
                               ? "text-[#FF4654] dark:text-[#DCFF37]"
                               : "text-[#34445C] dark:text-[#F5F0E1]"
@@ -107,7 +107,7 @@ export default function TierSelectionForm() {
                         >
                           {tier.name}
                         </h4>
-                        <p className="text-xs text-default-500">
+                        <p className="text-[10px] sm:text-xs text-default-500">
                           {tier.waitTimeReduction}% faster queue
                         </p>
                       </div>
@@ -116,7 +116,7 @@ export default function TierSelectionForm() {
                       <Chip
                         size="sm"
                         variant="flat"
-                        className={`rounded-none font-bold ${
+                        className={`rounded-none font-bold text-xs ${
                           isSelected
                             ? "bg-[#FF4654]/20 dark:bg-[#DCFF37]/30 text-[#FF4654] dark:text-[#DCFF37]"
                             : "bg-default-100 text-default-600"
@@ -128,17 +128,20 @@ export default function TierSelectionForm() {
                       <Chip
                         size="sm"
                         variant="flat"
-                        className="rounded-none bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold"
+                        className="rounded-none bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold text-xs"
                       >
                         FREE
                       </Chip>
                     )}
                   </div>
 
-                  {/* Features list */}
-                  <ul className="space-y-2">
-                    {tier.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
+                  {/* Features list - limit on mobile */}
+                  <ul className="space-y-1.5 sm:space-y-2">
+                    {tier.features.slice(0, 3).map((feature, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2 text-xs sm:text-sm"
+                      >
                         <Icon
                           icon="solar:check-circle-bold"
                           className={`mt-0.5 flex-shrink-0 ${
@@ -146,7 +149,7 @@ export default function TierSelectionForm() {
                               ? "text-[#FF4654] dark:text-[#DCFF37]"
                               : "text-green-500"
                           }`}
-                          width={16}
+                          width={14}
                         />
                         <span className="text-[#34445C]/80 dark:text-[#F5F0E1]/70">
                           {feature}

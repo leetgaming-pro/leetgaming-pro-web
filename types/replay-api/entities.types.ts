@@ -1,4 +1,4 @@
-import { ResourceOwner } from "./replay-file";
+import { ResourceOwner, ReplayFileStatus } from "./replay-file";
 import {
   IntendedAudienceKey,
   VisibilityTypeKey,
@@ -241,13 +241,32 @@ export interface ShareToken extends BaseEntity {
  * Based on replay-api/pkg/domain/match.go
  */
 export interface Match extends BaseEntity {
-  game_id: GameIDKey;
+  region_id: string;
   replay_file_id: string;
-  network_id: string;
-  map_name: string;
-  visibility: VisibilityTypeKey;
+  game_id: GameIDKey;
+  scoreboard?: {
+    team_scoreboards?: any[];
+    match_mvp?: any;
+  };
+  teams?: any[];
+  event_count?: number;
+  visibility: string; // MatchVisibility enum
   share_tokens?: string[];
-  metadata?: Record<string, any>;
+}
+
+/**
+ * Replay file entity interface (API response shape)
+ * Based on replay-api/pkg/domain/replay/entities/replay_file.go
+ * Note: Use ReplayFile class from replay-file.ts for client-side usage
+ */
+export interface ReplayFileEntity extends BaseEntity {
+  game_id: GameIDKey;
+  network_id: string;
+  size: number;
+  uri: string;
+  status: ReplayFileStatus;
+  error?: string;
+  header?: any;
 }
 
 /**

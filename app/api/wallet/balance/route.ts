@@ -3,44 +3,64 @@
  * GET - Get user's wallet balance
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { logger } from '@/lib/logger';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
-import type { UserWallet } from '@/types/replay-api/wallet.types';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { logger } from "@/lib/logger";
+import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
+import type { UserWallet } from "@/types/replay-api/wallet.types";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/wallet/balance - Get user's wallet balance
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+        { success: false, error: "Authentication required" },
+        { status: 401 },
       );
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
+    // Get auth headers from cookies first, then fallback to session
+    let authHeaders = getAuthHeadersFromCookies();
 
-    logger.info('[API /api/wallet/balance] Fetching wallet balance');
-
-    // Forward request to replay-api backend
-    const response = await fetch(`${ReplayApiSettingsMock.baseUrl}/wallet/balance`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    // If no RID in cookies, use session RID (set by NextAuth callback)
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = {
         ...authHeaders,
-      },
+        "X-Resource-Owner-ID": session.user.rid,
+      };
+      logger.info(
+        "[API /api/wallet/balance] Using session RID instead of cookie",
+      );
+    }
+
+    logger.info("[API /api/wallet/balance] Fetching wallet balance", {
+      hasRID: !!authHeaders["X-Resource-Owner-ID"],
     });
 
+    // Forward request to replay-api backend
+    const response = await fetch(
+      `${ReplayApiSettingsMock.baseUrl}/wallet/balance`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+        },
+      },
+    );
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to get wallet balance' }));
-      logger.error('[API /api/wallet/balance] Backend error', {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "Failed to get wallet balance" }));
+      logger.error("[API /api/wallet/balance] Backend error", {
         status: response.status,
         error: errorData,
       });
@@ -48,27 +68,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: errorData.message || 'Failed to get wallet balance',
+          error: errorData.message || "Failed to get wallet balance",
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
     const data: UserWallet = await response.json();
 
-    logger.info('[API /api/wallet/balance] Wallet balance retrieved', {
+    logger.info("[API /api/wallet/balance] Wallet balance retrieved", {
       wallet_id: data.id,
     });
 
     return NextResponse.json(data);
   } catch (error) {
-    logger.error('[API /api/wallet/balance] Error getting wallet balance', error);
+    logger.error(
+      "[API /api/wallet/balance] Error getting wallet balance",
+      error,
+    );
     return NextResponse.json(
       {
         success: false,
-        error: (error instanceof Error ? error.message : 'Failed to get wallet balance'),
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get wallet balance",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

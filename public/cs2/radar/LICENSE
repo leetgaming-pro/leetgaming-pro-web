@@ -1,0 +1,82 @@
+# CS2 Radar Images License
+
+## Overview
+
+This directory contains radar/overview images for Counter-Strike 2 maps.
+Each image may have different licensing terms based on its source.
+
+---
+
+## Image Attribution
+
+### de_inferno.webp
+- **Source**: Community contribution
+- **License**: For use within this project only
+- **Notes**: Original source attribution pending verification
+
+### [Placeholder for additional maps]
+
+When adding new radar images, update this file with:
+- Source (where the image came from)
+- License type (MIT, CC-BY, etc.)
+- Original author/creator
+- URL to original source
+
+---
+
+## General Terms
+
+### Permitted Uses
+- ✅ Display within the LeetGaming platform
+- ✅ Internal development and testing
+- ✅ Non-commercial educational purposes
+
+### Restrictions
+- ❌ Redistribution outside this project without proper licensing
+- ❌ Commercial resale of radar images
+- ❌ Claiming ownership of Valve's intellectual property
+
+---
+
+## Valve Corporation Notice
+
+Counter-Strike 2 and related map names (de_dust2, de_mirage, etc.) are 
+trademarks of Valve Corporation. The radar overview designs depicted in 
+these images are based on map layouts from Counter-Strike 2.
+
+This project and its radar visualizations are not affiliated with, 
+endorsed, or sponsored by Valve Corporation.
+
+---
+
+## Adding New Images
+
+When contributing radar images, you must:
+
+1. Verify you have the right to use and distribute the image
+2. Add proper attribution to this LICENSE file
+3. Include the license type (MIT, CC-BY, CC-BY-SA, etc.)
+4. Provide a link to the original source
+
+### Attribution Template
+
+```
+### de_[mapname].webp
+- **Source**: [Project/Website Name]
+- **License**: [License Type, e.g., MIT, CC-BY-4.0]
+- **Author**: [Original Creator]
+- **URL**: [Link to source]
+- **Date Added**: [YYYY-MM-DD]
+```
+
+---
+
+## Contact
+
+For licensing questions or to report attribution issues:
+- Open an issue in the project repository
+- Contact the maintainers
+
+---
+
+*This LICENSE file should be updated whenever new radar images are added.*

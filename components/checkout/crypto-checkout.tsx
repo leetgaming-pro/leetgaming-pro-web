@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Card,
@@ -10,15 +10,10 @@ import {
   Snippet,
   Tab,
   Tabs,
-  Tooltip,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useCheckout } from './checkout-context';
-import {
-  CryptoNetwork,
-  CryptoCurrency,
-  CRYPTO_NETWORK_LABELS,
-} from './types';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useCheckout } from "./checkout-context";
+import { CryptoNetwork, CryptoCurrency, CRYPTO_NETWORK_LABELS } from "./types";
 
 interface CryptoCheckoutProps {
   cryptoAddress: string;
@@ -31,16 +26,16 @@ interface CryptoCheckoutProps {
 }
 
 const NETWORK_ICONS: Record<CryptoNetwork, string> = {
-  [CryptoNetwork.ETHEREUM]: 'cryptocurrency:eth',
-  [CryptoNetwork.POLYGON]: 'cryptocurrency:matic',
-  [CryptoNetwork.ARBITRUM]: 'simple-icons:arbitrum',
-  [CryptoNetwork.BASE]: 'simple-icons:coinbase',
+  [CryptoNetwork.ETHEREUM]: "cryptocurrency:eth",
+  [CryptoNetwork.POLYGON]: "cryptocurrency:matic",
+  [CryptoNetwork.ARBITRUM]: "simple-icons:arbitrum",
+  [CryptoNetwork.BASE]: "simple-icons:coinbase",
 };
 
 const CURRENCY_ICONS: Record<CryptoCurrency, string> = {
-  [CryptoCurrency.ETH]: 'cryptocurrency:eth',
-  [CryptoCurrency.USDC]: 'cryptocurrency:usdc',
-  [CryptoCurrency.USDT]: 'cryptocurrency:usdt',
+  [CryptoCurrency.ETH]: "cryptocurrency:eth",
+  [CryptoCurrency.USDC]: "cryptocurrency:usdc",
+  [CryptoCurrency.USDT]: "cryptocurrency:usdt",
 };
 
 /**
@@ -56,9 +51,11 @@ export function CryptoCheckout({
   onSuccess,
   onError,
 }: CryptoCheckoutProps) {
-  const { state } = useCheckout();
-  const [selectedNetwork, setSelectedNetwork] = useState<CryptoNetwork>(cryptoNetwork);
-  const [selectedCurrency, setSelectedCurrency] = useState<CryptoCurrency>(cryptoCurrency);
+  const { state: _checkoutState } = useCheckout();
+  const [selectedNetwork, setSelectedNetwork] =
+    useState<CryptoNetwork>(cryptoNetwork);
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<CryptoCurrency>(cryptoCurrency);
   const [isPolling, setIsPolling] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
   const [pollAttempts, setPollAttempts] = useState(0);
@@ -66,7 +63,7 @@ export function CryptoCheckout({
   // Timer countdown
   useEffect(() => {
     if (timeRemaining <= 0) {
-      onError('Payment session expired. Please try again.');
+      onError("Payment session expired. Please try again.");
       return;
     }
 
@@ -86,12 +83,12 @@ export function CryptoCheckout({
         const response = await fetch(`/api/payments/${paymentId}`);
         const result = await response.json();
 
-        if (result.success && result.data.status === 'succeeded') {
+        if (result.success && result.data.status === "succeeded") {
           setIsPolling(false);
           onSuccess();
-        } else if (result.data.status === 'failed') {
+        } else if (result.data.status === "failed") {
           setIsPolling(false);
-          onError('Payment verification failed');
+          onError("Payment verification failed");
         }
 
         setPollAttempts((prev) => prev + 1);
@@ -101,7 +98,7 @@ export function CryptoCheckout({
           setIsPolling(false);
         }
       } catch (error) {
-        console.error('Poll error:', error);
+        console.error("Poll error:", error);
       }
     }, 10000); // Poll every 10 seconds
 
@@ -111,12 +108,12 @@ export function CryptoCheckout({
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const formatAmount = (amount: number, currency: string): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+  const _formatAmount = (amount: number, currency: string): string => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency.toUpperCase(),
     }).format(amount / 100);
   };
@@ -125,7 +122,7 @@ export function CryptoCheckout({
     setIsPolling(true);
   };
 
-  const copyAddress = () => {
+  const _copyAddress = () => {
     navigator.clipboard.writeText(cryptoAddress);
   };
 
@@ -141,11 +138,13 @@ export function CryptoCheckout({
             <Tabs
               aria-label="Network selection"
               selectedKey={selectedNetwork}
-              onSelectionChange={(key) => setSelectedNetwork(key as CryptoNetwork)}
+              onSelectionChange={(key) =>
+                setSelectedNetwork(key as CryptoNetwork)
+              }
               classNames={{
-                tabList: 'gap-2 w-full bg-content1 p-1 rounded-lg',
-                tab: 'h-10',
-                cursor: 'bg-primary',
+                tabList: "gap-2 w-full bg-content1 p-1 rounded-lg",
+                tab: "h-10",
+                cursor: "bg-primary",
               }}
             >
               {Object.entries(CRYPTO_NETWORK_LABELS).map(([key, label]) => (
@@ -157,7 +156,9 @@ export function CryptoCheckout({
                         icon={NETWORK_ICONS[key as CryptoNetwork]}
                         className="w-4 h-4"
                       />
-                      <span className="hidden sm:inline">{label.split(' ')[0]}</span>
+                      <span className="hidden sm:inline">
+                        {label.split(" ")[0]}
+                      </span>
                     </div>
                   }
                 />
@@ -174,8 +175,8 @@ export function CryptoCheckout({
               {Object.values(CryptoCurrency).map((currency) => (
                 <Button
                   key={currency}
-                  variant={selectedCurrency === currency ? 'solid' : 'bordered'}
-                  color={selectedCurrency === currency ? 'primary' : 'default'}
+                  variant={selectedCurrency === currency ? "solid" : "bordered"}
+                  color={selectedCurrency === currency ? "primary" : "default"}
                   onPress={() => setSelectedCurrency(currency)}
                   startContent={
                     <Icon icon={CURRENCY_ICONS[currency]} className="w-5 h-5" />
@@ -192,7 +193,10 @@ export function CryptoCheckout({
             <div className="flex justify-between items-center mb-4">
               <span className="text-default-500">Amount to send</span>
               <div className="flex items-center gap-2">
-                <Icon icon={CURRENCY_ICONS[selectedCurrency]} className="w-5 h-5" />
+                <Icon
+                  icon={CURRENCY_ICONS[selectedCurrency]}
+                  className="w-5 h-5"
+                />
                 <span className="text-xl font-bold">
                   {(amount / 100).toFixed(2)} {selectedCurrency}
                 </span>
@@ -204,7 +208,9 @@ export function CryptoCheckout({
                 color="warning"
                 variant="flat"
                 size="sm"
-                startContent={<Icon icon="solar:clock-circle-bold" className="w-4 h-4" />}
+                startContent={
+                  <Icon icon="solar:clock-circle-bold" className="w-4 h-4" />
+                }
               >
                 {formatTime(timeRemaining)} remaining
               </Chip>
@@ -218,8 +224,8 @@ export function CryptoCheckout({
                 symbol=""
                 variant="bordered"
                 classNames={{
-                  base: 'w-full bg-content2',
-                  pre: 'text-xs break-all whitespace-pre-wrap',
+                  base: "w-full bg-content2",
+                  pre: "text-xs break-all whitespace-pre-wrap",
                 }}
               >
                 {cryptoAddress}
@@ -227,11 +233,17 @@ export function CryptoCheckout({
             </div>
 
             <div className="flex items-start gap-2 p-3 bg-warning/10 border border-warning/20 rounded-lg">
-              <Icon icon="solar:danger-triangle-bold" className="text-warning w-5 h-5 mt-0.5 flex-shrink-0" />
+              <Icon
+                icon="solar:danger-triangle-bold"
+                className="text-warning w-5 h-5 mt-0.5 flex-shrink-0"
+              />
               <div className="text-sm">
                 <p className="font-medium text-warning">Important</p>
                 <ul className="text-default-500 list-disc list-inside space-y-1 mt-1">
-                  <li>Only send {selectedCurrency} on {CRYPTO_NETWORK_LABELS[selectedNetwork]}</li>
+                  <li>
+                    Only send {selectedCurrency} on{" "}
+                    {CRYPTO_NETWORK_LABELS[selectedNetwork]}
+                  </li>
                   <li>Minimum confirmations required: 12</li>
                   <li>Sending other tokens may result in permanent loss</li>
                 </ul>
@@ -243,7 +255,10 @@ export function CryptoCheckout({
           <div className="flex justify-center mb-6">
             <div className="bg-white p-4 rounded-lg">
               <div className="w-48 h-48 bg-neutral-200 flex items-center justify-center">
-                <Icon icon="solar:qr-code-bold" className="w-32 h-32 text-neutral-400" />
+                <Icon
+                  icon="solar:qr-code-bold"
+                  className="w-32 h-32 text-neutral-400"
+                />
               </div>
             </div>
           </div>
@@ -256,10 +271,14 @@ export function CryptoCheckout({
             isLoading={isPolling}
             onPress={handleConfirmPayment}
             startContent={
-              !isPolling && <Icon icon="solar:check-circle-bold" className="w-5 h-5" />
+              !isPolling && (
+                <Icon icon="solar:check-circle-bold" className="w-5 h-5" />
+              )
             }
           >
-            {isPolling ? 'Waiting for confirmation...' : "I've sent the payment"}
+            {isPolling
+              ? "Waiting for confirmation..."
+              : "I've sent the payment"}
           </Button>
 
           {isPolling && (
@@ -269,7 +288,7 @@ export function CryptoCheckout({
                 isIndeterminate
                 aria-label="Waiting for blockchain confirmation"
                 classNames={{
-                  indicator: 'bg-primary',
+                  indicator: "bg-primary",
                 }}
               />
               <p className="text-center text-sm text-default-500 mt-2">

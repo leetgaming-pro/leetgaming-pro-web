@@ -29,7 +29,7 @@ interface ReplayMeta {
   id: string;
   gameId: string;
   matchId?: string;
-  status: "pending" | "processing" | "ready" | "failed";
+  status: "pending" | "processing" | "ready" | "completed" | "failed";
   createdAt: string;
   updatedAt?: string;
   size?: number;
@@ -61,6 +61,11 @@ const statusConfig = {
     icon: "solar:check-circle-bold",
     label: "Ready",
   },
+  completed: {
+    color: "success" as const,
+    icon: "solar:check-circle-bold",
+    label: "Completed",
+  },
   failed: {
     color: "danger" as const,
     icon: "solar:danger-circle-bold",
@@ -79,6 +84,7 @@ export default function ReplayDetailPage() {
   );
 
   const [meta, setMeta] = useState<ReplayMeta | null>(null);
+  const [matchId, setMatchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -104,19 +110,19 @@ export default function ReplayDetailPage() {
 
         setMeta({
           id: found.id,
-          gameId: found.gameId || "cs2",
+          gameId: found.game_id || "cs2",
           matchId: found.matchId,
           status:
             (found.status?.toLowerCase() as ReplayMeta["status"]) || "ready",
           createdAt:
-            found.createdAt instanceof Date
-              ? found.createdAt.toISOString()
-              : String(found.createdAt),
+            found.created_at instanceof Date
+              ? found.created_at.toISOString()
+              : String(found.created_at),
           updatedAt:
-            found.updatedAt instanceof Date
-              ? found.updatedAt.toISOString()
-              : found.updatedAt
-              ? String(found.updatedAt)
+            found.updated_at instanceof Date
+              ? found.updated_at.toISOString()
+              : found.updated_at
+              ? String(found.updated_at)
               : undefined,
           size: found.size,
           duration: found.duration,
@@ -131,6 +137,18 @@ export default function ReplayDetailPage() {
           views: found.views || 0,
           likes: found.likes || 0,
         });
+
+        // Try to find associated match by replay file ID
+        try {
+          const gameId = found.game_id || "cs2";
+          const matches = await sdk.matches.listMatches({ game_id: gameId, limit: 50 });
+          const linkedMatch = matches.find((m) => m.replay_file_id === replayId);
+          if (linkedMatch?.id) {
+            setMatchId(linkedMatch.id);
+          }
+        } catch {
+          // Match lookup is best-effort, don't fail the page
+        }
       } catch (e) {
         const errorMessage =
           e instanceof Error ? e.message : "Failed to load replay";
@@ -226,7 +244,7 @@ export default function ReplayDetailPage() {
         </div>
 
         <div className="flex gap-2">
-          {meta.status === "ready" && (
+          {(meta.status === "ready" || meta.status === "completed") && (
             <Button
               color="primary"
               size="lg"
@@ -234,6 +252,17 @@ export default function ReplayDetailPage() {
               onPress={() => router.push(`/replays/${replayId}/player`)}
             >
               Watch Replay
+            </Button>
+          )}
+          {matchId && (
+            <Button
+              color="secondary"
+              variant="flat"
+              size="lg"
+              startContent={<Icon icon="solar:chart-square-bold" width={20} />}
+              onPress={() => router.push(`/matches/${meta.gameId}/${matchId}`)}
+            >
+              Match Stats
             </Button>
           )}
           <Button
@@ -268,7 +297,7 @@ export default function ReplayDetailPage() {
                     className="mt-4 max-w-xs"
                   />
                 </div>
-              ) : meta.status === "ready" ? (
+              ) : (meta.status === "ready" || meta.status === "completed") ? (
                 <div className="text-center">
                   <Icon
                     icon="solar:videocamera-record-bold"

@@ -1,5 +1,14 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { Button, Chip, Listbox, ListboxItem, ListboxSection, ScrollShadow, Spacer } from "@nextui-org/react";
+import {
+  Button,
+  Chip,
+  Listbox,
+  ListboxItem,
+  ListboxSection,
+  ScrollShadow,
+  Spacer,
+  Selection,
+} from "@nextui-org/react";
 import { GameEventVariationsMap, GameEventCategoryOption } from "./data";
 
 export interface GameEventFilterValue {
@@ -14,18 +23,25 @@ export interface GameEventFilterProps {
   initialFilters?: GameEventFilterValue[];
 }
 
-const GameEventFilter: React.FC<GameEventFilterProps> = ({ 
-  onFilterChange, 
+const GameEventFilter: React.FC<GameEventFilterProps> = ({
+  onFilterChange,
   onFilterAdd,
-  initialFilters = []
+  initialFilters = [],
 }) => {
-  const categories: string[] = Object.keys(GameEventVariationsMap).map((key) => key.toString());
-  const [selectedCategory, setSelectedCategory] = useState<GameEventCategoryOption | null>(null);
-  const [selectedVariation, setSelectedVariation] = useState<string | null>(null);
+  const categories: string[] = Object.keys(GameEventVariationsMap).map((key) =>
+    key.toString()
+  );
+  const [selectedCategory, setSelectedCategory] =
+    useState<GameEventCategoryOption | null>(null);
+  const [selectedVariation, setSelectedVariation] = useState<string | null>(
+    null
+  );
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<GameEventFilterValue[]>(initialFilters);
+  const [activeFilters, setActiveFilters] =
+    useState<GameEventFilterValue[]>(initialFilters);
 
-  const handleCategoryChange = useCallback((value: GameEventCategoryOption | "all" | string) => {
+  const handleCategoryChange = useCallback((keys: Selection) => {
+    const value = Array.from(keys)[0] as string;
     if (value === "all") {
       setSelectedCategory(null);
       setSelectedVariation(null);
@@ -38,12 +54,12 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
     setSelectedValue(null);
   }, []);
 
-  const handleVariationChange = useCallback((value: string | "all") => {
+  const _handleVariationChange = useCallback((value: string | "all") => {
     setSelectedVariation(value === "all" ? null : value);
     setSelectedValue(null);
   }, []);
 
-  const handleValueChange = useCallback((value: string | "all") => {
+  const _handleValueChange = useCallback((value: string | "all") => {
     setSelectedValue(value === "all" ? null : value);
   }, []);
 
@@ -68,13 +84,23 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
     setSelectedCategory(null);
     setSelectedVariation(null);
     setSelectedValue(null);
-  }, [selectedCategory, selectedVariation, selectedValue, activeFilters, onFilterAdd, onFilterChange]);
+  }, [
+    selectedCategory,
+    selectedVariation,
+    selectedValue,
+    activeFilters,
+    onFilterAdd,
+    onFilterChange,
+  ]);
 
-  const removeFilter = useCallback((index: number) => {
-    const updatedFilters = activeFilters.filter((_, i) => i !== index);
-    setActiveFilters(updatedFilters);
-    onFilterChange?.(updatedFilters);
-  }, [activeFilters, onFilterChange]);
+  const removeFilter = useCallback(
+    (index: number) => {
+      const updatedFilters = activeFilters.filter((_, i) => i !== index);
+      setActiveFilters(updatedFilters);
+      onFilterChange?.(updatedFilters);
+    },
+    [activeFilters, onFilterChange]
+  );
 
   const clearAllFilters = useCallback(() => {
     setActiveFilters([]);
@@ -83,8 +109,8 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
 
   const selectedBadges = useMemo(() => {
     if (!selectedCategory) return null;
-    
-    let badge = selectedCategory;
+
+    let badge = selectedCategory as string;
     if (selectedVariation) {
       badge += ` > ${selectedVariation}`;
     }
@@ -104,13 +130,13 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
         orientation="horizontal"
       >
         {activeFilters.map((filter, index) => {
-          let label = filter.category;
+          let label = filter.category as string;
           if (filter.variation) label += ` > ${filter.variation}`;
           if (filter.value) label += `: ${filter.value}`;
-          
+
           return (
-            <Chip 
-              key={index} 
+            <Chip
+              key={index}
               onClose={() => removeFilter(index)}
               variant="flat"
               className="bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37]"
@@ -148,32 +174,44 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-     <>
-     <div>
-     <ScrollShadow className="w-[150px] h-[400px]">
-        <Listbox
-          onSelectionChange={handleCategoryChange}
-          label="Game Event"
-          selectionMode="single"
-        >
-          {categories.map((item) => {
-            const sectionKeyString = item?.toString().replace(" ", "") || "a";
-            const sectionKey = item as keyof typeof GameEventVariationsMap;
-            const section = GameEventVariationsMap[sectionKey];
+      <>
+        <div>
+          <ScrollShadow className="w-[150px] h-[400px]">
+            <Listbox
+              onSelectionChange={handleCategoryChange}
+              label="Game Event"
+              selectionMode="single"
+            >
+              {categories.map((item) => {
+                const sectionKeyString =
+                  item?.toString().replace(" ", "") || "a";
+                const sectionKey = item as keyof typeof GameEventVariationsMap;
+                const section = GameEventVariationsMap[sectionKey];
 
-            return (
-              <ListboxSection key={sectionKeyString} title={section.description} showDivider>
-                {section.variations?.map((variation) => (
-                  <ListboxItem  key={sectionKeyString + variation.toString().replace(" ", "") + "1"}>{variation}</ListboxItem>
-                ))}
-              </ListboxSection>
-            );
-          })}
-          
-        </Listbox>
-        </ScrollShadow>
-      </div>
-     </>
+                return (
+                  <ListboxSection
+                    key={sectionKeyString}
+                    title={section.description}
+                    showDivider
+                  >
+                    {section.variations?.map((variation) => (
+                      <ListboxItem
+                        key={
+                          sectionKeyString +
+                          variation.toString().replace(" ", "") +
+                          "1"
+                        }
+                      >
+                        {variation}
+                      </ListboxItem>
+                    ))}
+                  </ListboxSection>
+                );
+              })}
+            </Listbox>
+          </ScrollShadow>
+        </div>
+      </>
       {/* {selectedCategory && (
         <>
           <div>
@@ -219,8 +257,8 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
       <div className="flex flex-col items-center gap-2">
         {pendingBadgeContent}
         <Spacer y={1} />
-        <Button 
-          onPress={addFilterToQuery} 
+        <Button
+          onPress={addFilterToQuery}
           isDisabled={!selectedCategory}
           className="rounded-none bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-white dark:text-[#1a1a1a]"
         >
@@ -228,12 +266,9 @@ const GameEventFilter: React.FC<GameEventFilterProps> = ({
         </Button>
       </div>
 
-      <div className="col-span-full mt-4">
-        {activeFiltersBadges}
-      </div>
+      <div className="col-span-full mt-4">{activeFiltersBadges}</div>
     </div>
   );
 };
 
 export default GameEventFilter;
-export type { GameEventFilterValue, GameEventFilterProps };

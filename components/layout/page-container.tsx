@@ -14,7 +14,7 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 interface PageContainerProps {
   children: React.ReactNode;
   className?: string;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "7xl" | "full";
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "4xl" | "7xl" | "full";
   padding?: "none" | "sm" | "md" | "lg";
   center?: boolean;
   animate?: boolean;
@@ -38,6 +38,7 @@ export function PageContainer({
     lg: "max-w-screen-lg", // 1024px
     xl: "max-w-screen-xl", // 1280px
     "2xl": "max-w-screen-2xl", // 1536px
+    "4xl": "max-w-[1400px]", // Custom 4xl
     "7xl": "max-w-[1920px]",
     full: "max-w-full",
   };

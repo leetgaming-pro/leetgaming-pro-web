@@ -476,7 +476,7 @@ export function ReplayMinimap({
                   : "warning"
               }
             >
-              {roundState.phase.toUpperCase()}
+              {(roundState.phase || "Unknown").toUpperCase()}
             </Chip>
           </div>
         </div>

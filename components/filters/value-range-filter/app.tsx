@@ -1,6 +1,7 @@
 import React from "react";
 import { Slider } from '@nextui-org/react';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Component(props: any) {
   return (
     <div className="my-auto flex flex-col gap-2">

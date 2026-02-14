@@ -30,7 +30,6 @@ import type {
   WalletTransaction,
   TransactionType,
   TransactionStatus,
-  Currency,
 } from "@/types/replay-api/wallet.types";
 import { formatAmount } from "@/types/replay-api/wallet.types";
 
@@ -59,6 +58,7 @@ export function TransactionHistoryModal({
     if (isOpen) {
       loadTransactions(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, typeFilter, statusFilter]);
 
   const loadTransactions = async (reset = false) => {

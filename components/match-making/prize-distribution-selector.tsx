@@ -6,7 +6,7 @@
  * Implements award-winning LeetGaming branding patterns
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader, Chip, Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
@@ -93,34 +93,35 @@ export function PrizeDistributionSelector({
   currency = "$",
 }: PrizeDistributionSelectorProps) {
   const [hoveredRule, setHoveredRule] = useState<DistributionRule | null>(null);
-  let { theme } = useTheme();
-
-  if (!theme || theme === "system") {
-    theme = "light";
-  }
+  const { theme: rawTheme } = useTheme();
+  // Use mounted state to prevent hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const theme = mounted ? (rawTheme === "dark" ? "dark" : "light") : "light";
 
   const calculatePayout = (percent: number) => {
     return ((currentPool * percent) / 100).toFixed(2);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2 sm:px-0">
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Icon
             icon="solar:wallet-money-bold-duotone"
             className="text-[#FF4654] dark:text-[#DCFF37]"
-            width={32}
+            width={28}
           />
           <h3
             className={title({
               color: theme === "dark" ? "battleLime" : "battleNavy",
+              size: "sm",
             })}
           >
             Prize Distribution
           </h3>
         </div>
-        <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/70">
+        <p className="text-sm text-[#34445C]/70 dark:text-[#F5F0E1]/70">
           Select how the{" "}
           <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">
             {currency}
@@ -130,7 +131,8 @@ export function PrizeDistributionSelector({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Grid - single column on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {DISTRIBUTION_OPTIONS.map((option, index) => {
           const isSelected = selectedRule === option.id;
           const isHovered = hoveredRule === option.id;
@@ -154,8 +156,8 @@ export function PrizeDistributionSelector({
                   isSelected
                     ? "border-2 border-[#FF4654] dark:border-[#DCFF37] shadow-xl scale-105 bg-[#FF4654]/10 dark:bg-[#DCFF37]/10"
                     : isHovered
-                    ? "border-2 border-[#FF4654]/50 dark:border-[#DCFF37]/50 shadow-lg scale-102"
-                    : "border-2 border-[#34445C]/20 dark:border-[#DCFF37]/20 shadow-md"
+                      ? "border-2 border-[#FF4654]/50 dark:border-[#DCFF37]/50 shadow-lg scale-102"
+                      : "border-2 border-[#34445C]/20 dark:border-[#DCFF37]/20 shadow-md",
                 )}
                 style={{
                   clipPath: isSelected
@@ -181,7 +183,7 @@ export function PrizeDistributionSelector({
                           "transition-colors",
                           isSelected
                             ? "text-[#FF4654] dark:text-[#DCFF37]"
-                            : "text-[#34445C]/50 dark:text-[#F5F0E1]/50"
+                            : "text-[#34445C]/50 dark:text-[#F5F0E1]/50",
                         )}
                       />
                     </motion.div>
@@ -197,7 +199,7 @@ export function PrizeDistributionSelector({
                           option.risk === "medium" &&
                             "bg-[#FFC700]/20 text-[#FFC700] dark:bg-[#FFC700]/30 dark:text-[#FFC700]",
                           option.risk === "low" &&
-                            "bg-[#DCFF37]/20 text-[#34445C] dark:bg-[#DCFF37]/30 dark:text-[#DCFF37]"
+                            "bg-[#DCFF37]/20 text-[#34445C] dark:bg-[#DCFF37]/30 dark:text-[#DCFF37]",
                         ),
                       }}
                     >
@@ -238,8 +240,8 @@ export function PrizeDistributionSelector({
                               payout.color === "warning"
                                 ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:bg-[#DCFF37]"
                                 : payout.color === "secondary"
-                                ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
-                                : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                                  ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                                  : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40",
                             )}
                             style={{
                               clipPath:
@@ -286,7 +288,7 @@ export function PrizeDistributionSelector({
                               "flex-shrink-0 mt-0.5",
                               isSelected
                                 ? "text-[#FF4654] dark:text-[#DCFF37]"
-                                : "text-[#34445C]/40 dark:text-[#F5F0E1]/40"
+                                : "text-[#34445C]/40 dark:text-[#F5F0E1]/40",
                             )}
                           />
                           <span>{benefit}</span>
@@ -358,7 +360,7 @@ export function PrizeDistributionSelector({
           {/* Progress bar with brand gradient */}
           <div className="relative h-12 bg-[#34445C]/10 dark:bg-[#DCFF37]/10 rounded-none overflow-hidden border border-[#34445C]/20 dark:border-[#DCFF37]/20">
             {DISTRIBUTION_OPTIONS.find(
-              (o) => o.id === selectedRule
+              (o) => o.id === selectedRule,
             )?.percentages.map((payout, idx) => {
               const previousPercent =
                 DISTRIBUTION_OPTIONS.find((o) => o.id === selectedRule)
@@ -376,8 +378,8 @@ export function PrizeDistributionSelector({
                     payout.color === "warning"
                       ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
                       : payout.color === "secondary"
-                      ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
-                      : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                        ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                        : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40",
                   )}
                   style={{ left: `${previousPercent}%` }}
                 >
@@ -392,7 +394,7 @@ export function PrizeDistributionSelector({
           {/* Legend */}
           <div className="flex flex-wrap gap-4 mt-4">
             {DISTRIBUTION_OPTIONS.find(
-              (o) => o.id === selectedRule
+              (o) => o.id === selectedRule,
             )?.percentages.map((payout, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <div
@@ -401,8 +403,8 @@ export function PrizeDistributionSelector({
                     payout.color === "warning"
                       ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
                       : payout.color === "secondary"
-                      ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
-                      : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40"
+                        ? "bg-[#FFC700] dark:bg-[#DCFF37]/70"
+                        : "bg-[#34445C]/40 dark:bg-[#F5F0E1]/40",
                   )}
                   style={{
                     clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",

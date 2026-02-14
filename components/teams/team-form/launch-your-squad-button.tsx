@@ -33,11 +33,31 @@ import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
 const GAMES = [
-  { id: "cs2", name: "Counter-Strike 2", icon: "https://avatars.githubusercontent.com/u/168373383" },
-  { id: "vlrnt", name: "Valorant", icon: "https://avatars.githubusercontent.com/u/168373383" },
-  { id: "csgo", name: "CS:GO", icon: "https://avatars.githubusercontent.com/u/168373383" },
-  { id: "lol", name: "League of Legends", icon: "https://avatars.githubusercontent.com/u/168373383" },
-  { id: "dota2", name: "Dota 2", icon: "https://avatars.githubusercontent.com/u/168373383" },
+  {
+    id: "cs2",
+    name: "Counter-Strike 2",
+    icon: "https://avatars.githubusercontent.com/u/168373383",
+  },
+  {
+    id: "vlrnt",
+    name: "Valorant",
+    icon: "https://avatars.githubusercontent.com/u/168373383",
+  },
+  {
+    id: "csgo",
+    name: "CS:GO",
+    icon: "https://avatars.githubusercontent.com/u/168373383",
+  },
+  {
+    id: "lol",
+    name: "League of Legends",
+    icon: "https://avatars.githubusercontent.com/u/168373383",
+  },
+  {
+    id: "dota2",
+    name: "Dota 2",
+    icon: "https://avatars.githubusercontent.com/u/168373383",
+  },
 ];
 
 interface FormData {
@@ -52,7 +72,11 @@ interface FormData {
 export default function LaunchYourSquadButton() {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { isAuthenticated, user, requireAuthForAction } = useOptionalAuth();
+  const {
+    isAuthenticated: _isAuthenticated,
+    user: _user,
+    requireAuthForAction,
+  } = useOptionalAuth();
   const [activeTab, setActiveTab] = useState("details");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,7 +99,10 @@ export default function LaunchYourSquadButton() {
 
   const handleAvatarUpload = (file: File) => {
     setAvatarFile(file);
-    logger.info("Squad avatar selected", { fileName: file.name, size: file.size });
+    logger.info("Squad avatar selected", {
+      fileName: file.name,
+      size: file.size,
+    });
   };
 
   const handleDisplayNameChange = (value: string) => {
@@ -101,13 +128,13 @@ export default function LaunchYourSquadButton() {
   const validateForm = (): boolean => {
     // Clear previous errors
     setSubmitError(null);
-    
+
     // Validate game selection
     if (!formData.game) {
       setSubmitError("🎮 Please select a game to compete in");
       return false;
     }
-    
+
     // Validate team name
     if (!formData.displayName) {
       setSubmitError("📝 Team name is required - give your squad an identity!");
@@ -121,13 +148,13 @@ export default function LaunchYourSquadButton() {
       setSubmitError("📝 Team name must be 30 characters or less");
       return false;
     }
-    
+
     // Validate slug
     if (!formData.slug) {
       setSubmitError("🔗 URL slug is required for your team's profile page");
       return false;
     }
-    
+
     // Validate tag/symbol
     if (!formData.symbol) {
       setSubmitError("🏷️ Team tag is required (e.g., 'TEAM', 'PRO')");
@@ -137,7 +164,7 @@ export default function LaunchYourSquadButton() {
       setSubmitError("🏷️ Team tag must be 5 characters or less");
       return false;
     }
-    
+
     return true;
   };
 
@@ -155,6 +182,7 @@ export default function LaunchYourSquadButton() {
         game_id: formData.game,
         name: formData.displayName,
         symbol: formData.symbol,
+        slug_uri: formData.slug,
         description: formData.description,
         visibility_type: formData.visibility,
       });
@@ -184,24 +212,41 @@ export default function LaunchYourSquadButton() {
 
       // Navigate to the new squad
       router.push(`/teams/${squad.slug_uri || formData.slug}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Failed to create squad", error);
-      
+
       // Provide user-friendly error messages
       let errorMessage = "Failed to create squad. Please try again.";
-      
-      if (error.message?.includes("401") || error.message?.includes("Authentication")) {
-        errorMessage = "🔐 You must be logged in to create a squad. Please sign in and try again.";
-      } else if (error.message?.includes("400") || error.message?.includes("validation")) {
-        errorMessage = "📋 Please check all required fields are filled correctly.";
-      } else if (error.message?.includes("409") || error.message?.includes("already exists")) {
-        errorMessage = "⚠️ A squad with this name or tag already exists. Please choose different values.";
-      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
-        errorMessage = "🌐 Network error. Please check your connection and try again.";
-      } else if (error.message) {
-        errorMessage = `❌ ${error.message}`;
+      const errMsg = error instanceof Error ? error.message : String(error);
+
+      if (
+        errMsg.includes("401") ||
+        errMsg.includes("Authentication")
+      ) {
+        errorMessage =
+          "🔐 You must be logged in to create a squad. Please sign in and try again.";
+      } else if (
+        errMsg.includes("400") ||
+        errMsg.includes("validation")
+      ) {
+        errorMessage =
+          "📋 Please check all required fields are filled correctly.";
+      } else if (
+        errMsg.includes("409") ||
+        errMsg.includes("already exists")
+      ) {
+        errorMessage =
+          "⚠️ A squad with this name or tag already exists. Please choose different values.";
+      } else if (
+        errMsg.includes("network") ||
+        errMsg.includes("fetch")
+      ) {
+        errorMessage =
+          "🌐 Network error. Please check your connection and try again.";
+      } else if (errMsg && errMsg !== "[object Object]") {
+        errorMessage = `❌ ${errMsg}`;
       }
-      
+
       setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -209,28 +254,45 @@ export default function LaunchYourSquadButton() {
   };
 
   const selectedGame = GAMES.find((g) => g.id === formData.game);
-  const progress = formData.game && formData.displayName && formData.symbol ? 100 : formData.displayName ? 66 : formData.game ? 33 : 0;
+  const progress =
+    formData.game && formData.displayName && formData.symbol
+      ? 100
+      : formData.displayName
+        ? 66
+        : formData.game
+          ? 33
+          : 0;
 
   return (
     <>
-      <EsportsButton
-        onClick={handleOpen}
-        variant="action"
-        size="md"
-      >
+      <EsportsButton onClick={handleOpen} variant="action" size="md">
         <Icon icon="solar:users-group-two-rounded-outline" width={18} />
         Launch Your Squad
       </EsportsButton>
-      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange} size="2xl">
+      <Modal
+        isOpen={isOpen}
+        placement="top-center"
+        onOpenChange={onOpenChange}
+        size="2xl"
+      >
         <ModalContent>
           {(onCloseModal) => (
             <>
               <ModalHeader className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <Icon icon="solar:users-group-two-rounded-bold-duotone" width={28} className="text-primary" />
+                  <Icon
+                    icon="solar:users-group-two-rounded-bold-duotone"
+                    width={28}
+                    className="text-primary"
+                  />
                   <span>Create Your Squad</span>
                 </div>
-                <Progress value={progress} color="primary" size="sm" className="max-w-full" />
+                <Progress
+                  value={progress}
+                  color="primary"
+                  size="sm"
+                  className="max-w-full"
+                />
               </ModalHeader>
               <ModalBody>
                 <Tabs
@@ -254,17 +316,34 @@ export default function LaunchYourSquadButton() {
                         placeholder="Select a game"
                         selectedKeys={formData.game ? [formData.game] : []}
                         onSelectionChange={(keys) =>
-                          setFormData((prev) => ({ ...prev, game: Array.from(keys)[0] as string }))
+                          setFormData((prev) => ({
+                            ...prev,
+                            game: Array.from(keys)[0] as string,
+                          }))
                         }
                         variant="bordered"
                         isRequired
-                        startContent={selectedGame && <Avatar src={selectedGame.icon} size="sm" className="w-6 h-6" />}
+                        startContent={
+                          selectedGame && (
+                            <Avatar
+                              src={selectedGame.icon}
+                              size="sm"
+                              className="w-6 h-6"
+                            />
+                          )
+                        }
                       >
                         {GAMES.map((game) => (
                           <SelectItem
                             key={game.id}
                             value={game.id}
-                            startContent={<Avatar src={game.icon} size="sm" className="w-6 h-6" />}
+                            startContent={
+                              <Avatar
+                                src={game.icon}
+                                size="sm"
+                                className="w-6 h-6"
+                              />
+                            }
                           >
                             {game.name}
                           </SelectItem>
@@ -287,28 +366,41 @@ export default function LaunchYourSquadButton() {
                             onValueChange={handleDisplayNameChange}
                             variant="bordered"
                             isRequired
-                            startContent={<span className="text-default-400">@</span>}
+                            startContent={
+                              <span className="text-default-400">@</span>
+                            }
                           />
                           <Input
                             label="URL Slug"
                             placeholder="team-url"
                             value={formData.slug}
-                            onValueChange={(value) => setFormData((prev) => ({ ...prev, slug: value }))}
+                            onValueChange={(value) =>
+                              setFormData((prev) => ({ ...prev, slug: value }))
+                            }
                             variant="bordered"
                             isRequired
-                            startContent={<span className="text-xs text-default-400">leetgaming.pro/teams/</span>}
+                            startContent={
+                              <span className="text-xs text-default-400">
+                                leetgaming.pro/teams/
+                              </span>
+                            }
                           />
                           <Input
                             label="Tag"
                             placeholder="TAG"
                             value={formData.symbol}
                             onValueChange={(value) =>
-                              setFormData((prev) => ({ ...prev, symbol: value.toUpperCase().slice(0, 5) }))
+                              setFormData((prev) => ({
+                                ...prev,
+                                symbol: value.toUpperCase().slice(0, 5),
+                              }))
                             }
                             variant="bordered"
                             isRequired
                             maxLength={5}
-                            startContent={<span className="text-default-400">#</span>}
+                            startContent={
+                              <span className="text-default-400">#</span>
+                            }
                             description="1-5 characters"
                           />
                         </div>
@@ -318,7 +410,12 @@ export default function LaunchYourSquadButton() {
                         label="Description"
                         placeholder="Tell us about your squad..."
                         value={formData.description}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            description: value,
+                          }))
+                        }
                         variant="bordered"
                         minRows={3}
                         maxLength={500}
@@ -337,14 +434,20 @@ export default function LaunchYourSquadButton() {
                         <CardBody className="gap-4">
                           <div className="flex items-center gap-4">
                             <Avatar
-                              src={avatarFile ? URL.createObjectURL(avatarFile) : undefined}
+                              src={
+                                avatarFile
+                                  ? URL.createObjectURL(avatarFile)
+                                  : undefined
+                              }
                               showFallback
                               name={formData.displayName}
                               size="lg"
                               className="w-16 h-16"
                             />
                             <div>
-                              <h3 className="text-xl font-bold">{formData.displayName || "Team Name"}</h3>
+                              <h3 className="text-xl font-bold">
+                                {formData.displayName || "Team Name"}
+                              </h3>
                               <div className="flex gap-2 mt-1">
                                 {formData.symbol && (
                                   <Chip size="sm" variant="flat">
@@ -352,15 +455,24 @@ export default function LaunchYourSquadButton() {
                                   </Chip>
                                 )}
                                 {formData.game && (
-                                  <Chip size="sm" variant="flat" color="primary">
-                                    {GAMES.find((g) => g.id === formData.game)?.name}
+                                  <Chip
+                                    size="sm"
+                                    variant="flat"
+                                    color="primary"
+                                  >
+                                    {
+                                      GAMES.find((g) => g.id === formData.game)
+                                        ?.name
+                                    }
                                   </Chip>
                                 )}
                               </div>
                             </div>
                           </div>
                           {formData.description && (
-                            <p className="text-sm text-default-600">{formData.description}</p>
+                            <p className="text-sm text-default-600">
+                              {formData.description}
+                            </p>
                           )}
                           <p className="text-xs text-default-400">
                             leetgaming.pro/teams/{formData.slug || "your-team"}
@@ -383,7 +495,12 @@ export default function LaunchYourSquadButton() {
                 )}
               </ModalBody>
               <ModalFooter>
-                <EsportsButton variant="ghost" size="md" onClick={onCloseModal} disabled={isSubmitting}>
+                <EsportsButton
+                  variant="ghost"
+                  size="md"
+                  onClick={onCloseModal}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </EsportsButton>
                 <EsportsButton
@@ -392,7 +509,9 @@ export default function LaunchYourSquadButton() {
                   onClick={handleSubmit}
                   loading={isSubmitting}
                 >
-                  {!isSubmitting && <Icon icon="solar:check-circle-bold" width={20} />}
+                  {!isSubmitting && (
+                    <Icon icon="solar:check-circle-bold" width={20} />
+                  )}
                   {isSubmitting ? "Creating..." : "Create Squad"}
                 </EsportsButton>
               </ModalFooter>

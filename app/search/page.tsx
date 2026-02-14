@@ -36,10 +36,17 @@ export default function AdvancedSearchPage() {
       if (visibility !== "all" && validVisibilities.includes(visibility as VisibilityType)) {
         builder.withResourceVisibilities(visibility as VisibilityType);
       }
-      const response = await sdk.replayFiles.searchReplayFiles(builder.build().filters);
+      const searchFilters = builder.build().filters;
+      const gameIdParam = Array.isArray(searchFilters.gameIds)
+        ? searchFilters.gameIds[0]
+        : typeof searchFilters.gameIds === 'string' ? searchFilters.gameIds : undefined;
+      const response = await sdk.replayFiles.searchReplayFiles({
+        game_id: gameIdParam,
+        search_term: query || undefined,
+      });
       // naive text filter against id
       const filtered = response.filter(r => !query || r.id.includes(query));
-      setResults(filtered.map(r => ({ id: r.id, gameId: r.gameId, createdAt: r.createdAt, status: r.status, size: r.size })));
+      setResults(filtered.map(r => ({ id: r.id, gameId: r.game_id, createdAt: String(r.created_at), status: r.status, size: r.size })));
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "Search failed";
       setError(errorMessage);

@@ -26,7 +26,7 @@ export function LanguageSelector({
   showFlag = true,
   showName = false,
 }: LanguageSelectorProps) {
-  const { locale, changeLocale, currentLocale, isLoading } = useTranslation();
+  const { locale, changeLocale: _changeLocale, currentLocale, isLoading } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch
@@ -44,6 +44,7 @@ export function LanguageSelector({
     return acc;
   }, {} as Record<string, Locale[]>);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLocaleChange = (keys: any) => {
     const selected = Array.from(keys)[0] as Locale;
     if (selected && selected !== locale) {

@@ -8,13 +8,23 @@ import { test, expect } from "@playwright/test";
  * - Scale-down: Fewer pods under low load
  * - Connection pooling: Maintains connections across scaling
  * - Service discovery: Updates pod endpoints correctly
+ *
+ * Note: These are stress tests that may be flaky in local dev environments.
+ * They are designed for CI/staging environments with proper resources.
  */
+
+// Skip HPA tests in local development - they require production-like resources
+const isLocalDev = !process.env.CI && !process.env.HPA_TESTS_ENABLED;
 
 test.describe("HPA Scaling Simulation", () => {
   const API_URL = process.env.API_URL || "http://localhost:8080";
   const WEB_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3030";
 
   test.beforeAll(async () => {
+    if (isLocalDev) {
+      console.log("⏭️  Skipping HPA tests in local development");
+      return;
+    }
     // Verify API is accessible before testing
     const response = await fetch(`${API_URL}/health`);
     expect(response.ok).toBe(true);
@@ -23,11 +33,13 @@ test.describe("HPA Scaling Simulation", () => {
   test("should handle high concurrent load (simulating scale-up)", async ({
     request,
   }) => {
+    test.skip(isLocalDev, "Skipping HPA stress test in local development");
+
     const NUM_CONCURRENT = 50;
     const DURATION_MS = 10000; // 10 seconds
 
     console.log(
-      `🔄 Starting HPA scale-up simulation: ${NUM_CONCURRENT} concurrent requests for ${DURATION_MS}ms`
+      `🔄 Starting HPA scale-up simulation: ${NUM_CONCURRENT} concurrent requests for ${DURATION_MS}ms`,
     );
 
     const startTime = Date.now();
@@ -59,7 +71,7 @@ test.describe("HPA Scaling Simulation", () => {
               })
               .catch(() => {
                 results.failure++;
-              })
+              }),
           );
         }
         await Promise.all(promises);
@@ -91,10 +103,15 @@ test.describe("HPA Scaling Simulation", () => {
   });
 
   test("should serve requests from multiple pods", async ({ request }) => {
+    test.skip(
+      isLocalDev,
+      "Skipping HPA pod distribution test in local development",
+    );
+
     const NUM_REQUESTS = 100;
 
     console.log(
-      `📊 Verifying request distribution across pods (${NUM_REQUESTS} requests)`
+      `📊 Verifying request distribution across pods (${NUM_REQUESTS} requests)`,
     );
 
     const podIPs = new Set<string>();
@@ -109,10 +126,10 @@ test.describe("HPA Scaling Simulation", () => {
       try {
         const headers = await response.headersArray();
         const podHeader = headers.find(
-          (h) => h.name.toLowerCase() === "x-pod-name"
+          (h) => h.name.toLowerCase() === "x-pod-name",
         );
         const ipHeader = headers.find(
-          (h) => h.name.toLowerCase() === "x-pod-ip"
+          (h) => h.name.toLowerCase() === "x-pod-ip",
         );
 
         if (podHeader) podNames.add(podHeader.value);
@@ -139,6 +156,8 @@ test.describe("HPA Scaling Simulation", () => {
   });
 
   test("should handle graceful pod termination", async ({ request }) => {
+    test.skip(isLocalDev, "Skipping HPA graceful termination test in local development");
+
     /**
      * This test simulates what happens when HPA scales down:
      * - Pod receives SIGTERM
@@ -192,7 +211,7 @@ test.describe("HPA Scaling Simulation", () => {
       - Completed requests: ${successful}
       - Failed requests: ${failed}
       - Success rate: ${((successful / (successful + failed)) * 100).toFixed(
-        2
+        2,
       )}%
     `);
 
@@ -200,7 +219,10 @@ test.describe("HPA Scaling Simulation", () => {
     expect(successful).toBeGreaterThan(0);
   });
 
-  test("should maintain service discovery during scaling", async ({ page }) => {
+  test("should maintain service discovery during scaling", async ({ request }) => {
+    test.skip(isLocalDev, "Skipping HPA service discovery test in local development");
+    test.slow(); // Allow more time for HPA test
+
     /**
      * Verify that the service DNS resolves correctly during HPA scaling
      * - Service endpoint should remain stable (Kubernetes Service)
@@ -209,29 +231,21 @@ test.describe("HPA Scaling Simulation", () => {
 
     console.log("🔍 Testing service discovery stability during scaling");
 
-    // Navigate to app
-    await page.goto(WEB_URL);
-
-    // Check that service endpoint is reachable
-    const response = await page.evaluate(() => {
-      return fetch("/api/health").then((r) => r.ok);
-    });
-
-    expect(response).toBe(true);
+    // Check that API service endpoint is reachable
+    const response = await request.get(`${API_URL}/health`);
+    expect(response.ok()).toBe(true);
 
     console.log("✓ Service discovery verified - API endpoint stable");
 
     // Simulate multiple concurrent requests to verify load balancing
-    const concurrentRequests = await page.evaluate(async () => {
-      const requests = Array(20)
-        .fill(null)
-        .map(() => fetch("/api/health"));
-      const results = await Promise.allSettled(requests);
-      return {
-        success: results.filter((r) => r.status === "fulfilled").length,
-        failure: results.filter((r) => r.status === "rejected").length,
-      };
-    });
+    const requests = Array(20)
+      .fill(null)
+      .map(() => request.get(`${API_URL}/health`));
+    const results = await Promise.allSettled(requests);
+    const concurrentRequests = {
+      success: results.filter((r) => r.status === "fulfilled").length,
+      failure: results.filter((r) => r.status === "rejected").length,
+    };
 
     console.log(`
       ✓ Load balancing verified
@@ -240,13 +254,15 @@ test.describe("HPA Scaling Simulation", () => {
     `);
 
     expect(concurrentRequests.success).toBeGreaterThan(
-      concurrentRequests.failure
+      concurrentRequests.failure,
     );
   });
 
   test("should recover from temporary pod unavailability", async ({
     request,
   }) => {
+    test.skip(isLocalDev, "Skipping HPA recovery test in local development");
+
     /**
      * Simulates HPA scaling event where some pods become temporarily unavailable
      * Verifies that retries work and service recovers
@@ -279,6 +295,11 @@ test.describe("HPA Scaling Simulation", () => {
   });
 
   test("should handle uneven load distribution", async ({ request }) => {
+    test.skip(
+      isLocalDev,
+      "Skipping HPA load distribution test in local development",
+    );
+
     /**
      * Verify that the load balancer correctly distributes traffic
      * even when some pods respond faster than others
@@ -304,7 +325,7 @@ test.describe("HPA Scaling Simulation", () => {
     const minLatency = Math.min(...responseLatencies);
     const stdDev = Math.sqrt(
       responseLatencies.reduce((sq, n) => sq + Math.pow(n - avgLatency, 2), 0) /
-        responseLatencies.length
+        responseLatencies.length,
     );
 
     console.log(`
@@ -320,6 +341,8 @@ test.describe("HPA Scaling Simulation", () => {
   });
 
   test("should handle spike in connections", async ({ request }) => {
+    test.skip(isLocalDev, "Skipping HPA spike test in local development");
+
     /**
      * Simulate a traffic spike that would trigger HPA scale-up
      * Verify system remains responsive
