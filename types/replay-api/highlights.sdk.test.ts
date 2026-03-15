@@ -190,7 +190,7 @@ describe('HighlightsAPI', () => {
               match_id: 'match-999',
               tick: 12000,
               event_time: 45000,
-              payload: {},
+              payload: { headshot: true },
             },
           ],
           match_id: 'match-999',

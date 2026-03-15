@@ -168,25 +168,25 @@ const BreadcrumbContent = React.memo(function BreadcrumbContent({
   const textClasses = isCloudPage
     ? "text-[#F5F0E1] dark:text-[#F5F0E1]/80"
     : isPrimaryPage
-    ? "text-white dark:text-[#DCFF37]"
+    ? "text-[#F5F0E1] dark:text-[#DCFF37]"
     : "text-[#34445C] dark:text-[#F5F0E1]";
 
   const separatorClasses = isCloudPage
     ? "text-[#DCFF37]/50 dark:text-[#DCFF37]/50"
     : isPrimaryPage
-    ? "text-white/50 dark:text-[#DCFF37]/50"
+    ? "text-[#F5F0E1]/50 dark:text-[#DCFF37]/50"
     : "text-[#FF4654]/50 dark:text-[#DCFF37]/50";
 
   const hoverClasses = isCloudPage
     ? "hover:text-[#DCFF37] dark:hover:text-[#DCFF37]"
     : isPrimaryPage
-    ? "hover:text-white/80 dark:hover:text-[#F5F0E1]"
+    ? "hover:text-[#F5F0E1]/80 dark:hover:text-[#F5F0E1]"
     : "hover:text-[#FF4654] dark:hover:text-[#DCFF37]";
 
   const activeClasses = isCloudPage
     ? "text-[#DCFF37] font-semibold dark:text-[#DCFF37]"
     : isPrimaryPage
-    ? "text-white font-semibold dark:text-[#1a1a1a] dark:drop-shadow-[0_0_8px_rgba(220,255,55,0.8)]"
+    ? "text-[#F5F0E1] font-semibold dark:text-[#1a1a1a] dark:drop-shadow-[0_0_8px_rgba(220,255,55,0.8)]"
     : "text-[#FF4654] font-semibold dark:text-[#DCFF37]";
 
   const borderClasses = isCloudPage

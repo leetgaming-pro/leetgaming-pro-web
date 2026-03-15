@@ -35,6 +35,9 @@ import { useOptionalAuth } from "@/hooks";
 import { logger } from "@/lib/logger";
 
 import { Squad as SquadBase } from "@/types/replay-api/entities.types";
+import { TeamRosterHistoryEntry } from "@/types/replay-api/player-profile.types";
+import { TeamRosterTimeline } from "@/components/teams/roster/team-roster-timeline";
+import { getDemoRosterHistory } from "@/lib/demo/player-profile-demo";
 
 /** Extended squad response from API */
 interface SquadAPIResponse extends SquadBase {
@@ -120,6 +123,9 @@ export default function TeamDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Roster history data
+  const [rosterHistory, setRosterHistory] = useState<TeamRosterHistoryEntry[]>([]);
 
   // Delete confirmation modal
   const {
@@ -211,6 +217,22 @@ export default function TeamDetailPage() {
           } else {
             setIsOwner(false);
           }
+
+          // Fetch roster history (non-blocking)
+          try {
+            const tid = squadData.squad_id || teamId;
+            const rosterData = await (sdk.squads.getSquadRosterHistory?.(tid) ?? Promise.resolve([]));
+            const apiRoster = rosterData as TeamRosterHistoryEntry[];
+            // Use demo data as fallback when API returns empty (endpoints not yet implemented)
+            setRosterHistory(
+              apiRoster.length > 0 ? apiRoster : (getDemoRosterHistory(tid) ?? [])
+            );
+          } catch {
+            // Fallback to demo data on fetch error
+            const tid = squadData.squad_id || teamId;
+            setRosterHistory(getDemoRosterHistory(tid) ?? []);
+            logger.error("Failed to fetch roster history", { teamId });
+          }
         } else {
           // Team not found - show error state
           setError("Team not found");
@@ -253,8 +275,15 @@ export default function TeamDetailPage() {
     return (
       <PageContainer maxWidth="7xl">
         <div className="space-y-6">
-          <Skeleton className="w-full h-64 rounded-xl" />
-          <Skeleton className="w-full h-96 rounded-xl" />
+          <Skeleton className="w-full h-64 rounded-none" />
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <Skeleton className="w-full h-32 rounded-none" />
+            <Skeleton className="w-full h-32 rounded-none" />
+            <Skeleton className="w-full h-32 rounded-none" />
+            <Skeleton className="w-full h-32 rounded-none" />
+            <Skeleton className="w-full h-32 rounded-none" />
+          </div>
+          <Skeleton className="w-full h-96 rounded-none" />
         </div>
       </PageContainer>
     );
@@ -463,39 +492,69 @@ export default function TeamDetailPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-primary">
+            <div
+              className="w-10 h-10 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:gamepad-bold" width={20} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-3xl font-bold text-[#FF4654] dark:text-[#DCFF37]">
               {team.stats.matches_played}
             </div>
             <div className="text-sm text-default-500">Matches</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
+            <div
+              className="w-10 h-10 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:chart-bold" width={20} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
             <div className="text-3xl font-bold text-success">{winRate}%</div>
             <div className="text-sm text-default-500">Win Rate</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-warning">
+            <div
+              className="w-10 h-10 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:fire-bold" width={20} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-3xl font-bold text-[#FFC700]">
               {team.stats.win_streak}
             </div>
             <div className="text-sm text-default-500">Win Streak</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-secondary">
-              {team.stats.ranking}
+            <div
+              className="w-10 h-10 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:ranking-bold" width={20} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-3xl font-bold text-[#FF4654] dark:text-[#DCFF37]">
+              {team.stats.ranking > 0 ? `#${team.stats.ranking}` : "—"}
             </div>
             <div className="text-sm text-default-500">Global Rank</div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
           <CardBody className="text-center py-6">
-            <div className="text-3xl font-bold text-primary">
+            <div
+              className="w-10 h-10 mx-auto mb-2 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:star-bold" width={20} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="text-3xl font-bold text-[#FF4654] dark:text-[#DCFF37]">
               {team.stats.rating}
             </div>
             <div className="text-sm text-default-500">ELO Rating</div>
@@ -504,19 +563,28 @@ export default function TeamDetailPage() {
       </div>
 
       {/* Content Tabs */}
-      <Tabs aria-label="Team tabs" size="lg">
+      <Tabs
+        aria-label="Team tabs"
+        size="lg"
+        className="mb-6"
+        classNames={{
+          tabList:
+            "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
+          cursor:
+            "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
+        }}
+      >
         <Tab key="roster" title="Roster">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="space-y-4">
                 {team.members.map((member) => (
                   <Card
                     key={member.id}
                     isPressable
-                    className="hover:bg-default-100"
-                    onPress={() =>
-                      (window.location.href = `/players/${member.id}`)
-                    }
+                    className="hover:bg-[#34445C]/5 dark:hover:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
+                    onPress={() => router.push(`/players/${member.id}`)}
                   >
                     <CardBody>
                       <div className="flex items-center gap-4">
@@ -570,18 +638,27 @@ export default function TeamDetailPage() {
                 <>
                   <Divider className="my-6" />
                   <div className="text-center py-6">
-                    <Icon
-                      icon="solar:user-plus-bold"
-                      width={48}
-                      className="mx-auto mb-3 text-primary"
-                    />
-                    <h3 className="text-lg font-semibold mb-2">
+                    <div
+                      className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+                    >
+                      <Icon
+                        icon="solar:user-plus-bold"
+                        width={24}
+                        className="text-[#F5F0E1] dark:text-[#34445C]"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1] mb-2">
                       We&apos;re recruiting!
                     </h3>
                     <p className="text-default-500 mb-4">
                       Looking for skilled players to join our roster
                     </p>
-                    <Button color="primary" size="lg">
+                    <Button
+                      className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                      size="lg"
+                    >
                       Apply Now
                     </Button>
                   </div>
@@ -592,14 +669,26 @@ export default function TeamDetailPage() {
         </Tab>
 
         <Tab key="matches" title="Match History">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="space-y-3">
+                {team.recent_matches.length === 0 && (
+                  <div className="text-center py-12">
+                    <div
+                      className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:gamepad-bold" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1] mb-2">No matches yet</h3>
+                    <p className="text-default-500">Match history will appear here after competing</p>
+                  </div>
+                )}
                 {team.recent_matches.map((match) => (
                   <Card
                     key={match.id}
                     isPressable
-                    className="hover:bg-default-100"
+                    className="hover:bg-[#34445C]/5 dark:hover:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
                   >
                     <CardBody>
                       <div className="flex items-center gap-4">
@@ -637,21 +726,60 @@ export default function TeamDetailPage() {
               </div>
             </CardBody>
             <CardFooter>
-              <Button variant="flat" className="w-full">
+              <Button variant="flat" className="w-full rounded-none">
                 Load More Matches
               </Button>
             </CardFooter>
           </Card>
         </Tab>
 
+        <Tab
+          key="roster-history"
+          title={
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:history-bold" width={16} />
+              Roster History
+            </div>
+          }
+        >
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+            <CardBody className="p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <div
+                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                  style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                >
+                  <Icon icon="solar:history-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                </div>
+                <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Roster History</h3>
+                <span className="text-sm text-default-400 ml-2">
+                  All members past & present
+                </span>
+              </div>
+              <TeamRosterTimeline
+                roster={rosterHistory}
+                onPlayerClick={(playerId) => router.push(`/players/${playerId}`)}
+              />
+            </CardBody>
+          </Card>
+        </Tab>
+
         <Tab key="stats" title="Statistics">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Performance Overview
-                  </h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:chart-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                      Performance Overview
+                    </h3>
+                  </div>
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between mb-2">
@@ -671,15 +799,20 @@ export default function TeamDetailPage() {
                 </div>
                 <Divider />
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">
+                  <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1] mb-4">
                     Map Performance
                   </h3>
                   <div className="text-center py-8">
-                    <Icon
-                      icon="solar:chart-2-bold"
-                      width={64}
-                      className="mx-auto mb-4 text-default-400"
-                    />
+                    <div
+                      className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
+                    >
+                      <Icon
+                        icon="solar:chart-2-bold"
+                        width={32}
+                        className="text-[#34445C] dark:text-[#DCFF37]"
+                      />
+                    </div>
                     <p className="text-default-600">
                       Detailed map statistics coming soon
                     </p>

@@ -22,7 +22,8 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { Button, cn } from "@nextui-org/react";
@@ -155,6 +156,8 @@ export function ErrorProvider({
   onPlanLimitError,
 }: ErrorProviderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { status: sessionStatus } = useSession();
   const [displayedErrors, setDisplayedErrors] = useState<DisplayedError[]>([]);
 
   /**
@@ -173,9 +176,11 @@ export function ErrorProvider({
         case RecoveryAction.RETRY:
           error.onRetry?.();
           break;
-        case RecoveryAction.SIGN_IN:
-          router.push("/signin");
+        case RecoveryAction.SIGN_IN: {
+          const callbackParam = pathname ? `?callbackUrl=${encodeURIComponent(pathname)}` : '';
+          router.push(`/signin${callbackParam}`);
           break;
+        }
         case RecoveryAction.UPGRADE:
           router.push(
             `/pricing?operation=${error.planLimitInfo?.operation || ""}`,
@@ -202,7 +207,7 @@ export function ErrorProvider({
       removeError(error.displayId);
       error.onDismiss?.();
     },
-    [router, removeError],
+    [router, removeError, pathname],
   );
 
   /**
@@ -265,7 +270,13 @@ export function ErrorProvider({
       if (options.showAsModal) {
         display = "modal";
       } else if (appError.category === ErrorCategory.AUTH) {
-        display = "modal"; // Auth errors always show as modal
+        // If user has an active session, a 401 is likely a transient RID issue.
+        // Show a toast instead of a sign-in modal to avoid login loops.
+        if (sessionStatus === "authenticated") {
+          display = "toast";
+        } else {
+          display = "modal";
+        }
       }
 
       showError(appError, {
@@ -276,7 +287,7 @@ export function ErrorProvider({
 
       return appError;
     },
-    [showError, onPlanLimitError],
+    [showError, onPlanLimitError, sessionStatus],
   );
 
   /**

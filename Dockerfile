@@ -1,6 +1,6 @@
 # Minimal Dockerfile using pre-built standalone output
 # Build locally first: npm run build
-FROM node:18-alpine
+FROM node:18.20-alpine3.20
 
 WORKDIR /app
 
@@ -15,6 +15,9 @@ ENV HOSTNAME="0.0.0.0"
 COPY .next/standalone ./
 COPY .next/static ./.next/static
 COPY public ./public
+
+# SECURITY: Run as the built-in non-root 'node' user (uid 1000)
+USER node
 
 # Expose port and start
 EXPOSE 3030

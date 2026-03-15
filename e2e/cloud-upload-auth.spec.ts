@@ -49,7 +49,7 @@ const EXPECTED_MATCH_STATS = {
   },
   players: [
     {
-      playerName: "E2E_TestPlayer",
+      playerName: "AceViper",
       kills: 25,
       deaths: 18,
       assists: 6,
@@ -603,7 +603,7 @@ test.describe("Cloud Upload - Progress and Processing", () => {
           .catch(() => false);
 
         // Either progress or status should be visible during upload
-        expect(hasProgress || hasStatus || true).toBe(true);
+        expect(hasProgress || hasStatus).toBe(true);
       }
     }
 

@@ -241,10 +241,20 @@ export class HighlightsAPI {
       
       // Map API event types to highlight types
       let highlightType: HighlightEventType;
+      const isHeadshot = Boolean(getPayloadValue(payload, 'headshot'));
+      const isWallbang = Boolean(getPayloadValue(payload, 'is_wallbang') || getPayloadValue(payload, 'wallbang') || getPayloadValue(payload, 'iswallbang'));
+      const isNoScope = Boolean(getPayloadValue(payload, 'noscope') || getPayloadValue(payload, 'is_no_scope'));
+      const isThroughSmoke = Boolean(getPayloadValue(payload, 'is_through_smoke') || getPayloadValue(payload, 'throughsmoke') || getPayloadValue(payload, 'isthroughsmoke'));
+      const isOpeningKill = Boolean(getPayloadValue(payload, 'isopeningkill') || getPayloadValue(payload, 'is_opening_kill'));
+
       if (eventTypeLower === 'kill') {
-        // Check for special kill types
-        const isHeadshot = Boolean(getPayloadValue(payload, 'headshot'));
-        highlightType = isHeadshot ? 'Headshot' : 'GenericKill';
+        // Initial classification — will be upgraded by multi-kill detection below
+        if (isOpeningKill) highlightType = 'FirstBlood';
+        else if (isWallbang) highlightType = 'Wallbang';
+        else if (isNoScope) highlightType = 'NoScope';
+        else if (isThroughSmoke) highlightType = 'SmokeKill';
+        else if (isHeadshot) highlightType = 'Headshot';
+        else highlightType = 'GenericKill';
       } else if (eventTypeLower.startsWith('clutch')) {
         highlightType = 'Clutch';
       } else if (eventTypeLower === 'ace') {
@@ -278,8 +288,9 @@ export class HighlightsAPI {
         },
         weapon: String(getPayloadValue(payload, 'weapon') || ''),
         is_headshot: Boolean(getPayloadValue(payload, 'headshot')),
-        is_wallbang: Boolean(getPayloadValue(payload, 'is_wallbang') || getPayloadValue(payload, 'wallbang')),
-        is_noscope: Boolean(getPayloadValue(payload, 'noscope')),
+        is_wallbang: Boolean(getPayloadValue(payload, 'is_wallbang') || getPayloadValue(payload, 'wallbang') || getPayloadValue(payload, 'iswallbang')),
+        is_noscope: Boolean(getPayloadValue(payload, 'noscope') || getPayloadValue(payload, 'is_no_scope')),
+        is_through_smoke: Boolean(getPayloadValue(payload, 'is_through_smoke') || getPayloadValue(payload, 'throughsmoke') || getPayloadValue(payload, 'isthroughsmoke')),
         clutch_type: eventTypeLower.startsWith('clutch') 
           ? (String(getPayloadValue(payload, 'clutch_type') || getPayloadValue(payload, 'odds')) as GameEvent['clutch_type'])
           : undefined,
@@ -292,7 +303,84 @@ export class HighlightsAPI {
       });
     }
     
-    return highlights;
+    // ─── Multi-Kill Detection ─────────────────────────────────────────────
+    // Group kills by (killer_id, round_number) to detect Aces, Quad Kills, Triple Kills
+    const killHighlights = highlights.filter(h => 
+      h.type === 'GenericKill' || h.type === 'Headshot' || h.type === 'FirstBlood' || 
+      h.type === 'Wallbang' || h.type === 'NoScope' || h.type === 'SmokeKill'
+    );
+    const nonKillHighlights = highlights.filter(h => 
+      h.type !== 'GenericKill' && h.type !== 'Headshot' && h.type !== 'FirstBlood' && 
+      h.type !== 'Wallbang' && h.type !== 'NoScope' && h.type !== 'SmokeKill'
+    );
+    
+    const killsByPlayerRound = new Map<string, GameEvent[]>();
+    for (const kill of killHighlights) {
+      const key = `${kill.primary_player?.id || 'unknown'}_${kill.round_number || 0}`;
+      if (!killsByPlayerRound.has(key)) killsByPlayerRound.set(key, []);
+      killsByPlayerRound.get(key)!.push(kill);
+    }
+    
+    const enhancedHighlights: GameEvent[] = [...nonKillHighlights];
+    
+    for (const [, kills] of killsByPlayerRound) {
+      const killCount = kills.length;
+      
+      if (killCount >= 5) {
+        // ACE — player killed entire enemy team
+        enhancedHighlights.push({
+          ...kills[0],
+          type: 'Ace',
+          kill_count: killCount,
+          title: `${kills[0].primary_player?.display_name || 'Unknown'} ACE`,
+        });
+      } else if (killCount >= 4) {
+        // QUAD KILL
+        enhancedHighlights.push({
+          ...kills[0],
+          type: 'QuadraKill',
+          kill_count: killCount,
+          title: `${kills[0].primary_player?.display_name || 'Unknown'} QUAD KILL`,
+        });
+      } else if (killCount >= 3) {
+        // TRIPLE KILL
+        enhancedHighlights.push({
+          ...kills[0],
+          type: 'TripleKill',
+          kill_count: killCount,
+          title: `${kills[0].primary_player?.display_name || 'Unknown'} TRIPLE KILL`,
+        });
+      }
+      
+      // Always keep special kills (wallbang, noscope, smoke, opening kill) individually
+      for (const kill of kills) {
+        if (kill.type === 'FirstBlood' || kill.type === 'Wallbang' || 
+            kill.type === 'NoScope' || kill.type === 'SmokeKill') {
+          enhancedHighlights.push(kill);
+        } else if (killCount < 3) {
+          // For non-multi-kill rounds, keep headshots; skip generic kills
+          if (kill.type === 'Headshot') {
+            enhancedHighlights.push(kill);
+          }
+        }
+      }
+    }
+    
+    // Sort by priority: Ace > QuadKill > TripleKill > Clutch > FirstBlood > special > headshots
+    const typePriority: Record<string, number> = {
+      'Ace': 10, 'QuadraKill': 9, 'TripleKill': 8, 'Clutch': 7,
+      'FirstBlood': 6, 'Wallbang': 5, 'NoScope': 5, 'SmokeKill': 5,
+      'Headshot': 3, 'GenericKill': 1, 'MultiKill': 8,
+    };
+    
+    enhancedHighlights.sort((a, b) => {
+      const pa = typePriority[a.type] || 0;
+      const pb = typePriority[b.type] || 0;
+      if (pa !== pb) return pb - pa;
+      return (a.round_number || 0) - (b.round_number || 0);
+    });
+    
+    return enhancedHighlights;
   }
 
   /**

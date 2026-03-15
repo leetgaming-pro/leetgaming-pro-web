@@ -122,6 +122,11 @@ export interface MatchKillEvent {
   flash_assist_name?: string;
   assister_id?: string;
   assister_name?: string;
+  killer_position?: Position3D;
+  victim_position?: Position3D;
+  distance?: number;
+  is_opening_kill?: boolean;
+  is_trade_kill?: boolean;
 }
 
 /** Scoreboard player entry */
@@ -268,6 +273,8 @@ export interface MatchEventsResponse {
   round_ends?: Array<{ tick: number; round_number: number; winner_team: string; reason: string }>;
   bomb_plants?: Array<{ tick: number; round_number: number; player_id: string; site: string }>;
   bomb_defuses?: Array<{ tick: number; round_number: number; player_id: string }>;
+  score_updates?: Array<{ tick: number; round_number: number; team_side: string; old_score: number; new_score: number }>;
+  clutch_events?: Array<{ tick: number; round_number: number; player_id: string; player_name?: string; clutch_type: string; success?: boolean; kills_during?: number }>;
 }
 
 /** Player positioning stats */
@@ -461,7 +468,10 @@ export class MatchAnalyticsAPI {
       offset: number;
     }
     
-    const url = `/games/${gameId}/matches/${matchId}/events${limit ? `?limit=${limit}` : '?limit=1000'}`;
+    // Filter out noise events (WeaponFireID, HitID) that consume the 1000 event budget
+    // Without this filter, matches with 3000+ events only return rounds 1-5
+    const relevantEventTypes = 'kill,RoundEndID,MatchStart,ScoreUpdated,RoundMVPAnnouncement,FlashExplode,HeGrenadeExplode,SmokeStart,InfernoStart,PlayerFlashed,BombPlanted,BombDefused,ClutchStart,ClutchProgress,ClutchEnd';
+    const url = `/games/${gameId}/matches/${matchId}/events?event_types=${relevantEventTypes}&limit=${limit || 1000}`;
     const response = await this.client.get<APIResponse>(url);
     
     if (!response.data?.events) {
@@ -490,6 +500,8 @@ export class MatchAnalyticsAPI {
     const roundEnds: Array<{ tick: number; round_number: number; winner_team: string; reason: string }> = [];
     const bombPlants: Array<{ tick: number; round_number: number; player_id: string; site: string }> = [];
     const bombDefuses: Array<{ tick: number; round_number: number; player_id: string }> = [];
+    const scoreUpdates: Array<{ tick: number; round_number: number; team_side: string; old_score: number; new_score: number }> = [];
+    const clutchEvents: Array<{ tick: number; round_number: number; player_id: string; player_name?: string; clutch_type: string; success?: boolean; kills_during?: number }> = [];
 
     // Helper to parse Position3D from payload
     const parsePosition = (payload: APIEvent['payload'], prefix: string): Position3D | undefined => {
@@ -549,6 +561,13 @@ export class MatchAnalyticsAPI {
             flash_assist: Boolean(getPayloadValue(payload, 'flashassist') || getPayloadValue(payload, 'flash_assister')),
             assister_id: String(getPayloadValue(payload, 'assisterid') || getPayloadValue(payload, 'assister_steam_id') || ''),
             assister_name: String(getPayloadValue(payload, 'assistername') || getPayloadValue(payload, 'assister_name') || ''),
+            killer_position: parseNestedPosition(payload, 'killer_position') || parseNestedPosition(payload, 'killerposition') || parsePosition(payload, 'killer'),
+            victim_position: parseNestedPosition(payload, 'victim_position') || parseNestedPosition(payload, 'victimposition') || parsePosition(payload, 'victim'),
+            killer_team: String(getPayloadValue(payload, 'killer_team') || getPayloadValue(payload, 'killerteam') || ''),
+            victim_team: String(getPayloadValue(payload, 'victim_team') || getPayloadValue(payload, 'victimteam') || ''),
+            distance: Number(getPayloadValue(payload, 'distance')) || undefined,
+            is_opening_kill: Boolean(getPayloadValue(payload, 'isopeningkill') || getPayloadValue(payload, 'is_opening_kill')),
+            is_trade_kill: Boolean(getPayloadValue(payload, 'istradekill') || getPayloadValue(payload, 'is_trade_kill')),
           });
           break;
           
@@ -656,7 +675,74 @@ export class MatchAnalyticsAPI {
             fire_position: parseNestedPosition(payload, 'fire_position') || parseNestedPosition(payload, 'fireposition') || parseNestedPosition(payload, 'grenade_position') || parseNestedPosition(payload, 'grenadeposition') || parsePosition(payload, 'fire') || { x: 0, y: 0, z: 0 },
           });
           break;
+
+        case 'scoreupdated':
+          scoreUpdates.push({
+            tick: event.tick,
+            round_number: event.round_number || Number(getPayloadValue(payload, 'round_number') || getPayloadValue(payload, 'total_rounds')) || 0,
+            team_side: String(getPayloadValue(payload, 'team_side') || ''),
+            old_score: Number(getPayloadValue(payload, 'old_score')) || 0,
+            new_score: Number(getPayloadValue(payload, 'new_score')) || 0,
+          });
+          break;
+
+        case 'clutchstart':
+          clutchEvents.push({
+            tick: event.tick,
+            round_number: event.round_number || 0,
+            player_id: String(getPayloadValue(payload, 'player_id') || getPayloadValue(payload, 'playerid') || getPayloadValue(payload, 'sourceplayerid') || ''),
+            player_name: String(getPayloadValue(payload, 'player_name') || getPayloadValue(payload, 'playername') || ''),
+            clutch_type: String(getPayloadValue(payload, 'clutch_type') || getPayloadValue(payload, 'odds') || ''),
+          });
+          break;
+
+        case 'clutchend': {
+          const matchingClutch = clutchEvents.find(c =>
+            c.round_number === (event.round_number || 0) && c.success === undefined
+          );
+          if (matchingClutch) {
+            matchingClutch.success = Boolean(getPayloadValue(payload, 'success') || getPayloadValue(payload, 'won'));
+            matchingClutch.kills_during = Number(getPayloadValue(payload, 'kills')) || undefined;
+          } else {
+            clutchEvents.push({
+              tick: event.tick,
+              round_number: event.round_number || 0,
+              player_id: String(getPayloadValue(payload, 'player_id') || getPayloadValue(payload, 'playerid') || ''),
+              player_name: String(getPayloadValue(payload, 'player_name') || getPayloadValue(payload, 'playername') || ''),
+              clutch_type: String(getPayloadValue(payload, 'clutch_type') || getPayloadValue(payload, 'odds') || ''),
+              success: Boolean(getPayloadValue(payload, 'success') || getPayloadValue(payload, 'won')),
+              kills_during: Number(getPayloadValue(payload, 'kills')) || undefined,
+            });
+          }
+          break;
+        }
       }
+    }
+    
+    // Post-process: enrich round_ends with winner data from ScoreUpdated events
+    // ScoreUpdated has team_side (CT/T), old_score, new_score — the team_side is the winner
+    if (scoreUpdates.length > 0) {
+      for (const re of roundEnds) {
+        if (!re.winner_team || re.winner_team === '') {
+          const scoreUpdate = scoreUpdates.find(su => su.round_number === re.round_number);
+          if (scoreUpdate) {
+            re.winner_team = scoreUpdate.team_side;
+          }
+        }
+      }
+      // Create round_ends from ScoreUpdated for rounds that have no RoundEndID
+      for (const su of scoreUpdates) {
+        if (!roundEnds.find(re => re.round_number === su.round_number)) {
+          roundEnds.push({
+            tick: su.tick,
+            round_number: su.round_number,
+            winner_team: su.team_side,
+            reason: '',
+          });
+        }
+      }
+      // Re-sort round_ends by round_number
+      roundEnds.sort((a, b) => a.round_number - b.round_number);
     }
     
     return {
@@ -672,6 +758,8 @@ export class MatchAnalyticsAPI {
       round_ends: roundEnds.length > 0 ? roundEnds : undefined,
       bomb_plants: bombPlants.length > 0 ? bombPlants : undefined,
       bomb_defuses: bombDefuses.length > 0 ? bombDefuses : undefined,
+      score_updates: scoreUpdates.length > 0 ? scoreUpdates : undefined,
+      clutch_events: clutchEvents.length > 0 ? clutchEvents : undefined,
     };
   }
 

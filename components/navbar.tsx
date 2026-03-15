@@ -32,6 +32,7 @@ import { electrolize } from "@/config/fonts";
 import { Button } from "@nextui-org/react";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { LanguageSelector } from "@/components/i18n/language-selector";
+import { ConnectWalletButton } from "@/components/web3/connect-wallet-button";
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -109,16 +110,16 @@ export const Navbar = () => {
                     "hover:text-foreground h-full",
                     electrolize.className,
                     isPrimary
-                      ? "esports-nav-link-primary bg-gradient-to-br from-[#DCFF37] to-[#B8D930] text-zinc-900 hover:shadow-lg hover:shadow-[#DCFF37]/30"
+                      ? "esports-nav-link-primary bg-gradient-to-br from-[#34445C] to-[#2a3749] text-[#F5F0E1] dark:from-[#DCFF37] dark:to-[#B8D930] dark:text-zinc-900 hover:shadow-lg hover:shadow-[#34445C]/30 dark:hover:shadow-[#DCFF37]/30"
                       : isCloud
                       ? clsx(
-                          "esports-nav-link bg-gradient-to-br from-zinc-600 to-zinc-700 text-zinc-100 hover:from-zinc-500 hover:to-zinc-600",
+                          "esports-nav-link bg-gradient-to-br from-[#34445C] to-[#2a3749] text-[#F5F0E1] hover:from-[#3d5068] hover:to-[#34445C] dark:from-zinc-600 dark:to-zinc-700 dark:text-zinc-100 dark:hover:from-zinc-500 dark:hover:to-zinc-600",
                           active && "esports-nav-link-active"
                         )
                       : clsx(
                           "esports-nav-link",
                           active
-                            ? "esports-nav-link-active text-white dark:text-[#DCFF37]"
+                            ? "esports-nav-link-active text-[#F5F0E1] dark:text-[#DCFF37]"
                             : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10"
                         ),
                     index === 0 &&
@@ -152,6 +153,10 @@ export const Navbar = () => {
           <ThemeSwitch />
         </NavbarItem>
 
+        <NavbarItem className="hidden lg:flex">
+          <ConnectWalletButton compact showBalance={false} />
+        </NavbarItem>
+
         <NavbarItem className="hidden md:flex">
           <SessionArea />
         </NavbarItem>
@@ -159,6 +164,7 @@ export const Navbar = () => {
 
       <NavbarContent className="md:hidden basis-1 gap-1" justify="end">
         <LanguageSelector showFlag={true} variant="flat" size="sm" />
+        <NotificationCenter enableRealtime={true} />
         <ThemeSwitch />
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}

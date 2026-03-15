@@ -360,7 +360,7 @@ test.describe("Match/Replay/Highlights Journey", () => {
             '.grid-cols-3, .grid-cols-2, [class*="grid-cols"], .grid',
           );
           const hasGridLayout = (await gridLayout.count()) >= 0;
-          expect(hasGridLayout || true).toBe(true); // Always pass - just checking page loads
+          // Grid layout check — page loaded successfully
         }
       }
     });
@@ -472,7 +472,7 @@ test.describe("Match/Replay/Highlights Journey", () => {
               el.classList.contains("bg-gradient-to-r") ||
               getComputedStyle(el).background.includes("gradient"),
           );
-          expect(hasGradient || true).toBe(true); // Allow for CSS-in-JS styling
+          // CSS-in-JS gradient check is informational only
         }
       }
     });
@@ -590,7 +590,7 @@ test.describe("Match/Replay/Highlights Journey", () => {
           const hasVisibilityInfo = (await visibilityElements.count()) > 0;
 
           // Should either show visibility info or be publicly accessible
-          expect(hasVisibilityInfo || true).toBe(true);
+          // Visibility info is optional for public content
         }
 
         // Verify no auth-required errors are blocking public content
@@ -714,7 +714,7 @@ test.describe("Match/Replay/Highlights Journey", () => {
               el.classList.toString().includes("border-")
             );
           });
-          expect(hasBrandedColor || true).toBe(true);
+          // Branding color check is informational only
         }
       }
     });

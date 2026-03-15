@@ -806,7 +806,7 @@ test.describe("Prize Pool on Finalized Score", () => {
     const has1st = await firstPlace.isVisible().catch(() => false);
 
     // At least partial display
-    expect(hasPayout || hasWinner || has1st || true).toBe(true);
+    expect(hasPayout || hasWinner || has1st).toBe(true);
   });
 
   test('should have "View in Wallet" link on distributed prize pool', async ({
@@ -870,7 +870,7 @@ test.describe("Wallet Transaction Links", () => {
     const debitAmount = page.getByText(/-.*5\.00/i).first();
     const hasDebit = await debitAmount.isVisible().catch(() => false);
 
-    expect(hasCredit || hasDebit || true).toBe(true);
+    expect(hasCredit || hasDebit).toBe(true);
   });
 });
 

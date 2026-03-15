@@ -11,17 +11,17 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { matchId: string } },
 ) {
   try {
-    const { id } = params;
+    const { matchId } = params;
     const { searchParams } = new URL(request.url);
     const gameId = searchParams.get("gameId") || "cs2";
 
     const sdk = createPublicSDK();
 
     // Fetch match details
-    const match = await sdk.matches.getMatch(gameId, id);
+    const match = await sdk.matches.getMatch(gameId, matchId);
 
     if (!match) {
       return NextResponse.json(
@@ -47,7 +47,7 @@ export async function GET(
       },
     );
   } catch (error) {
-    logger.error("[API /api/matches/[id]] Error fetching match", error);
+    logger.error("[API /api/matches/[matchId]] Error fetching match", error);
 
     return NextResponse.json(
       {

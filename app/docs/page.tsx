@@ -96,6 +96,39 @@ export default function DocsPage() {
         </p>
       </div>
 
+      {/* LeetScores API Banner */}
+      <Link href="/docs/leetscores" className="w-full max-w-7xl block group">
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 hover:shadow-xl hover:shadow-[#FF4654]/10 dark:hover:shadow-[#DCFF37]/10 transition-all duration-300 hover:-translate-y-1 bg-gradient-to-r from-[#FF4654]/5 via-transparent to-[#FFC700]/5 dark:from-[#DCFF37]/5 dark:via-transparent dark:to-[#34445C]/5">
+          <CardBody className="p-4 sm:p-6 lg:p-8 flex flex-row items-center gap-4 sm:gap-6">
+            <div
+              className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+              }}
+            >
+              <Icon icon="solar:chart-2-bold" className="w-6 h-6 sm:w-7 sm:h-7 text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg sm:text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                  LeetScores API
+                </h3>
+                <Chip size="sm" color="danger" variant="flat" className="text-xs">
+                  NEW
+                </Chip>
+              </div>
+              <p className="text-sm sm:text-base text-default-600 truncate">
+                Real-time score intelligence, embeddable components, on-chain verification & SDK — explore the product docs
+              </p>
+            </div>
+            <Icon
+              icon="solar:arrow-right-bold"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-[#FF4654] dark:text-[#DCFF37] flex-shrink-0 group-hover:translate-x-1 transition-transform"
+            />
+          </CardBody>
+        </Card>
+      </Link>
+
       {/* Main Content */}
       <div className="w-full max-w-7xl">
         <Tabs

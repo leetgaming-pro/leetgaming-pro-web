@@ -116,7 +116,10 @@ describe('WalletAPI', () => {
       const result = await walletApi.deposit(depositRequest);
 
       expect(result).toEqual(mockTransaction);
-      expect(mockClient.post).toHaveBeenCalledWith('/wallet/deposit', depositRequest);
+      expect(mockClient.post).toHaveBeenCalledWith('/wallet/deposit', expect.objectContaining({
+        ...depositRequest,
+        idempotency_key: expect.any(String),
+      }));
     });
 
     it('should return null on deposit error', async () => {
@@ -150,7 +153,10 @@ describe('WalletAPI', () => {
 
       expect(result).not.toBeNull();
       expect(result?.type).toBe('withdrawal');
-      expect(mockClient.post).toHaveBeenCalledWith('/wallet/withdraw', withdrawRequest);
+      expect(mockClient.post).toHaveBeenCalledWith('/wallet/withdraw', expect.objectContaining({
+        ...withdrawRequest,
+        idempotency_key: expect.any(String),
+      }));
     });
 
     it('should return null on withdrawal error', async () => {

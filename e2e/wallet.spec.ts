@@ -583,11 +583,47 @@ test.describe("Wallet Page — Multi-Payment Checkout", () => {
     }
 
     await depositBtn.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
+
+    // Step 1: Enter an amount — the deposit modal opens on the "amount" step.
+    // Select a $50 preset or type an amount, then click Continue to advance
+    // to the "method" step where payment methods are listed.
+    const presetCard = page.getByText("$50").first();
+    const hasPreset = await presetCard
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+
+    if (hasPreset) {
+      await presetCard.click();
+      await page.waitForTimeout(500);
+    } else {
+      // Fallback: type amount directly
+      const amountInput = page.getByPlaceholder(/enter amount/i).first();
+      const hasInput = await amountInput
+        .isVisible({ timeout: 3000 })
+        .catch(() => false);
+      if (hasInput) {
+        await amountInput.fill("50");
+        await page.waitForTimeout(500);
+      }
+    }
+
+    // Click Continue to advance to the method step
+    const continueBtn = page
+      .getByRole("button", { name: /continue/i })
+      .first();
+    const hasContinue = await continueBtn
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
+    if (hasContinue) {
+      await continueBtn.click();
+      await page.waitForTimeout(1500);
+    }
 
     const bodyText = (await page.textContent("body"))?.toLowerCase() ?? "";
 
     // Count how many payment methods are mentioned
+    // The method step shows: Cryptocurrency, Credit/Debit Card, PayPal, Bank Transfer
     const methods = [
       "card",
       "credit",
@@ -619,7 +655,39 @@ test.describe("Wallet Page — Multi-Payment Checkout", () => {
     }
 
     await depositBtn.click();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(1000);
+
+    // Navigate through the deposit modal: enter amount → advance to method step
+    const presetCard = page.getByText("$50").first();
+    const hasPreset = await presetCard
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
+
+    if (hasPreset) {
+      await presetCard.click();
+      await page.waitForTimeout(500);
+    } else {
+      const amountInput = page.getByPlaceholder(/enter amount/i).first();
+      const hasInput = await amountInput
+        .isVisible({ timeout: 3000 })
+        .catch(() => false);
+      if (hasInput) {
+        await amountInput.fill("50");
+        await page.waitForTimeout(500);
+      }
+    }
+
+    // Click Continue to advance to the method step
+    const continueBtn = page
+      .getByRole("button", { name: /continue/i })
+      .first();
+    const hasContinue = await continueBtn
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
+    if (hasContinue) {
+      await continueBtn.click();
+      await page.waitForTimeout(1500);
+    }
 
     const bodyText = (await page.textContent("body"))?.toLowerCase() ?? "";
 

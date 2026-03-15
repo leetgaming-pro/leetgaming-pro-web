@@ -252,7 +252,7 @@
   /* ========== BRANDED CARDS ========== */
 
   .leet-card {
-    background: white;
+    background: rgb(var(--leet-cream));
     border: 1px solid rgba(var(--leet-orange), 0.2);
     border-radius: 0;
   }
@@ -264,7 +264,7 @@
 
   /* Card on Navy Background */
   .leet-card-on-navy {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(var(--leet-cream), 0.95);
     color: rgb(var(--leet-navy));
     border: 1px solid rgba(var(--leet-orange), 0.3);
     border-radius: 0;
@@ -272,18 +272,18 @@
 
   .dark .leet-card-on-navy {
     background: rgba(var(--leet-black), 0.8);
-    color: white;
+    color: rgb(var(--leet-cream));
     border-color: rgba(var(--leet-lime), 0.3);
   }
 
   /* ========== TEXT UTILITIES ========== */
 
   .text-on-navy {
-    color: white !important;
+    color: rgb(var(--leet-cream)) !important;
   }
 
   .text-on-navy-muted {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(var(--leet-cream), 0.7) !important;
   }
 
   .text-on-lime {
@@ -2519,5 +2519,162 @@
 
   .mobile-chip-danger {
     @apply bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400;
+  }
+
+  /* ========== LANDING PAGE SECTIONS ========== */
+
+  .landing-section {
+    @apply relative w-full;
+    overflow-x: hidden;
+  }
+
+  .landing-section-title {
+    font-family: "Electrolize", sans-serif;
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight;
+  }
+
+  .landing-section-label {
+    font-family: "Electrolize", sans-serif;
+    @apply text-xs sm:text-sm uppercase tracking-[0.3em] mb-4 block;
+    color: rgb(var(--leet-orange));
+  }
+
+  :is(.dark) .landing-section-label {
+    color: rgb(var(--leet-lime));
+  }
+
+  .landing-gradient-divider {
+    @apply w-full h-px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--leet-orange)) 20%,
+      rgb(var(--leet-gold)) 50%,
+      rgb(var(--leet-orange)) 80%,
+      transparent 100%
+    );
+  }
+
+  :is(.dark) .landing-gradient-divider {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--leet-lime)) 20%,
+      rgb(var(--leet-gold)) 50%,
+      rgb(var(--leet-lime)) 80%,
+      transparent 100%
+    );
+  }
+
+  /* Section scroll dot navigation */
+  .landing-nav-dot {
+    @apply w-2 h-2 transition-all duration-300;
+    background: rgb(var(--leet-cream) / 0.3);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%);
+  }
+
+  .landing-nav-dot.active {
+    @apply w-2.5 h-2.5;
+    background: rgb(var(--leet-lime));
+  }
+}
+
+/* =============================================
+   PROFESSIONAL PROFILE COMPONENTS
+   Skills Radar, Trait Badges, Team Timeline
+   ============================================= */
+
+/* Diamond trait shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Trait tier glow effects */
+@layer components {
+  .leet-trait-glow-bronze {
+    box-shadow: 0 0 8px rgba(180, 83, 9, 0.2);
+  }
+
+  .leet-trait-glow-silver {
+    box-shadow: 0 0 10px rgba(148, 163, 184, 0.25);
+  }
+
+  .leet-trait-glow-gold {
+    box-shadow: 0 0 14px rgba(255, 199, 0, 0.3);
+  }
+
+  .leet-trait-glow-diamond {
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+  }
+
+  /* Timeline gradient line */
+  .leet-timeline-line {
+    background: linear-gradient(
+      180deg,
+      rgb(var(--leet-orange) / 0.4) 0%,
+      rgb(var(--leet-gold) / 0.2) 50%,
+      transparent 100%
+    );
+    width: 2px;
+  }
+
+  :is(.dark) .leet-timeline-line {
+    background: linear-gradient(
+      180deg,
+      rgb(var(--leet-lime) / 0.4) 0%,
+      rgb(var(--leet-navy) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Skill radar chart axis styling */
+  .leet-radar-axis {
+    stroke: rgb(var(--leet-navy) / 0.15);
+    stroke-width: 0.5;
+  }
+
+  :is(.dark) .leet-radar-axis {
+    stroke: rgb(var(--leet-lime) / 0.15);
+  }
+
+  /* Skill radar fill animation */
+  .leet-skill-fill {
+    fill: rgb(var(--leet-orange) / 0.2);
+    stroke: rgb(var(--leet-orange) / 0.6);
+    stroke-width: 2;
+    transition: all 0.3s ease;
+  }
+
+  :is(.dark) .leet-skill-fill {
+    fill: rgb(var(--leet-lime) / 0.15);
+    stroke: rgb(var(--leet-lime) / 0.5);
+  }
+
+  /* Profile hero parallax banner */
+  .leet-profile-banner {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-orange) / 0.1) 0%,
+      rgb(var(--leet-gold) / 0.05) 50%,
+      rgb(var(--leet-navy) / 0.1) 100%
+    );
+  }
+
+  :is(.dark) .leet-profile-banner {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--leet-lime) / 0.05) 0%,
+      rgb(var(--leet-navy) / 0.1) 50%,
+      rgb(var(--leet-lime) / 0.05) 100%
+    );
   }
 }

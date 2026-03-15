@@ -254,7 +254,7 @@ describe('PaymentAPI', () => {
       const result = await paymentApi.createPaymentIntent(request);
 
       expect(result).toEqual(mockIntentResult);
-      expect(mockClient.post).toHaveBeenCalledWith('/payments/intent', request);
+      expect(mockClient.post).toHaveBeenCalledWith('/payments', request);
     });
 
     it('should create a payment intent with PayPal redirect', async () => {
@@ -731,7 +731,7 @@ describe('PaymentAPI - Edge Cases', () => {
     const result = await paymentApi.createPaymentIntent(request);
 
     expect(result).not.toBeNull();
-    expect(mockClient.post).toHaveBeenCalledWith('/payments/intent', expect.objectContaining({
+    expect(mockClient.post).toHaveBeenCalledWith('/payments', expect.objectContaining({
       metadata: {
         plan_id: 'pro_monthly',
         plan_name: 'Pro Monthly',

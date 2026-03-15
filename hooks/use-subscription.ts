@@ -7,6 +7,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSession } from "next-auth/react";
 import { useSDK } from "@/contexts/sdk-context";
 import { logger } from "@/lib/logger";
 import {
@@ -49,6 +50,7 @@ export interface UseSubscriptionResult {
 }
 
 export function useSubscription(autoFetch = true): UseSubscriptionResult {
+  const { status: sessionStatus } = useSession();
   const { sdk } = useSDK();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentSubscription, setCurrentSubscription] =
@@ -244,13 +246,13 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }, [currentSubscription]);
 
-  // Auto-fetch on mount
+  // Auto-fetch on mount — only when authenticated to prevent 401 noise
   useEffect(() => {
-    if (autoFetch) {
+    if (autoFetch && sessionStatus === "authenticated") {
       refreshPlans();
       refreshSubscription();
     }
-  }, [autoFetch, refreshPlans, refreshSubscription]);
+  }, [autoFetch, sessionStatus, refreshPlans, refreshSubscription]);
 
   return {
     plans,

@@ -8,7 +8,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
+import { getAuthContextFromRequest } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,8 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { headers: authHeaders, isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
@@ -26,7 +27,6 @@ export async function DELETE(
     }
 
     const { session_id } = params;
-    const authHeaders = getAuthHeadersFromCookies();
 
     // Forward request to replay-api backend with auth headers
     // Backend handles session ownership verification

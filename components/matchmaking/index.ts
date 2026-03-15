@@ -10,3 +10,9 @@ export type { MatchmakingQueueProps } from "./queue";
 
 export { MapVetoComponent } from "./map-veto";
 export type { MapVetoProps } from "./map-veto";
+
+export { ReadyCheckOverlay } from "./ReadyCheckOverlay";
+export type { ReadyCheckOverlayProps, ReadyCheckPlayer } from "./ReadyCheckOverlay";
+
+export { GameConnectionCard } from "./GameConnectionCard";
+export type { GameConnectionCardProps, GameConnectionInfo } from "./GameConnectionCard";

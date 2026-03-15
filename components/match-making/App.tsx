@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { domAnimation, LazyMotion, m } from "framer-motion";
+import { Icon } from "@iconify/react";
 import { useToast } from "@/components/toast/toast-provider";
 
 import MultistepSidebar from "./multistep-sidebar";
@@ -52,10 +54,18 @@ const variants = {
 function WizardContent() {
   const { state, updateState, startMatchmaking, cancelMatchmaking } =
     useWizard();
-  const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user: _user } = useAuth();
   const { hasProfiles: _hasProfiles, hasProfileForGame, activeProfile: _activeProfile } = useProfiles();
   const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
+
+  // Prevent SSR/client hydration mismatch: session state differs between
+  // server (loading) and client (unauthenticated), which causes the auth
+  // banner to appear only client-side. Defer auth-dependent UI to after mount.
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   // Validation for each step
   const canProceed = React.useCallback(
@@ -170,11 +180,14 @@ function WizardContent() {
         await startMatchmaking(state.selectedProfileId);
         showToast("Searching for opponents...", "success");
       } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to start matchmaking. Please try again.";
-        showToast(errorMessage, "error");
+        // startMatchmaking re-throws on failure — show specific error to user
+        const msg =
+          error instanceof Error ? error.message : "Failed to start matchmaking";
+        if (msg.includes("auth") || msg.includes("sign in")) {
+          showToast("Please sign in to start matchmaking", "error");
+        } else {
+          showToast(msg, "error");
+        }
       }
     } else {
       // Validate current step before proceeding
@@ -291,6 +304,34 @@ function WizardContent() {
       onNext={onNext}
     >
       <div className="relative flex h-fit w-full flex-col pt-6 text-center lg:h-full lg:justify-center lg:pt-0">
+        {/* Auth awareness banner for unauthenticated users */}
+        {hasMounted && !isAuthLoading && !isAuthenticated && (
+          <div
+            data-testid="auth-banner"
+            className="mx-auto mb-4 w-full max-w-2xl border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-[#FF4654]/5 dark:bg-[#DCFF37]/10 px-4 py-3"
+            style={{
+              clipPath:
+                'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)',
+            }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm text-[#34445C] dark:text-[#F5F0E1]">
+                <Icon icon="solar:shield-user-bold" width={18} className="text-[#FF4654] dark:text-[#DCFF37] flex-shrink-0" />
+                <span>Sign in to save matches and earn rewards</span>
+              </div>
+              <Link
+                href="/signin?callbackUrl=%2Fmatch-making"
+                className="flex-shrink-0 px-3 py-1 text-xs font-bold uppercase tracking-wider bg-[#34445C] text-[#F5F0E1] dark:bg-[#DCFF37] dark:text-black hover:opacity-80 transition-colors"
+                style={{
+                  clipPath:
+                    'polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)',
+                }}
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
+        )}
         {content}
         <MultistepNavigationButtons
           backButtonProps={{

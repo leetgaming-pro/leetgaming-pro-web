@@ -2,6 +2,9 @@
 # Stage 1: Build
 FROM node:18-alpine AS builder
 
+# Install native build dependencies for node-gyp (bufferutil, utf-8-validate)
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 
 # Copy package files
@@ -14,8 +17,10 @@ RUN npm ci
 COPY . .
 
 # Set environment variables for client-side code (baked into bundle at build time)
-ENV NEXT_PUBLIC_REPLAY_API_URL=http://localhost:8080
-ENV NEXT_PUBLIC_API_URL=http://localhost:8080
+ARG NEXT_PUBLIC_REPLAY_API_URL=http://localhost:8080
+ARG NEXT_PUBLIC_API_URL=http://localhost:8080
+ENV NEXT_PUBLIC_REPLAY_API_URL=$NEXT_PUBLIC_REPLAY_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Stripe publishable key (safe for client-side, override with ARG for real key)
 ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51SzeyyF7JraMSsMblNYxtxANFa6jpiOYWGjjQc1x7RKVkung6pZfWppooO0TzLjnsOKyN0RjSYxVxS3KqBSaCxVq002dlDqGIB
@@ -23,6 +28,12 @@ ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
+# Provide build-time env placeholders so Next.js page data collection
+# doesn't throw — real values are injected at runtime via K8s secrets
+# hadolint ignore=DL3044
+ENV NEXTAUTH_SECRET=build-time-placeholder-replaced-at-runtime
+ENV STEAM_VHASH_SOURCE=build-time-placeholder
+ENV REPLAY_API_URL=http://replay-api-service:8080
 RUN npm run build
 
 # Stage 2: Production

@@ -48,6 +48,7 @@ import { DepositModal } from "@/components/wallet/modals/deposit-modal";
 import { WithdrawModal } from "@/components/wallet/modals/withdraw-modal";
 import { TransactionHistoryModal } from "@/components/wallet/modals/transaction-history-modal";
 import { useWallet } from "@/hooks/use-wallet";
+import { ConnectWalletButton } from "@/components/web3/connect-wallet-button";
 import { logger } from "@/lib/logger";
 
 export default function WalletPage() {
@@ -335,7 +336,8 @@ export default function WalletPage() {
           </div>
 
           {/* Desktop Action Buttons */}
-          <div className="hidden sm:flex gap-2">
+          <div className="hidden sm:flex gap-2 items-center">
+            <ConnectWalletButton compact={false} showBalance={true} />
             <EsportsButton
               variant="primary"
               glow

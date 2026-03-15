@@ -66,6 +66,9 @@ export type { PlayerStatus as TournamentPlayerStatus } from "./tournament.types"
 export * from "./blockchain.types";
 export type { PrizePoolAPI as BlockchainPrizePoolAPI } from "./blockchain.sdk";
 
+// Player profile types (skills, traits, team history)
+export * from "./player-profile.types";
+
 // Common game-agnostic types (multi-game support)
 export type { 
   Position3D as CommonPosition3D, 

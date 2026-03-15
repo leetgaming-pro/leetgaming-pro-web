@@ -170,7 +170,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
           />
           <m.div
             animate={{ x: [0, -80, 0], y: [0, 60, 0] }}
-            className="absolute bottom-20 right-1/4 w-80 h-80 bg-[#DCFF37]/10 rounded-full blur-[100px]"
+            className="absolute bottom-20 right-1/4 w-80 h-80 bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 rounded-full blur-[100px]"
             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           />
         </div>
@@ -178,9 +178,10 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
         <div className="relative container mx-auto px-6 py-20 lg:py-28">
           {/* Section Header */}
           <m.div
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            className="text-center mb-16"
             transition={{ duration: 0.6 }}
           >
             {/* Live indicator */}
@@ -200,7 +201,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               orbitron.className
             )}>
               <span className="text-foreground">Join The </span>
-              <span className="bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF4654] via-[#E6A800] to-[#34445C] dark:from-[#FF4654] dark:via-[#FFC700] dark:to-[#DCFF37] bg-clip-text text-transparent">
                 Battle
               </span>
             </h2>
@@ -212,13 +213,14 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
 
             {/* Live Stats Bar */}
             <m.div
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-8 px-8 py-4 rounded-none border border-default-200/30 bg-default-100/30 backdrop-blur-sm"
               initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-8 px-8 py-4 rounded-none border border-default-200/30 bg-default-100/30 backdrop-blur-sm"
               transition={{ delay: 0.3, duration: 0.5 }}
             >
               <div className="text-center">
-                <div className={clsx("text-2xl font-black text-[#DCFF37]", orbitron.className)}>
+                <div className={clsx("text-2xl font-black text-[#FF4654] dark:text-[#DCFF37]", orbitron.className)}>
                   <AnimatedCounter value={stats.totalPlayers} />
                 </div>
                 <div className="text-xs text-default-400 uppercase tracking-wider">Players Online</div>
@@ -232,7 +234,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               </div>
               <div className="w-px h-10 bg-default-200/50" />
               <div className="text-center">
-                <div className={clsx("text-2xl font-black text-[#FFC700]", orbitron.className)}>
+                <div className={clsx("text-2xl font-black text-[#E6A800] dark:text-[#FFC700]", orbitron.className)}>
                   <AnimatedCounter value={stats.gamesPlayed} />+
                 </div>
                 <div className="text-xs text-default-400 uppercase tracking-wider">Games Today</div>
@@ -475,7 +477,7 @@ function LobbyShowcaseCard({ lobby, index, theme: _theme, isHovered, onJoin, onH
               </div>
               <span className={clsx(
                 "text-sm font-bold",
-                isFull ? "text-red-500" : "text-[#DCFF37]",
+                isFull ? "text-red-500" : "text-[#FF4654] dark:text-[#DCFF37]",
                 orbitron.className
               )}>
                 {playerCount}/{maxPlayers}

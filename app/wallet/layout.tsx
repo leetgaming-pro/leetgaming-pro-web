@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useRequireAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 
 /**
  * Wallet Layout with Tier-Based Routing
@@ -19,9 +19,9 @@ export default function WalletLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, isLoading: isAuthLoading } = useRequireAuth({
-    callbackUrl: pathname,
-  });
+  // Use useAuth (not useRequireAuth) — auth enforcement is handled by each
+  // child page. The layout only needs auth state for tier-based routing.
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const { currentSubscription, isLoadingSubscription } =
     useSubscription(isAuthenticated);

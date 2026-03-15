@@ -105,15 +105,26 @@ describe("MatchmakingAPI", () => {
       });
     });
 
-    it("should return null on error", async () => {
+    it("should throw on error", async () => {
       mockClient.post.mockResolvedValueOnce({
         data: null,
         error: "Network error",
       });
 
-      const result = await matchmakingApi.joinQueue(validRequest);
+      await expect(matchmakingApi.joinQueue(validRequest)).rejects.toThrow(
+        "Network error"
+      );
+    });
 
-      expect(result).toBeNull();
+    it("should throw with auth prefix for auth errors", async () => {
+      mockClient.post.mockResolvedValueOnce({
+        data: null,
+        error: { message: "Please sign in to continue.", isAuthError: true },
+      });
+
+      await expect(matchmakingApi.joinQueue(validRequest)).rejects.toThrow(
+        "auth: Please sign in to continue."
+      );
     });
 
     it("should include squad_id when provided", async () => {

@@ -46,12 +46,14 @@ import type {
   TeamResult,
   PlayerResult,
   ResultStatus,
+  ScorePermissions,
 } from "@/types/replay-api/scores.types";
 import {
   STATUS_COLORS,
   STATUS_LABELS,
   SOURCE_LABELS,
   SOURCE_ICONS,
+  getScorePermissions,
 } from "@/types/replay-api/scores.types";
 import type { PrizePool } from "@/types/replay-api/prize-pool.types";
 
@@ -764,7 +766,7 @@ export default function MatchResultDetailPage() {
   const params = useParams();
   const _router = useRouter();
   const resultId = params?.id as string;
-  const { isAuthenticated } = useOptionalAuth();
+  const { isAuthenticated, user } = useOptionalAuth();
   const { sdk, isReady } = useSDK();
 
   const [result, setResult] = useState<MatchResult | null>(null);
@@ -777,6 +779,12 @@ export default function MatchResultDetailPage() {
   // Dispute modal
   const disputeModal = useDisclosure();
   const [disputeReason, setDisputeReason] = useState("");
+  // Cancel modal
+  const cancelModal = useDisclosure();
+  const [cancelReason, setCancelReason] = useState("");
+  // Conciliate modal
+  const conciliateModal = useDisclosure();
+  const [conciliateNotes, setConciliateNotes] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
@@ -895,15 +903,17 @@ export default function MatchResultDetailPage() {
   };
 
   const handleCancel = async () => {
-    if (!resultId) return;
+    if (!resultId || !cancelReason.trim()) return;
     setActionLoading(true);
     clearFeedback();
     try {
       const updated = await sdk.scores.cancelMatchResult(resultId, {
-        reason: "Cancelled by admin",
+        reason: cancelReason,
       });
       if (updated) {
         setResult(updated);
+        cancelModal.onClose();
+        setCancelReason("");
         setActionSuccess("Result cancelled");
       }
     } catch (err) {
@@ -916,23 +926,70 @@ export default function MatchResultDetailPage() {
     }
   };
 
-  // Determine available actions based on current status
-  const availableActions = useMemo(() => {
-    if (!result)
+  // Conciliate handler
+  const handleConciliate = async () => {
+    if (!resultId || !conciliateNotes.trim()) return;
+    setActionLoading(true);
+    clearFeedback();
+    try {
+      const updated = await sdk.scores.conciliateMatchResult(resultId, {
+        notes: conciliateNotes,
+      });
+      if (updated) {
+        setResult(updated);
+        conciliateModal.onClose();
+        setConciliateNotes("");
+        setActionSuccess("Dispute resolved successfully");
+      }
+    } catch (err) {
+      logger.error("[MatchResultDetail] Conciliate failed", err);
+      setActionError(
+        err instanceof Error ? err.message : "Failed to resolve dispute",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Determine available actions based on status + user role (RBAC)
+  // Tournament organizers and platform admins can manage scores;
+  // participants can only dispute results they're part of.
+  const permissions: ScorePermissions = useMemo(() => {
+    if (!result || !isAuthenticated || !user) {
       return {
         canVerify: false,
         canDispute: false,
+        canConciliate: false,
         canFinalize: false,
         canCancel: false,
+        canSubmit: false,
+        isParticipant: false,
+        isOrganizer: false,
+        isAdmin: false,
       };
-    const s = result.status;
-    return {
-      canVerify: s === "submitted" || s === "under_review",
-      canDispute: s === "verified" || s === "submitted" || s === "under_review",
-      canFinalize: s === "verified" || s === "conciliated",
-      canCancel: s !== "finalized" && s !== "cancelled",
-    };
-  }, [result]);
+    }
+
+    // Collect organizer IDs from tournament context if available.
+    // In a full implementation these would come from the tournament entity;
+    // for now the backend enforces the real RBAC — the frontend uses a
+    // best-effort check to hide/show buttons appropriately.
+    const organizerIds: string[] = [];
+    if (result.submitted_by) {
+      // The submitter is often the organizer for tournament_admin source
+      if (result.source === "tournament_admin") {
+        organizerIds.push(result.submitted_by);
+      }
+    }
+
+    return getScorePermissions(result, user, organizerIds);
+  }, [result, isAuthenticated, user]);
+
+  const hasAnyAction =
+    permissions.canVerify ||
+    permissions.canDispute ||
+    permissions.canConciliate ||
+    permissions.canFinalize ||
+    permissions.canCancel;
 
   // Loading
   if (loading) {
@@ -997,60 +1054,93 @@ export default function MatchResultDetailPage() {
             )}
           </div>
 
-          {/* Action Buttons */}
-          {isAuthenticated && (
+          {/* Action Buttons — RBAC-gated */}
+          {hasAnyAction && (
             <div className="flex items-center gap-2 flex-wrap">
-              {availableActions.canVerify && (
-                <EsportsButton
-                  size="sm"
-                  onClick={handleVerify}
-                  loading={actionLoading}
-                  startContent={
-                    <Icon icon="solar:verified-check-bold-duotone" width={16} />
-                  }
-                >
-                  Verify
-                </EsportsButton>
+              {permissions.canVerify && (
+                <Tooltip content="Verify this result as accurate (Organizer/Admin)">
+                  <div>
+                    <EsportsButton
+                      size="sm"
+                      onClick={handleVerify}
+                      loading={actionLoading}
+                      startContent={
+                        <Icon icon="solar:verified-check-bold-duotone" width={16} />
+                      }
+                    >
+                      Verify
+                    </EsportsButton>
+                  </div>
+                </Tooltip>
               )}
-              {availableActions.canDispute && (
-                <EsportsButton
-                  size="sm"
-                  variant="ghost"
-                  onClick={disputeModal.onOpen}
-                  startContent={
-                    <Icon
-                      icon="solar:danger-triangle-bold-duotone"
-                      width={16}
-                    />
-                  }
-                >
-                  Dispute
-                </EsportsButton>
+              {permissions.canDispute && (
+                <Tooltip content="Dispute this result — provide evidence for review">
+                  <div>
+                    <EsportsButton
+                      size="sm"
+                      variant="ghost"
+                      onClick={disputeModal.onOpen}
+                      startContent={
+                        <Icon
+                          icon="solar:danger-triangle-bold-duotone"
+                          width={16}
+                        />
+                      }
+                    >
+                      Dispute
+                    </EsportsButton>
+                  </div>
+                </Tooltip>
               )}
-              {availableActions.canFinalize && (
-                <EsportsButton
-                  size="sm"
-                  onClick={handleFinalize}
-                  loading={actionLoading}
-                  startContent={
-                    <Icon icon="solar:check-circle-bold-duotone" width={16} />
-                  }
-                >
-                  Finalize
-                </EsportsButton>
+              {permissions.canConciliate && (
+                <Tooltip content="Resolve the active dispute (Organizer/Admin)">
+                  <div>
+                    <EsportsButton
+                      size="sm"
+                      variant="ghost"
+                      onClick={conciliateModal.onOpen}
+                      loading={actionLoading}
+                      startContent={
+                        <Icon icon="solar:shield-check-bold-duotone" width={16} />
+                      }
+                    >
+                      Resolve Dispute
+                    </EsportsButton>
+                  </div>
+                </Tooltip>
               )}
-              {availableActions.canCancel && (
-                <EsportsButton
-                  size="sm"
-                  variant="danger"
-                  onClick={handleCancel}
-                  loading={actionLoading}
-                  startContent={
-                    <Icon icon="solar:close-circle-bold-duotone" width={16} />
-                  }
-                >
-                  Cancel
-                </EsportsButton>
+              {permissions.canFinalize && (
+                <Tooltip content="Finalize result and trigger prize distribution (Organizer/Admin)">
+                  <div>
+                    <EsportsButton
+                      size="sm"
+                      onClick={handleFinalize}
+                      loading={actionLoading}
+                      startContent={
+                        <Icon icon="solar:check-circle-bold-duotone" width={16} />
+                      }
+                    >
+                      Finalize
+                    </EsportsButton>
+                  </div>
+                </Tooltip>
+              )}
+              {permissions.canCancel && (
+                <Tooltip content="Cancel this result — prizes will NOT be distributed">
+                  <div>
+                    <EsportsButton
+                      size="sm"
+                      variant="danger"
+                      onClick={cancelModal.onOpen}
+                      loading={actionLoading}
+                      startContent={
+                        <Icon icon="solar:close-circle-bold-duotone" width={16} />
+                      }
+                    >
+                      Cancel
+                    </EsportsButton>
+                  </div>
+                </Tooltip>
               )}
             </div>
           )}
@@ -1430,6 +1520,97 @@ export default function MatchResultDetailPage() {
               disabled={!disputeReason.trim()}
             >
               Submit Dispute
+            </EsportsButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Cancel Modal */}
+      <Modal
+        isOpen={cancelModal.isOpen}
+        onClose={cancelModal.onClose}
+        size="lg"
+      >
+        <ModalContent>
+          <ModalHeader className={electrolize.className}>
+            <Icon
+              icon="solar:close-circle-bold-duotone"
+              width={20}
+              className="text-danger mr-2"
+            />
+            Cancel Match Result
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-default-500 mb-3">
+              This action will void the match result. Prizes will NOT be
+              distributed. Please provide a reason for the cancellation.
+            </p>
+            <Textarea
+              label="Cancellation Reason"
+              placeholder="Explain why this match result is being cancelled..."
+              value={cancelReason}
+              onValueChange={setCancelReason}
+              minRows={3}
+              maxRows={6}
+              variant="bordered"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <EsportsButton variant="ghost" onClick={cancelModal.onClose}>
+              Go Back
+            </EsportsButton>
+            <EsportsButton
+              variant="danger"
+              onClick={handleCancel}
+              loading={actionLoading}
+              disabled={!cancelReason.trim()}
+            >
+              Confirm Cancellation
+            </EsportsButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Conciliate Modal */}
+      <Modal
+        isOpen={conciliateModal.isOpen}
+        onClose={conciliateModal.onClose}
+        size="lg"
+      >
+        <ModalContent>
+          <ModalHeader className={electrolize.className}>
+            <Icon
+              icon="solar:shield-check-bold-duotone"
+              width={20}
+              className="text-success mr-2"
+            />
+            Resolve Dispute
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-default-500 mb-3">
+              Describe the resolution of this dispute. Include any evidence
+              reviewed or reasoning for the decision.
+            </p>
+            <Textarea
+              label="Resolution Notes"
+              placeholder="Explain how this dispute was resolved..."
+              value={conciliateNotes}
+              onValueChange={setConciliateNotes}
+              minRows={3}
+              maxRows={6}
+              variant="bordered"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <EsportsButton variant="ghost" onClick={conciliateModal.onClose}>
+              Cancel
+            </EsportsButton>
+            <EsportsButton
+              onClick={handleConciliate}
+              loading={actionLoading}
+              disabled={!conciliateNotes.trim()}
+            >
+              Resolve Dispute
             </EsportsButton>
           </ModalFooter>
         </ModalContent>

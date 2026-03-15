@@ -19,13 +19,13 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { PageContainer } from "@/components/layouts/centered-content";
+import { EsportsButton } from "@/components/ui/esports-button";
 import {
   TournamentBracket,
   BracketMatch,
 } from "@/components/tournaments/tournament-bracket";
 import { logger } from "@/lib/logger";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { useSDK } from "@/contexts/sdk-context";
 import type { Tournament } from "@/types/replay-api/tournament.types";
 import {
   TOURNAMENT_STATUS_CONFIG,
@@ -38,6 +38,7 @@ const REFRESH_INTERVAL = 15_000; // 15 seconds
 export default function TournamentLivePage() {
   const params = useParams();
   const router = useRouter();
+  const { sdk, isReady } = useSDK();
   const tournamentId = params.id as string;
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -47,8 +48,8 @@ export default function TournamentLivePage() {
   const [isAutoRefresh, setIsAutoRefresh] = useState(true);
 
   const fetchTournament = useCallback(async () => {
+    if (!isReady) return;
     try {
-      const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
       const data = await sdk.tournaments.getTournament(tournamentId);
       if (data) {
         setTournament(data);
@@ -63,7 +64,7 @@ export default function TournamentLivePage() {
       setLoading(false);
       setLastRefresh(new Date());
     }
-  }, [tournamentId]);
+  }, [tournamentId, sdk, isReady]);
 
   useEffect(() => {
     fetchTournament();
@@ -103,8 +104,8 @@ export default function TournamentLivePage() {
     return (
       <PageContainer maxWidth="7xl">
         <div className="space-y-6">
-          <Skeleton className="w-full h-24 rounded-xl" />
-          <Skeleton className="w-full h-96 rounded-xl" />
+          <Skeleton className="w-full h-24 rounded-none" />
+          <Skeleton className="w-full h-96 rounded-none" />
         </div>
       </PageContainer>
     );
@@ -113,13 +114,22 @@ export default function TournamentLivePage() {
   if (error || !tournament) {
     return (
       <PageContainer maxWidth="7xl">
-        <Card>
+        <Card className="rounded-none border border-danger/30">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:danger-triangle-bold" width={48} className="mx-auto mb-4 text-danger" />
+            <div
+              className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:danger-triangle-bold" width={32} className="text-danger" />
+            </div>
             <p className="text-lg text-danger">{error || "Tournament not found"}</p>
-            <Button className="mt-4" variant="flat" onPress={() => router.push("/tournaments")}>
+            <EsportsButton
+              variant="ghost"
+              className="mt-4"
+              onClick={() => router.push("/tournaments")}
+            >
               Back to Tournaments
-            </Button>
+            </EsportsButton>
           </CardBody>
         </Card>
       </PageContainer>
@@ -131,7 +141,7 @@ export default function TournamentLivePage() {
   return (
     <PageContainer maxWidth="7xl">
       {/* Live Header */}
-      <Card className="mb-6 bg-gradient-to-r from-danger/10 to-warning/10 border border-danger/20">
+      <Card className="mb-6 rounded-none bg-gradient-to-r from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -208,25 +218,25 @@ export default function TournamentLivePage() {
 
       {/* Live Matches */}
       {liveMatches.length > 0 && (
-        <Card className="mb-6 border border-danger/30">
-          <CardHeader className="flex gap-2">
+        <Card className="mb-6 rounded-none border border-[#FF4654]/30 dark:border-[#DCFF37]/30">
+          <CardHeader className="flex gap-2 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-danger" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4654] opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FF4654]" />
             </span>
-            <h2 className="text-lg font-bold">Live Matches ({liveMatches.length})</h2>
+            <h2 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Live Matches ({liveMatches.length})</h2>
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {liveMatches.map((match) => (
-                <Card key={match.id} className="bg-danger/5 border border-danger/20">
+                <Card key={match.id} className="rounded-none bg-[#FF4654]/5 dark:bg-[#DCFF37]/5 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                   <CardBody className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <p className="font-semibold">{match.team1?.name || "TBD"}</p>
                       </div>
                       <div className="px-4">
-                        <Chip color="danger" size="sm" variant="flat">
+                        <Chip color="danger" size="sm" variant="flat" className="rounded-none">
                           VS
                         </Chip>
                       </div>
@@ -268,9 +278,9 @@ export default function TournamentLivePage() {
       ) : null}
 
       {/* Bracket */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-lg font-bold">Tournament Bracket</h2>
+      <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+        <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+          <h2 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Tournament Bracket</h2>
         </CardHeader>
         <Divider />
         <CardBody className="p-6 overflow-x-auto">

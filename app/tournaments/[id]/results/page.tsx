@@ -21,13 +21,13 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { PageContainer } from "@/components/layouts/centered-content";
+import { EsportsButton } from "@/components/ui/esports-button";
 import {
   TournamentBracket,
   BracketMatch,
 } from "@/components/tournaments/tournament-bracket";
 import { logger } from "@/lib/logger";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { useSDK } from "@/contexts/sdk-context";
 import type { Tournament, TournamentWinner } from "@/types/replay-api/tournament.types";
 import {
   formatPrizePool,
@@ -38,6 +38,7 @@ import {
 export default function TournamentResultsPage() {
   const params = useParams();
   const router = useRouter();
+  const { sdk, isReady } = useSDK();
   const tournamentId = params.id as string;
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -46,9 +47,9 @@ export default function TournamentResultsPage() {
 
   useEffect(() => {
     async function fetchTournament() {
+      if (!isReady) return;
       try {
         setLoading(true);
-        const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
         const data = await sdk.tournaments.getTournament(tournamentId);
         if (data) {
           setTournament(data);
@@ -63,7 +64,7 @@ export default function TournamentResultsPage() {
       }
     }
     fetchTournament();
-  }, [tournamentId]);
+  }, [tournamentId, sdk, isReady]);
 
   const bracketMatches: BracketMatch[] =
     tournament?.matches?.map((m) => ({
@@ -87,9 +88,9 @@ export default function TournamentResultsPage() {
     return (
       <PageContainer maxWidth="7xl">
         <div className="space-y-6">
-          <Skeleton className="w-full h-32 rounded-xl" />
-          <Skeleton className="w-full h-64 rounded-xl" />
-          <Skeleton className="w-full h-96 rounded-xl" />
+          <Skeleton className="w-full h-32 rounded-none" />
+          <Skeleton className="w-full h-64 rounded-none" />
+          <Skeleton className="w-full h-96 rounded-none" />
         </div>
       </PageContainer>
     );
@@ -98,13 +99,22 @@ export default function TournamentResultsPage() {
   if (error || !tournament) {
     return (
       <PageContainer maxWidth="7xl">
-        <Card>
+        <Card className="rounded-none border border-danger/30">
           <CardBody className="text-center py-12">
-            <Icon icon="solar:danger-triangle-bold" width={48} className="mx-auto mb-4 text-danger" />
+            <div
+              className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-danger/10"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:danger-triangle-bold" width={32} className="text-danger" />
+            </div>
             <p className="text-lg text-danger">{error || "Tournament not found"}</p>
-            <Button className="mt-4" variant="flat" onPress={() => router.push("/tournaments")}>
+            <EsportsButton
+              variant="ghost"
+              className="mt-4"
+              onClick={() => router.push("/tournaments")}
+            >
               Back to Tournaments
-            </Button>
+            </EsportsButton>
           </CardBody>
         </Card>
       </PageContainer>
@@ -131,7 +141,7 @@ export default function TournamentResultsPage() {
   return (
     <PageContainer maxWidth="7xl">
       {/* Header */}
-      <Card className="mb-6 bg-gradient-to-br from-warning/10 to-primary/10 border border-warning/20">
+      <Card className="mb-6 rounded-none bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10 border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
         <CardBody className="p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -199,10 +209,10 @@ export default function TournamentResultsPage() {
 
       {/* Winners Podium */}
       {winners.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <Icon icon="solar:cup-star-bold" className="text-warning" width={24} />
+        <Card className="mb-6 rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+          <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+            <h2 className="text-xl font-bold flex items-center gap-2 text-[#34445C] dark:text-[#F5F0E1]">
+              <Icon icon="solar:cup-star-bold" className="text-[#FFC700] dark:text-[#DCFF37]" width={24} />
               Final Standings
             </h2>
           </CardHeader>
@@ -218,14 +228,17 @@ export default function TournamentResultsPage() {
 
                 return (
                   <div key={placement} className="flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-full ${style.bg} flex items-center justify-center`}>
+                    <div
+                      className={`w-12 h-12 ${style.bg} flex items-center justify-center`}
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+                    >
                       <Icon icon={style.icon} width={24} className={style.text} />
                     </div>
-                    <p className="font-semibold text-sm text-center">{winner.player_id}</p>
+                    <p className="font-semibold text-sm text-center text-[#34445C] dark:text-[#F5F0E1]">{winner.player_id}</p>
                     <p className="text-xs text-success font-bold">
                       {formatPrizePool(winner.prize, tournament.currency)}
                     </p>
-                    <div className={`w-24 ${height} ${style.bg} rounded-t-lg flex items-center justify-center`}>
+                    <div className={`w-24 ${height} ${style.bg} rounded-none flex items-center justify-center`}>
                       <span className={`text-2xl font-bold ${style.text}`}>
                         {getPlacementDisplay(placement)}
                       </span>
@@ -246,7 +259,7 @@ export default function TournamentResultsPage() {
                     .map((winner: TournamentWinner) => (
                       <div
                         key={winner.player_id}
-                        className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
+                        className="flex items-center justify-between p-3 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#34445C]/5 dark:bg-[#DCFF37]/5"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-bold text-default-400 w-8">
@@ -291,9 +304,20 @@ export default function TournamentResultsPage() {
       )}
 
       {/* Bracket & Match History */}
-      <Tabs aria-label="Results tabs" size="lg" className="mb-6">
+      <Tabs
+        aria-label="Results tabs"
+        size="lg"
+        className="mb-6"
+        classNames={{
+          tabList:
+            "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
+          cursor:
+            "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
+        }}
+      >
         <Tab key="bracket" title="Final Bracket">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody className="p-6 overflow-x-auto">
               {bracketMatches.length > 0 ? (
                 <TournamentBracket
@@ -318,7 +342,7 @@ export default function TournamentResultsPage() {
         </Tab>
 
         <Tab key="matches" title="Match History">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               {bracketMatches.length > 0 ? (
                 <div className="space-y-3">
@@ -332,7 +356,7 @@ export default function TournamentResultsPage() {
                     .map((match) => (
                       <div
                         key={match.id}
-                        className="flex items-center justify-between p-4 bg-default-50 rounded-lg"
+                        className="flex items-center justify-between p-4 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#34445C]/5 dark:bg-[#DCFF37]/5"
                       >
                         <div className="flex items-center gap-4 flex-1">
                           <Chip size="sm" variant="flat" color="default">
@@ -389,13 +413,13 @@ export default function TournamentResultsPage() {
         </Tab>
 
         <Tab key="participants" title="Participants">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {tournament.participants?.map((p) => {
                   const winner = winners.find((w: TournamentWinner) => w.player_id === p.player_id);
                   return (
-                    <Card key={p.player_id} className="bg-default-50">
+                    <Card key={p.player_id} className="rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
                       <CardBody className="p-3">
                         <div className="flex items-center gap-3">
                           <Avatar name={p.display_name} size="sm" />

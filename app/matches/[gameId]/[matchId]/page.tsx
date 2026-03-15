@@ -340,7 +340,15 @@ export default function MatchDetailsPage() {
                           ? "primary"
                           : state.match.source === "manual"
                             ? "warning"
-                            : "default"
+                            : state.match.source === "ocr_stream"
+                              ? "success"
+                              : state.match.source === "ocr_screenshot"
+                                ? "success"
+                                : state.match.source === "youtube_vod"
+                                  ? "danger"
+                                  : state.match.source === "demo"
+                                    ? "secondary"
+                                    : "default"
                     }
                     startContent={
                       <Icon
@@ -351,7 +359,15 @@ export default function MatchDetailsPage() {
                               ? "solar:cloud-download-bold"
                               : state.match.source === "manual"
                                 ? "solar:pen-bold"
-                                : "solar:videocamera-record-bold"
+                                : state.match.source === "ocr_stream"
+                                  ? "solar:monitor-camera-bold"
+                                  : state.match.source === "ocr_screenshot"
+                                    ? "solar:camera-bold"
+                                    : state.match.source === "youtube_vod"
+                                      ? "solar:play-circle-bold"
+                                      : state.match.source === "demo"
+                                        ? "solar:file-download-bold"
+                                        : "solar:videocamera-record-bold"
                         }
                         width={14}
                       />
@@ -367,7 +383,15 @@ export default function MatchDetailsPage() {
                         ? "External API"
                         : state.match.source === "manual"
                           ? "Manual"
-                          : "Replay"}
+                          : state.match.source === "ocr_stream"
+                            ? "OCR Stream"
+                            : state.match.source === "ocr_screenshot"
+                              ? "OCR Screenshot"
+                              : state.match.source === "youtube_vod"
+                                ? "YouTube VOD"
+                                : state.match.source === "demo"
+                                  ? "Demo"
+                                  : "Replay"}
                   </Chip>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-default-500">

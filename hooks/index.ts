@@ -2,6 +2,7 @@
 export { useAuth, useRequireAuth, useOptionalAuth } from './use-auth';
 export type { AuthState } from './use-auth';
 export { useLobbyWebSocket } from './use-lobby-websocket';
+export { useNotificationWebSocket } from './use-notification-websocket';
 export { useLobby } from './use-lobby';
 export { useMatchmaking } from './use-matchmaking';
 export { usePayment } from './use-payment';
@@ -12,3 +13,9 @@ export { useTournament } from './use-tournament';
 export { useWallet } from './use-wallet';
 export { useGlobalSearch } from './useGlobalSearch';
 export { useKeyboardShortcut } from './useKeyboardShortcut';
+export { useMatchComments } from './use-match-comments';
+export { useDirectMessages, useTeamMessages } from './use-messaging';
+export { useMessagingWebSocket } from './use-messaging-websocket';
+export { usePredictionMarkets } from './use-prediction-markets';
+export { useBetting } from './use-betting';
+export { useUpcomingGames } from './use-upcoming-games';

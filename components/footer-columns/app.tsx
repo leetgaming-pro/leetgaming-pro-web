@@ -10,8 +10,6 @@ import NextLink from "next/link";
 import ThemeSwitch from "./theme-switch";
 import LogoGrayscale from "../logo/logo-grayscale";
 
-import { useTheme } from "next-themes";
-
 type SocialIconProps = Omit<IconProps, "icon">;
 
 const footerNavigation = {
@@ -33,6 +31,7 @@ const footerNavigation = {
   ],
   company: [
     { name: "About Us", href: "/about" },
+    { name: "For Investors", href: "/investors" },
     { name: "Blog", href: "/blog" },
     { name: "Documentation", href: "/docs" },
     { name: "Support", href: "/docs#support" },
@@ -139,20 +138,13 @@ export default function FooterColumns() {
     [],
   );
 
-  let { theme } = useTheme();
-
-  if (!theme) {
-    theme = "light";
-  }
-
   return (
     // Hide footer on mobile to show only app-like bottom nav bar
     <div
-      className="hidden md:block basis-1/5 sm:basis-full justify-center align-items align-center"
+      className="hidden md:block basis-1/5 sm:basis-full justify-center align-items align-center dark:bg-black/50"
       style={{
         backgroundImage: `url('/blur-glow-pry-gh.svg')`,
         backgroundSize: "cover",
-        backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.5)" : "",
       }}
     >
       <footer className="flex w-full justify-center">

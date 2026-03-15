@@ -24,7 +24,7 @@ test.describe('Global Search', () => {
       const modalContent = page.getByPlaceholder(/type at least|search/i);
       const hasModalContent = await modalContent.isVisible().catch(() => false);
 
-      expect(isVisible || hasModalContent || true).toBe(true);
+      expect(isVisible || hasModalContent).toBe(true);
     });
 
     test('should open search modal with Ctrl+K on Windows/Linux', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe('Global Search', () => {
       const searchModal = page.locator('[role="dialog"]').or(page.locator('.leet-modal'));
       const isVisible = await searchModal.isVisible().catch(() => false);
 
-      expect(isVisible || true).toBe(true);
+      expect(isVisible).toBe(true);
     });
 
     test('should close search modal with Escape', async ({ page }) => {
@@ -74,7 +74,7 @@ test.describe('Global Search', () => {
       const searchInput = page.locator('nav').getByRole('textbox', { name: /search/i });
       const hasSearch = await searchInput.isVisible().catch(() => false);
 
-      expect(hasSearch || true).toBe(true);
+      expect(hasSearch).toBe(true);
     });
 
     test('should open modal when clicking search input', async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe('Global Search', () => {
         // Modal should open
         const searchModal = page.locator('[role="dialog"]');
         const isModalVisible = await searchModal.isVisible().catch(() => false);
-        expect(isModalVisible || true).toBe(true);
+        expect(isModalVisible).toBe(true);
       }
 
       expect(true).toBe(true);
@@ -107,7 +107,7 @@ test.describe('Global Search', () => {
       const cmdHint = page.locator('nav').getByText('⌘');
       const hasHint = await cmdHint.isVisible().catch(() => false);
 
-      expect(hasHint || true).toBe(true);
+      expect(hasHint).toBe(true);
     });
   });
 
@@ -173,7 +173,7 @@ test.describe('Global Search', () => {
         // Check for results
         const resultItem = page.locator('[class*="result"]').or(page.locator('[class*="card"]'));
         const hasResults = await resultItem.first().isVisible().catch(() => false);
-        expect(hasResults || true).toBe(true);
+        expect(hasResults).toBe(true);
       }
 
       expect(true).toBe(true);
@@ -206,7 +206,7 @@ test.describe('Global Search', () => {
         // Check for loading indicator
         const loadingSpinner = page.getByText('⏳').or(page.locator('[class*="spin"]'));
         const hasLoading = await loadingSpinner.isVisible().catch(() => false);
-        expect(hasLoading || true).toBe(true);
+        expect(hasLoading).toBe(true);
       }
 
       expect(true).toBe(true);
@@ -230,7 +230,7 @@ test.describe('Global Search', () => {
         // Should show hint to type more
         const hint = page.getByText(/type at least 2/i);
         const hasHint = await hint.isVisible().catch(() => false);
-        expect(hasHint || true).toBe(true);
+        expect(hasHint).toBe(true);
       }
 
       expect(true).toBe(true);
@@ -341,7 +341,7 @@ test.describe('Global Search', () => {
       const searchInput = page.getByPlaceholder(/type at least|search/i);
       if (await searchInput.isVisible().catch(() => false)) {
         const isFocused = await searchInput.evaluate((el) => el === document.activeElement);
-        expect(isFocused || true).toBe(true);
+        expect(isFocused).toBe(true);
       }
 
       expect(true).toBe(true);
@@ -364,7 +364,7 @@ test.describe('Global Search', () => {
       const searchbox = page.locator('[type="search"]');
       const hasSearchbox = await searchbox.isVisible().catch(() => false);
 
-      expect(hasDialog || hasSearchbox || true).toBe(true);
+      expect(hasDialog || hasSearchbox).toBe(true);
     });
   });
 
@@ -390,7 +390,7 @@ test.describe('Global Search', () => {
       const searchTrigger = page.getByRole('button').filter({ has: page.locator('[class*="search"]') });
       const hasSearchTrigger = await searchTrigger.first().isVisible().catch(() => false);
 
-      expect(hasSearchTrigger || true).toBe(true);
+      expect(hasSearchTrigger).toBe(true);
     });
   });
 });

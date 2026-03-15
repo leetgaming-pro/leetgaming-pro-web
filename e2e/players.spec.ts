@@ -1,6 +1,8 @@
 /**
  * E2E Tests for Players Page
  * Tests the player listing, search, and filtering functionality
+ *
+ * Seed data: e2e/db-init/01-seed-data.js provisions 25+ public player profiles.
  */
 
 import { test, expect } from "@playwright/test";
@@ -10,124 +12,58 @@ test.describe("Players Page", () => {
     await page.goto("/players", { waitUntil: "domcontentloaded" });
   });
 
-  test("should load and display the players page", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Verify page has a players-related heading (could be "Player Profiles", "Players", etc.)
-    const playersHeading = page.getByRole("heading", {
-      name: /player profiles/i,
-    });
-    const playersHeading2 = page.getByRole("heading", { name: /players/i });
-    const anyHeading = page.getByRole("heading").first();
-
-    const hasHeading1 = await playersHeading.isVisible().catch(() => false);
-    const hasHeading2 = await playersHeading2.isVisible().catch(() => false);
-    const hasAnyHeading = await anyHeading.isVisible().catch(() => false);
-
-    // Page should have loaded with some content
-    const body = page.locator("body");
-    await expect(body).toBeVisible({ timeout: 10000 });
-    expect(hasHeading1 || hasHeading2 || hasAnyHeading || true).toBe(true);
+  test("should load and display the Player Profiles heading", async ({
+    page,
+  }) => {
+    const heading = page.getByRole("heading", { name: /player profiles/i });
+    await expect(heading).toBeVisible({ timeout: 15000 });
   });
 
-  test("should display global search shortcut hint", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Check for the keyboard shortcut hint text
-    const shortcutHint = page.getByText(/Use ⌘\+`/i);
-    const hasHint = await shortcutHint.isVisible().catch(() => false);
-    expect(hasHint || true).toBe(true);
+  test("should show Competitive Community subheading", async ({ page }) => {
+    const subheading = page.getByText(/competitive community/i);
+    await expect(subheading).toBeVisible({ timeout: 15000 });
   });
 
-  test("should display player cards or empty state", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
+  test("should display player cards or empty/error state", async ({
+    page,
+  }) => {
+    // Wait for loading spinner to disappear
+    const spinner = page.getByText(/loading players/i);
+    if (await spinner.isVisible().catch(() => false)) {
+      await expect(spinner).toBeHidden({ timeout: 30000 });
+    }
 
-    // Check for loading spinner, player cards, or empty state
+    const playerCards = page.locator('[class*="card"]');
     const emptyState = page.getByText(/no players found/i);
-    const isEmpty = await emptyState.isVisible().catch(() => false);
+    const errorState = page.getByText(/error loading players/i);
+    const showingCount = page.getByText(/showing \d+ player/i);
 
-    // Check for player cards
-    const playerCard = page.locator('[class*="card"]').first();
-    const hasCards = await playerCard.isVisible().catch(() => false);
+    const hasCards = (await playerCards.count()) > 0;
+    const hasEmpty = await emptyState.isVisible().catch(() => false);
+    const hasError = await errorState.isVisible().catch(() => false);
+    const hasShowing = await showingCount.isVisible().catch(() => false);
 
-    // Check for any list or grid container
-    const gridContainer = page
-      .locator('[class*="grid"], [class*="list"]')
-      .first();
-    const hasGrid = await gridContainer.isVisible().catch(() => false);
-
-    // The page should have content - either cards or empty state
-    const body = page.locator("body");
-    await expect(body).toBeVisible({ timeout: 10000 });
-    expect(isEmpty || hasCards || hasGrid || true).toBe(true);
-  });
-
-  test("should have global search in navbar", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Find global search input in navbar
-    const navbarSearch = page.locator("nav").getByPlaceholder(/search/i);
-    const hasNavbarSearch = await navbarSearch.isVisible().catch(() => false);
-    expect(hasNavbarSearch || true).toBe(true);
+    expect(
+      hasCards || hasEmpty || hasError || hasShowing,
+      "Page must show player cards, empty state, count, or error state",
+    ).toBe(true);
   });
 
   test("should display game filter", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Check for game filter dropdown
-    const gameFilter = page
-      .locator("select, button")
-      .filter({ hasText: /game|all games/i });
-    const hasGameFilter = await gameFilter
-      .first()
-      .isVisible()
-      .catch(() => false);
-    expect(hasGameFilter || true).toBe(true);
-  });
-
-  test("should display player stats in cards", async ({ page }) => {
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
-
-    // Check for common player stat labels
-    const ratingLabel = page.getByText(/rating/i);
-    const hasRating = await ratingLabel
-      .first()
-      .isVisible()
-      .catch(() => false);
-    expect(hasRating || true).toBe(true);
+    await page.waitForTimeout(2000);
+    const gameSelector = page.getByText(/all games|select game/i);
+    await expect(gameSelector.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("should be responsive on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/players", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
 
-    // Check that page content is visible on mobile
-    const playersHeading = page.getByRole("heading", {
-      name: /player profiles/i,
-    });
-    const playersHeading2 = page.getByRole("heading", { name: /players/i });
-    const anyHeading = page.getByRole("heading").first();
-
-    const hasHeading1 = await playersHeading.isVisible().catch(() => false);
-    const hasHeading2 = await playersHeading2.isVisible().catch(() => false);
-    const hasAnyHeading = await anyHeading.isVisible().catch(() => false);
-
-    // Page should load and be visible on mobile
-    const body = page.locator("body");
-    await expect(body).toBeVisible({ timeout: 10000 });
-    expect(hasHeading1 || hasHeading2 || hasAnyHeading || true).toBe(true);
+    const heading = page.getByRole("heading", { name: /player profiles/i });
+    await expect(heading).toBeVisible({ timeout: 15000 });
   });
 
-  test("should handle API errors gracefully", async ({ page }) => {
-    // Mock API to return error
+  test("should handle API errors without crashing", async ({ page }) => {
     await page.route("**/players**", (route) => {
       route.fulfill({
         status: 500,
@@ -136,120 +72,62 @@ test.describe("Players Page", () => {
     });
 
     await page.goto("/players", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
-
-    // Should show error state or fallback data, not crash
-    const body = page.locator("body");
-    await expect(body).toBeVisible();
-  });
-
-  test("should navigate to player detail when clicking a player", async ({
-    page,
-  }) => {
-    await page.waitForLoadState("domcontentloaded");
     await page.waitForTimeout(5000);
 
-    // Find a player card
+    // Page must not crash — body should still be visible
+    const body = page.locator("body");
+    await expect(body).toBeVisible();
+
+    // Should show error state or the heading (client-side component always renders)
+    const errorState = page.getByText(/error/i);
+    const heading = page.getByRole("heading", { name: /player profiles/i });
+    const showingCount = page.getByText(/showing \d+ player/i);
+
+    const hasError = await errorState.first().isVisible().catch(() => false);
+    const hasHeading = await heading.isVisible().catch(() => false);
+    const hasShowing = await showingCount.isVisible().catch(() => false);
+
+    expect(
+      hasError || hasHeading || hasShowing,
+      "Should show error state, heading, or player count",
+    ).toBe(true);
+  });
+
+  test("should navigate to player detail when clicking a card", async ({
+    page,
+  }) => {
+    const spinner = page.getByText(/loading players/i);
+    if (await spinner.isVisible().catch(() => false)) {
+      await expect(spinner).toBeHidden({ timeout: 30000 });
+    }
+
     const playerCard = page.locator('[class*="card"]').first();
     const hasCard = await playerCard.isVisible().catch(() => false);
 
     if (hasCard) {
       await playerCard.click();
-      await page.waitForTimeout(500);
-
-      // Should navigate to player detail page or open modal
-      const currentUrl = page.url();
-      const isPlayerDetail = currentUrl.includes("/players/");
-      expect(isPlayerDetail || true).toBe(true);
+      await page.waitForURL(/\/players\//, { timeout: 10000 });
+      expect(page.url()).toContain("/players/");
     } else {
-      expect(true).toBe(true);
+      // No cards available — skip gracefully
+      test.skip();
     }
   });
 });
 
 test.describe("Player Detail Page", () => {
-  test("should load player detail page", async ({ page }) => {
-    // Navigate to a sample player ID
+  test("should load without crashing", async ({ page }) => {
     await page.goto("/players/1", {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(3000);
 
-    // Page should load without crashing - check body is visible
     const body = page.locator("body");
-    const bodyVisible = await body.isVisible().catch(() => false);
+    await expect(body).toBeVisible();
 
-    // Also check for any content on the page
-    const hasContent = await page
-      .locator("main, div, section")
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    expect(bodyVisible || hasContent || true).toBe(true);
-  });
-
-  test("should display player information", async ({ page }) => {
-    await page.goto("/players/1", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
-
-    // Check for player avatar or name
-    const avatar = page.locator('[class*="avatar"]');
-    const hasAvatar = await avatar
-      .first()
-      .isVisible()
-      .catch(() => false);
-    expect(hasAvatar || true).toBe(true);
-  });
-
-  test("should display player statistics", async ({ page }) => {
-    await page.goto("/players/1", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
-
-    // Check for stats like matches, wins, etc.
-    const matchesLabel = page.getByText(/matches/i);
-    const hasMatches = await matchesLabel
-      .first()
-      .isVisible()
-      .catch(() => false);
-    expect(hasMatches || true).toBe(true);
-  });
-
-  test("should display tabs for overview, matches, stats", async ({ page }) => {
-    await page.goto("/players/1", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Check for tabs
-    const overviewTab = page.getByRole("tab", { name: /overview/i });
-    const matchesTab = page.getByRole("tab", { name: /match/i });
-
-    const hasOverview = await overviewTab.isVisible().catch(() => false);
-    const hasMatches = await matchesTab.isVisible().catch(() => false);
-
-    expect(hasOverview || hasMatches || true).toBe(true);
-  });
-
-  test("should have share button", async ({ page }) => {
-    await page.goto("/players/1", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-
-    // Check for share button
-    const shareButton = page.getByRole("button").filter({ hasText: /share/i });
-    const shareIcon = page
-      .locator('[class*="icon"]')
-      .filter({ hasText: /share/i });
-
-    const hasShare = await shareButton.isVisible().catch(() => false);
-    const hasShareIcon = await shareIcon.isVisible().catch(() => false);
-
-    expect(hasShare || hasShareIcon || true).toBe(true);
+    const content = page.locator("main, div, section").first();
+    await expect(content).toBeVisible();
   });
 
   test("should be responsive on mobile", async ({ page }) => {
@@ -258,20 +136,9 @@ test.describe("Player Detail Page", () => {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(3000);
 
-    // Page should load on mobile
     const body = page.locator("body");
-    const bodyVisible = await body.isVisible().catch(() => false);
-
-    // Check for any visible content
-    const hasContent = await page
-      .locator("main, div, section")
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    expect(bodyVisible || hasContent || true).toBe(true);
+    await expect(body).toBeVisible();
   });
 });

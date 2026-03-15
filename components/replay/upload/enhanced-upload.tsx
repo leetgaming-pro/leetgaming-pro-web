@@ -133,11 +133,10 @@ export function EnhancedUploadForm() {
   );
 
   const uploadClient = useMemo(() => {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_REPLAY_API_URL ||
-      process.env.REPLAY_API_URL ||
-      "http://localhost:8080";
-    return new UploadClient({ ...ReplayApiSettingsMock, baseUrl }, logger);
+    // Use ReplayApiSettingsMock directly — its getter returns "/api" on client-side
+    // which proxies through Next.js rewrites. Overriding with NEXT_PUBLIC_REPLAY_API_URL
+    // would bake http://localhost:8080 into the bundle, causing network errors in K8s.
+    return new UploadClient(ReplayApiSettingsMock, logger);
   }, []);
 
   const formatFileSize = (bytes: number): string => {

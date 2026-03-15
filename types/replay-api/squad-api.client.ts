@@ -6,6 +6,7 @@ import {
   ReplayApiSettingsMock,
 } from "./settings";
 import { Squad } from "./entities.types";
+import { TeamRosterHistoryEntry } from "./player-profile.types";
 
 // Type aliases for this client
 type CreateSquadRequest = Partial<Squad>;
@@ -74,5 +75,18 @@ export class SquadApiClient {
     return new RouteBuilder(this.settings, this.logger)
       .route(ReplayApiResourceType.Squad, { squadId })
       .get<Squad>(ReplayApiResourceType.Squad);
+  }
+
+  async getSquadRosterHistory(
+    squadId: string,
+  ): Promise<TeamRosterHistoryEntry[]> {
+    try {
+      const result = await new RouteBuilder(this.settings, this.logger)
+        .route(ReplayApiResourceType.Squad, { squadId })
+        .get<TeamRosterHistoryEntry[]>("roster-history" as ReplayApiResourceType);
+      return result || [];
+    } catch {
+      return [];
+    }
   }
 }

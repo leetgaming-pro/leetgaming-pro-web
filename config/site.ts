@@ -179,6 +179,11 @@ export const siteConfig = {
       icon: "solar:question-circle-bold",
     },
     {
+      label: "For Investors",
+      href: "/investors",
+      icon: "solar:chart-2-bold",
+    },
+    {
       label: "divider",
       href: "",
     },

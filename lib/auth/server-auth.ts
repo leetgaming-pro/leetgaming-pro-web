@@ -92,6 +92,32 @@ export function getUserIdFromToken(): string | null {
 }
 
 /**
+ * Validate that the request has a valid auth context.
+ * Accepts EITHER a valid NextAuth session OR a valid RID token cookie.
+ * Returns auth headers for forwarding to the backend, or null if unauthenticated.
+ *
+ * Use this instead of manually checking getServerSession + getAuthHeadersFromCookies
+ * to support both logged-in users and guest/RID-token users consistently.
+ */
+export function getAuthContextFromRequest(
+  session: { user?: { email?: string | null; rid?: string; uid?: string } } | null,
+): { headers: AuthHeaders; isAuthenticated: boolean } {
+  const authHeaders = getAuthHeadersFromCookies();
+
+  // Fallback: use session RID/UID if cookies are missing
+  if (!authHeaders["X-Resource-Owner-ID"] && session?.user?.rid) {
+    authHeaders["X-Resource-Owner-ID"] = session.user.rid;
+  }
+
+  // Accept either: NextAuth session with email, or valid RID token
+  const hasSession = !!session?.user?.email;
+  const hasRIDToken = !!authHeaders["X-Resource-Owner-ID"];
+  const isAuthenticated = hasSession || hasRIDToken;
+
+  return { headers: authHeaders, isAuthenticated };
+}
+
+/**
  * Forward an authenticated request to the backend API
  * Automatically includes auth headers from cookies and session
  */
@@ -102,8 +128,8 @@ export async function forwardAuthenticatedRequest(
 ): Promise<Response> {
   const authHeaders = getAuthHeadersFromCookies();
 
-  // Add session-based RID if cookie was missing
-  if (session?.user?.rid) {
+  // Add session-based RID only if cookie was missing (avoid overwriting valid cookie)
+  if (!authHeaders["X-Resource-Owner-ID"] && session?.user?.rid) {
     authHeaders["X-Resource-Owner-ID"] = session.user.rid;
   }
 

@@ -22,6 +22,13 @@ const MessageTypes = {
   LOBBY_UPDATED: 'LOBBY_UPDATED',
   LOBBY_READY: 'LOBBY_READY',
   LOBBY_CANCELLED: 'LOBBY_CANCELLED',
+  // Readiness confirmation events
+  READY_CHECK_STARTED: 'READY_CHECK_STARTED',
+  READINESS_CONFIRMED: 'READINESS_CONFIRMED',
+  READINESS_DECLINED: 'READINESS_DECLINED',
+  READY_CHECK_TIMEOUT: 'READY_CHECK_TIMEOUT',
+  ALL_PLAYERS_READY: 'ALL_PLAYERS_READY',
+  GAME_CONNECTION_INFO: 'GAME_CONNECTION_INFO',
 } as const;
 
 // WebSocket message structure
@@ -44,6 +51,62 @@ interface UseLobbyWebSocketOptions {
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
+  /** Called when a ready check is initiated (all players must confirm) */
+  onReadyCheckStarted?: (payload: ReadyCheckStartedPayload) => void;
+  /** Called when a player confirms readiness */
+  onReadinessConfirmed?: (payload: ReadinessUpdatePayload) => void;
+  /** Called when a player declines readiness */
+  onReadinessDeclined?: (payload: ReadinessUpdatePayload) => void;
+  /** Called when the ready check times out */
+  onReadyCheckTimeout?: (payload: ReadyCheckTimeoutPayload) => void;
+  /** Called when all players are confirmed ready */
+  onAllPlayersReady?: (payload: AllPlayersReadyPayload) => void;
+  /** Called when game connection info is available */
+  onGameConnectionInfo?: (payload: GameConnectionInfoPayload) => void;
+}
+
+/** Payload for READY_CHECK_STARTED events */
+export interface ReadyCheckStartedPayload {
+  lobby_id: string;
+  players: Array<{ player_id: string; display_name: string; avatar_url?: string }>;
+  timeout_seconds: number;
+  started_at: string;
+}
+
+/** Payload for READINESS_CONFIRMED / READINESS_DECLINED events */
+export interface ReadinessUpdatePayload {
+  lobby_id: string;
+  player_id: string;
+  status: 'confirmed' | 'declined';
+  confirmed_count: number;
+  total_count: number;
+}
+
+/** Payload for READY_CHECK_TIMEOUT events */
+export interface ReadyCheckTimeoutPayload {
+  lobby_id: string;
+  timed_out_players: string[];
+}
+
+/** Payload for ALL_PLAYERS_READY events */
+export interface AllPlayersReadyPayload {
+  lobby_id: string;
+  match_id?: string;
+}
+
+/** Payload for GAME_CONNECTION_INFO events */
+export interface GameConnectionInfoPayload {
+  lobby_id: string;
+  server_url?: string;
+  server_ip?: string;
+  port?: number;
+  passcode?: string;
+  qr_code_data?: string;
+  deep_link?: string;
+  instructions: string;
+  expires_at?: string;
+  game_id: string;
+  region: string;
 }
 
 // Hook result
@@ -75,6 +138,12 @@ export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLo
     onConnect,
     onDisconnect,
     onError,
+    onReadyCheckStarted,
+    onReadinessConfirmed,
+    onReadinessDeclined,
+    onReadyCheckTimeout,
+    onAllPlayersReady,
+    onGameConnectionInfo,
   } = options;
 
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
@@ -211,6 +280,41 @@ export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLo
         });
         break;
 
+      // Readiness confirmation events
+      case MessageTypes.READY_CHECK_STARTED:
+        logger.info('[useLobbyWebSocket] Ready check started');
+        onReadyCheckStarted?.(message.payload as ReadyCheckStartedPayload);
+        break;
+
+      case MessageTypes.READINESS_CONFIRMED:
+        logger.info('[useLobbyWebSocket] Player confirmed readiness');
+        onReadinessConfirmed?.(message.payload as ReadinessUpdatePayload);
+        break;
+
+      case MessageTypes.READINESS_DECLINED:
+        logger.info('[useLobbyWebSocket] Player declined readiness');
+        onReadinessDeclined?.(message.payload as ReadinessUpdatePayload);
+        break;
+
+      case MessageTypes.READY_CHECK_TIMEOUT:
+        logger.info('[useLobbyWebSocket] Ready check timed out');
+        onReadyCheckTimeout?.(message.payload as ReadyCheckTimeoutPayload);
+        break;
+
+      case MessageTypes.ALL_PLAYERS_READY:
+        logger.info('[useLobbyWebSocket] All players ready');
+        onAllPlayersReady?.(message.payload as AllPlayersReadyPayload);
+        setLobby((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'starting' as LobbyStatus };
+        });
+        break;
+
+      case MessageTypes.GAME_CONNECTION_INFO:
+        logger.info('[useLobbyWebSocket] Game connection info received');
+        onGameConnectionInfo?.(message.payload as GameConnectionInfoPayload);
+        break;
+
       default:
         logger.warn('[useLobbyWebSocket] Unknown message type:', message.type);
     }
@@ -296,4 +400,9 @@ export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLo
 }
 
 // Re-export types for convenience
-export type { WebSocketMessage, ConnectionState, UseLobbyWebSocketOptions, UseLobbyWebSocketResult };
+export type {
+  WebSocketMessage,
+  ConnectionState,
+  UseLobbyWebSocketOptions,
+  UseLobbyWebSocketResult,
+};

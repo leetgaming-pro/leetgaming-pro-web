@@ -372,6 +372,7 @@ const GameSelectionForm = React.forwardRef<
         isOpen={isCreationModalOpen}
         onClose={onCreationModalClose}
         onSuccess={handleProfileCreated}
+        defaultGame={_selectedGameForCreation || undefined}
       />
     </>
   );

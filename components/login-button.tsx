@@ -8,7 +8,7 @@ export const LoginButton = () => {
     <div className="flex items-center">
       <Link href="/signin">
         <EsportsButton variant="primary" size="nav">
-          <span className="text-[#DCFF37] dark:text-[#34445C] font-bold">&gt;_</span>
+          <span className="text-[#FF4654] dark:text-[#34445C] font-bold">&gt;_</span>
           <span>sign-in</span>
         </EsportsButton>
       </Link>

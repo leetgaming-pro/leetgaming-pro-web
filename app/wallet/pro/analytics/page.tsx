@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
     callbackUrl: '/wallet/pro/analytics'
   });
 
-  const { transactions: txResult, isLoadingTransactions } = useWallet(true, { limit: 200, offset: 0 });
+  const { transactions: txResult, isLoadingTransactions } = useWallet(isAuthenticated, { limit: 200, offset: 0 });
 
   const analyticsData = useMemo(() => {
     return deriveAnalytics(txResult?.transactions || []);

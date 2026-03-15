@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
+import { usePlanLimit } from '@/contexts/plan-limit-context';
 import {
   Modal,
   ModalContent,
@@ -42,6 +42,8 @@ interface PlayerCreationModalProps {
   onClose: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess?: (profile: any) => void;
+  /** Pre-select a game when opening the modal (e.g. from matchmaking) */
+  defaultGame?: string;
 }
 
 const GAMES = [
@@ -65,16 +67,31 @@ const RANKS = {
   default: ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Pro'],
 };
 
-export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreationModalProps) {
-  const router = useRouter();
+export function PlayerCreationModal({ isOpen, onClose, onSuccess, defaultGame }: PlayerCreationModalProps) {
   const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
+  const { handleApiError } = usePlanLimit();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [_submitError, setSubmitError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Initialize game from defaultGame prop when modal opens
+  React.useEffect(() => {
+    if (isOpen && defaultGame) {
+      setFormData(prev => ({ ...prev, game: defaultGame, role: '', rank: '' }));
+    }
+  }, [isOpen, defaultGame]);
+
+  // Reset form state when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setSubmitError(null);
+    }
+  }, [isOpen]);
 
   // Form data
   const [formData, setFormData] = useState({
-    game: '',
+    game: defaultGame || '',
     displayName: '',
     slug: '',
     avatar: null as File | null,
@@ -182,12 +199,23 @@ export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreati
 
       onSuccess?.(profile);
       onClose();
-
-      // Navigate to the new profile
-      router.push(`/players/${formData.slug}`);
     } catch (error: unknown) {
       logger.error('Failed to create player profile', error);
-      setSubmitError(error instanceof Error ? error.message : 'Failed to create profile. Please try again.');
+
+      // Check if it's a plan limit error — shows upgrade modal automatically
+      const isPlanLimit = handleApiError(error);
+
+      if (!isPlanLimit) {
+        // Check for specific API error codes
+        const apiError = (error as { apiError?: { code?: string } })?.apiError;
+        if (apiError?.code === 'PLAN_LIMIT_EXCEEDED') {
+          setSubmitError('You have reached the player profile limit for your current plan. Visit the subscription page to upgrade.');
+        } else if (apiError?.code === 'CONFLICT') {
+          setSubmitError('A player profile with this name already exists. Please choose a different name.');
+        } else {
+          setSubmitError(error instanceof Error ? error.message : 'Failed to create profile. Please try again.');
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -306,6 +334,18 @@ export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreati
                       isRequired
                     />
                   </div>
+
+                  {submitError && (
+                    <Card className="bg-danger-50/50 border border-danger-200">
+                      <CardBody className="flex-row gap-3 items-start">
+                        <Icon icon="solar:danger-triangle-bold-duotone" width={24} className="text-danger flex-shrink-0" />
+                        <div className="text-sm">
+                          <p className="font-semibold text-danger mb-1">Error</p>
+                          <p className="text-danger-700">{submitError}</p>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  )}
 
                   <Card className="bg-primary-50/50">
                     <CardBody className="flex-row gap-3 items-start">
@@ -503,6 +543,19 @@ export function PlayerCreationModal({ isOpen, onClose, onSuccess }: PlayerCreati
                       </div>
                     </CardBody>
                   </Card>
+
+                  {/* Error Display */}
+                  {submitError && (
+                    <Card className="bg-danger-50/50 border border-danger-200">
+                      <CardBody className="flex-row gap-3 items-start">
+                        <Icon icon="solar:danger-triangle-bold-duotone" width={24} className="text-danger flex-shrink-0" />
+                        <div className="text-sm">
+                          <p className="font-semibold text-danger mb-1">Creation Failed</p>
+                          <p className="text-danger-700">{submitError}</p>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  )}
                 </div>
               )}
             </ModalBody>

@@ -9,8 +9,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../[...nextauth]/options";
 import { forwardAuthenticatedRequest } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
-const BACKEND_URL = process.env.REPLAY_API_URL || "http://localhost:8080";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * POST /api/auth/mfa/setup

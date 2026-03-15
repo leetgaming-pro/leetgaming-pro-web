@@ -168,9 +168,9 @@ const OPERATION_INFO: Record<
 export function parsePlanLimitError(
   errorMessage: string,
 ): PlanLimitError | null {
-  // Pattern: "the amount X.XX exceeds the limit Y.YY for the current plan PlanName on operation OperationName"
+  // Pattern: "the amount X.XX exceeds the limit Y.YY for the {current|free|pro|...} plan [PlanName] on operation OperationName"
   const regex =
-    /amount (\d+\.?\d*) exceeds the limit (\d+\.?\d*) for the current plan (.+?) on operation (\w+)/i;
+    /amount (\d+\.?\d*) exceeds the limit (\d+\.?\d*) for the (?:current plan |)?(.+?)(?:\s+plan)? on operation (\w+)/i;
   const match = errorMessage.match(regex);
 
   if (!match) return null;
@@ -219,9 +219,15 @@ export function isPlanLimitError(error: unknown): boolean {
       ? error
       : (error as { message?: string })?.message || "";
 
+  // Check for API error code
+  const apiError = (error as { apiError?: { code?: string } })?.apiError;
+  if (apiError?.code === "PLAN_LIMIT_EXCEEDED") return true;
+
   return (
-    errorStr.toLowerCase().includes("exceeds the limit") &&
-    errorStr.toLowerCase().includes("current plan")
+    errorStr.toLowerCase().includes("exceeds the limit") ||
+    errorStr.toLowerCase().includes("plan limit") ||
+    (errorStr.toLowerCase().includes("exceeds the limit") &&
+      errorStr.toLowerCase().includes("plan"))
   );
 }
 

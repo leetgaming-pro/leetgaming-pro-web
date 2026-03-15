@@ -35,6 +35,17 @@ const GAME_MODE_NAMES: Record<string, string> = {
   bo5: "Best of 5",
 };
 
+/** Map internal error codes to user-friendly messages */
+const ERROR_MESSAGES: Record<string, string> = {
+  NETWORK_ERROR: "Connection failed. Please check your internet and try again.",
+  AUTHENTICATION_FAILED: "Please sign in to start matchmaking.",
+  SESSION_EXPIRED: "Your session has expired. Please sign in again.",
+  RATE_LIMITED: "Too many requests. Please wait a moment and try again.",
+  QUEUE_FULL: "The queue is currently full. Please try again shortly.",
+  QUEUE_TIMEOUT: "Search timed out. Please try again.",
+  LOBBY_ERROR: "Failed to connect to the lobby. Please try again.",
+};
+
 export default function ReviewConfirmForm() {
   const { state, sdk } = useWizard();
   const [poolStats, setPoolStats] = useState<PoolStatsResponse | null>(null);
@@ -45,7 +56,7 @@ export default function ReviewConfirmForm() {
 
     try {
       const stats = await sdk.getPoolStats(
-        "cs2",
+        state.selectedGame || "cs2",
         state.gameMode || "competitive",
         state.region || "na-east",
       );
@@ -448,7 +459,7 @@ export default function ReviewConfirmForm() {
                     Matchmaking Error
                   </p>
                   <p className="text-sm text-[#FF4654]/80">
-                    {state.matchmaking.error}
+                    {ERROR_MESSAGES[state.matchmaking.error] || state.matchmaking.error}
                   </p>
                 </div>
               </div>

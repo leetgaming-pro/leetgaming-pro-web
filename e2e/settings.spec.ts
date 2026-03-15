@@ -1,107 +1,113 @@
 /**
  * E2E Tests for Settings Page
  * Tests profile, notifications, privacy, security, and billing tabs
+ *
+ * NOTE: The settings page requires authentication.
+ * When running without auth, tests that need page content will be skipped.
  */
 
 import { test, expect } from "@playwright/test";
 
+/** Navigate to settings and skip the test if redirected to signin */
+async function gotoSettingsOrSkip(
+  page: import("@playwright/test").Page,
+  path = "/settings",
+) {
+  await page.goto(path, { waitUntil: "domcontentloaded" });
+
+  // Wait for either: redirect to signin, OR settings tabs to render
+  try {
+    await Promise.race([
+      page.waitForURL("**/signin**", { timeout: 15000 }),
+      page.waitForSelector('[role="tablist"]', { timeout: 15000 }),
+    ]);
+  } catch {
+    // Neither happened within timeout
+  }
+
+  const redirected = page.url().includes("/signin");
+  test.skip(redirected, "Settings page requires authentication");
+}
+
 test.describe("Settings Page", () => {
   test.describe("Page Loading", () => {
-    test("should display settings page with tabs", async ({ page }) => {
+    test("should redirect unauthenticated users to signin", async ({
+      page,
+    }) => {
       await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
 
-      // Should show settings page - look for heading or main content
-      const settingsHeading = page.locator(
-        'h1, h2, [data-testid*="settings"], main',
-      );
-      await expect(settingsHeading.first()).toBeVisible();
+      // Wait for either redirect to signin or settings content to load
+      try {
+        await Promise.race([
+          page.waitForURL("**/signin**", { timeout: 15000 }),
+          page.waitForSelector('[role="tablist"]', { timeout: 15000 }),
+        ]);
+      } catch {
+        // Neither happened
+      }
+
+      // Either the page redirected to signin or shows settings content
+      const onSignin = page.url().includes("/signin");
+      const hasSettingsContent = await page
+        .locator('[role="tablist"]')
+        .isVisible()
+        .catch(() => false);
+
+      expect(onSignin || hasSettingsContent).toBe(true);
+    });
+
+    test("should display settings page with tabs", async ({ page }) => {
+      await gotoSettingsOrSkip(page);
 
       // Should show tab navigation
       const tablist = page.locator('[role="tablist"]');
-      const hasTablist = await tablist.isVisible().catch(() => false);
+      await expect(tablist).toBeVisible();
 
-      if (hasTablist) {
-        // Check for main tabs
-        const profileTab = page.getByRole("tab", { name: /profile/i });
-        const notificationsTab = page.getByRole("tab", {
-          name: /notifications/i,
-        });
-        const privacyTab = page.getByRole("tab", { name: /privacy/i });
-        const securityTab = page.getByRole("tab", { name: /security/i });
-        const billingTab = page.getByRole("tab", { name: /billing/i });
+      // Check for main tabs
+      const profileTab = page.getByRole("tab", { name: /profile/i });
+      const notificationsTab = page.getByRole("tab", {
+        name: /notifications/i,
+      });
+      const privacyTab = page.getByRole("tab", { name: /privacy/i });
+      const securityTab = page.getByRole("tab", { name: /security/i });
+      const billingTab = page.getByRole("tab", { name: /billing/i });
 
-        expect((await profileTab.isVisible().catch(() => false)) || true).toBe(
-          true,
-        );
-        expect(
-          (await notificationsTab.isVisible().catch(() => false)) || true,
-        ).toBe(true);
-        expect((await privacyTab.isVisible().catch(() => false)) || true).toBe(
-          true,
-        );
-        expect((await securityTab.isVisible().catch(() => false)) || true).toBe(
-          true,
-        );
-        expect((await billingTab.isVisible().catch(() => false)) || true).toBe(
-          true,
-        );
-      }
-
-      expect(true).toBe(true);
+      await expect(profileTab).toBeVisible();
+      await expect(notificationsTab).toBeVisible();
+      await expect(privacyTab).toBeVisible();
+      await expect(securityTab).toBeVisible();
+      await expect(billingTab).toBeVisible();
     });
 
     test("should load settings page via URL tab parameter", async ({
       page,
     }) => {
-      await page.goto("/settings?tab=notifications", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=notifications");
 
       // Should be on notifications tab
       const notificationsContent = page
         .getByText(/notification preferences/i)
         .or(page.getByText(/email notifications/i));
-      const hasContent = await notificationsContent
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      // URL param should set the tab
-      expect(hasContent || true).toBe(true);
+      await expect(notificationsContent.first()).toBeVisible();
     });
   });
 
   test.describe("Profile Tab", () => {
     test("should display profile form fields", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Check for profile form elements
       const nicknameInput = page.getByLabel(/nickname/i);
       const emailInput = page.getByLabel(/email/i);
-      const bioInput = page.getByLabel(/bio/i);
 
       const hasNickname = await nicknameInput.isVisible().catch(() => false);
       const hasEmail = await emailInput.isVisible().catch(() => false);
 
-      // Should have profile fields
-      expect(hasNickname || hasEmail || true).toBe(true);
+      expect(hasNickname || hasEmail).toBe(true);
     });
 
     test("should allow editing profile fields", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Find input fields
       const nicknameInput = page.getByLabel(/nickname/i);
       const hasNickname = await nicknameInput.isVisible().catch(() => false);
 
@@ -110,37 +116,20 @@ test.describe("Settings Page", () => {
         await nicknameInput.fill("TestUser123");
         await expect(nicknameInput).toHaveValue("TestUser123");
       }
-
-      expect(true).toBe(true);
     });
 
     test("should have avatar upload section", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Check for avatar section
       const avatarSection = page
         .getByText(/change avatar/i)
         .or(page.locator('img[alt*="avatar" i]'));
-      const hasAvatar = await avatarSection
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasAvatar || true).toBe(true);
+      await expect(avatarSection.first()).toBeVisible();
     });
 
     test("should have country and timezone selects", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Check for select elements
       const countrySelect = page
         .getByLabel(/country/i)
         .or(page.getByText(/country/i));
@@ -157,54 +146,35 @@ test.describe("Settings Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasCountry || hasTimezone || true).toBe(true);
+      expect(hasCountry || hasTimezone).toBe(true);
     });
 
     test("should have save and cancel buttons", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Check for action buttons
       const saveButton = page.getByRole("button", { name: /save/i });
       const cancelButton = page.getByRole("button", { name: /cancel/i });
 
       const hasSave = await saveButton.isVisible().catch(() => false);
       const hasCancel = await cancelButton.isVisible().catch(() => false);
 
-      expect(hasSave || hasCancel || true).toBe(true);
+      expect(hasSave || hasCancel).toBe(true);
     });
   });
 
   test.describe("Notifications Tab", () => {
     test("should display notification settings", async ({ page }) => {
-      await page.goto("/settings?tab=notifications", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=notifications");
 
-      // Check for notification preferences heading
       const notificationHeader = page.getByText(/notification preferences/i);
-      const hasHeader = await notificationHeader.isVisible().catch(() => false);
-
-      expect(hasHeader || true).toBe(true);
+      await expect(notificationHeader).toBeVisible();
     });
 
     test("should have email notification toggles", async ({ page }) => {
-      await page.goto("/settings?tab=notifications", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=notifications");
 
-      // Check for email notifications section
       const emailSection = page.getByText(/email notifications/i);
       const matchUpdates = page.getByText(/match updates/i);
-      const teamInvitations = page.getByText(/team invitations/i);
-      const friendRequests = page.getByText(/friend requests/i);
 
       const hasEmailSection = await emailSection
         .first()
@@ -215,34 +185,19 @@ test.describe("Settings Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasEmailSection || hasMatchUpdates || true).toBe(true);
+      expect(hasEmailSection || hasMatchUpdates).toBe(true);
     });
 
     test("should have push notification toggles", async ({ page }) => {
-      await page.goto("/settings?tab=notifications", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=notifications");
 
-      // Check for push notifications section
       const pushSection = page.getByText(/push notifications/i);
-      const hasPushSection = await pushSection
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasPushSection || true).toBe(true);
+      await expect(pushSection.first()).toBeVisible();
     });
 
     test("should toggle notification switches", async ({ page }) => {
-      await page.goto("/settings?tab=notifications", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=notifications");
 
-      // Find and toggle a switch
       const switches = page.locator('button[role="switch"]');
       const switchCount = await switches.count();
 
@@ -252,40 +207,22 @@ test.describe("Settings Page", () => {
         await firstSwitch.click();
         await page.waitForTimeout(500);
         const newState = await firstSwitch.getAttribute("aria-checked");
-        // State should change
-        expect(initialState !== newState || true).toBe(true);
+        expect(initialState !== newState).toBe(true);
       }
-
-      expect(true).toBe(true);
     });
   });
 
   test.describe("Privacy Tab", () => {
     test("should display privacy settings", async ({ page }) => {
-      await page.goto("/settings?tab=privacy", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=privacy");
 
-      // Check for privacy content
       const privacyContent = page.getByText(/privacy/i);
-      const hasPrivacy = await privacyContent
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasPrivacy || true).toBe(true);
+      await expect(privacyContent.first()).toBeVisible();
     });
 
     test("should have data management options", async ({ page }) => {
-      await page.goto("/settings?tab=privacy", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=privacy");
 
-      // Check for data-related options
       const downloadData = page.getByText(/download.*data/i);
       const deleteAccount = page.getByText(/delete.*account/i);
 
@@ -298,36 +235,23 @@ test.describe("Settings Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasDownload || hasDelete || true).toBe(true);
+      expect(hasDownload || hasDelete).toBe(true);
     });
   });
 
   test.describe("Security Tab", () => {
     test("should display security settings", async ({ page }) => {
-      await page.goto("/settings?tab=security", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=security");
 
-      // Check for security header
       const securityHeader = page.getByText(/security settings/i);
-      const hasHeader = await securityHeader.isVisible().catch(() => false);
-
-      expect(hasHeader || true).toBe(true);
+      await expect(securityHeader).toBeVisible();
     });
 
     test("should have password change form", async ({ page }) => {
-      await page.goto("/settings?tab=security", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=security");
 
-      // Check for password change section
       const changePassword = page.getByText(/change password/i);
       const currentPassword = page.getByLabel(/current password/i);
-      const newPassword = page.getByLabel(/new password/i);
 
       const hasChangePassword = await changePassword
         .isVisible()
@@ -336,17 +260,12 @@ test.describe("Settings Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasChangePassword || hasCurrentPassword || true).toBe(true);
+      expect(hasChangePassword || hasCurrentPassword).toBe(true);
     });
 
     test("should have 2FA section", async ({ page }) => {
-      await page.goto("/settings?tab=security", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=security");
 
-      // Check for 2FA section
       const twoFactorSection = page
         .getByText(/two-factor authentication/i)
         .or(page.getByText(/2fa/i));
@@ -358,20 +277,14 @@ test.describe("Settings Page", () => {
         .catch(() => false);
       const hasEnableButton = await enableButton.isVisible().catch(() => false);
 
-      expect(has2FA || hasEnableButton || true).toBe(true);
+      expect(has2FA || hasEnableButton).toBe(true);
     });
 
     test("should have connected accounts section", async ({ page }) => {
-      await page.goto("/settings?tab=security", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=security");
 
-      // Check for connected accounts
       const connectedAccounts = page.getByText(/connected accounts/i);
       const steamAccount = page.getByText(/steam/i);
-      const discordAccount = page.getByText(/discord/i);
 
       const hasConnected = await connectedAccounts
         .isVisible()
@@ -381,69 +294,41 @@ test.describe("Settings Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasConnected || hasSteam || true).toBe(true);
+      expect(hasConnected || hasSteam).toBe(true);
     });
   });
 
   test.describe("Billing Tab", () => {
     test("should display billing settings", async ({ page }) => {
-      await page.goto("/settings?tab=billing", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=billing");
 
-      // Check for billing content
-      const billingContent = page.locator("body");
-      await expect(billingContent).toBeVisible();
+      const body = page.locator("body");
+      await expect(body).toBeVisible();
     });
 
     test("should have subscription management section", async ({ page }) => {
-      await page.goto("/settings?tab=billing", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=billing");
 
-      // Check for subscription section
       const subscriptionSection = page
         .getByText(/subscription/i)
         .or(page.getByText(/plan/i));
-      const hasSubscription = await subscriptionSection
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasSubscription || true).toBe(true);
+      await expect(subscriptionSection.first()).toBeVisible();
     });
 
     test("should have payment history section", async ({ page }) => {
-      await page.goto("/settings?tab=billing", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=billing");
 
-      // Check for payment history
       const paymentHistory = page
         .getByText(/payment history/i)
         .or(page.getByText(/transactions/i));
-      const hasHistory = await paymentHistory
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasHistory || true).toBe(true);
+      await expect(paymentHistory.first()).toBeVisible();
     });
   });
 
   test.describe("Tab Navigation", () => {
     test("should navigate between tabs", async ({ page }) => {
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page);
 
-      // Click through tabs
       const tabs = [
         "notifications",
         "privacy",
@@ -458,56 +343,40 @@ test.describe("Settings Page", () => {
         if (isVisible) {
           await tab.click();
           await page.waitForTimeout(500);
-          // URL should update
           expect(page.url()).toContain("settings");
         }
       }
-
-      expect(true).toBe(true);
     });
 
     test("should update URL when changing tabs", async ({ page }) => {
-      await page.goto("/settings?tab=profile", {
-        waitUntil: "domcontentloaded",
-      });
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForTimeout(1000);
+      await gotoSettingsOrSkip(page, "/settings?tab=profile");
 
-      // Click notifications tab
       const notificationsTab = page.getByRole("tab", {
         name: /notifications/i,
       });
-      const hasTab = await notificationsTab.isVisible().catch(() => false);
-
-      if (hasTab) {
-        await notificationsTab.click();
-        await page.waitForTimeout(500);
-        expect(page.url()).toContain("tab=notifications");
-      }
-
-      expect(true).toBe(true);
+      await expect(notificationsTab).toBeVisible();
+      await notificationsTab.click();
+      await page.waitForTimeout(500);
+      expect(page.url()).toContain("tab=notifications");
     });
   });
 
   test.describe("Responsive Design", () => {
     test("should be responsive on mobile", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
+      await gotoSettingsOrSkip(page);
 
       const body = page.locator("body");
       await expect(body).toBeVisible();
 
       // Tabs should adapt to mobile
       const tablist = page.locator('[role="tablist"]');
-      const hasTablist = await tablist.isVisible().catch(() => false);
-      expect(hasTablist || true).toBe(true);
+      await expect(tablist).toBeVisible();
     });
 
     test("should be responsive on tablet", async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
+      await gotoSettingsOrSkip(page);
 
       const body = page.locator("body");
       await expect(body).toBeVisible();
@@ -516,38 +385,27 @@ test.describe("Settings Page", () => {
 
   test.describe("Accessibility", () => {
     test("should have proper heading hierarchy", async ({ page }) => {
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
+      await gotoSettingsOrSkip(page);
 
-      // Should have at most one h1
       const h1 = page.locator("h1");
       const h1Count = await h1.count();
       expect(h1Count).toBeLessThanOrEqual(2);
     });
 
     test("should have accessible tab navigation", async ({ page }) => {
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
+      await gotoSettingsOrSkip(page);
 
-      // Tab list should have proper role
       const tablist = page.locator('[role="tablist"]');
-      const hasTablist = await tablist.isVisible().catch(() => false);
+      await expect(tablist).toBeVisible();
 
-      if (hasTablist) {
-        // Each tab should have proper role
-        const tabs = page.locator('[role="tab"]');
-        const tabCount = await tabs.count();
-        expect(tabCount).toBeGreaterThan(0);
-      }
-
-      expect(true).toBe(true);
+      const tabs = page.locator('[role="tab"]');
+      const tabCount = await tabs.count();
+      expect(tabCount).toBeGreaterThan(0);
     });
 
     test("should support keyboard navigation", async ({ page }) => {
-      await page.goto("/settings", { waitUntil: "domcontentloaded" });
-      await page.waitForLoadState("domcontentloaded");
+      await gotoSettingsOrSkip(page);
 
-      // Tab through interactive elements
       await page.keyboard.press("Tab");
       const focusedElement = await page.evaluate(
         () => document.activeElement?.tagName,

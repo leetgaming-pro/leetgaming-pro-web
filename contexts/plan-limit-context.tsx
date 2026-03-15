@@ -93,6 +93,23 @@ export function PlanLimitProvider({
 
     let errorMessage = "";
 
+    // Check for PLAN_LIMIT_EXCEEDED error code from API
+    const apiError = (error as { apiError?: { code?: string; message?: string } })?.apiError;
+    if (apiError?.code === "PLAN_LIMIT_EXCEEDED") {
+      const planError: PlanLimitError = {
+        operation: "unknown",
+        operationName: "Operation",
+        limit: 0,
+        currentPlan: "Free Tier",
+        currentPlanTier: "free",
+        recommendedPlan: "pro",
+        rawMessage: apiError.message || errorMessage,
+      };
+      setCurrentError(planError);
+      setIsModalOpen(true);
+      return true;
+    }
+
     // Handle different error formats
     if (typeof error === "string") {
       errorMessage = error;
@@ -116,7 +133,7 @@ export function PlanLimitProvider({
         JSON.stringify(error);
     }
 
-    // Check if it's a plan limit error
+    // Check if it's a plan limit error by message pattern
     const planError = parsePlanLimitError(errorMessage);
 
     if (planError) {

@@ -688,7 +688,7 @@ const SquadForm = React.forwardRef<HTMLFormElement, SquadFormProps>(
                       variant="primary"
                       size="sm"
                       as="a"
-                      href="/signin"
+                      href="/signin?callbackUrl=%2Fmatch-making"
                     >
                       Sign In
                     </EsportsButton>
@@ -770,7 +770,7 @@ const SquadForm = React.forwardRef<HTMLFormElement, SquadFormProps>(
                       variant="primary"
                       size="sm"
                       as="a"
-                      href={isAuthenticated ? "/teams/create" : "/signin"}
+                      href={isAuthenticated ? "/teams/create" : "/signin?callbackUrl=%2Fmatch-making"}
                     >
                       {isAuthenticated ? "Create Team" : "Sign In"}
                     </EsportsButton>

@@ -216,6 +216,50 @@ export class LobbyAPI {
     const response = await this.client.post<ListLobbiesResponse>('/api/lobbies/seed', {});
     return response.data || null;
   }
+
+  // ─── Readiness Confirmation / Commitment ───────────────────────────
+
+  /**
+   * Confirm player readiness for a lobby's ready check
+   */
+  async confirmReadiness(lobbyId: string): Promise<CommitmentConfirmResponse | null> {
+    const response = await this.client.post<CommitmentConfirmResponse>(
+      `/api/lobbies/${lobbyId}/commitments/confirm`,
+      {}
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Decline readiness for a lobby's ready check
+   */
+  async declineReadiness(lobbyId: string, reason?: string): Promise<CommitmentSummaryResponse | null> {
+    const response = await this.client.post<CommitmentSummaryResponse>(
+      `/api/lobbies/${lobbyId}/commitments/decline`,
+      { reason }
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Get current commitment/readiness summary for a lobby
+   */
+  async getCommitmentSummary(lobbyId: string): Promise<CommitmentSummaryResponse | null> {
+    const response = await this.client.get<CommitmentSummaryResponse>(
+      `/api/lobbies/${lobbyId}/commitments`
+    );
+    return response.data || null;
+  }
+
+  /**
+   * Get game connection info (available after all players confirm)
+   */
+  async getGameConnectionInfo(lobbyId: string): Promise<GameConnectionInfoResponse | null> {
+    const response = await this.client.get<GameConnectionInfoResponse>(
+      `/api/lobbies/${lobbyId}/connection-info`
+    );
+    return response.data || null;
+  }
 }
 
 // Extended search request
@@ -224,4 +268,49 @@ export interface SearchLobbiesRequest extends ListLobbiesRequest {
   type?: string;
   featured?: boolean;
   q?: string;  // Text search
+}
+
+// Readiness confirmation types
+export interface CommitmentConfirmResponse {
+  commitment: {
+    id: string;
+    lobby_id: string;
+    player_id: string;
+    status: 'confirmed';
+    responded_at: string;
+  };
+  summary: CommitmentSummaryResponse;
+  all_ready: boolean;
+}
+
+export interface CommitmentSummaryResponse {
+  lobby_id: string;
+  total_players: number;
+  confirmed_count: number;
+  pending_count: number;
+  declined_count: number;
+  expired_count: number;
+  all_confirmed: boolean;
+  has_declined_or_expired: boolean;
+  commitments: Array<{
+    player_id: string;
+    status: string;
+    responded_at?: string;
+    expires_at: string;
+  }>;
+}
+
+export interface GameConnectionInfoResponse {
+  lobby_id: string;
+  match_id: string;
+  game_id: string;
+  region: string;
+  server_url?: string;
+  server_ip?: string;
+  port?: number;
+  passcode?: string;
+  qr_code_data?: string;
+  deep_link?: string;
+  instructions: string;
+  expires_at?: string;
 }

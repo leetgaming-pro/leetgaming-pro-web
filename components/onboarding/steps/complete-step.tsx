@@ -5,7 +5,7 @@
  * Onboarding completion celebration
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Divider } from '@nextui-org/react';
 import { EsportsButton } from '@/components/ui/esports-button';
 import { Icon } from '@iconify/react';
@@ -60,6 +60,18 @@ export function CompleteStep() {
     ? GAME_INFO[state.gamingPreferences.primaryGame]
     : null;
 
+  // Pre-compute deterministic confetti positions to avoid Math.random() hydration mismatch
+  const confettiParticles = useMemo(() => {
+    const seed = (i: number) => ((i * 2654435761) % 100);
+    return [...Array(20)].map((_, i) => ({
+      backgroundColor: ['#DCFF37', '#FF4654', '#FFC700', '#34445C'][i % 4],
+      left: `${seed(i + 1)}%`,
+      top: `${seed(i + 31)}%`,
+      animationDelay: `${(seed(i + 7) / 100) * 0.5}s`,
+      animationDuration: `${0.5 + (seed(i + 13) / 100) * 0.5}s`,
+    }));
+  }, []);
+
   return (
     <div className="text-center space-y-6">
       {/* Success Animation */}
@@ -75,17 +87,11 @@ export function CompleteStep() {
         {/* Confetti particles (CSS animation) */}
         {showConfetti && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(20)].map((_, i) => (
+            {confettiParticles.map((particle, i) => (
               <div
                 key={i}
                 className="absolute w-2 h-2 rounded-full animate-ping"
-                style={{
-                  backgroundColor: ['#DCFF37', '#FF4654', '#FFC700', '#34445C'][i % 4],
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 0.5}s`,
-                  animationDuration: `${0.5 + Math.random() * 0.5}s`,
-                }}
+                style={particle}
               />
             ))}
           </div>

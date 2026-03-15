@@ -55,7 +55,7 @@ const nextConfig = {
         // Proxy other unhandled /api/* routes (except auth and routes with file-based handlers)
         {
           source:
-            "/api/:path((?!auth|health|players|payments|billing|matches|match-making|replays|search|leaderboard|ranks|squads|wallet|upload|notifications|onboarding|iam|account|webhooks|debug|games|subscriptions|plans|checkout|scores|tournaments).*)",
+            "/api/:path((?!auth|health|players|payments|billing|matches|match-making|replays|search|leaderboard|ranks|squads|wallet|upload|notifications|onboarding|iam|account|webhooks|debug|games|subscriptions|plans|checkout|scores|tournaments|metrics).*)",
           destination: `${apiUrl}/:path*`,
         },
       ],

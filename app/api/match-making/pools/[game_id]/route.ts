@@ -1,12 +1,17 @@
 /**
  * Get Matchmaking Pool Stats API Route
  * GET - Get statistics for a matchmaking pool
+ *
+ * Pool stats are semi-public (no 401 guard) but auth headers
+ * are forwarded when available for personalised stats.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
 import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
+import { getAuthContextFromRequest } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +25,9 @@ export async function GET(
     const game_mode = searchParams.get('game_mode');
     const region = searchParams.get('region');
 
-    const authHeaders = getAuthHeadersFromCookies();
+    // Use consistent auth pattern — session RID fallback included
+    const session = await getServerSession(authOptions);
+    const { headers: authHeaders } = getAuthContextFromRequest(session);
 
     // Build query string
     const queryParams = new URLSearchParams();
@@ -37,11 +44,11 @@ export async function GET(
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to get pool stats' }));
-      logger.error('[API /api/match-making/pools/:game_id] Backend error', { status: response.status, error, game_id });
+      const errorData = await response.json().catch(() => ({ message: 'Failed to get pool stats' }));
+      logger.error('[API /api/match-making/pools/:game_id] Backend error', { status: response.status, error: errorData, game_id });
       return NextResponse.json({
         success: false,
-        error: (error instanceof Error ? error.message : 'Failed to get pool stats'),
+        error: errorData.message || errorData.error || 'Failed to get pool stats',
       }, { status: response.status });
     }
 

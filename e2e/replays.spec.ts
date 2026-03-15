@@ -40,7 +40,7 @@ test.describe("Replays Page", () => {
       .catch(() => false);
     const emptyVisible = await emptyState.isVisible().catch(() => false);
 
-    expect(cardsVisible || emptyVisible || true).toBeTruthy();
+    expect(cardsVisible || emptyVisible, 'Should show replay cards or empty state').toBeTruthy();
   });
 
   test("should allow filtering by game", async ({ page }) => {
@@ -181,7 +181,7 @@ test.describe("Replays Page - Accessibility", () => {
       const hasVisibilityInfo = (await visibilityBadges.count()) > 0;
 
       // Either has visibility badges or is accessible (public)
-      expect(hasVisibilityInfo || true).toBe(true);
+      // Visibility badges are optional for public replays
     }
   });
 
@@ -198,6 +198,7 @@ test.describe("Replays Page - Accessibility", () => {
     const hasAuthElements = (await authDependentElements.count()) > 0;
 
     // Page should work with or without auth elements
-    expect(hasAuthElements || true).toBe(true);
+    const body = page.locator('body');
+    await expect(body).toBeVisible();
   });
 });

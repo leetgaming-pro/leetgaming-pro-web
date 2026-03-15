@@ -1,0 +1,56 @@
+/**
+ * Decline Readiness API Route
+ * POST - Decline readiness for a lobby's ready check
+ */
+
+import { NextRequest, NextResponse } from "next/server";
+import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { logger } from "@/lib/logger";
+import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { lobby_id: string } },
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    const { isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    const { lobby_id } = params;
+    const body = await request.json().catch(() => ({}));
+
+    const sdk = createAuthenticatedSDK(session);
+    const result = await sdk.lobbies.declineReadiness(lobby_id, body.reason);
+
+    if (!result) {
+      return NextResponse.json(
+        { success: false, error: "Failed to decline readiness" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    logger.error(
+      `[API /api/match-making/lobbies/${params.lobby_id}/commitments/decline] Error`,
+      error,
+    );
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to decline readiness",
+      },
+      { status: 500 },
+    );
+  }
+}

@@ -216,8 +216,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           : undefined,
       });
 
-      if (!response) {
-        throw new Error("Failed to join matchmaking queue");
+      if (!response || !response.session_id) {
+        throw new Error("Failed to join matchmaking queue: no session returned");
       }
 
       setState((prev) => ({
@@ -313,6 +313,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           error: matchmakingErrorType,
         },
       }));
+
+      // Re-throw so the caller (App.tsx) knows it failed and can avoid showing success toast
+      throw error;
     }
   };
 

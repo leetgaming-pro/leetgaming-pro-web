@@ -199,9 +199,15 @@ export default function TournamentsPage() {
     if ("Notification" in window && Notification.permission === "default") {
       await Notification.requestPermission();
     }
-    alert(
-      `Reminder set for ${tournament.name}! You'll be notified when registration opens.`,
-    );
+    // TODO: Replace with proper toast notification system
+    if (typeof window !== "undefined") {
+      const toast = document.createElement("div");
+      toast.className = "fixed bottom-4 right-4 z-50 bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] px-6 py-3 rounded-none shadow-lg font-semibold text-sm animate-in slide-in-from-bottom-2";
+      toast.style.clipPath = "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)";
+      toast.textContent = `Reminder set for ${tournament.name}!`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
   };
 
   const handleCreateTournament = () => {
@@ -239,7 +245,7 @@ export default function TournamentsPage() {
         key={tournament.id}
         isPressable
         className="hover:shadow-lg hover:shadow-[#FF4654]/20 dark:hover:shadow-[#DCFF37]/20 hover:border-[#FF4654]/50 dark:hover:border-[#DCFF37]/50 transition-all rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
-        onPress={() => (window.location.href = `/tournaments/${tournament.id}`)}
+        onPress={() => router.push(`/tournaments/${tournament.id}`)}
       >
         <CardHeader
           className="absolute z-10 top-4 flex-col items-start bg-[#34445C]/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm m-2 rounded-none"
@@ -672,12 +678,29 @@ export default function TournamentsPage() {
       </Card>
 
       {/* Registration Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="lg"
+        classNames={{
+          base: "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          header: "border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10",
+          footer: "border-t border-[#FF4654]/10 dark:border-[#DCFF37]/10",
+        }}
+      >
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Register for Tournament
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                  >
+                    <Icon icon="solar:cup-star-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                  </div>
+                  <span className="text-[#34445C] dark:text-[#F5F0E1]">Register for Tournament</span>
+                </div>
               </ModalHeader>
               <ModalBody>
                 {selectedTournament && (
@@ -686,7 +709,7 @@ export default function TournamentsPage() {
                       <Image
                         src={selectedTournament.image}
                         alt={selectedTournament.name}
-                        className="w-24 h-16 object-cover rounded-lg"
+                        className="w-24 h-16 object-cover rounded-none"
                       />
                       <div>
                         <h4 className="font-bold text-lg">
@@ -739,11 +762,16 @@ export default function TournamentsPage() {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button variant="flat" onPress={onClose}>
+                <Button
+                  variant="bordered"
+                  className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
-                  color="primary"
+                  className="bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none font-semibold"
+                  style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
                   onPress={handleConfirmRegistration}
                   isLoading={registering}
                 >

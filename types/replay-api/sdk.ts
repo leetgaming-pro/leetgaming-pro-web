@@ -13,6 +13,12 @@ import {
   Profile,
   IdentifierSourceType,
 } from "./entities.types";
+import {
+  PlayerSkill,
+  PlayerTrait,
+  TeamHistoryEntry,
+  TeamRosterHistoryEntry,
+} from "./player-profile.types";
 import { OnboardingResponse } from "./auth";
 import { WalletAPI } from "./wallet.sdk";
 import { LobbyAPI } from "./lobby.sdk";
@@ -28,6 +34,11 @@ import { ReplayFile } from "./replay-file";
 import { SearchSchemaAPI } from "./search-schema.sdk";
 import { SubscriptionsAPI } from "./subscriptions.sdk";
 import { ScoresAPI } from "./scores.sdk";
+import { VaultAPI } from "./vault.sdk";
+import { MessagingAPI } from "./messaging.sdk";
+import { PredictionAPI } from "./prediction.sdk";
+import { ViewAnalyticsAPI } from "./view-analytics.sdk";
+import { PlayerPerformanceAPI } from "./player-performance.sdk";
 
 /**
  * Auth / MFA API wrapper
@@ -96,7 +107,15 @@ function normalizeGameId(gameId: string): string {
 /**
  * Match source indicates how the match was created
  */
-export type MatchSource = "replay" | "matchmaking" | "external_api" | "manual";
+export type MatchSource =
+  | "replay"
+  | "matchmaking"
+  | "external_api"
+  | "manual"
+  | "ocr_stream"
+  | "ocr_screenshot"
+  | "youtube_vod"
+  | "demo";
 
 /**
  * Match data structure
@@ -115,12 +134,17 @@ export interface MatchData {
   duration?: number;
   scoreboard?: MatchScoreboard;
   event_count?: number; // Number of game events extracted from replay
+  server_name?: string; // Server name from match metadata
   // Source tracking
-  source?: MatchSource; // How the match was created (replay, matchmaking, external_api, manual)
+  source?: MatchSource; // How the match was created (replay, matchmaking, external_api, manual, ocr_stream, ocr_screenshot, youtube_vod, demo)
   linked_replay_id?: string; // For matchmaking matches, links to associated replay
   external_match_id?: string; // External system match ID (FACEIT, Valve, etc.)
   replay_file_id?: string; // Primary replay file ID
   has_replay?: boolean; // Convenience field: true if match has replay
+  slug?: string; // Reconciliation slug (e.g., "cs2:faze-vs-navi:2026-03-12:mirage")
+  linked_match_ids?: string[]; // IDs of matches reconciled/linked to this one
+  // Team data
+  teams?: Team[];
 }
 
 export interface MatchScoreboard {
@@ -443,6 +467,23 @@ export class SquadAPI {
     );
     return response.data || [];
   }
+
+  /**
+   * Get squad roster history
+   * Returns roster changes over time (joins, departures, role changes)
+   */
+  async getSquadRosterHistory(
+    squadId: string,
+  ): Promise<TeamRosterHistoryEntry[]> {
+    try {
+      const response = await this.client.get<TeamRosterHistoryEntry[]>(
+        `/squads/${squadId}/roster-history`,
+      );
+      return response.data || [];
+    } catch {
+      return [];
+    }
+  }
 }
 
 /**
@@ -643,6 +684,87 @@ export class PlayerProfileAPI {
       );
       // On error, assume available and let server validate on creation
       return true;
+    }
+  }
+
+  /**
+   * Get player skills (professional profile feature)
+   * Returns skill ratings, endorsements, and category breakdowns
+   */
+  async getPlayerSkills(playerId: string): Promise<PlayerSkill[]> {
+    try {
+      const response = await this.client.get<PlayerSkill[]>(
+        `/players/${playerId}/skills`,
+      );
+      return response.data || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get player traits (professional profile feature)
+   * Returns personality/playstyle traits with endorsements
+   */
+  async getPlayerTraits(playerId: string): Promise<PlayerTrait[]> {
+    try {
+      const response = await this.client.get<PlayerTrait[]>(
+        `/players/${playerId}/traits`,
+      );
+      return response.data || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get player team history (professional profile feature)
+   * Returns teams the player has been part of over time
+   */
+  async getPlayerTeamHistory(playerId: string): Promise<TeamHistoryEntry[]> {
+    try {
+      const response = await this.client.get<TeamHistoryEntry[]>(
+        `/players/${playerId}/team-history`,
+      );
+      return response.data || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Endorse a player skill
+   */
+  async endorseSkill(
+    playerId: string,
+    skillId: string,
+  ): Promise<boolean> {
+    try {
+      await this.client.post(
+        `/players/${playerId}/skills/${skillId}/endorse`,
+        {},
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Endorse a player trait
+   */
+  async endorseTrait(
+    playerId: string,
+    traitId: string,
+  ): Promise<boolean> {
+    try {
+      await this.client.post(
+        `/players/${playerId}/traits/${traitId}/endorse`,
+        {},
+      );
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -885,10 +1007,19 @@ export class ReplayFileAPI {
     limit?: number;
     offset?: number;
   }): Promise<ReplayFile[]> {
-    // Use GET with query params - backend doesn't support POST /replays/search
+    const gameId = normalizeGameId(filters.game_id || "cs2");
+
+    // When searching by ID, use the direct GET endpoint
+    if (filters.id) {
+      const response = await this.client.get<ReplayFile>(
+        `/games/${gameId}/replays/${filters.id}`,
+      );
+      return response.data ? [response.data] : [];
+    }
+
+    // Use GET with query params for list/search
     // Field names must be PascalCase to match Go struct fields
     const params = new URLSearchParams();
-    if (filters.id) params.append("ID", filters.id);
     if (filters.game_id)
       params.append("GameID", normalizeGameId(filters.game_id));
     if (filters.network_id) params.append("NetworkID", filters.network_id);
@@ -903,7 +1034,6 @@ export class ReplayFileAPI {
 
     const queryString = params.toString();
     // Use /games/{game_id}/replays endpoint which exists in backend
-    const gameId = normalizeGameId(filters.game_id || "cs2");
     const response = await this.client.get<ReplayFile[]>(
       `/games/${gameId}/replays${queryString ? `?${queryString}` : ""}`,
     );
@@ -1062,6 +1192,11 @@ export class ReplayAPISDK {
   public subscriptions: SubscriptionsAPI;
   public scores: ScoresAPI;
   public auth: AuthAPI;
+  public vault: VaultAPI;
+  public messaging: MessagingAPI;
+  public predictions: PredictionAPI;
+  public viewAnalytics: ViewAnalyticsAPI;
+  public playerPerformance: PlayerPerformanceAPI;
 
   constructor(settings: ReplayApiSettings, logger: Loggable) {
     this.client = new ReplayApiClient(settings, logger);
@@ -1086,6 +1221,11 @@ export class ReplayAPISDK {
     this.subscriptions = new SubscriptionsAPI(this.client);
     this.scores = new ScoresAPI(this.client);
     this.auth = new AuthAPI(this.client);
+    this.vault = new VaultAPI(this.client);
+    this.messaging = new MessagingAPI(this.client);
+    this.predictions = new PredictionAPI(this.client);
+    this.viewAnalytics = new ViewAnalyticsAPI(this.client);
+    this.playerPerformance = new PlayerPerformanceAPI(this.client);
   }
 
   /**

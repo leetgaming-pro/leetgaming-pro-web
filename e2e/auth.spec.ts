@@ -28,7 +28,7 @@ test.describe("Authentication - Email/Password", () => {
         // Try alternative selectors
         const altEmailInput = page.locator('input[type="email"]').first();
         const hasAltEmail = await altEmailInput.isVisible().catch(() => false);
-        expect(hasAltEmail || true).toBe(true);
+        expect(hasAltEmail).toBe(true);
         return;
       }
 
@@ -274,7 +274,7 @@ test.describe("Authentication - Email/Password", () => {
         .isVisible()
         .catch(() => false);
       const onErrorPage = page.url().includes("error");
-      expect(hasError || onErrorPage || true).toBe(true); // Accept any error handling
+      expect(hasError || onErrorPage).toBe(true); // Accept any error handling
     });
 
     test("should redirect to dashboard after successful login", async ({
@@ -374,7 +374,7 @@ test.describe("Authentication - Email/Password", () => {
       const googleVisible = await googleButton.isVisible().catch(() => false);
       const hasOAuthSection = await oauthSection.isVisible().catch(() => false);
 
-      expect(steamVisible || googleVisible || hasOAuthSection || true).toBe(
+      expect(steamVisible || googleVisible || hasOAuthSection).toBe(
         true,
       );
     });
@@ -684,8 +684,12 @@ test.describe("Session Security", () => {
       .isVisible()
       .catch(() => false);
 
-    // Either redirect or show message is acceptable
-    expect(redirected || expiredMessage || true).toBe(true); // Graceful handling
+    // Either redirect or show message is acceptable — NextAuth may also just
+    // show the page normally with an expired session in the session object
+    const body = page.locator('body');
+    await expect(body).toBeVisible();
+    // Graceful handling: page didn't crash
+    expect(redirected || expiredMessage || page.url().includes('match-making')).toBe(true);
   });
 
   test("should not expose sensitive data in page source", async ({ page }) => {
@@ -806,8 +810,10 @@ test.describe("CSRF Protection", () => {
     const csrfMeta = page.locator('meta[name="csrf-token"]');
     const hasCsrfMeta = (await csrfMeta.count()) > 0;
 
-    // NextAuth uses cookies for CSRF, so this is informational
-    expect(hasCsrfInput || hasCsrfMeta || true).toBe(true);
+    // NextAuth uses cookies for CSRF, not always visible as HTML inputs/meta
+    // The important thing is the page loaded the auth form
+    const body = page.locator('body');
+    await expect(body).toBeVisible();
   });
 });
 
@@ -1025,7 +1031,7 @@ test.describe("Password Reset Flow", () => {
       .first()
       .isVisible()
       .catch(() => false);
-    expect(hasSigninLink || true).toBe(true);
+    expect(hasSigninLink).toBe(true);
   });
 
   test("should show success message after submitting email", async ({
@@ -1086,8 +1092,10 @@ test.describe("Password Reset Flow", () => {
       .isVisible()
       .catch(() => false);
 
-    // Page should respond to input
-    expect(isDisabled || hasValidationError || true).toBe(true);
+    // Form should respond to input — either validation or button state
+    // Some forms may just accept any text and validate server-side
+    const body = page.locator('body');
+    await expect(body).toBeVisible();
   });
 
   test("should display reset password page with token", async ({ page }) => {
@@ -1167,7 +1175,7 @@ test.describe("Password Reset Flow", () => {
       });
       const isDisabled = await submitButton.isDisabled().catch(() => false);
 
-      expect(hasStrengthIndicator || isDisabled || true).toBe(true);
+      expect(hasStrengthIndicator || isDisabled).toBe(true);
     }
   });
 
@@ -1221,7 +1229,7 @@ test.describe("Password Reset Flow", () => {
           .catch(() => false);
         const redirectedToSignin = page.url().includes("signin");
 
-        expect(hasSuccessMessage || redirectedToSignin || true).toBe(true);
+        expect(hasSuccessMessage || redirectedToSignin).toBe(true);
       }
     }
   });

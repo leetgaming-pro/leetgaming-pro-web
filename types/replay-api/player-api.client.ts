@@ -6,6 +6,11 @@ import {
   ReplayApiSettingsMock,
 } from "./settings";
 import { PlayerProfile, CreatePlayerProfileRequest } from "./entities.types";
+import {
+  PlayerSkill,
+  PlayerTrait,
+  TeamHistoryEntry,
+} from "./player-profile.types";
 
 // Type aliases for backwards compatibility
 type Player = PlayerProfile;
@@ -63,5 +68,83 @@ export class PlayerApiClient {
     return new RouteBuilder(this.settings, this.logger)
       .route(ReplayApiResourceType.Player, { playerId })
       .get<Player>(ReplayApiResourceType.Player);
+  }
+
+  async getPlayerSkills(
+    playerId: string,
+  ): Promise<PlayerSkill[]> {
+    try {
+      const result = await new RouteBuilder(this.settings, this.logger)
+        .route(ReplayApiResourceType.Player, { playerId })
+        .get<PlayerSkill[]>("skills" as ReplayApiResourceType);
+      return result || [];
+    } catch {
+      this.logger.warn("Failed to fetch player skills", { playerId });
+      return [];
+    }
+  }
+
+  async getPlayerTraits(
+    playerId: string,
+  ): Promise<PlayerTrait[]> {
+    try {
+      const result = await new RouteBuilder(this.settings, this.logger)
+        .route(ReplayApiResourceType.Player, { playerId })
+        .get<PlayerTrait[]>("traits" as ReplayApiResourceType);
+      return result || [];
+    } catch {
+      this.logger.warn("Failed to fetch player traits", { playerId });
+      return [];
+    }
+  }
+
+  async getPlayerTeamHistory(
+    playerId: string,
+  ): Promise<TeamHistoryEntry[]> {
+    try {
+      const result = await new RouteBuilder(this.settings, this.logger)
+        .route(ReplayApiResourceType.Player, { playerId })
+        .get<TeamHistoryEntry[]>("team-history" as ReplayApiResourceType);
+      return result || [];
+    } catch {
+      this.logger.warn("Failed to fetch player team history", { playerId });
+      return [];
+    }
+  }
+
+  async endorseSkill(
+    playerId: string,
+    skillId: string,
+    authToken: string
+  ): Promise<boolean> {
+    try {
+      await this.routeBuilder.post<{ skill_id: string }, Record<string, unknown>>(
+        `players/${playerId}/skills/${skillId}/endorse` as unknown as ReplayApiResourceType,
+        { skill_id: skillId },
+        authToken
+      );
+      return true;
+    } catch {
+      this.logger.warn("Failed to endorse skill", { playerId, skillId });
+      return false;
+    }
+  }
+
+  async endorseTrait(
+    playerId: string,
+    traitId: string,
+    authToken: string
+  ): Promise<boolean> {
+    try {
+      await this.routeBuilder.post<{ trait_id: string }, Record<string, unknown>>(
+        `players/${playerId}/traits/${traitId}/endorse` as unknown as ReplayApiResourceType,
+        { trait_id: traitId },
+        authToken
+      );
+      return true;
+    } catch {
+      this.logger.warn("Failed to endorse trait", { playerId, traitId });
+      return false;
+    }
   }
 }

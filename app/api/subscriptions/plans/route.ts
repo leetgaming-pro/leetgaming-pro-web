@@ -5,16 +5,16 @@
 
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
+import { createPublicSDK } from "@/lib/api/sdk-factory";
 import { SubscriptionsAPI } from "@/types/replay-api/subscriptions.sdk";
 
 /**
  * GET /api/subscriptions/plans
- * Get available subscription plans
+ * Get available subscription plans (public endpoint, no auth required)
  */
 export async function GET() {
   try {
-    const sdk = createAuthenticatedSDK();
+    const sdk = createPublicSDK();
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const plans = await subscriptionsApi.getPlans();
 

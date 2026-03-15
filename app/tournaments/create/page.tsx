@@ -23,9 +23,9 @@ import {
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageContainer } from "@/components/layouts/centered-content";
+import { EsportsButton } from "@/components/ui/esports-button";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { useSDK } from "@/contexts/sdk-context";
 import { logger } from "@/lib/logger";
 import type { TournamentFormat } from "@/types/replay-api/tournament.types";
 
@@ -67,6 +67,7 @@ interface TournamentFormData {
 export default function CreateTournamentPage() {
   const router = useRouter();
   const { isLoading: isAuthLoading, isRedirecting } = useRequireAuth();
+  const { sdk, isReady } = useSDK();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +103,9 @@ export default function CreateTournamentPage() {
     setError(null);
 
     try {
-      const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
+      if (!isReady) {
+        throw new Error("SDK not ready");
+      }
       const startTime = `${formData.startDate}T${formData.startTime || "00:00"}:00Z`;
       const regDeadline = formData.registrationDeadline
         ? `${formData.registrationDeadline}T23:59:59Z`
@@ -157,34 +160,69 @@ export default function CreateTournamentPage() {
   return (
     <PageContainer>
       <div className="max-w-3xl mx-auto py-8">
+        {/* Background Decorations */}
+        <div className="fixed top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#FF4654]/5 to-transparent dark:from-[#DCFF37]/5 pointer-events-none" />
+        <div className="fixed bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[#FFC700]/5 to-transparent dark:from-[#34445C]/10 pointer-events-none" />
+
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Button isIconOnly variant="light" onPress={() => router.back()}>
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            isIconOnly
+            variant="bordered"
+            className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+            onPress={() => router.back()}
+          >
             <Icon icon="solar:arrow-left-linear" className="text-xl" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Create Tournament</h1>
-            <p className="text-default-500 text-sm">
-              Step {step} of {totalSteps}
-            </p>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+              style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
+            >
+              <Icon icon="solar:cup-star-bold" width={24} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Create Tournament</h1>
+              <p className="text-[#FF4654] dark:text-[#DCFF37] text-sm font-medium">
+                Step {step} of {totalSteps}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Progress */}
+        {/* Progress Steps */}
         <div className="flex gap-2 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
               key={i}
-              className={`h-1 flex-1 rounded-full transition-colors ${
-                i + 1 <= step ? "bg-primary" : "bg-default-200"
+              className={`h-1.5 flex-1 transition-all duration-300 ${
+                i + 1 <= step
+                  ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                  : "bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
               }`}
+              style={i + 1 <= step ? { clipPath: "polygon(0 0, 100% 0, 100% 100%, calc(100% - 2px) 100%, 0 100%)" } : undefined}
             />
           ))}
         </div>
 
+        {/* Step Labels */}
+        <div className="flex justify-between mb-6 text-xs font-semibold uppercase tracking-wider">
+          {["Details", "Prizes", "Schedule", "Review"].map((label, i) => (
+            <span
+              key={label}
+              className={i + 1 <= step ? "text-[#FF4654] dark:text-[#DCFF37]" : "text-default-400"}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+
         {error && (
-          <Card className="mb-4 bg-danger-50 border border-danger-200">
-            <CardBody className="text-danger text-sm">{error}</CardBody>
+          <Card className="mb-4 rounded-none border border-danger/30 bg-danger/5">
+            <CardBody className="text-danger text-sm flex flex-row items-center gap-2">
+              <Icon icon="solar:danger-triangle-bold" width={18} />
+              {error}
+            </CardBody>
           </Card>
         )}
 
@@ -198,10 +236,20 @@ export default function CreateTournamentPage() {
           >
             {/* Step 1: Basic Info */}
             {step === 1 && (
-              <Card>
-                <CardHeader className="flex flex-col items-start gap-1">
-                  <h2 className="text-lg font-semibold">Tournament Details</h2>
-                  <p className="text-default-500 text-sm">Name, game, and format</p>
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="flex flex-col items-start gap-1 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:document-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Tournament Details</h2>
+                      <p className="text-default-500 text-sm">Name, game, and format</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardBody className="gap-4">
                   <Input
@@ -263,10 +311,20 @@ export default function CreateTournamentPage() {
 
             {/* Step 2: Prizes & Entry */}
             {step === 2 && (
-              <Card>
-                <CardHeader className="flex flex-col items-start gap-1">
-                  <h2 className="text-lg font-semibold">Prize Pool & Entry</h2>
-                  <p className="text-default-500 text-sm">Set fees and prize distribution</p>
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="flex flex-col items-start gap-1 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:cup-star-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Prize Pool & Entry</h2>
+                      <p className="text-default-500 text-sm">Set fees and prize distribution</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardBody className="gap-4">
                   <Input
@@ -306,10 +364,20 @@ export default function CreateTournamentPage() {
 
             {/* Step 3: Schedule */}
             {step === 3 && (
-              <Card>
-                <CardHeader className="flex flex-col items-start gap-1">
-                  <h2 className="text-lg font-semibold">Schedule & Settings</h2>
-                  <p className="text-default-500 text-sm">When does your tournament start?</p>
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="flex flex-col items-start gap-1 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:calendar-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Schedule & Settings</h2>
+                      <p className="text-default-500 text-sm">When does your tournament start?</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardBody className="gap-4">
                   <Input
@@ -363,10 +431,20 @@ export default function CreateTournamentPage() {
 
             {/* Step 4: Review & Create */}
             {step === 4 && (
-              <Card>
-                <CardHeader className="flex flex-col items-start gap-1">
-                  <h2 className="text-lg font-semibold">Review Tournament</h2>
-                  <p className="text-default-500 text-sm">Confirm all details before creating</p>
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardHeader className="flex flex-col items-start gap-1 border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:checklist-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">Review Tournament</h2>
+                      <p className="text-default-500 text-sm">Confirm all details before creating</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-4">
@@ -436,34 +514,34 @@ export default function CreateTournamentPage() {
 
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-6">
-          <Button
-            variant="flat"
-            onPress={step === 1 ? () => router.back() : () => setStep((s) => s - 1)}
+          <EsportsButton
+            variant="ghost"
+            onClick={step === 1 ? () => router.back() : () => setStep((s) => s - 1)}
             startContent={<Icon icon="solar:arrow-left-linear" />}
           >
             {step === 1 ? "Cancel" : "Back"}
-          </Button>
+          </EsportsButton>
           {step < totalSteps ? (
-            <Button
-              color="primary"
-              onPress={() => setStep((s) => s + 1)}
-              endContent={<Icon icon="solar:arrow-right-linear" />}
-              isDisabled={
+            <EsportsButton
+              variant="primary"
+              onClick={() => setStep((s) => s + 1)}
+              disabled={
                 (step === 1 && (!formData.name || !formData.game)) ||
                 (step === 3 && (!formData.startDate || !formData.startTime))
               }
             >
               Continue
-            </Button>
+              <Icon icon="solar:arrow-right-linear" />
+            </EsportsButton>
           ) : (
-            <Button
-              color="primary"
-              onPress={handleSubmit}
-              isLoading={isSubmitting}
-              endContent={<Icon icon="solar:trophy-bold" />}
+            <EsportsButton
+              variant="action"
+              onClick={handleSubmit}
+              loading={isSubmitting}
             >
+              <Icon icon="solar:trophy-bold" />
               Create Tournament
-            </Button>
+            </EsportsButton>
           )}
         </div>
       </div>

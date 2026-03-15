@@ -8,7 +8,7 @@ import { ReplayApiClient } from './replay-api.client';
 /**
  * Notification type categories
  */
-export type NotificationType = 'match' | 'team' | 'friend' | 'system' | 'achievement' | 'message';
+export type NotificationType = 'match' | 'team' | 'friend' | 'system' | 'achievement' | 'message' | 'ready-check' | 'connection';
 
 /**
  * Notification entity

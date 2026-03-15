@@ -13,6 +13,7 @@ import { GlobalSearchProvider } from "@/components/search/global-search-provider
 import { PlanLimitProvider, usePlanLimit } from "@/contexts/plan-limit-context";
 import { ErrorProvider } from "@/contexts/error-context";
 import { ToastProvider } from "@/components/toast/toast-provider";
+import { Web3Provider } from "@/components/web3/web3-provider";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -42,12 +43,13 @@ function ErrorProviderWithPlanLimit({
  *         └── SessionProvider (NextAuth.js sessions)
  *               └── AuthSync (RID token synchronization)
  *                     └── SDKProvider (API SDK singleton)
- *                           └── ProfileProvider (multi-game profiles)
- *                                 └── PlanLimitProvider (plan limit handling)
- *                                       └── ErrorProviderWithPlanLimit (error handling connected to plan limits)
- *                                             └── ToastProvider (simple success/info toasts)
- *                                                   └── GlobalSearchProvider (search)
- *                                                         └── Application Content
+ *                           └── Web3Provider (wagmi + RainbowKit)
+ *                                 └── ProfileProvider (multi-game profiles)
+ *                                       └── PlanLimitProvider (plan limit handling)
+ *                                             └── ErrorProviderWithPlanLimit (error handling)
+ *                                                   └── ToastProvider
+ *                                                         └── GlobalSearchProvider
+ *                                                               └── Application Content
  */
 export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
@@ -59,15 +61,17 @@ export function Providers({ children, themeProps }: ProvidersProps) {
           <SessionProvider basePath="/api/auth">
             <AuthSync>
               <SDKProvider>
-                <ProfileProvider>
-                  <PlanLimitProvider>
-                    <ErrorProviderWithPlanLimit>
-                      <ToastProvider>
-                        <GlobalSearchProvider>{children}</GlobalSearchProvider>
-                      </ToastProvider>
-                    </ErrorProviderWithPlanLimit>
-                  </PlanLimitProvider>
-                </ProfileProvider>
+                <Web3Provider>
+                  <ProfileProvider>
+                    <PlanLimitProvider>
+                      <ErrorProviderWithPlanLimit>
+                        <ToastProvider>
+                          <GlobalSearchProvider>{children}</GlobalSearchProvider>
+                        </ToastProvider>
+                      </ErrorProviderWithPlanLimit>
+                    </PlanLimitProvider>
+                  </ProfileProvider>
+                </Web3Provider>
               </SDKProvider>
             </AuthSync>
           </SessionProvider>

@@ -306,9 +306,15 @@ export default function PlayersPage() {
                 Error loading players
               </p>
               <p className="text-default-500 mb-4">{error}</p>
-              <p className="text-xs text-default-400 mb-4">
-                Showing cached data
-              </p>
+              <Button
+                className="bg-[#34445C] dark:bg-[#DCFF37] text-[#F5F0E1] dark:text-[#34445C] rounded-none mt-2"
+                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                onPress={() => fetchPlayers()}
+                startContent={<Icon icon="solar:refresh-linear" width={16} />}
+                size="sm"
+              >
+                Retry
+              </Button>
             </CardBody>
           </Card>
         )}

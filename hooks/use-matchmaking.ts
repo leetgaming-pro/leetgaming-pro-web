@@ -21,6 +21,11 @@ import {
   isSessionTerminal,
   isSessionActive,
 } from "@/types/replay-api/matchmaking.types";
+import type {
+  CommitmentConfirmResponse,
+  CommitmentSummaryResponse,
+  GameConnectionInfoResponse,
+} from "@/types/replay-api/lobby.sdk";
 
 export interface UseMatchmakingResult {
   // State
@@ -44,6 +49,11 @@ export interface UseMatchmakingResult {
   joinLobby: (lobbyId: string) => Promise<boolean>;
   acceptMatch: () => Promise<boolean>;
   declineMatch: () => Promise<boolean>;
+  // Readiness confirmation actions
+  confirmReadiness: (lobbyId: string) => Promise<CommitmentConfirmResponse | null>;
+  declineReadiness: (lobbyId: string, reason?: string) => Promise<CommitmentSummaryResponse | null>;
+  getCommitmentSummary: (lobbyId: string) => Promise<CommitmentSummaryResponse | null>;
+  getConnectionInfo: (lobbyId: string) => Promise<GameConnectionInfoResponse | null>;
   // Helpers
   clearError: () => void;
   retryLastAction: () => Promise<void>;
@@ -402,6 +412,70 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     }
   }, []);
 
+  // ─── Readiness Confirmation Actions ───────────────────────────
+
+  const confirmReadiness = useCallback(
+    async (lobbyIdParam: string): Promise<CommitmentConfirmResponse | null> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await sdk.lobbies.confirmReadiness(lobbyIdParam);
+        return result;
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error confirming readiness:", err);
+        setError("LOBBY_ERROR" as MatchmakingError);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sdk]
+  );
+
+  const declineReadiness = useCallback(
+    async (lobbyIdParam: string, reason?: string): Promise<CommitmentSummaryResponse | null> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await sdk.lobbies.declineReadiness(lobbyIdParam, reason);
+        return result;
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error declining readiness:", err);
+        setError("LOBBY_ERROR" as MatchmakingError);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sdk]
+  );
+
+  const getCommitmentSummary = useCallback(
+    async (lobbyIdParam: string): Promise<CommitmentSummaryResponse | null> => {
+      try {
+        return await sdk.lobbies.getCommitmentSummary(lobbyIdParam);
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error fetching commitment summary:", err);
+        return null;
+      }
+    },
+    [sdk]
+  );
+
+  const getConnectionInfo = useCallback(
+    async (lobbyIdParam: string): Promise<GameConnectionInfoResponse | null> => {
+      try {
+        return await sdk.lobbies.getGameConnectionInfo(lobbyIdParam);
+      } catch (err: unknown) {
+        logger.error("[useMatchmaking] Error fetching connection info:", err);
+        return null;
+      }
+    },
+    [sdk]
+  );
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -427,6 +501,10 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     joinLobby,
     acceptMatch,
     declineMatch,
+    confirmReadiness,
+    declineReadiness,
+    getCommitmentSummary,
+    getConnectionInfo,
     clearError,
     retryLastAction,
   };

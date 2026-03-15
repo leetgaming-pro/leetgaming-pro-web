@@ -14,7 +14,7 @@ import {
   getRegionApiUrl,
 } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
-import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
+import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,9 +40,10 @@ export async function GET(
   { params }: { params: { session_id: string } },
 ) {
   try {
-    // SECURITY: Require auth to prevent unauthorized session polling
+    // SECURITY: Require auth (NextAuth session or RID token) to prevent unauthorized session polling
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { headers: authHeaders, isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
         { status: 401 },
@@ -57,8 +58,6 @@ export async function GET(
         { status: 400 },
       );
     }
-
-    const authHeaders = getAuthHeadersFromCookies();
     const region = request.nextUrl.searchParams.get("region");
     const apiUrl = region
       ? getRegionApiUrl(region)
@@ -141,7 +140,8 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { headers: authHeaders, isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
         { status: 401 },
@@ -157,15 +157,19 @@ export async function DELETE(
       );
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
-
     logger.info("[API /api/match-making/session] Cancelling session", {
       session_id,
     });
 
+    // Use region-aware routing for DELETE to match the region used during GET polling
+    const region = request.nextUrl.searchParams.get("region");
+    const apiUrl = region
+      ? getRegionApiUrl(region)
+      : ReplayApiSettingsMock.baseUrl;
+
     // Forward request to replay-api backend
     const response = await fetch(
-      `${ReplayApiSettingsMock.baseUrl}/match-making/session/${session_id}`,
+      `${apiUrl}/match-making/session/${session_id}`,
       {
         method: "DELETE",
         headers: {

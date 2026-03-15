@@ -61,7 +61,7 @@ export default function TransactionsPage() {
   });
   const { showToast } = useToast();
 
-  const { transactions: txResult, isLoadingTransactions } = useWallet(true, { limit: 50, offset: 0 });
+  const { transactions: txResult, isLoadingTransactions } = useWallet(isAuthenticated, { limit: 50, offset: 0 });
 
   const transactions = useMemo<EscrowTransaction[]>(() => {
     if (!txResult?.transactions) return [];

@@ -49,8 +49,10 @@ export class MatchmakingAPI {
       backendRequest,
     );
     if (response.error) {
-      console.error("Failed to join queue:", response.error);
-      return null;
+      const error = typeof response.error === "string" ? response.error : response.error.message;
+      const isAuthError = typeof response.error !== "string" && response.error.isAuthError;
+      console.error("Failed to join queue:", error);
+      throw new Error(isAuthError ? "auth: " + error : error);
     }
     return response.data || null;
   }
@@ -84,11 +86,17 @@ export class MatchmakingAPI {
 
   /**
    * Leave the matchmaking queue
+   * Throws on error for consistent error handling with joinQueue
    */
   async leaveQueue(sessionId: string): Promise<boolean> {
     const response = await this.client.delete(
       `/match-making/queue/${sessionId}`,
     );
+    if (response.error) {
+      const error = typeof response.error === "string" ? response.error : response.error.message;
+      console.error("Failed to leave queue:", error);
+      throw new Error(error || "Failed to leave queue");
+    }
     return response.status === 204 || response.status === 200;
   }
 

@@ -268,26 +268,25 @@ export const ReplayApiSettingsMock: ReplayApiSettings = {
 
 /**
  * Get region-specific API URL for matchmaking
- * Used when user selects a specific region for their match
+ * Used when user selects a specific region for their match.
+ *
+ * In local/dev environments (when no region-specific env vars are set),
+ * all regions fall back to the default base URL to avoid routing
+ * requests to production servers.
  */
 export function getRegionApiUrl(region: string): string {
-  const regionUrls: Record<string, string> = {
-    "na-east":
-      process.env.REPLAY_API_URL_NA_EAST ||
-      "https://api-na-east.leetgaming.pro",
-    "na-west":
-      process.env.REPLAY_API_URL_NA_WEST ||
-      "https://api-na-west.leetgaming.pro",
-    "eu-west":
-      process.env.REPLAY_API_URL_EU_WEST ||
-      "https://api-eu-west.leetgaming.pro",
-    "eu-east":
-      process.env.REPLAY_API_URL_EU_EAST ||
-      "https://api-eu-east.leetgaming.pro",
-    sa: process.env.REPLAY_API_URL_SA || "https://api-sa.leetgaming.pro",
-    asia: process.env.REPLAY_API_URL_ASIA || "https://api-asia.leetgaming.pro",
-    oce: process.env.REPLAY_API_URL_OCE || "https://api-oce.leetgaming.pro",
+  // Map of region-specific env vars — only used when explicitly configured
+  const regionEnvVars: Record<string, string | undefined> = {
+    "na-east": process.env.REPLAY_API_URL_NA_EAST,
+    "na-west": process.env.REPLAY_API_URL_NA_WEST,
+    "eu-west": process.env.REPLAY_API_URL_EU_WEST,
+    "eu-east": process.env.REPLAY_API_URL_EU_EAST,
+    sa: process.env.REPLAY_API_URL_SA,
+    asia: process.env.REPLAY_API_URL_ASIA,
+    oce: process.env.REPLAY_API_URL_OCE,
   };
 
-  return regionUrls[region] || ReplayApiSettingsMock.baseUrl;
+  // Use region-specific URL only if explicitly configured via env var;
+  // otherwise fall back to the default base URL (safe for local dev).
+  return regionEnvVars[region] || ReplayApiSettingsMock.baseUrl;
 }

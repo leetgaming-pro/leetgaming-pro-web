@@ -34,7 +34,7 @@ test.describe("Leaderboards Page", () => {
     if (headingVisible) {
       const subtitle = page.getByText(/Global Rankings/i);
       const subtitleVisible = await subtitle.isVisible().catch(() => false);
-      expect(subtitleVisible || true).toBe(true);
+      // Subtitle is optional — heading visibility already verified above
     }
   });
 

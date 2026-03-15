@@ -6,9 +6,21 @@ import { Card, CardBody, Chip, Button, Tooltip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { electrolize } from "@/config/fonts";
-import { MatchData } from "@/types/replay-api/sdk";
+import { MatchData, MatchSource } from "@/types/replay-api/sdk";
 import { normalizeStatus, STATUS_CONFIG, isStatusReady } from "@/lib/status-utils";
 import { ShareButton } from "@/components/share/share-button";
+
+// Source display configuration
+const SOURCE_CONFIG: Record<string, { label: string; icon: string; color: "default" | "primary" | "secondary" | "success" | "warning" | "danger" }> = {
+  replay: { label: "Replay", icon: "solar:videocamera-record-bold", color: "default" },
+  matchmaking: { label: "Matchmaking", icon: "solar:gamepad-bold", color: "secondary" },
+  external_api: { label: "API", icon: "solar:cloud-download-bold", color: "primary" },
+  manual: { label: "Manual", icon: "solar:pen-bold", color: "warning" },
+  ocr_stream: { label: "OCR Stream", icon: "solar:monitor-camera-bold", color: "success" },
+  ocr_screenshot: { label: "OCR Screenshot", icon: "solar:camera-bold", color: "success" },
+  youtube_vod: { label: "YouTube", icon: "solar:play-circle-bold", color: "danger" },
+  demo: { label: "Demo", icon: "solar:file-download-bold", color: "secondary" },
+};
 
 interface MatchCardProps {
   match: MatchData;
@@ -257,6 +269,16 @@ export function MatchCard({
             >
               {statusConfig.label}
             </Chip>
+            {match.source && match.source !== "replay" && (
+              <Chip
+                size="sm"
+                color={SOURCE_CONFIG[match.source]?.color || "default"}
+                variant="flat"
+                startContent={<Icon icon={SOURCE_CONFIG[match.source]?.icon || "solar:info-circle-bold"} width={12} />}
+              >
+                {SOURCE_CONFIG[match.source]?.label || match.source}
+              </Chip>
+            )}
           </div>
           <div className="text-xs text-default-500">
             {formattedDate}

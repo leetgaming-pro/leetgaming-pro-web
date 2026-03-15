@@ -5,7 +5,7 @@
  * Form for tournament admins and authorized users to submit match results manually
  */
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-auth";
 import {
@@ -16,6 +16,7 @@ import {
   Select,
   SelectItem,
   Divider,
+  Chip,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useSDK } from "@/contexts/sdk-context";
@@ -57,7 +58,7 @@ export default function SubmitMatchResultPage() {
 function SubmitMatchResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useRequireAuth({
+  const { isAuthenticated, user } = useRequireAuth({
     callbackUrl: "/scores/submit",
   });
   const { sdk, isReady } = useSDK();
@@ -80,6 +81,46 @@ function SubmitMatchResultContent() {
   const [roundsPlayed, setRoundsPlayed] = useState("");
   const [duration, setDuration] = useState("");
   const [matchmakingSessionId] = useState(preSessionId);
+
+  // Determine which score sources the user can select.
+  // - tournament_admin: organizers (validated on backend via tournament ownership)
+  // - matchmaking: when pre-filled from a matchmaking session
+  // - external_api / consensus / replay_file: admin-only (automated sources)
+  const isAdmin = useMemo(() => user?.isAdmin ?? false, [user]);
+  const availableSources = useMemo(() => {
+    const sources: { key: ScoreSource; label: string; description: string }[] = [
+      {
+        key: "tournament_admin",
+        label: "Tournament Admin",
+        description: "Submit as tournament organizer",
+      },
+    ];
+    if (preMatchId || preSessionId) {
+      sources.push({
+        key: "matchmaking",
+        label: "Matchmaking",
+        description: "Result from matchmaking system",
+      });
+    }
+    if (isAdmin) {
+      sources.push(
+        {
+          key: "external_api",
+          label: "External API",
+          description: "Imported from external data source",
+        },
+        {
+          key: "consensus",
+          label: "Consensus",
+          description: "Multi-party agreement",
+        },
+      );
+    }
+    return sources;
+  }, [isAdmin, preMatchId, preSessionId]);
+
+  // Tournament ID is required when source is "tournament_admin"
+  const isTournamentRequired = source === "tournament_admin";
 
   // Sync URL params on mount (for client-side navigation)
   useEffect(() => {
@@ -112,6 +153,12 @@ function SubmitMatchResultContent() {
     // Validation
     if (!matchId.trim()) {
       setError("Match ID is required");
+      return;
+    }
+    if (isTournamentRequired && !tournamentId.trim()) {
+      setError(
+        "Tournament ID is required when submitting as a tournament admin",
+      );
       return;
     }
     if (teams.some((t) => !t.team_name.trim())) {
@@ -165,9 +212,19 @@ function SubmitMatchResultContent() {
       }
     } catch (err) {
       logger.error("[SubmitMatchResult] Error", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to submit match result",
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to submit match result";
+      // Handle 403 — user lacks permission (not the organizer, not admin)
+      if (
+        message.toLowerCase().includes("forbidden") ||
+        message.includes("403")
+      ) {
+        setError(
+          "Permission denied. Only tournament organizers or platform administrators can submit results for this tournament.",
+        );
+      } else {
+        setError(message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -274,11 +331,17 @@ function SubmitMatchResultContent() {
                   }
                 />
                 <Input
-                  label="Tournament ID (Optional)"
+                  label="Tournament ID"
                   placeholder="Link to a tournament"
                   value={tournamentId}
                   onValueChange={setTournamentId}
                   variant="bordered"
+                  isRequired={isTournamentRequired}
+                  description={
+                    isTournamentRequired
+                      ? "Required — you must be this tournament's organizer"
+                      : undefined
+                  }
                   startContent={
                     <Icon
                       icon="solar:cup-bold-duotone"
@@ -328,19 +391,37 @@ function SubmitMatchResultContent() {
               </div>
 
               {/* Source */}
-              <Select
-                label="Score Source"
-                selectedKeys={[source]}
-                onSelectionChange={(keys) =>
-                  setSource(Array.from(keys)[0] as ScoreSource)
-                }
-                variant="bordered"
-                className="max-w-xs"
-              >
-                {Object.entries(SOURCE_LABELS).map(([key, label]) => (
-                  <SelectItem key={key}>{label}</SelectItem>
-                ))}
-              </Select>
+              <div>
+                <Select
+                  label="Score Source"
+                  selectedKeys={[source]}
+                  onSelectionChange={(keys) =>
+                    setSource(Array.from(keys)[0] as ScoreSource)
+                  }
+                  variant="bordered"
+                  className="max-w-xs"
+                  description="Determines who can submit and how the result is validated"
+                >
+                  {availableSources.map((s) => (
+                    <SelectItem key={s.key} description={s.description}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+                {source === "tournament_admin" && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color="warning"
+                    className="mt-2"
+                    startContent={
+                      <Icon icon="solar:info-circle-bold-duotone" width={12} />
+                    }
+                  >
+                    You must be the tournament organizer to submit with this source
+                  </Chip>
+                )}
+              </div>
 
               {/* Rounds & Duration */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

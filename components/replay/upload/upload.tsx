@@ -2,6 +2,7 @@
 
 import { Button } from "@nextui-org/button";
 import { useState, useMemo, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Chip, Progress, Card, CardBody } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { UploadClient, UploadProgress } from "@/types/replay-api/upload-client";
@@ -25,6 +26,7 @@ interface FileInfo {
 }
 
 export function UploadForm() {
+  const router = useRouter();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
   const [progress, setProgress] = useState(0);
@@ -383,7 +385,7 @@ export function UploadForm() {
             <EsportsButton
               variant="primary"
               size="sm"
-              onClick={() => (window.location.href = "/signin")}
+              onClick={() => router.push("/signin?callbackUrl=%2Fupload")}
             >
               <Icon icon="solar:login-bold" width={16} />
               Sign In

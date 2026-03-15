@@ -10,8 +10,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
-import { ReplayApiSettingsMock, getRegionApiUrl } from '@/types/replay-api/settings';
-import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
+import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { getAuthContextFromRequest } from '@/lib/auth/server-auth';
+import { getRegionApiUrl } from '@/types/replay-api/settings';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,8 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { headers: authHeaders, isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
@@ -29,7 +31,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const authHeaders = getAuthHeadersFromCookies();
 
     // Use region-specific API URL if region is specified in the request
     // This enables multi-region matchmaking with lowest latency
@@ -50,11 +51,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to join queue' }));
-      logger.error('[API /api/match-making/queue] Backend error', { status: response.status, error });
+      const errorData = await response.json().catch(() => ({ message: 'Failed to join queue' }));
+      logger.error('[API /api/match-making/queue] Backend error', { status: response.status, error: errorData });
       return NextResponse.json({
         success: false,
-        error: (error instanceof Error ? error.message : 'Failed to join queue'),
+        error: errorData.message || errorData.error || 'Failed to join queue',
       }, { status: response.status });
     }
 
@@ -80,7 +81,8 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { headers: authHeaders, isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
@@ -95,10 +97,12 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
+    // Use region-aware routing for DELETE to match the region used during POST join
+    const region = request.nextUrl.searchParams.get('region');
+    const apiUrl = region ? getRegionApiUrl(region) : ReplayApiSettingsMock.baseUrl;
 
     // Forward request to replay-api backend with auth headers
-    const response = await fetch(`${ReplayApiSettingsMock.baseUrl}/match-making/queue/${sessionId}`, {
+    const response = await fetch(`${apiUrl}/match-making/queue/${sessionId}`, {
       method: 'DELETE',
       headers: {
         ...authHeaders,
@@ -106,11 +110,11 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to leave queue' }));
-      logger.error('[API /api/match-making/queue] Backend error', { status: response.status, error, session_id: sessionId });
+      const errorData = await response.json().catch(() => ({ message: 'Failed to leave queue' }));
+      logger.error('[API /api/match-making/queue] Backend error', { status: response.status, error: errorData, session_id: sessionId });
       return NextResponse.json({
         success: false,
-        error: (error instanceof Error ? error.message : 'Failed to leave queue'),
+        error: errorData.message || errorData.error || 'Failed to leave queue',
       }, { status: response.status });
     }
 

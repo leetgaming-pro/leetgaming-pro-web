@@ -30,7 +30,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasBreadcrumbs || hasHighlights || true).toBe(true);
+      expect(hasBreadcrumbs || hasHighlights).toBe(true);
     });
 
     test("should show infinite scroll component", async ({ page }) => {
@@ -117,9 +117,12 @@ test.describe("Highlights Page", () => {
 
       // Check for player name display
       const playerName = page.getByText(/ace_player/i);
+      // Mocked player name may not render if page doesn't consume this endpoint
       const hasPlayer = await playerName.isVisible().catch(() => false);
 
-      expect(hasPlayer || true).toBe(true);
+      // Page should still function regardless
+      const body = page.locator('body');
+      await expect(body).toBeVisible();
     });
 
     test("should display weapon icons or names", async ({ page }) => {
@@ -151,12 +154,15 @@ test.describe("Highlights Page", () => {
 
       // Check for weapon display
       const weaponText = page.getByText(/awp/i);
+      // Mocked weapon text may not render if page doesn't consume this endpoint
       const hasWeapon = await weaponText
         .first()
         .isVisible()
         .catch(() => false);
 
-      expect(hasWeapon || true).toBe(true);
+      // Page should still function regardless
+      const body = page.locator('body');
+      await expect(body).toBeVisible();
     });
   });
 
@@ -226,7 +232,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasLoading || true).toBe(true);
+      expect(hasLoading).toBe(true);
     });
 
     test("should show end of list message when no more data", async ({
@@ -297,7 +303,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasHeadshot || true).toBe(true);
+      expect(hasHeadshot).toBe(true);
     });
 
     test("should display multi-kill events (ace, quadra, etc)", async ({
@@ -334,7 +340,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasAce || true).toBe(true);
+      expect(hasAce).toBe(true);
     });
 
     test("should display clutch events", async ({ page }) => {
@@ -369,7 +375,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasClutch || true).toBe(true);
+      expect(hasClutch).toBe(true);
     });
   });
 
@@ -573,7 +579,7 @@ test.describe("Highlights Page", () => {
         .first()
         .isVisible()
         .catch(() => false);
-      expect(hasNav || true).toBe(true);
+      expect(hasNav).toBe(true);
     });
 
     test("should stack event cards on mobile", async ({ page }) => {
@@ -651,7 +657,7 @@ test.describe("Highlights Page", () => {
         .isVisible()
         .catch(() => false);
 
-      expect(hasNav || true).toBe(true);
+      expect(hasNav).toBe(true);
     });
 
     test("should support keyboard navigation", async ({ page }) => {
@@ -775,8 +781,10 @@ test.describe("Highlights Page", () => {
       );
       const hasLoadingStates = (await loadingElements.count()) > 0;
 
-      // Should have professional loading states
-      expect(hasLoadingStates || true).toBe(true);
+      // Professional loading states are implementation-specific
+      // Body visibility confirms the page loaded
+      const body = page.locator('body');
+      await expect(body).toBeVisible();
     });
   });
 });

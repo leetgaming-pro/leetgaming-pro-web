@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 import { logger } from "@/lib/logger";
+import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,8 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json(
         {
           success: false,

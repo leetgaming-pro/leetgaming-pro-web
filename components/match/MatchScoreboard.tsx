@@ -172,14 +172,12 @@ function TeamScoreboardCard({
             <TableColumn align="center" className="w-12">A</TableColumn>
             <TableColumn align="center" className="w-14">+/-</TableColumn>
             <TableColumn align="center" className="w-14">ADR</TableColumn>
-            {/* @ts-expect-error NextUI Table types don't accept conditional children, but runtime handles it */}
-            {showAdvancedStats && (
-              <>
-                <TableColumn align="center" className="w-14">HS%</TableColumn>
-                <TableColumn align="center" className="w-14">FK</TableColumn>
-                <TableColumn align="center" className="w-14">KAST</TableColumn>
-              </>
-            )}
+            {/* @ts-expect-error NextUI Table conditional children */}
+            {showAdvancedStats && <TableColumn align="center" className="w-14">HS%</TableColumn>}
+            {/* @ts-expect-error NextUI Table conditional children */}
+            {showAdvancedStats && <TableColumn align="center" className="w-14">FK</TableColumn>}
+            {/* @ts-expect-error NextUI Table conditional children */}
+            {showAdvancedStats && <TableColumn align="center" className="w-14">KAST</TableColumn>}
             <TableColumn align="center" className="w-16">RATING</TableColumn>
             <TableColumn align="center" className="w-12">MVP</TableColumn>
           </TableHeader>
@@ -264,26 +262,30 @@ function TeamScoreboardCard({
                   <TableCell>
                     <StatCell value={adr} good={80} bad={50} format="decimal" tooltip="Average Damage per Round" />
                   </TableCell>
-                  {/* @ts-expect-error NextUI Table types don't accept conditional children, but runtime handles it */}
+                  {/* @ts-expect-error NextUI Table conditional children */}
                   {showAdvancedStats && (
-                    <>
-                      <TableCell>
-                        <StatCell value={headshotPct} good={50} bad={20} format="percent" tooltip="Headshot Percentage" />
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip content={`First Kills: ${openingKills} | First Deaths: ${openingDeaths}`}>
-                          <span className={clsx(
-                            "font-semibold text-xs",
-                            openingKills > openingDeaths ? "text-success" : openingKills < openingDeaths ? "text-danger" : "text-default-500"
-                          )}>
-                            {openingKills > 0 || openingDeaths > 0 ? `${openingKills}/${openingDeaths}` : "-"}
-                          </span>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell>
-                        <StatCell value={kast} good={75} bad={50} format="percent" tooltip="Kill/Assist/Survive/Trade %" />
-                      </TableCell>
-                    </>
+                    <TableCell>
+                      <StatCell value={headshotPct} good={50} bad={20} format="percent" tooltip="Headshot Percentage" />
+                    </TableCell>
+                  )}
+                  {/* @ts-expect-error NextUI Table conditional children */}
+                  {showAdvancedStats && (
+                    <TableCell>
+                      <Tooltip content={`First Kills: ${openingKills} | First Deaths: ${openingDeaths}`}>
+                        <span className={clsx(
+                          "font-semibold text-xs",
+                          openingKills > openingDeaths ? "text-success" : openingKills < openingDeaths ? "text-danger" : "text-default-500"
+                        )}>
+                          {openingKills > 0 || openingDeaths > 0 ? `${openingKills}/${openingDeaths}` : "-"}
+                        </span>
+                      </Tooltip>
+                    </TableCell>
+                  )}
+                  {/* @ts-expect-error NextUI Table conditional children */}
+                  {showAdvancedStats && (
+                    <TableCell>
+                      <StatCell value={kast} good={75} bad={50} format="percent" tooltip="Kill/Assist/Survive/Trade %" />
+                    </TableCell>
                   )}
                   <TableCell>
                     <Chip

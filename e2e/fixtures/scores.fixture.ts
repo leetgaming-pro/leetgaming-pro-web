@@ -112,10 +112,22 @@ export const TEST_MATCH_RESULT_FINALIZED = {
   prize_distribution_id: 'prize_dist_001',
 };
 
+export const TEST_MATCH_RESULT_CONCILIATED = {
+  ...TEST_MATCH_RESULT_DISPUTED,
+  id: 'result_e2e_conciliated_001',
+  status: 'conciliated',
+  conciliation_notes: 'Reviewed replay footage, scores confirmed correct',
+  conciliated_at: NOW,
+  conciliated_by: 'admin_e2e_001',
+};
+
 export const TEST_MATCH_RESULT_CANCELLED = {
   ...TEST_MATCH_RESULT_SUBMITTED,
   id: 'result_e2e_cancelled_001',
   status: 'cancelled',
+  cancelled_by: 'admin_e2e_001',
+  cancelled_at: NOW,
+  cancel_reason: 'Confirmed use of unauthorized software',
 };
 
 export const TEST_MATCH_RESULTS_LIST = {
@@ -123,9 +135,10 @@ export const TEST_MATCH_RESULTS_LIST = {
     TEST_MATCH_RESULT_SUBMITTED,
     TEST_MATCH_RESULT_VERIFIED,
     TEST_MATCH_RESULT_DISPUTED,
+    TEST_MATCH_RESULT_CONCILIATED,
     TEST_MATCH_RESULT_FINALIZED,
   ],
-  total: 4,
+  total: 5,
   limit: 20,
   offset: 0,
 };
@@ -293,6 +306,7 @@ export const mockScoresApi = async (page: Page, overrides?: {
       // Find the right result based on ID prefix, or use default
       let resultData = overrides?.detailResult || TEST_MATCH_RESULT_SUBMITTED;
       if (resultId.includes('verified')) resultData = TEST_MATCH_RESULT_VERIFIED;
+      else if (resultId.includes('conciliated')) resultData = TEST_MATCH_RESULT_CONCILIATED;
       else if (resultId.includes('disputed')) resultData = TEST_MATCH_RESULT_DISPUTED;
       else if (resultId.includes('finalized')) resultData = TEST_MATCH_RESULT_FINALIZED;
       else if (resultId.includes('cancelled')) resultData = TEST_MATCH_RESULT_CANCELLED;

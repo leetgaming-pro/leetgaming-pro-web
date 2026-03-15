@@ -6,7 +6,15 @@
 import useSWR from 'swr';
 
 // Match source indicates how the match was created
-export type MatchSource = 'replay' | 'matchmaking' | 'external_api' | 'manual';
+export type MatchSource =
+  | 'replay'
+  | 'matchmaking'
+  | 'external_api'
+  | 'manual'
+  | 'ocr_stream'
+  | 'ocr_screenshot'
+  | 'youtube_vod'
+  | 'demo';
 
 export interface Match {
   id: string;
@@ -28,6 +36,8 @@ export interface Match {
   linkedReplayId?: string;           // For matchmaking matches, links to associated replay
   externalMatchId?: string;          // External system match ID
   hasReplay?: boolean;               // True if match has replay file
+  slug?: string;                     // Reconciliation slug
+  linkedMatchIds?: string[];         // Linked/reconciled match IDs
 }
 
 interface MatchesResponse {

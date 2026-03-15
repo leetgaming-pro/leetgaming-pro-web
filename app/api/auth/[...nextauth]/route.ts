@@ -5,8 +5,33 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "crypto";
 
 import type { NextRequest } from "next/server";
-import { getRIDTokenManager } from "@/types/replay-api/auth";
-import { IdentifierSourceType } from "@/types/replay-api/entities.types";
+
+const LOCALHOST_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
+
+function getRequestBaseUrl(req: NextRequest): string {
+  const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0].trim();
+  const host = forwardedHost || req.headers.get("host") || req.nextUrl.host;
+
+  const forwardedProto = req.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    .trim()
+    .replace(/:$/, "");
+
+  const requestProto = req.nextUrl.protocol.replace(/:$/, "");
+  const hostname = (forwardedHost || req.headers.get("host") || req.nextUrl.host)
+    .replace(/^\[/, "")
+    .replace(/\](:\d+)?$/, "")
+    .split(":")[0]
+    .toLowerCase();
+
+  const protocol =
+    forwardedProto ||
+    requestProto ||
+    (LOCALHOST_HOSTNAMES.has(hostname) ? "http" : "https");
+
+  return `${protocol}://${host}`;
+}
 
 const verificationSalt = process.env.STEAM_VHASH_SOURCE;
 if (!verificationSalt && process.env.NODE_ENV === "production") {
@@ -28,6 +53,8 @@ async function handler(
   ctx: { params: { nextauth: string[] } },
 ) {
   const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+  const requestBaseUrl = getRequestBaseUrl(req);
+
   if (!nextAuthSecret && process.env.NODE_ENV === "production") {
     throw new Error(
       "CRITICAL: NEXTAUTH_SECRET environment variable is required in production",
@@ -50,7 +77,7 @@ async function handler(
         ? [
             SteamProvider(req, {
               clientSecret: process.env.STEAM_SECRET,
-              callbackUrl: `${process.env.NEXTAUTH_URL}/api/auth/callback/`,
+              callbackUrl: `${requestBaseUrl}/api/auth/callback`,
             }),
           ]
         : []),
@@ -147,6 +174,22 @@ async function handler(
       }),
     ],
     callbacks: {
+      async redirect({ url, baseUrl }) {
+        const normalizedBaseUrl = requestBaseUrl || baseUrl;
+
+        // Allow relative URLs
+        if (url.startsWith("/")) return `${normalizedBaseUrl}${url}`;
+        // Allow same-origin URLs
+        try {
+          const urlObj = new URL(url);
+          const baseObj = new URL(normalizedBaseUrl);
+          if (urlObj.origin === baseObj.origin) return url;
+        } catch {
+          // Invalid URL — fall through to default
+        }
+        // Default: redirect to match-making
+        return `${normalizedBaseUrl}/match-making`;
+      },
       async jwt(param) {
         // Only process account linking on initial sign in
         if (param?.account?.provider === "steam") {
@@ -213,22 +256,8 @@ async function handler(
                 param.token.rid = rid;
                 param.token.uid = uid;
 
-                // Store RID token in manager for SDK usage (client-side only)
-                if (typeof window !== "undefined" && rid) {
-                  getRIDTokenManager()
-                    .setFromOnboarding({
-                      profile: {
-                        id: "",
-                        rid_source: IdentifierSourceType.Steam,
-                        source_key: steamId,
-                      },
-                      rid,
-                      user_id: uid,
-                    })
-                    .catch((err) =>
-                      console.error("Failed to set RID token:", err),
-                    );
-                }
+                // Note: RID sync to client-side RIDTokenManager is handled by
+                // the AuthSync component — JWT callbacks run server-side only.
               } else {
                 console.error(
                   "Steam onboarding API error:",
@@ -291,22 +320,8 @@ async function handler(
                 param.token.rid = rid;
                 param.token.uid = uid;
 
-                // Store RID token in manager for SDK usage (client-side only)
-                if (typeof window !== "undefined" && rid) {
-                  getRIDTokenManager()
-                    .setFromOnboarding({
-                      profile: {
-                        id: "",
-                        rid_source: IdentifierSourceType.Google,
-                        source_key: googleId,
-                      },
-                      rid,
-                      user_id: uid,
-                    })
-                    .catch((err) =>
-                      console.error("Failed to set RID token:", err),
-                    );
-                }
+                // Note: RID sync to client-side RIDTokenManager is handled by
+                // the AuthSync component — JWT callbacks run server-side only.
               } else {
                 console.error(
                   "Google onboarding API error:",

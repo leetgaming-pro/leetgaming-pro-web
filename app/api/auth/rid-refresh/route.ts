@@ -13,7 +13,11 @@ import { getBackendUrl } from "@/lib/api/backend-url";
 export const dynamic = "force-dynamic";
 
 const REPLAY_API_BASE = getBackendUrl();
+
+// Use STEAM_VHASH_SOURCE for consistency with route.ts — this salt is
+// used for ALL providers (Steam, Google, Email), not just Google.
 const verificationSalt =
+  process.env.STEAM_VHASH_SOURCE ||
   process.env.GOOGLE_VERIFICATION_SALT ||
   process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION_SALT ||
   "";
@@ -62,13 +66,14 @@ export async function POST(_request: NextRequest) {
       const googleId = user.google?.sub || "";
       const googleEmail = user.google?.email || user.email || "";
 
+      // Hash EMAIL (not sub) — must match route.ts and backend CreateVHash(email)
       const verificationHash = crypto
         .createHash("sha256")
-        .update(`${googleId}${verificationSalt}`)
+        .update(`${googleEmail}${verificationSalt}`)
         .digest("hex");
 
       try {
-        const response = await fetch(`${REPLAY_API_BASE}/identity/google`, {
+        const response = await fetch(`${REPLAY_API_BASE}/onboarding/google`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

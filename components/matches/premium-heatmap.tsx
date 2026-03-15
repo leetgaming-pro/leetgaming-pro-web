@@ -283,20 +283,6 @@ export function PremiumHeatmap({
     }));
   }, [heatmap]);
 
-  // Calculate kill positions (mock if no position data)
-  const killPositions = useMemo(() => {
-    if (!kills?.length) return [];
-    // Generate mock positions based on round and weapon if no real positions
-    return kills.map((kill, idx) => ({
-      ...kill,
-      // Mock positions - in real implementation these would come from API
-      killerX: 30 + Math.sin(idx * 0.7) * 20 + (kill.round_number || 0) * 2,
-      killerY: 30 + Math.cos(idx * 0.5) * 20 + (kill.round_number || 0) * 1.5,
-      victimX: 50 + Math.sin(idx * 0.9) * 25 + (kill.round_number || 0) * 1.8,
-      victimY: 50 + Math.cos(idx * 0.6) * 25 + (kill.round_number || 0) * 2.2,
-    }));
-  }, [kills]);
-
   // Convert game coordinates to map percentage (0-100)
   const gameToMapPercent = (pos: Position3D): { x: number; y: number } => {
     if (!mapConfig) {
@@ -312,6 +298,37 @@ export function PremiumHeatmap({
       y: 100 - ((pos.y - bounds.minY) / (bounds.maxY - bounds.minY)) * 100, // Y is inverted
     };
   };
+
+  // Calculate kill positions from real game coordinates
+  const killPositions = useMemo(() => {
+    if (!kills?.length) return [];
+    return kills
+      .filter(kill => {
+        // Only include kills that have real position data
+        if (!kill.killer_position && !kill.victim_position) return false;
+        // Apply round filter if selected
+        if (selectedRound !== null && kill.round_number !== selectedRound) return false;
+        return true;
+      })
+      .map(kill => {
+        const killerPos = kill.killer_position
+          ? gameToMapPercent(kill.killer_position)
+          : null;
+        const victimPos = kill.victim_position
+          ? gameToMapPercent(kill.victim_position)
+          : null;
+        return {
+          ...kill,
+          killerX: killerPos?.x ?? 0,
+          killerY: killerPos?.y ?? 0,
+          victimX: victimPos?.x ?? 0,
+          victimY: victimPos?.y ?? 0,
+          hasKillerPos: !!killerPos,
+          hasVictimPos: !!victimPos,
+        };
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gameToMapPercent deps (mapConfig) already tracked
+  }, [kills, selectedRound, mapConfig]);
 
   // Process grenade positions for rendering
   const grenadeMarkers = useMemo(() => {

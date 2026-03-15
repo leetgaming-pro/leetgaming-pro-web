@@ -7,7 +7,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { getRIDTokenManager, isAuthenticatedSync } from "@/types/replay-api/auth";
 import { logger } from "@/lib/logger";
 
@@ -93,17 +93,12 @@ export function useAuth(): AuthState {
     };
   }, [session]);
 
-  // User is authenticated if:
-  // 1. Has NextAuth session with user data AND
-  // 2. Either has RID in session OR RIDTokenManager is authenticated
+  // User is authenticated if they have a valid NextAuth session.
+  // The RID token is an internal backend token synced by AuthSync in the
+  // background — its absence should NOT block page-level auth.
+  // API calls that need RID handle their own auth checks.
   const isAuthenticated = useMemo(() => {
-    if (!session?.user) return false;
-
-    const sessionUser = session.user as SessionUserWithRID;
-    const hasRid = !!sessionUser.rid;
-    const hasRidToken = isAuthenticatedSync();
-
-    return hasRid || hasRidToken;
+    return !!session?.user;
   }, [session]);
 
   return {
@@ -147,18 +142,21 @@ export function useRequireAuth(options: { callbackUrl?: string } = {}): AuthStat
   const { useRouter } = require('next/navigation') as { useRouter: () => { push: (url: string) => void } | null };
   const router = useRouter();
 
-  const isRedirecting = useMemo(() => {
-    if (auth.isLoading) return false;
-    if (auth.isAuthenticated) return false;
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (auth.isLoading) return;
+    if (auth.isAuthenticated) {
+      setIsRedirecting(false);
+      return;
+    }
 
     // Redirect to sign-in if not authenticated
     if (router) {
       const signInUrl = `/signin${options.callbackUrl ? `?callbackUrl=${encodeURIComponent(options.callbackUrl)}` : ''}`;
+      setIsRedirecting(true);
       router.push(signInUrl);
-      return true;
     }
-
-    return false;
   }, [auth.isLoading, auth.isAuthenticated, router, options.callbackUrl]);
 
   return {
@@ -191,21 +189,27 @@ export function useOptionalAuth(): AuthState & {
   requireAuthForAction: (action: string) => boolean
 } {
   const auth = useAuth();
-  // Import useRouter at module level - hooks must be called unconditionally
+  // Import useRouter and usePathname at module level - hooks must be called unconditionally
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useRouter } = require('next/navigation') as { useRouter: () => { push: (url: string) => void } | null };
+  const { useRouter, usePathname } = require('next/navigation') as {
+    useRouter: () => { push: (url: string) => void } | null;
+    usePathname: () => string | null;
+  };
   const router = useRouter();
+  const pathname = usePathname();
 
   const requireAuthForAction = useCallback((action: string): boolean => {
     if (auth.isAuthenticated) return true;
 
     if (router) {
-      const signInUrl = `/signin?action=${encodeURIComponent(action)}`;
+      // Include callbackUrl so user returns to current page after signing in
+      const callbackParam = pathname ? `&callbackUrl=${encodeURIComponent(pathname)}` : '';
+      const signInUrl = `/signin?action=${encodeURIComponent(action)}${callbackParam}`;
       router.push(signInUrl);
     }
 
     return false;
-  }, [auth.isAuthenticated, router]);
+  }, [auth.isAuthenticated, router, pathname]);
 
   return {
     ...auth,

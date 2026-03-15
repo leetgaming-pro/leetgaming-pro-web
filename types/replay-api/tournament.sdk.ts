@@ -169,10 +169,12 @@ export class TournamentAPI {
 
   /**
    * Unregister a player from the tournament
+   * Backend expects DELETE /tournaments/{id}/register with { player_id } body
    */
   async unregisterPlayer(tournamentId: string, playerId: string): Promise<Tournament | null> {
     const response = await this.client.delete<Tournament>(
-      `/tournaments/${tournamentId}/players/${playerId}`
+      `/tournaments/${tournamentId}/register`,
+      { player_id: playerId }
     );
     if (response.error) {
       console.error('Failed to unregister player:', response.error);
@@ -254,6 +256,58 @@ export class TournamentAPI {
     );
     if (response.error) {
       console.error('Failed to cancel tournament:', response.error);
+      return null;
+    }
+    return response.data || null;
+  }
+
+  // --- Match & Bracket Operations ---
+
+  /**
+   * Check in a player to the tournament (when check-in is required)
+   */
+  async checkInPlayer(tournamentId: string, playerId: string): Promise<Tournament | null> {
+    const response = await this.client.post<Tournament>(
+      `/tournaments/${tournamentId}/check-in`,
+      { player_id: playerId }
+    );
+    if (response.error) {
+      console.error('Failed to check in player:', response.error);
+      return null;
+    }
+    return response.data || null;
+  }
+
+  /**
+   * Record a match result within the tournament bracket
+   */
+  async recordMatchResult(
+    tournamentId: string,
+    matchId: string,
+    winnerId: string
+  ): Promise<Tournament | null> {
+    const response = await this.client.post<Tournament>(
+      `/tournaments/${tournamentId}/matches/${matchId}/result`,
+      { winner_id: winnerId }
+    );
+    if (response.error) {
+      console.error('Failed to record match result:', response.error);
+      return null;
+    }
+    return response.data || null;
+  }
+
+  /**
+   * Advance the tournament bracket to the next round
+   * Requires all matches in the current round to be completed
+   */
+  async advanceBracket(tournamentId: string): Promise<Tournament | null> {
+    const response = await this.client.post<Tournament>(
+      `/tournaments/${tournamentId}/advance-bracket`,
+      {}
+    );
+    if (response.error) {
+      console.error('Failed to advance bracket:', response.error);
       return null;
     }
     return response.data || null;

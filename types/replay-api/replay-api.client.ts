@@ -30,6 +30,7 @@ export interface ApiError {
   isRateLimited?: boolean;
   isValidationError?: boolean;
   isAuthError?: boolean;
+  isForbidden?: boolean;
   isNotFound?: boolean;
   /** Error category for UI treatment */
   category?: ErrorCategory;
@@ -225,9 +226,10 @@ export class ReplayApiClient {
    */
   async delete<T>(
     path: string,
+    data?: unknown,
     options?: RequestOptions,
   ): Promise<ApiResponse<T>> {
-    return this.request<T>("DELETE", path, undefined, options);
+    return this.request<T>("DELETE", path, data, options);
   }
 
   /**
@@ -491,7 +493,8 @@ export class ReplayApiClient {
         retryAfterSeconds,
         isRateLimited: status === 429,
         isValidationError: status === 400 || status === 422,
-        isAuthError: status === 401 || status === 403,
+        isAuthError: status === 401,
+        isForbidden: status === 403,
         isNotFound: status === 404,
         category,
         errorCode,
@@ -505,7 +508,8 @@ export class ReplayApiClient {
         isValidationError: status === 400 || status === 422,
         category,
         errorCode,
-        isAuthError: status === 401 || status === 403,
+        isAuthError: status === 401,
+        isForbidden: status === 403,
         isNotFound: status === 404,
       };
     }
@@ -602,7 +606,10 @@ export class ReplayApiClient {
       case 401:
         return "Please sign in to continue.";
       case 403:
-        return "You do not have permission to perform this action.";
+        return (
+          fallbackMessage ||
+          "You do not have permission to perform this action."
+        );
       case 404:
         return "The requested resource was not found.";
       case 409:

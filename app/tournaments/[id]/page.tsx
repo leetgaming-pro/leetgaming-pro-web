@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   Card,
   CardHeader,
@@ -22,13 +23,13 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { PageContainer } from "@/components/layouts/centered-content";
+import { EsportsButton } from "@/components/ui/esports-button";
 import {
   TournamentBracket,
   BracketMatch,
 } from "@/components/tournaments/tournament-bracket";
 import { logger } from "@/lib/logger";
-import { ReplayAPISDK } from "@/types/replay-api/sdk";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { useSDK } from "@/contexts/sdk-context";
 import type {
   Tournament as APITournament,
   TournamentStatus as APITournamentStatus,
@@ -142,6 +143,7 @@ const mapAPIToTournamentDetail = (t: APITournament): TournamentDetail => ({
 export default function TournamentDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { sdk, isReady } = useSDK();
   const tournamentId = params.id as string;
   const [tournament, setTournament] = useState<TournamentDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,12 +151,11 @@ export default function TournamentDetailPage() {
 
   useEffect(() => {
     async function fetchTournament() {
+      if (!isReady) return;
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch tournament using SDK
-        const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
         const apiTournament = await sdk.tournaments.getTournament(tournamentId);
 
         if (apiTournament) {
@@ -176,14 +177,14 @@ export default function TournamentDetailPage() {
     }
 
     fetchTournament();
-  }, [tournamentId]);
+  }, [tournamentId, sdk, isReady]);
 
   if (loading) {
     return (
       <PageContainer maxWidth="7xl">
         <div className="space-y-6">
-          <Skeleton className="w-full h-64 rounded-xl" />
-          <Skeleton className="w-full h-96 rounded-xl" />
+          <Skeleton className="w-full h-64 rounded-none" />
+          <Skeleton className="w-full h-96 rounded-none" />
         </div>
       </PageContainer>
     );
@@ -350,9 +351,20 @@ export default function TournamentDetailPage() {
       </Card>
 
       {/* Tabs */}
-      <Tabs aria-label="Tournament tabs" size="lg" className="mb-6">
+      <Tabs
+        aria-label="Tournament tabs"
+        size="lg"
+        className="mb-6"
+        classNames={{
+          tabList:
+            "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
+          cursor:
+            "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
+        }}
+      >
         <Tab key="bracket" title="Bracket">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody className="p-6">
               <TournamentBracket
                 matches={tournament.matches}
@@ -366,30 +378,38 @@ export default function TournamentDetailPage() {
         </Tab>
 
         <Tab key="participants" title="Participants">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tournament.participants.map((team) => (
                   <Card
                     key={team.id}
                     isPressable
-                    className="hover:bg-default-100"
+                    className="hover:bg-[#34445C]/5 dark:hover:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
                   >
                     <CardBody className="p-4">
                       <div className="flex items-center gap-3">
                         {team.logo ? (
-                          <Avatar src={team.logo} size="lg" />
+                          <div
+                            className="w-12 h-12 overflow-hidden border border-[#FF4654]/30 dark:border-[#DCFF37]/30"
+                            style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+                          >
+                            <Avatar src={team.logo} className="w-full h-full" />
+                          </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                          <div
+                            className="w-12 h-12 bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 flex items-center justify-center"
+                            style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
+                          >
                             <Icon
                               icon="solar:users-group-rounded-bold"
                               width={24}
-                              className="text-primary"
+                              className="text-[#FF4654] dark:text-[#DCFF37]"
                             />
                           </div>
                         )}
                         <div className="flex-1">
-                          <h4 className="font-semibold">{team.name}</h4>
+                          <h4 className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">{team.name}</h4>
                           <p className="text-xs text-default-500">
                             {team.members?.length || 5} members
                           </p>
@@ -404,23 +424,36 @@ export default function TournamentDetailPage() {
         </Tab>
 
         <Tab key="prizes" title="Prizes">
-          <Card>
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
               <div className="space-y-4">
+                {tournament.prize_distribution.length === 0 && (
+                  <div className="text-center py-8">
+                    <div
+                      className="w-14 h-14 mx-auto mb-3 flex items-center justify-center bg-[#FFC700]/10 dark:bg-[#DCFF37]/10"
+                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
+                    >
+                      <Icon icon="solar:cup-star-bold" width={28} className="text-[#FFC700] dark:text-[#DCFF37]" />
+                    </div>
+                    <p className="text-[#34445C] dark:text-[#F5F0E1] font-semibold">Prize distribution TBD</p>
+                    <p className="text-sm text-default-500">Total prize pool: ${tournament.prize_pool.toLocaleString()}</p>
+                  </div>
+                )}
                 {tournament.prize_distribution.map((prize, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-default-100 rounded-lg"
+                    className="flex items-center justify-between p-4 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#34445C]/5 dark:bg-[#DCFF37]/5"
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        className={`w-12 h-12 flex items-center justify-center ${
                           index === 0
                             ? "bg-warning/20 text-warning"
                             : index === 1
                             ? "bg-default-300"
                             : "bg-default-200"
                         }`}
+                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
                       >
                         <Icon
                           icon={
@@ -447,32 +480,59 @@ export default function TournamentDetailPage() {
           </Card>
         </Tab>
 
-        <Tab key="rules" title="Rules">
-          <Card>
+        <Tab key="rules" title="Rules & Map Pool">
+          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
             <CardBody>
-              <div className="space-y-3">
-                {tournament.rules.map((rule, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-semibold text-primary">
-                        {index + 1}
-                      </span>
-                    </div>
-                    <p className="text-default-700">{rule}</p>
+              {tournament.rules.length === 0 ? (
+                <div className="text-center py-8">
+                  <div
+                    className="w-14 h-14 mx-auto mb-3 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
+                  >
+                    <Icon icon="solar:document-text-bold" width={28} className="text-[#34445C] dark:text-[#DCFF37]" />
                   </div>
-                ))}
+                  <p className="text-[#34445C] dark:text-[#F5F0E1] font-semibold">No rules specified yet</p>
+                  <p className="text-sm text-default-500">The organizer will add rules before the tournament starts</p>
+                </div>
+              ) : (
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-[#FF4654] dark:text-[#DCFF37] mb-4">Map Pool</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {tournament.rules.map((mapName, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#34445C]/5 dark:bg-[#DCFF37]/5"
+                    >
+                      <div
+                        className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                      >
+                        <Icon icon="solar:map-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                      </div>
+                      <span className="font-medium text-[#34445C] dark:text-[#F5F0E1]">{mapName}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
+              )}
             </CardBody>
           </Card>
         </Tab>
 
         <Tab key="info" title="Info">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <h3 className="text-xl font-bold">Tournament Details</h3>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                  >
+                    <Icon icon="solar:info-circle-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Tournament Details</h3>
+                </div>
               </CardHeader>
-              <Divider />
               <CardBody className="space-y-4">
                 <div>
                   <h4 className="text-sm font-semibold text-default-500 mb-1">
@@ -504,11 +564,18 @@ export default function TournamentDetailPage() {
               </CardBody>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <h3 className="text-xl font-bold">Organizer</h3>
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                  >
+                    <Icon icon="solar:user-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Organizer</h3>
+                </div>
               </CardHeader>
-              <Divider />
               <CardBody>
                 <div className="flex items-center gap-4">
                   <Avatar src={tournament.organizer.logo} size="lg" />

@@ -11,6 +11,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { createAuthenticatedSDK, createPublicSDK } from "@/lib/api/sdk-factory";
 import { logger } from "@/lib/logger";
+import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
 import type { LobbyStatus } from "@/types/replay-api/lobby.types";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json(
         {
           success: false,

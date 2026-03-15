@@ -92,6 +92,11 @@ export interface MatchResult {
   finalized_at?: string;
   prize_distribution_id?: string;
 
+  // Cancellation (audit trail)
+  cancelled_by?: string;
+  cancelled_at?: string;
+  cancel_reason?: string;
+
   // Match Metadata
   played_at: string;
   duration: number;
@@ -160,6 +165,81 @@ export interface MatchResultFilters {
 }
 
 // --- UI Helper Types ---
+
+/** Permission context for the current user on a specific match result */
+export interface ScorePermissions {
+  /** Whether the user can verify this result (tournament organizer / admin) */
+  canVerify: boolean;
+  /** Whether the user can dispute this result (match participant / organizer / admin) */
+  canDispute: boolean;
+  /** Whether the user can conciliate this result (tournament organizer / admin) */
+  canConciliate: boolean;
+  /** Whether the user can finalize this result (tournament organizer / admin) */
+  canFinalize: boolean;
+  /** Whether the user can cancel this result (tournament organizer / admin) */
+  canCancel: boolean;
+  /** Whether the user can submit scores (tournament organizer / admin) */
+  canSubmit: boolean;
+  /** Whether the user is a participant in this match */
+  isParticipant: boolean;
+  /** Whether the user is the tournament organizer */
+  isOrganizer: boolean;
+  /** Whether the user is a platform admin */
+  isAdmin: boolean;
+}
+
+/** Determine permissions based on result status + user role */
+export function getScorePermissions(
+  result: MatchResult | null,
+  user: { id?: string; isAdmin?: boolean } | null,
+  tournamentOrganizerIds?: string[],
+): ScorePermissions {
+  const none: ScorePermissions = {
+    canVerify: false,
+    canDispute: false,
+    canConciliate: false,
+    canFinalize: false,
+    canCancel: false,
+    canSubmit: false,
+    isParticipant: false,
+    isOrganizer: false,
+    isAdmin: false,
+  };
+
+  if (!user?.id) return none;
+
+  const userId = user.id;
+
+  const isAdmin = user.isAdmin ?? false;
+
+  // Check if user is tournament organizer
+  const isOrganizer = result?.tournament_id
+    ? tournamentOrganizerIds?.includes(userId) ?? false
+    : false;
+
+  // Check if user is a match participant
+  const isParticipant = result
+    ? result.player_results?.some((p) => p.player_id === userId) ||
+      result.team_results?.some((t) => t.players?.includes(userId))
+    : false;
+
+  const hasAdminRole = isAdmin || isOrganizer;
+  const status = result?.status;
+
+  return {
+    canVerify: hasAdminRole && (status === 'submitted' || status === 'under_review'),
+    canDispute:
+      (isParticipant || hasAdminRole) &&
+      (status === 'verified' || status === 'conciliated'),
+    canConciliate: hasAdminRole && status === 'disputed',
+    canFinalize: hasAdminRole && (status === 'verified' || status === 'conciliated'),
+    canCancel: hasAdminRole && status !== 'finalized' && status !== 'cancelled',
+    canSubmit: hasAdminRole,
+    isParticipant,
+    isOrganizer,
+    isAdmin,
+  };
+}
 
 export const STATUS_COLORS: Record<ResultStatus, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'secondary'> = {
   submitted: 'default',
