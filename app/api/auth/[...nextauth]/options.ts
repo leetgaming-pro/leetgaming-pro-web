@@ -14,16 +14,20 @@ import GoogleProvider from "next-auth/providers/google";
 
 // GoogleProfile and SteamUserProfile are declared globally in types/next-auth.d.ts
 
-// Fail fast if NEXTAUTH_SECRET is not configured — prevents JWT forgery with empty string signing
-const nextAuthSecret = process.env.NEXTAUTH_SECRET;
-if (!nextAuthSecret && process.env.NODE_ENV === "production") {
-  throw new Error(
-    "CRITICAL: NEXTAUTH_SECRET environment variable is required in production",
-  );
+function getNextAuthSecret(): string {
+  const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+
+  if (!nextAuthSecret && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "CRITICAL: NEXTAUTH_SECRET environment variable is required in production",
+    );
+  }
+
+  return nextAuthSecret || "dev-secret-do-not-use-in-prod";
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: nextAuthSecret || "dev-secret-do-not-use-in-prod",
+  secret: getNextAuthSecret(),
   pages: {
     signIn: "/signin",
     error: "/api/auth/error",

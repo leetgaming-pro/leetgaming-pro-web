@@ -33,19 +33,21 @@ function getRequestBaseUrl(req: NextRequest): string {
   return `${protocol}://${host}`;
 }
 
-const verificationSalt = process.env.STEAM_VHASH_SOURCE;
-if (!verificationSalt && process.env.NODE_ENV === "production") {
-  throw new Error(
-    "CRITICAL: STEAM_VHASH_SOURCE environment variable is required in production",
-  );
+function getVerificationSalt(): string {
+  const salt = process.env.STEAM_VHASH_SOURCE;
+
+  if (!salt && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "CRITICAL: STEAM_VHASH_SOURCE environment variable is required in production",
+    );
+  }
+
+  return salt || "";
 }
 
 const steamOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/steam`;
-
 const googleOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/google`;
-
 const emailOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/email`;
-
 const emailLoginApiRoute = `${process.env.REPLAY_API_URL}/auth/login`;
 
 async function handler(
@@ -72,7 +74,6 @@ async function handler(
       maxAge: 7 * 24 * 60 * 60, // 7 days — reduced from 30 for financial platform security
     },
     providers: [
-      // Only enable Steam provider if credentials are configured
       ...(process.env.STEAM_SECRET
         ? [
             SteamProvider(req, {
@@ -81,7 +82,6 @@ async function handler(
             }),
           ]
         : []),
-      // Only enable Google provider if valid credentials are configured
       ...(process.env.GOOGLE_CLIENT_ID &&
       process.env.GOOGLE_CLIENT_SECRET &&
       !process.env.GOOGLE_CLIENT_ID.includes("placeholder")
@@ -118,10 +118,9 @@ async function handler(
           const action = credentials.action || "login";
           const displayName = credentials.displayName || "";
 
-          // Generate v_hash (same pattern as Steam/Google)
           const verificationHash = crypto
             .createHash("sha256")
-            .update(`${email}${verificationSalt || ""}`)
+            .update(`${email}${getVerificationSalt()}`)
             .digest("hex");
 
           const apiRoute =
@@ -177,9 +176,8 @@ async function handler(
       async redirect({ url, baseUrl }) {
         const normalizedBaseUrl = requestBaseUrl || baseUrl;
 
-        // Allow relative URLs
         if (url.startsWith("/")) return `${normalizedBaseUrl}${url}`;
-        // Allow same-origin URLs
+
         try {
           const urlObj = new URL(url);
           const baseObj = new URL(normalizedBaseUrl);
@@ -187,11 +185,10 @@ async function handler(
         } catch {
           // Invalid URL — fall through to default
         }
-        // Default: redirect to match-making
+
         return `${normalizedBaseUrl}/match-making`;
       },
       async jwt(param) {
-        // Only process account linking on initial sign in
         if (param?.account?.provider === "steam") {
           try {
             param.token.steam = param.profile as SteamUserProfile | undefined;
@@ -201,17 +198,15 @@ async function handler(
 
             if (!steamId) {
               console.error("No steam_id found in profile", param.profile);
-              // Return token without backend onboarding - allow basic auth
               return param.token;
             }
 
-            // Create a copy without steamid for the backend
             const { steamid: _omitSteamId, ...profileWithoutSteamId } =
               steamProfile;
 
             const verificationHash = crypto
               .createHash("sha256")
-              .update(`${steamId}${verificationSalt || ""}`)
+              .update(`${steamId}${getVerificationSalt()}`)
               .digest("hex");
 
             const jsonBody = JSON.stringify({
@@ -247,7 +242,6 @@ async function handler(
               });
 
               if (ctoken.ok) {
-                // API returns user object in body and RID in headers
                 const userData = await ctoken.json();
                 const rid =
                   ctoken.headers.get("X-Resource-Owner-ID") ?? undefined;
@@ -255,23 +249,17 @@ async function handler(
 
                 param.token.rid = rid;
                 param.token.uid = uid;
-
-                // Note: RID sync to client-side RIDTokenManager is handled by
-                // the AuthSync component — JWT callbacks run server-side only.
               } else {
                 console.error(
                   "Steam onboarding API error:",
                   await ctoken.text(),
                 );
-                // Continue with Steam auth even if backend onboarding fails
               }
             } catch (apiError) {
               console.error("Steam onboarding API request failed:", apiError);
-              // Continue with Steam auth even if backend is unavailable
             }
           } catch (error) {
             console.error("Error processing Steam authentication:", error);
-            // Continue with basic Steam auth
           }
         }
 
@@ -280,20 +268,17 @@ async function handler(
             const googleProfileFull = param.profile as GoogleProfile;
             param.token.google = googleProfileFull;
 
-            // Create a copy without sub for the backend
             const { sub: _omitSub, ...googleProfile } = googleProfileFull;
-
             const googleId = googleProfileFull.email;
 
             if (!googleId) {
               console.error("No email found in Google profile", param.profile);
-              // Return token without backend onboarding - allow basic auth
               return param.token;
             }
 
             const verificationHash = crypto
               .createHash("sha256")
-              .update(`${googleId}${verificationSalt || ""}`)
+              .update(`${googleId}${getVerificationSalt()}`)
               .digest("hex");
 
             const jsonBody = JSON.stringify({
@@ -311,7 +296,6 @@ async function handler(
               });
 
               if (ctoken.ok) {
-                // API returns user object in body and RID in headers
                 const userData = await ctoken.json();
                 const rid =
                   ctoken.headers.get("X-Resource-Owner-ID") ?? undefined;
@@ -319,37 +303,30 @@ async function handler(
 
                 param.token.rid = rid;
                 param.token.uid = uid;
-
-                // Note: RID sync to client-side RIDTokenManager is handled by
-                // the AuthSync component — JWT callbacks run server-side only.
               } else {
                 console.error(
                   "Google onboarding API error:",
                   await ctoken.text(),
                 );
-                // Continue with Google auth even if backend onboarding fails
               }
             } catch (apiError) {
               console.error("Google onboarding API request failed:", apiError);
-              // Continue with Google auth even if backend is unavailable
             }
           } catch (error) {
             console.error("Error processing Google authentication:", error);
-            // Continue with basic Google auth
           }
         }
 
-        // Handle email-password credentials provider
         if (param?.account?.provider === "email-password") {
-          // The authorize function already called the backend and got the RID
-          // We just need to copy the values from user to token
           interface CredentialsUser {
             id: string;
             rid?: string;
             uid?: string;
             email?: string;
           }
+
           const user = param.user as CredentialsUser;
+
           if (user?.rid) {
             param.token.rid = user.rid;
           }
@@ -364,7 +341,6 @@ async function handler(
         return param.token;
       },
       session({ session, token }) {
-        // Add custom fields from token to session
         if (token.steam) {
           session.user.steam = token.steam;
         }
@@ -373,7 +349,6 @@ async function handler(
           session.user.google = token.google;
         }
 
-        // Add RID and UID from token to session
         if (token.rid) {
           session.user.rid = token.rid;
         }
