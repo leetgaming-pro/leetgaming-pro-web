@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-head-element */
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { siteConfig } from "@/config/site";
 import { pressStart2P } from "@/config/fonts";
 import { metadataBase } from "@/lib/metadata-base";
@@ -52,11 +53,13 @@ const viewport: Viewport = {
 // Exporting this way to avoid NextJs 14 type error
 export { viewport };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = headers().get("x-nonce") ?? undefined;
+
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head />
@@ -66,7 +69,7 @@ export default function RootLayout({
           pressStart2P.className,
         )}
       >
-        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+        <ClientLayoutWrapper nonce={nonce}>{children}</ClientLayoutWrapper>
       </body>
     </html>
   );
