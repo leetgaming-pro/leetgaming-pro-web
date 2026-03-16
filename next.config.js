@@ -1,5 +1,87 @@
 const { withSentryConfig } = require("@sentry/nextjs");
 
+function extractRemotePattern(url) {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url);
+
+    return {
+      protocol: parsed.protocol.replace(":", ""),
+      hostname: parsed.hostname,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getImageRemotePatterns() {
+  const staticPatterns = [
+    {
+      protocol: "https",
+      hostname: "avatars.steamstatic.com",
+    },
+    {
+      protocol: "https",
+      hostname: "nextuipro.nyc3.cdn.digitaloceanspaces.com",
+    },
+    {
+      protocol: "https",
+      hostname: "api.dicebear.com",
+    },
+    {
+      protocol: "https",
+      hostname: "i.pravatar.cc",
+    },
+    {
+      protocol: "https",
+      hostname: "avatars.githubusercontent.com",
+    },
+    {
+      protocol: "https",
+      hostname: "flagcdn.com",
+    },
+    {
+      protocol: "https",
+      hostname: "api.leetgaming.pro",
+    },
+    {
+      protocol: "https",
+      hostname: "replay.leetgaming.pro",
+    },
+    {
+      protocol: "https",
+      hostname: "leetgaming.pro",
+    },
+    {
+      protocol: "https",
+      hostname: "www.leetgaming.pro",
+    },
+  ];
+
+  const envPatterns = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.NEXTAUTH_URL,
+    process.env.NEXT_PUBLIC_REPLAY_API_URL,
+    process.env.REPLAY_API_URL,
+  ]
+    .map(extractRemotePattern)
+    .filter(Boolean);
+
+  const seen = new Set();
+
+  return [...staticPatterns, ...envPatterns].filter((pattern) => {
+    const key = `${pattern.protocol}://${pattern.hostname}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
@@ -10,16 +92,7 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "avatars.steamstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "nextuipro.nyc3.cdn.digitaloceanspaces.com",
-      },
-    ],
+    remotePatterns: getImageRemotePatterns(),
   },
   webpack: (config) => {
     config.resolve = config.resolve || {};
