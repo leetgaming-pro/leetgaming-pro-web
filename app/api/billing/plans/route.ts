@@ -6,6 +6,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Use server-side env var (REPLAY_API_URL) which is set correctly in K8s,
 // fallback to NEXT_PUBLIC for local dev, then localhost
 const REPLAY_API_URL =

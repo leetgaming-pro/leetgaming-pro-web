@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { metadataBase } from "@/lib/metadata-base";
 
 export const metadata: Metadata = {
+  metadataBase,
   title: "Pitch Deck — LeetGaming.PRO | Esports Competition Platform",
   description:
     "Interactive investor deck for LeetGaming.PRO — the esports competition platform combining replay analysis, verified scores, matchmaking, tournaments, and prize distribution for 63M+ players.",

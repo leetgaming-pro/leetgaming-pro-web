@@ -72,6 +72,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
   }
 
   const wagmiConfig = getWagmiConfig();
+  const learnMoreUrl = `${window.location.origin}/docs/leetscores`;
 
   return (
     <WagmiProvider config={wagmiConfig}>
@@ -81,7 +82,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
           modalSize="compact"
           appInfo={{
             appName: "LeetGaming.PRO",
-            learnMoreUrl: "https://leetgaming.pro/docs/leetscores",
+            learnMoreUrl,
           }}
         >
           {children}

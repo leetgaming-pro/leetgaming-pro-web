@@ -559,6 +559,9 @@ export function BracketPublicView({
   isEmbed = false,
   className = "",
 }: BracketPublicViewProps) {
+  const publicAppUrl =
+    typeof window === "undefined" ? "https://leetgaming.pro" : window.location.origin;
+
   const rounds = useMemo(() => {
     const roundMap = new Map<number, BracketMatch[]>();
     bracket.matches.forEach((match) => {
@@ -634,7 +637,7 @@ export function BracketPublicView({
         {isEmbed && (
           <div className="flex justify-center mt-4 pt-4 border-t border-divider">
             <a
-              href="https://leetgaming.pro"
+              href={publicAppUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-default-400 hover:text-primary transition-colors"
