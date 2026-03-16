@@ -27,12 +27,18 @@ import { DevelopmentNotice } from "@/components/development-notice";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
+  nonce?: string;
 }
 
-export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
+export function ClientLayoutWrapper({
+  children,
+  nonce,
+}: ClientLayoutWrapperProps) {
   return (
     <Box>
-      <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+      <Providers
+        themeProps={{ attribute: "class", defaultTheme: "dark", nonce }}
+      >
         <div className="relative flex flex-col h-screen w-full">
           <Navbar />
           <BreadcrumbBar />
