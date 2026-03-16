@@ -3,7 +3,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import LobbiesShowcase from "@/components/landing/LobbiesShowcase";
 import MatchesShowcase from "@/components/landing/MatchesShowcase";
-import { MobileNavigation } from "@/components/ui";
+import { SectionErrorBoundary } from "@/components/landing/SectionErrorBoundary";
 
 // Dynamic imports for heavy 3D/animation sections
 const HeroScene3D = dynamic(
@@ -42,62 +42,79 @@ const FinalCTA = dynamic(
 export default function Component() {
   return (
     <div className="relative flex min-h-dvh w-full flex-col bg-background left-0 right-0 pb-20 md:pb-0">
-      {/* Section 1: Immersive 3D Hero */}
-      <section id="hero">
-        <HeroScene3D />
-      </section>
+      {/* Section 1: Hero */}
+      <SectionErrorBoundary>
+        <section id="hero">
+          <HeroScene3D />
+        </section>
+      </SectionErrorBoundary>
 
       {/* Gradient divider */}
       <div className="landing-gradient-divider" />
 
-      {/* Section 2: Product Overview - What is LeetGaming.PRO? */}
-      <section id="product-overview">
-        <ProductOverview />
-      </section>
+      {/* Section 2: Product Overview */}
+      <SectionErrorBoundary>
+        <section id="product-overview">
+          <ProductOverview />
+        </section>
+      </SectionErrorBoundary>
 
-      {/* Section 3: AI Replay Analysis Deep Dive */}
-      <section id="replay-analysis">
-        <ReplayAnalysisShowcase />
-      </section>
+      {/* Section 3: AI Replay Analysis */}
+      <SectionErrorBoundary>
+        <section id="replay-analysis">
+          <ReplayAnalysisShowcase />
+        </section>
+      </SectionErrorBoundary>
 
       {/* Gradient divider */}
       <div className="landing-gradient-divider" />
 
       {/* Section 4: Live Matchmaking / Lobbies */}
-      <section id="lobbies">
-        <LobbiesShowcase />
-      </section>
+      <SectionErrorBoundary>
+        <section id="lobbies">
+          <LobbiesShowcase />
+        </section>
+      </SectionErrorBoundary>
 
       {/* Section 4.5: Upcoming & Live Games */}
-      <section id="upcoming-games">
-        <UpcomingGamesSection />
-      </section>
+      <SectionErrorBoundary>
+        <section id="upcoming-games">
+          <UpcomingGamesSection />
+        </section>
+      </SectionErrorBoundary>
 
       {/* Section 5: Tournaments & Prize Pools */}
-      <section id="tournaments">
-        <TournamentsShowcase />
-      </section>
+      <SectionErrorBoundary>
+        <section id="tournaments">
+          <TournamentsShowcase />
+        </section>
+      </SectionErrorBoundary>
 
-      {/* Section 6: Supported Games Gallery */}
-      <section id="games">
-        <GamesGallery />
-      </section>
+      {/* Section 6: Games Gallery */}
+      <SectionErrorBoundary>
+        <section id="games">
+          <GamesGallery />
+        </section>
+      </SectionErrorBoundary>
 
-      {/* Section 7: Social Proof & Stats */}
-      <section id="social-proof">
-        <SocialProofSection />
-      </section>
+      {/* Section 7: Social Proof */}
+      <SectionErrorBoundary>
+        <section id="social-proof">
+          <SocialProofSection />
+        </section>
+      </SectionErrorBoundary>
 
       {/* Section 8: Recent Matches */}
-      <MatchesShowcase />
+      <SectionErrorBoundary>
+        <MatchesShowcase />
+      </SectionErrorBoundary>
 
       {/* Section 9: Final CTA */}
-      <section id="final-cta">
-        <FinalCTA />
-      </section>
-
-      {/* Mobile Navigation */}
-      <MobileNavigation />
+      <SectionErrorBoundary>
+        <section id="final-cta">
+          <FinalCTA />
+        </section>
+      </SectionErrorBoundary>
     </div>
   );
 }
