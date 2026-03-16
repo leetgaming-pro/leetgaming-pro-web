@@ -1,20 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, AlertTriangle, Zap, Trophy } from "lucide-react";
 
+const DISMISS_KEY = "leetgaming_prealpha_dismissed";
+const DISMISS_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(DISMISS_KEY);
+    if (!raw) return false;
+    const ts = parseInt(raw, 10);
+    return Date.now() - ts < DISMISS_DURATION_MS;
+  } catch {
+    return false;
+  }
+}
+
 export function DevelopmentNotice() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Show development notice in production for beta/pre-alpha launch
   // Can be controlled via NEXT_PUBLIC_SHOW_DEV_NOTICE environment variable
-  // Default: show in production, hide in development unless explicitly enabled
   const isProduction = process.env.NODE_ENV === "production";
   const envSetting = process.env.NEXT_PUBLIC_SHOW_DEV_NOTICE;
   const shouldShowNotice =
-    (isProduction && envSetting !== "false") || // Show in production unless explicitly disabled
-    (!isProduction && envSetting === "true") || // Show in development only if explicitly enabled
-    false; // Default fallback
+    (isProduction && envSetting !== "false") ||
+    (!isProduction && envSetting === "true") ||
+    false;
+
+  useEffect(() => {
+    if (shouldShowNotice && !isDismissed()) {
+      setIsVisible(true);
+    }
+  }, [shouldShowNotice]);
 
   if (!shouldShowNotice || !isVisible) {
     return null;
@@ -81,6 +101,7 @@ export function DevelopmentNotice() {
 
           <button
             onClick={() => {
+              try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
               setIsVisible(false);
             }}
             className="flex-shrink-0 ml-4 p-2 rounded-lg hover:bg-leet-gold/10 transition-all duration-200 group hover:scale-105"

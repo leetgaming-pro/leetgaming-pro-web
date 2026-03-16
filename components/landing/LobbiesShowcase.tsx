@@ -107,6 +107,10 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
   const fetchLobbies = useCallback(async () => {
     try {
       const response = await fetch("/api/match-making/lobbies/featured?limit=6");
+      if (!response.ok) {
+        console.warn("Lobbies fetch returned", response.status);
+        return;
+      }
       const result = await response.json();
       if (result?.lobbies) {
         setLobbies(result.lobbies);

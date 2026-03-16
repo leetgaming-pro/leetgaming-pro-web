@@ -18,6 +18,17 @@ interface SceneWrapperProps {
   style?: React.CSSProperties;
 }
 
+// Check if WebGL is available to avoid crashes on unsupported environments
+function isWebGLAvailable(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(canvas.getContext('webgl2') || canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 export default function SceneWrapper({
   children,
   className = '',
@@ -26,6 +37,10 @@ export default function SceneWrapper({
   flat = false,
   style,
 }: SceneWrapperProps) {
+  if (!isWebGLAvailable()) {
+    return null;
+  }
+
   return (
     <Canvas
       className={className}
