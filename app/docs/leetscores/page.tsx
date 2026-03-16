@@ -15,7 +15,7 @@ import {
   Link,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { title, subtitle } from "@/components/primitives";
+import { title } from "@/components/primitives";
 import { ScoreDisplay, KDADisplay, RatingDisplay } from "@/components/ui/stat-displays";
 import { MatchScoreboard } from "@/components/match/MatchScoreboard";
 import { PremiumHighlights } from "@/components/matches";
@@ -43,6 +43,58 @@ const clipPathStyle = (cutSize = 14) => ({
 /** Card className standard */
 const cardClass =
   "rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20";
+
+const analyticsSummaryCards = [
+  {
+    label: "Momentum Swing",
+    value: "+18.4%",
+    detail: "Win probability spike after round 21 timeout",
+    icon: "solar:graph-up-bold",
+    accent: "#DCFF37",
+  },
+  {
+    label: "Entry Delta",
+    value: "+7",
+    detail: "PHANTOM opened 64% of rifle rounds with first pick",
+    icon: "solar:flash-bold",
+    accent: "#FF4654",
+  },
+  {
+    label: "Utility Impact",
+    value: "83",
+    detail: "Damage + displacement score from coordinated executes",
+    icon: "solar:fire-bold",
+    accent: "#FFC700",
+  },
+  {
+    label: "Clutch Conversion",
+    value: "71%",
+    detail: "5 of 7 high-pressure rounds successfully closed",
+    icon: "solar:shield-check-bold",
+    accent: "#7B61FF",
+  },
+] as const;
+
+const analyticsMomentumRows = [
+  { round: "R19", headline: "A split cracked open", probability: 62, pressure: 76, outcome: "Exec success" },
+  { round: "R20", headline: "Reset denied with hero rifle", probability: 58, pressure: 63, outcome: "Trade chain" },
+  { round: "R21", headline: "Timeout into fake", probability: 74, pressure: 88, outcome: "Mid-round call" },
+  { round: "R22", headline: "B anchor 1v2", probability: 81, pressure: 70, outcome: "Clutch hold" },
+  { round: "R23", headline: "Double entry burst", probability: 67, pressure: 92, outcome: "Fast explode" },
+] as const;
+
+const analyticsPlayerRows = [
+  { name: "razr", role: "Entry / closer", rating: 1.37, impact: 92, utility: 68, accent: "#FF4654" },
+  { name: "kyro", role: "Space maker", rating: 1.24, impact: 81, utility: 74, accent: "#DCFF37" },
+  { name: "valken", role: "Support / lurk", rating: 1.11, impact: 69, utility: 88, accent: "#00A8FF" },
+] as const;
+
+const analyticsZonePressure = [
+  { zone: "A Site", pressure: 88, note: "Exec finish rate" },
+  { zone: "Mid", pressure: 71, note: "Information control" },
+  { zone: "B Site", pressure: 64, note: "Retake conversion" },
+  { zone: "Long", pressure: 79, note: "Opening duel success" },
+] as const;
 
 /** Section header component */
 function SectionHeader({
@@ -254,6 +306,282 @@ function PricingCard({
         </Button>
       </CardBody>
     </Card>
+  );
+}
+
+function AnalyticsShowcase() {
+  return (
+    <div className="space-y-6">
+      <div className="relative overflow-hidden border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-[radial-gradient(circle_at_top_left,_rgba(255,70,84,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(220,255,55,0.18),_transparent_30%),linear-gradient(135deg,_rgba(52,68,92,0.97),_rgba(22,28,40,0.98))] p-6 lg:p-7">
+        <div className="absolute inset-0 opacity-40" style={gridOverlayStyle(true)} />
+        <div className="absolute -top-16 right-0 h-40 w-40 bg-[#DCFF37]/20 blur-3xl" />
+        <div className="absolute -bottom-20 left-8 h-40 w-40 bg-[#FF4654]/20 blur-3xl" />
+
+        <div className="relative grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip size="sm" variant="shadow" className="bg-[#FF4654] text-white font-semibold uppercase tracking-[0.2em]">
+                Analytics cockpit
+              </Chip>
+              <Chip size="sm" variant="flat" className="bg-white/10 text-[#F5F0E1] border border-white/10">
+                Round-level storytelling
+              </Chip>
+            </div>
+
+            <div>
+              <p className="text-sm uppercase tracking-[0.25em] text-[#DCFF37] font-semibold mb-2">
+                Match flow + player impact
+              </p>
+              <h3 className="text-2xl lg:text-3xl font-bold text-[#F5F0E1] leading-tight">
+                Premium analytics examples should feel like a live match command center.
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm lg:text-base text-[#F5F0E1]/72 leading-relaxed">
+                This refined example combines score state, momentum, player impact, and map pressure into one polished surface so the docs read like product, not placeholder UI.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="min-w-[250px] border border-white/10 bg-white/5 px-4 py-4 backdrop-blur-sm" style={clipPathStyle(14)}>
+                <ScoreDisplay
+                  team1Score={16}
+                  team2Score={11}
+                  team1Name="PHANTOM"
+                  team2Name="SPECTRA"
+                  team1Side="CT"
+                  team2Side="T"
+                  size="sm"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-4 border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm" style={clipPathStyle(12)}>
+                <RatingDisplay rating={1.37} label="Team Rating" size="md" />
+                <KDADisplay kills={92} deaths={63} assists={21} size="md" showDiff />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            {analyticsSummaryCards.slice(0, 2).map((card) => (
+              <div
+                key={card.label}
+                className="relative overflow-hidden border border-white/10 bg-white/6 p-4 backdrop-blur-sm"
+                style={clipPathStyle(12)}
+              >
+                <div
+                  className="absolute inset-y-0 left-0 w-1"
+                  style={{ backgroundColor: card.accent }}
+                />
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-[#F5F0E1]/55">
+                      {card.label}
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-[#F5F0E1]">
+                      {card.value}
+                    </p>
+                    <p className="mt-2 text-sm text-[#F5F0E1]/68 leading-relaxed">
+                      {card.detail}
+                    </p>
+                  </div>
+                  <div className="flex h-11 w-11 items-center justify-center border border-white/10 bg-black/15" style={clipPathStyle(10)}>
+                    <Icon icon={card.icon} width={20} style={{ color: card.accent }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {analyticsSummaryCards.map((card) => (
+          <Card
+            key={card.label}
+            className="border border-[#FF4654]/15 bg-gradient-to-br from-white to-[#FFF7E8] dark:from-[#101723] dark:to-[#172131] dark:border-[#DCFF37]/15 shadow-sm"
+          >
+            <CardBody className="gap-3 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 items-center justify-center bg-black/5 dark:bg-white/5" style={clipPathStyle(10)}>
+                  <Icon icon={card.icon} width={20} style={{ color: card.accent }} />
+                </div>
+                <span className="text-2xl font-bold" style={{ color: card.accent }}>
+                  {card.value}
+                </span>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-default-500">
+                  {card.label}
+                </p>
+                <p className="mt-2 text-sm text-default-600 leading-relaxed">
+                  {card.detail}
+                </p>
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <Card className="border border-[#FF4654]/15 dark:border-[#DCFF37]/15 bg-gradient-to-br from-[#34445C] to-[#1B2432] text-[#F5F0E1] overflow-hidden">
+          <CardHeader className="flex flex-col items-start gap-2 border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:chart-2-bold" width={18} className="text-[#DCFF37]" />
+              <span className="text-xs uppercase tracking-[0.22em] text-[#DCFF37] font-semibold">
+                Round momentum narrative
+              </span>
+            </div>
+            <h4 className="text-lg font-bold">Explain the swings, not just the totals</h4>
+          </CardHeader>
+          <CardBody className="gap-4 p-5">
+            {analyticsMomentumRows.map((row) => (
+              <div key={row.round} className="grid gap-3 border border-white/8 bg-white/5 p-4 md:grid-cols-[84px_minmax(0,1fr)]" style={clipPathStyle(12)}>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-[#F5F0E1]/55">{row.round}</div>
+                  <div className="mt-1 text-lg font-bold text-[#F5F0E1]">{row.probability}%</div>
+                  <div className="text-xs text-[#F5F0E1]/60">win chance</div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-[#F5F0E1]">{row.headline}</p>
+                      <p className="text-sm text-[#F5F0E1]/65">{row.outcome}</p>
+                    </div>
+                    <Chip size="sm" variant="flat" className="bg-[#DCFF37]/12 text-[#DCFF37] border border-[#DCFF37]/25">
+                      Pressure {row.pressure}
+                    </Chip>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gradient-to-r from-[#FF4654] to-[#FFC700]" style={{ width: `${row.probability}%` }} />
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gradient-to-r from-[#00A8FF] to-[#DCFF37]" style={{ width: `${row.pressure}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+
+        <Card className="border border-[#FF4654]/15 dark:border-[#DCFF37]/15 bg-gradient-to-br from-white to-[#FFF8F5] dark:from-[#101723] dark:to-[#17202B]">
+          <CardHeader className="flex items-center justify-between border-b border-default-100 pb-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#FF4654] dark:text-[#DCFF37] font-semibold">
+                Player impact matrix
+              </p>
+              <h4 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Who shaped the match</h4>
+            </div>
+            <Chip size="sm" variant="flat" color="warning">
+              3 standouts
+            </Chip>
+          </CardHeader>
+          <CardBody className="gap-4 p-5">
+            {analyticsPlayerRows.map((player) => (
+              <div key={player.name} className="space-y-3 border border-default-100 dark:border-white/10 bg-default-50/60 dark:bg-white/5 p-4" style={clipPathStyle(12)}>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">{player.name}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-default-500">{player.role}</p>
+                  </div>
+                  <RatingDisplay rating={player.rating} label="Impact" size="sm" />
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <div className="mb-1 flex items-center justify-between text-xs text-default-500">
+                      <span>Fight impact</span>
+                      <span>{player.impact}/100</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-default-100 dark:bg-white/10">
+                      <div className="h-full rounded-full" style={{ width: `${player.impact}%`, background: `linear-gradient(90deg, ${player.accent}, #FFC700)` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-center justify-between text-xs text-default-500">
+                      <span>Utility value</span>
+                      <span>{player.utility}/100</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-default-100 dark:bg-white/10">
+                      <div className="h-full rounded-full" style={{ width: `${player.utility}%`, background: "linear-gradient(90deg, #00A8FF, #DCFF37)" }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <Card className="border border-[#FF4654]/15 dark:border-[#DCFF37]/15 bg-gradient-to-br from-[#FFF7EE] to-white dark:from-[#111826] dark:to-[#162132]">
+          <CardHeader className="flex flex-col items-start gap-2 pb-3">
+            <p className="text-xs uppercase tracking-[0.22em] text-[#FF4654] dark:text-[#DCFF37] font-semibold">
+              Map pressure
+            </p>
+            <h4 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Heatmap-inspired control zones</h4>
+          </CardHeader>
+          <CardBody className="gap-3 p-5 pt-0">
+            {analyticsZonePressure.map((zone, index) => (
+              <div key={zone.zone} className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-3">
+                <div>
+                  <p className="font-semibold text-[#34445C] dark:text-[#F5F0E1]">{zone.zone}</p>
+                  <p className="text-xs text-default-500">{zone.note}</p>
+                </div>
+                <div className="relative h-14 overflow-hidden border border-default-200 dark:border-white/10 bg-default-100/70 dark:bg-white/5" style={clipPathStyle(12)}>
+                  <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#FF4654]/85 via-[#FFC700]/85 to-[#DCFF37]/85" style={{ width: `${zone.pressure}%` }} />
+                  <div className="absolute inset-0 opacity-25" style={gridOverlayStyle(index % 2 === 0)} />
+                  <div className="relative flex h-full items-center justify-between px-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#34445C] dark:text-[#F5F0E1]">
+                    <span>Pressure</span>
+                    <span>{zone.pressure}%</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+
+        <Card className="border border-[#FF4654]/15 dark:border-[#DCFF37]/15 bg-gradient-to-br from-[#34445C] via-[#263247] to-[#17202C] text-[#F5F0E1] overflow-hidden">
+          <CardBody className="grid gap-4 p-5 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Icon icon="solar:medal-ribbons-star-bold" width={18} className="text-[#FFC700]" />
+                <p className="text-xs uppercase tracking-[0.22em] text-[#FFC700] font-semibold">
+                  Why this example lands
+                </p>
+              </div>
+              <h4 className="text-xl font-bold leading-tight">
+                Strong docs examples should package insight density with product-level finish.
+              </h4>
+              <div className="grid gap-2 text-sm text-[#F5F0E1]/72">
+                {[
+                  "Brand accents stay deliberate instead of noisy.",
+                  "Score state, players, and map story all coexist cleanly.",
+                  "Every card earns its color with meaning: threat, utility, momentum, or confidence.",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-bold" width={16} className="mt-0.5 text-[#DCFF37]" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {[
+                { label: "Threat", value: "FF4654", swatch: "#FF4654" },
+                { label: "Momentum", value: "DCFF37", swatch: "#DCFF37" },
+                { label: "Context", value: "00A8FF", swatch: "#00A8FF" },
+              ].map((token) => (
+                <div key={token.label} className="border border-white/10 bg-white/6 p-4" style={clipPathStyle(12)}>
+                  <div className="mb-3 h-8 w-full" style={{ backgroundColor: token.swatch, ...clipPathStyle(8) }} />
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#F5F0E1]/55">{token.label}</p>
+                  <p className="mt-1 font-semibold text-[#F5F0E1]">#{token.value}</p>
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 }
 
@@ -501,10 +829,32 @@ export default function LeetScoresPage() {
           icon="solar:star-shine-bold"
           label="Premium Match Intelligence"
           heading="Highlights & Analytics"
-          description="Detect aces, clutches, multi-kills, and 15 other highlight types automatically from match telemetry."
+          description="Detect aces, clutches, and multi-kills automatically, then frame them with premium analytics surfaces that feel native to the rest of the product."
         />
 
         <div className="grid gap-8">
+          <DemoSection
+            label="Analytics Showcase — Momentum, Player Impact, Map Pressure"
+            codeSnippet={`<section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+  <ScoreDisplay
+    team1Score={16}
+    team2Score={11}
+    team1Name="PHANTOM"
+    team2Name="SPECTRA"
+    team1Side="CT"
+    team2Side="T"
+    size="sm"
+  />
+
+  <RatingDisplay rating={1.37} label="Team Rating" size="md" />
+  <KDADisplay kills={92} deaths={63} assists={21} size="md" showDiff />
+
+  {/* Add momentum bars, player impact cards, and heatmap-inspired pressure zones */}
+</section>`}
+          >
+            <AnalyticsShowcase />
+          </DemoSection>
+
           <DemoSection
             label="PremiumHighlights — Auto-Detected Plays"
             codeSnippet={`import { PremiumHighlights } from "@/components/matches";
