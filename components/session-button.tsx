@@ -11,6 +11,7 @@ import {
 } from "@nextui-org/dropdown";
 import { Avatar, Badge, Chip } from "@nextui-org/react";
 import { useAuth } from "@/hooks";
+import { useSubscription } from "@/hooks/use-subscription";
 import { useProfiles } from "@/contexts/profile-context";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
@@ -50,6 +51,8 @@ const GAME_CONFIG: Record<
 
 export default function SessionButton() {
   const { user, signOut } = useAuth();
+  const { currentSubscription, isActive: hasActiveSubscription } =
+    useSubscription();
   const {
     activeProfile,
     profiles,
@@ -69,6 +72,15 @@ export default function SessionButton() {
   const activeGameConfig = activeProfile?.game_id
     ? GAME_CONFIG[activeProfile.game_id as unknown as GameTitle]
     : null;
+  const subscriptionPlanName =
+    currentSubscription?.plan?.name?.toLowerCase() || "";
+  const shouldUseProWallet =
+    hasActiveSubscription &&
+    (subscriptionPlanName.includes("pro") ||
+      subscriptionPlanName.includes("elite") ||
+      subscriptionPlanName.includes("team") ||
+      subscriptionPlanName.includes("business"));
+  const walletHref = shouldUseProWallet ? "/wallet/pro" : "/wallet";
 
   // Get initials for avatar fallback
   const initials = displayName
@@ -361,7 +373,7 @@ export default function SessionButton() {
               Subscription
             </DropdownItem>
             <DropdownItem
-              key="/wallet"
+              key={walletHref}
               startContent={<Icon icon="solar:wallet-bold" width={20} />}
               description="Manage your wallet"
             >

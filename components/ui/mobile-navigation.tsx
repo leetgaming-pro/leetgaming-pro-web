@@ -101,13 +101,22 @@ export function MobileNavigation({
 }: MobileNavigationProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isActive: hasActiveSubscription } = useSubscription();
+  const { currentSubscription, isActive: hasActiveSubscription } =
+    useSubscription();
+  const subscriptionPlanName =
+    currentSubscription?.plan?.name?.toLowerCase() || "";
+  const shouldUseProWallet =
+    hasActiveSubscription &&
+    (subscriptionPlanName.includes("pro") ||
+      subscriptionPlanName.includes("elite") ||
+      subscriptionPlanName.includes("team") ||
+      subscriptionPlanName.includes("business"));
 
   // Dynamically update navigation items based on subscription status
   const navigationItems = useMemo(() => {
     return items.map((item) => {
       // Route pro/elite users to /wallet/pro instead of /wallet
-      if (item.id === "wallet" && hasActiveSubscription) {
+      if (item.id === "wallet" && shouldUseProWallet) {
         return {
           ...item,
           href: "/wallet/pro",
@@ -115,7 +124,7 @@ export function MobileNavigation({
       }
       return item;
     });
-  }, [items, hasActiveSubscription]);
+  }, [items, shouldUseProWallet]);
 
   const isActivePath = useCallback(
     (href: string) => {
