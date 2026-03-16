@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BrandedSignIn } from "@/components/auth";
 import { Progress } from "@nextui-org/react";
 import { logger } from "@/lib/logger";
+import { normalizeClientCallbackUrl } from "@/lib/auth/callback-url";
 import Image from "next/image";
 
 // Force dynamic rendering since this page uses session management and client-side features
@@ -57,16 +58,11 @@ function SignInContent() {
   // RID sync is handled by AuthSync in the background — don't block here.
   useEffect(() => {
     if (isMounted && status === "authenticated" && hasSession) {
-      // Normalize callbackUrl: strip origin if it matches current host to avoid redirect issues
-      let callbackUrl = searchParams.get("callbackUrl") || "/match-making";
-      try {
-        const parsed = new URL(callbackUrl, window.location.origin);
-        if (parsed.origin === window.location.origin) {
-          callbackUrl = parsed.pathname + parsed.search + parsed.hash;
-        }
-      } catch {
-        // Not a valid URL — use as-is
-      }
+      const callbackUrl = normalizeClientCallbackUrl(
+        searchParams.get("callbackUrl"),
+        window.location.origin,
+        "/match-making",
+      );
       if (!hasRid) {
         // Session exists but missing RID — log but still redirect.
         // AuthSync will attempt RID refresh in the background.
