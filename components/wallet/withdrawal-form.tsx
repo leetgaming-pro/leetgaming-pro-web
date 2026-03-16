@@ -796,7 +796,7 @@ export function WithdrawalForm({
               <Button
                 color="primary"
                 variant="flat"
-                onClick={() => (window.location.href = "/wallet")}
+                onClick={() => (window.location.href = "/wallet/pro")}
               >
                 View Transaction History
               </Button>

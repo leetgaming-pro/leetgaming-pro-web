@@ -753,7 +753,7 @@ export default function AdminDashboardPage() {
               </CardBody>
             </Card>
 
-            <Card isPressable as={Link} href="/wallet">
+            <Card isPressable as={Link} href="/wallet/pro">
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="p-3 rounded-xl bg-success/10">
                   <Icon

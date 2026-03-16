@@ -145,7 +145,7 @@ export const siteConfig = {
     // Account
     {
       label: "My Wallet",
-      href: "/wallet",
+      href: "/wallet/pro",
       icon: "solar:wallet-2-bold",
     },
     {

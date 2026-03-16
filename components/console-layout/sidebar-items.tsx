@@ -52,7 +52,7 @@ export const items: SidebarItem[] = [
   },
   {
     key: "wallet",
-    href: "/wallet",
+    href: "/wallet/pro",
     icon: "solar:wallet-bold",
     title: "Wallet",
   },
@@ -173,7 +173,7 @@ export const sectionItems: SidebarItem[] = [
     items: [
       {
         key: "wallet",
-        href: "/wallet",
+        href: "/wallet/pro",
         icon: "solar:wallet-bold",
         title: "Wallet",
         endContent: (
@@ -301,7 +301,7 @@ export const brandItems: SidebarItem[] = [
     items: [
       {
         key: "wallet",
-        href: "/wallet",
+        href: "/wallet/pro",
         title: "Wallet",
         icon: "solar:wallet-bold",
       },
@@ -329,7 +329,7 @@ export const sectionLongList: SidebarItem[] = [
     items: [
       {
         key: "wallet",
-        href: "/wallet",
+        href: "/wallet/pro",
         title: "Wallet",
         icon: "solar:wallet-bold",
       },
@@ -425,7 +425,7 @@ export const sectionNestedItems: SidebarItem[] = [
   },
   {
     key: "wallet",
-    href: "/wallet",
+    href: "/wallet/pro",
     icon: "solar:wallet-bold",
     title: "Wallet",
   },

@@ -23,8 +23,7 @@ import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@nextui-org/react";
 import { Badge } from "@nextui-org/react";
-import { useSubscription } from "@/hooks/use-subscription";
-import { isProWalletSubscription } from "@/lib/wallet-routing";
+import { useSession } from "next-auth/react";
 
 // ============================================================================
 // 🎯 TYPES
@@ -63,7 +62,7 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
   {
     id: "wallet",
     label: "Wallet",
-    href: "/wallet",
+    href: "/wallet/pro",
     icon: "solar:wallet-2-linear",
     iconActive: "solar:wallet-2-bold-duotone",
   },
@@ -102,16 +101,14 @@ export function MobileNavigation({
 }: MobileNavigationProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentSubscription, isActive: hasActiveSubscription } =
-    useSubscription();
-  const shouldUseProWallet =
-    hasActiveSubscription && isProWalletSubscription(currentSubscription);
+  const { data: session } = useSession();
+  const isAuthenticated = !!session?.user;
 
-  // Dynamically update navigation items based on subscription status
+  // Dynamically update navigation items based on auth status
   const navigationItems = useMemo(() => {
     return items.map((item) => {
-      // Route pro/elite users to /wallet/pro instead of /wallet
-      if (item.id === "wallet" && shouldUseProWallet) {
+      // Route authenticated users to /wallet/pro
+      if (item.id === "wallet" && isAuthenticated) {
         return {
           ...item,
           href: "/wallet/pro",
@@ -119,7 +116,7 @@ export function MobileNavigation({
       }
       return item;
     });
-  }, [items, shouldUseProWallet]);
+  }, [items, isAuthenticated]);
 
   const isActivePath = useCallback(
     (href: string) => {
