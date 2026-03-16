@@ -52,8 +52,11 @@ const GAME_CONFIG: Record<
 
 export default function SessionButton() {
   const { user, signOut } = useAuth();
-  const { currentSubscription, isActive: hasActiveSubscription } =
-    useSubscription();
+  const {
+    currentSubscription,
+    isActive: hasActiveSubscription,
+    refreshSubscription,
+  } = useSubscription();
   const {
     activeProfile,
     profiles,
@@ -76,6 +79,37 @@ export default function SessionButton() {
   const walletHref = hasActiveSubscription
     ? getWalletRoute(currentSubscription)
     : "/wallet";
+
+  const handleMenuAction = async (keyStr: string) => {
+    if (keyStr === "logout") {
+      signOut();
+      return;
+    }
+
+    if (keyStr === "create-profile") {
+      createProfile();
+      return;
+    }
+
+    if (keyStr.startsWith("switch-profile-")) {
+      const profileId = keyStr.replace("switch-profile-", "");
+      switchProfileById(profileId);
+      return;
+    }
+
+    if (keyStr === "wallet") {
+      const latestSubscription = await refreshSubscription();
+      const targetWalletRoute = getWalletRoute(
+        latestSubscription ?? currentSubscription,
+      );
+      router.push(targetWalletRoute);
+      return;
+    }
+
+    if (!keyStr.startsWith("profile-header")) {
+      router.push(keyStr);
+    }
+  };
 
   // Get initials for avatar fallback
   const initials = displayName
@@ -166,17 +200,7 @@ export default function SessionButton() {
             ].join(" "),
           }}
           onAction={(key) => {
-            const keyStr = key as string;
-            if (keyStr === "logout") {
-              signOut();
-            } else if (keyStr === "create-profile") {
-              createProfile();
-            } else if (keyStr.startsWith("switch-profile-")) {
-              const profileId = keyStr.replace("switch-profile-", "");
-              switchProfileById(profileId);
-            } else if (!keyStr.startsWith("profile-header")) {
-              router.push(keyStr);
-            }
+            void handleMenuAction(key as string);
           }}
         >
           <DropdownSection showDivider>
@@ -376,9 +400,10 @@ export default function SessionButton() {
               Subscription
             </DropdownItem>
             <DropdownItem
-              key={walletHref}
+              key="wallet"
               startContent={<Icon icon="solar:wallet-bold" width={20} />}
               description="Manage your wallet"
+              textValue={walletHref}
             >
               Wallet
             </DropdownItem>

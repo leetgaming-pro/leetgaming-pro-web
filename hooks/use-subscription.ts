@@ -29,7 +29,7 @@ export interface UseSubscriptionResult {
   subscriptionError: string | null;
   // Actions
   refreshPlans: () => Promise<void>;
-  refreshSubscription: () => Promise<void>;
+  refreshSubscription: () => Promise<Subscription | null>;
   subscribe: (
     request: CreateSubscriptionRequest,
   ) => Promise<Subscription | null>;
@@ -83,13 +83,14 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
     }
   }, [api]);
 
-  const refreshSubscription = useCallback(async () => {
+  const refreshSubscription = useCallback(async (): Promise<Subscription | null> => {
     setIsLoadingSubscription(true);
     setSubscriptionError(null);
     try {
       const result = await api.getCurrentSubscription();
       setCurrentSubscription(result);
       // No error if null - user might not have a subscription (this is expected)
+      return result;
     } catch (err: unknown) {
       // Handle "Invalid subscription ID" gracefully - it just means no subscription
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -100,11 +101,13 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
       ) {
         // This is expected - user has no subscription
         setCurrentSubscription(null);
+        return null;
       } else {
         // Only log unexpected errors
         logger.error("[useSubscription] Error fetching subscription:", err);
         setSubscriptionError(errorMessage);
       }
+      return null;
     } finally {
       setIsLoadingSubscription(false);
     }
