@@ -29,6 +29,7 @@ export interface Plan {
   key: string;
   name: string;
   description: string;
+  kind?: string;
   price: {
     monthly: number;
     quarterly: number;
@@ -47,7 +48,7 @@ export interface Plan {
 export interface Subscription {
   id: string;
   plan_id: string;
-  plan: Plan;
+  plan?: Plan;
   status: SubscriptionStatus;
   billing_period: BillingPeriod;
   current_period_start: string;
@@ -58,6 +59,10 @@ export interface Subscription {
   trial_end?: string;
   created_at: string;
   updated_at: string;
+  is_free?: boolean;
+  is_pro?: boolean;
+  is_elite?: boolean;
+  features?: string[];
 }
 
 /**

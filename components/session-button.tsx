@@ -16,6 +16,7 @@ import { useProfiles } from "@/contexts/profile-context";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { GameTitle } from "@/types/replay-api/player.types";
+import { getWalletRoute } from "@/lib/wallet-routing";
 
 // Game icons and colors
 const GAME_CONFIG: Record<
@@ -72,15 +73,9 @@ export default function SessionButton() {
   const activeGameConfig = activeProfile?.game_id
     ? GAME_CONFIG[activeProfile.game_id as unknown as GameTitle]
     : null;
-  const subscriptionPlanName =
-    currentSubscription?.plan?.name?.toLowerCase() || "";
-  const shouldUseProWallet =
-    hasActiveSubscription &&
-    (subscriptionPlanName.includes("pro") ||
-      subscriptionPlanName.includes("elite") ||
-      subscriptionPlanName.includes("team") ||
-      subscriptionPlanName.includes("business"));
-  const walletHref = shouldUseProWallet ? "/wallet/pro" : "/wallet";
+  const walletHref = hasActiveSubscription
+    ? getWalletRoute(currentSubscription)
+    : "/wallet";
 
   // Get initials for avatar fallback
   const initials = displayName
@@ -92,6 +87,9 @@ export default function SessionButton() {
 
   return (
     <div className="flex items-center gap-3 h-full">
+      <label htmlFor="session-user-menu-trigger" className="sr-only">
+        User menu
+      </label>
       {/* User Dropdown - Edgy borders (no rounded) */}
       <Dropdown
         placement="bottom-end"
@@ -102,7 +100,12 @@ export default function SessionButton() {
         }}
       >
         <DropdownTrigger>
-          <button className="relative flex items-center gap-2 outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-primary/50">
+          <button
+            aria-label="User menu"
+            id="session-user-menu-trigger"
+            className="relative flex items-center gap-2 outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-primary/50"
+          >
+            <span className="sr-only">User menu</span>
             <Badge
               content=""
               color="success"

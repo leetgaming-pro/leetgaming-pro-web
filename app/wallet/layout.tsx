@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useAuth } from "@/hooks/use-auth";
+import { getWalletRoute, isProWalletSubscription } from "@/lib/wallet-routing";
 
 /**
  * Wallet Layout with Tier-Based Routing
@@ -32,23 +33,17 @@ export default function WalletLayout({
       return;
     }
 
-    // Determine the correct wallet route based on subscription tier
-    const planName = currentSubscription?.plan?.name?.toLowerCase() || "free";
-    const isElite = planName.includes("elite");
-    const isPro = planName.includes("pro");
+    const shouldUseProWallet = isProWalletSubscription(currentSubscription);
+    const targetWalletRoute = getWalletRoute(currentSubscription);
 
     // If on base /wallet path, redirect based on subscription
-    if (pathname === "/wallet") {
-      if (isElite || isPro) {
-        // Elite and Pro users go to pro wallet
-        router.replace("/wallet/pro");
-        return;
-      }
-      // Free users stay on /wallet
+    if (pathname === "/wallet" && targetWalletRoute !== pathname) {
+      router.replace(targetWalletRoute);
+      return;
     }
 
     // If on /wallet/pro without proper subscription, redirect to basic wallet
-    if (pathname.startsWith("/wallet/pro") && !isElite && !isPro) {
+    if (pathname.startsWith("/wallet/pro") && !shouldUseProWallet) {
       router.replace("/wallet");
     }
   }, [

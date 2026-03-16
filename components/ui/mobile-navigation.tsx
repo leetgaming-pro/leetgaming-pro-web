@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@nextui-org/react";
 import { Badge } from "@nextui-org/react";
 import { useSubscription } from "@/hooks/use-subscription";
+import { isProWalletSubscription } from "@/lib/wallet-routing";
 
 // ============================================================================
 // 🎯 TYPES
@@ -103,14 +104,8 @@ export function MobileNavigation({
   const router = useRouter();
   const { currentSubscription, isActive: hasActiveSubscription } =
     useSubscription();
-  const subscriptionPlanName =
-    currentSubscription?.plan?.name?.toLowerCase() || "";
   const shouldUseProWallet =
-    hasActiveSubscription &&
-    (subscriptionPlanName.includes("pro") ||
-      subscriptionPlanName.includes("elite") ||
-      subscriptionPlanName.includes("team") ||
-      subscriptionPlanName.includes("business"));
+    hasActiveSubscription && isProWalletSubscription(currentSubscription);
 
   // Dynamically update navigation items based on subscription status
   const navigationItems = useMemo(() => {
