@@ -413,7 +413,11 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
 
 export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
   const router = useRouter();
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // Use 'dark' as fallback during SSR/hydration to prevent mismatch
+  const activeTheme = mounted ? (resolvedTheme || theme || 'dark') : 'dark';
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [_error, setError] = useState<string | null>(null);
@@ -528,7 +532,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               <Icon 
                 icon="solar:medal-ribbons-star-bold" 
                 className="w-5 h-5" 
-                style={{ color: theme === "dark" ? "#DCFF37" : "#FF4654" }}
+                style={{ color: activeTheme === "dark" ? "#DCFF37" : "#FF4654" }}
               />
               <span className="text-sm font-semibold text-default-700 dark:text-white/80">Recent Battles</span>
             </m.div>
@@ -545,7 +549,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
             >
               <span className={clsx(
                 "bg-clip-text text-transparent bg-gradient-to-r",
-                theme === "dark" 
+                activeTheme === "dark" 
                   ? "from-[#00A8FF] via-white to-[#FFB800]"
                   : "from-[#FF4654] via-[#34445C] to-[#00A8FF]"
               )}>
@@ -601,12 +605,12 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               <div className="flex items-center gap-2">
                 <div 
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: theme === "dark" ? "rgba(220, 255, 55, 0.2)" : "rgba(255, 70, 84, 0.2)" }}
+                  style={{ backgroundColor: activeTheme === "dark" ? "rgba(220, 255, 55, 0.2)" : "rgba(255, 70, 84, 0.2)" }}
                 >
                   <Icon 
                     icon="solar:hourglass-bold" 
                     className="w-5 h-5" 
-                    style={{ color: theme === "dark" ? "#DCFF37" : "#FF4654" }}
+                    style={{ color: activeTheme === "dark" ? "#DCFF37" : "#FF4654" }}
                   />
                 </div>
                 <div className="text-left">
@@ -642,7 +646,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                     key={match.id || match.match_id || index}
                     match={match}
                     index={index}
-                    theme={theme}
+                    theme={activeTheme}
                   />
                 ))}
               </m.div>
@@ -666,8 +670,8 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               radius="none"
               size="lg"
               style={{
-                backgroundColor: theme === "dark" ? "#DCFF37" : "#FF4654",
-                color: theme === "dark" ? "#0a0a0a" : "#ffffff",
+                backgroundColor: activeTheme === "dark" ? "#DCFF37" : "#FF4654",
+                color: activeTheme === "dark" ? "#0a0a0a" : "#ffffff",
                 clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
               }}
               onPress={() => router.push("/matches")}

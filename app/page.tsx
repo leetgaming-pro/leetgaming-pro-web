@@ -5,37 +5,39 @@ import LobbiesShowcase from "@/components/landing/LobbiesShowcase";
 import MatchesShowcase from "@/components/landing/MatchesShowcase";
 import { SectionErrorBoundary } from "@/components/landing/SectionErrorBoundary";
 
-// Dynamic imports for heavy 3D/animation sections
+// Dynamic imports for heavy 3D/animation sections with error recovery
+const DynamicFallback = () => null;
+
 const HeroScene3D = dynamic(
-  () => import("@/components/landing/HeroScene3D"),
+  () => import("@/components/landing/HeroScene3D").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const ProductOverview = dynamic(
-  () => import("@/components/landing/ProductOverview"),
+  () => import("@/components/landing/ProductOverview").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const ReplayAnalysisShowcase = dynamic(
-  () => import("@/components/landing/ReplayAnalysisShowcase"),
+  () => import("@/components/landing/ReplayAnalysisShowcase").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const TournamentsShowcase = dynamic(
-  () => import("@/components/landing/TournamentsShowcase"),
+  () => import("@/components/landing/TournamentsShowcase").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const UpcomingGamesSection = dynamic(
-  () => import("@/components/upcoming-games/UpcomingGamesSection"),
+  () => import("@/components/upcoming-games/UpcomingGamesSection").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const GamesGallery = dynamic(
-  () => import("@/components/landing/GamesGallery"),
+  () => import("@/components/landing/GamesGallery").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const SocialProofSection = dynamic(
-  () => import("@/components/landing/SocialProofSection"),
+  () => import("@/components/landing/SocialProofSection").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 const FinalCTA = dynamic(
-  () => import("@/components/landing/FinalCTA"),
+  () => import("@/components/landing/FinalCTA").catch(() => ({ default: DynamicFallback })),
   { ssr: false }
 );
 
