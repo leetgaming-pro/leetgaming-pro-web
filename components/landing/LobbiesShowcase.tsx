@@ -97,7 +97,11 @@ function LivePulse({ className }: { className?: string }) {
 
 export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
   const router = useRouter();
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // Use 'dark' as fallback during SSR/hydration to prevent mismatch
+  const activeTheme = mounted ? (resolvedTheme || theme || 'dark') : 'dark';
   const [lobbies, setLobbies] = useState<MatchmakingLobby[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredLobby, setHoveredLobby] = useState<string | null>(null);
@@ -260,6 +264,18 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
                     initial={{ opacity: 0 }}
                   />
                 ))
+              ) : lobbies.length === 0 ? (
+                // Empty state
+                <m.div
+                  key="empty-state"
+                  animate={{ opacity: 1, y: 0 }}
+                  className="col-span-full flex flex-col items-center justify-center py-16 text-center"
+                  initial={{ opacity: 0, y: 20 }}
+                >
+                  <Icon icon="solar:gamepad-bold-duotone" width={64} className="text-default-300 dark:text-default-600 mb-4" />
+                  <p className="text-lg font-semibold text-default-500">No active lobbies right now</p>
+                  <p className="text-sm text-default-400 mt-1">Be the first — create a lobby and start playing!</p>
+                </m.div>
               ) : (
                 lobbies.map((lobby, index) => (
                   <LobbyShowcaseCard
@@ -267,7 +283,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
                     index={index}
                     isHovered={hoveredLobby === lobby.id}
                     lobby={lobby}
-                    theme={theme}
+                    theme={activeTheme}
                     onHover={setHoveredLobby}
                     onJoin={handleJoinLobby}
                   />
@@ -293,8 +309,8 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               radius="none"
               size="lg"
               style={{
-                backgroundColor: theme === "dark" ? "#DCFF37" : "#FF4654",
-                color: theme === "dark" ? "#0a0a0a" : "#ffffff",
+                backgroundColor: activeTheme === "dark" ? "#DCFF37" : "#FF4654",
+                color: activeTheme === "dark" ? "#0a0a0a" : "#ffffff",
                 clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
               }}
               onPress={handleCreateLobby}

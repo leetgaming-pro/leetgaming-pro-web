@@ -466,7 +466,7 @@ export default function TournamentsPage() {
         <Card className="mb-4">
           <CardBody className="text-center">
             <p className="text-xs text-default-400">
-              Using cached data - API unavailable
+              Tournaments are temporarily unavailable. Please try again later.
             </p>
           </CardBody>
         </Card>
