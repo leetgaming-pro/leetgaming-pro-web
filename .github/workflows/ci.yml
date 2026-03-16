@@ -232,6 +232,8 @@ jobs:
         working-directory: replay-api
         env:
           MONGO_URI: mongodb://test:test123@localhost:27017/leetgaming_test?authSource=admin
+          MONGODB_DATABASE: leetgaming_test
+          MONGO_DB_NAME: leetgaming_test
           PORT: 8080
           ENV: test
           LOG_LEVEL: warn
