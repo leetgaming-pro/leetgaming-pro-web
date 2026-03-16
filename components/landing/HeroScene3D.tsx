@@ -1,15 +1,15 @@
 /**
  * HeroScene3D - Full-viewport immersive hero section
- * Combines Three.js 3D arena scene with branded 2D overlay (text, CTAs, stats)
+ * Clean animated 2D hero with branded gradient overlays, animated grid,
+ * and parallax floating shapes — lightweight, no Three.js dependency.
  */
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import React from "react";
 import { Button } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { logo } from "@/components/primitives";
@@ -17,68 +17,136 @@ import { Electrolize } from "next/font/google";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
 
-// Dynamic import for 3D content (SSR-safe)
-const SceneWrapper = dynamic(() => import('@/lib/3d/scene-wrapper'), { ssr: false });
-const HeroSceneContentModule = dynamic(
-  () => import('./HeroSceneContent').then(mod => ({ default: mod.HeroSceneContent })),
-  { ssr: false }
-);
+// ─── Animated grid background ───────────────────────────────────────────────
 
-// Animated stat counter
-function StatCounter({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = value / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= value) {
-        setCount(value);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [value]);
-
+function AnimatedGrid() {
   return (
-    <div className="text-center">
-      <div className={`${electrolize.className} text-2xl sm:text-3xl font-bold text-[#FF4654] dark:text-[#DCFF37]`}>
-        {count.toLocaleString()}{suffix}
-      </div>
-      <div className="text-xs sm:text-sm text-default-500 mt-1 uppercase tracking-wider">{label}</div>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Grid */}
+      <div
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(220,255,55,0.6) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(220,255,55,0.6) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+      {/* Radial vignette that fades the grid toward edges */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 60% at 30% 50%, transparent 0%, rgba(10,10,10,0.85) 100%)",
+        }}
+      />
     </div>
   );
 }
+
+// ─── Floating accent shapes ─────────────────────────────────────────────────
+
+const SHAPES = [
+  { size: 120, x: "72%", y: "18%", color: "#DCFF37", delay: 0, dur: 7 },
+  { size: 80, x: "82%", y: "55%", color: "#FF4654", delay: 1.2, dur: 9 },
+  { size: 56, x: "65%", y: "72%", color: "#FFC700", delay: 0.6, dur: 8 },
+  { size: 40, x: "88%", y: "35%", color: "#DCFF37", delay: 2, dur: 6 },
+  { size: 32, x: "58%", y: "30%", color: "#FF4654", delay: 1.8, dur: 10 },
+];
+
+function FloatingShapes() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none hidden md:block">
+      {SHAPES.map((s, i) => (
+        <m.div
+          key={i}
+          className="absolute"
+          style={{
+            width: s.size,
+            height: s.size,
+            left: s.x,
+            top: s.y,
+            border: `1px solid ${s.color}`,
+            opacity: 0.15,
+            clipPath:
+              "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+          }}
+          animate={{
+            y: [0, -16, 0, 12, 0],
+            rotate: [0, 90, 180, 270, 360],
+          }}
+          transition={{
+            duration: s.dur,
+            repeat: Infinity,
+            ease: "linear",
+            delay: s.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Crosshair decorative element ───────────────────────────────────────────
+
+function Crosshair() {
+  return (
+    <div className="absolute right-[12%] top-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center pointer-events-none">
+      <m.div
+        className="relative w-64 h-64"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      >
+        {/* Outer ring */}
+        <div className="absolute inset-0 rounded-full border border-[#DCFF37]/20" />
+        {/* Inner ring */}
+        <div className="absolute inset-8 rounded-full border border-[#FF4654]/15" />
+        {/* Center dot */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-2 h-2 rounded-full bg-[#DCFF37]/40" />
+        </div>
+      </m.div>
+      {/* Static crosshair lines */}
+      <div className="absolute w-72 h-[1px] bg-gradient-to-r from-transparent via-[#DCFF37]/10 to-transparent" />
+      <div className="absolute h-72 w-[1px] bg-gradient-to-b from-transparent via-[#DCFF37]/10 to-transparent" />
+    </div>
+  );
+}
+
+// ─── Main Hero ──────────────────────────────────────────────────────────────
 
 export default function HeroScene3D() {
   const { theme } = useTheme();
   const router = useRouter();
 
+  const isDark = theme === "dark";
+
   return (
-    <div className={`relative h-screen w-full overflow-hidden ${theme === 'dark' ? 'bg-[#0a0a0a]' : 'bg-[#34445C]'}`}>
-      {/* 3D Canvas Background */}
-      <div className="absolute inset-0 z-0">
-        <SceneWrapper
-          cameraPosition={[0, 2, 6]}
-          cameraFov={55}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <HeroSceneContentModule />
-        </SceneWrapper>
-      </div>
+    <div
+      className="relative h-screen w-full overflow-hidden"
+      style={{
+        background: isDark
+          ? "linear-gradient(150deg, #0a0a0a 0%, #111a26 40%, #1e2a38 70%, #0a0a0a 100%)"
+          : "linear-gradient(150deg, #34445C 0%, #2a3749 50%, #34445C 100%)",
+      }}
+    >
+      {/* Background layers */}
+      <AnimatedGrid />
+      <FloatingShapes />
+      <Crosshair />
 
-      {/* Gradient overlays for text readability */}
-      <div className="absolute inset-0 z-[1] pointer-events-none">
-        <div className={`absolute inset-0 bg-gradient-to-b ${theme === 'dark' ? 'from-[#0a0a0a]/70 via-transparent to-[#0a0a0a]/90' : 'from-[#34445C]/80 via-[#34445C]/30 to-[#34445C]/90'}`} />
-        <div className={`absolute inset-0 bg-gradient-to-r ${theme === 'dark' ? 'from-[#0a0a0a]/60' : 'from-[#34445C]/70'} via-transparent to-transparent`} />
-      </div>
+      {/* Bottom gradient fade for section transition */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-32 z-[1] pointer-events-none"
+        style={{
+          background: isDark
+            ? "linear-gradient(to bottom, transparent, #0a0a0a)"
+            : "linear-gradient(to bottom, transparent, #34445C)",
+        }}
+      />
 
-      {/* 2D Content Overlay */}
+      {/* Content */}
       <div className="relative z-[2] h-full flex flex-col justify-center">
         <main className="container mx-auto px-6 sm:px-8 lg:px-12">
           <LazyMotion features={domAnimation}>
@@ -88,7 +156,7 @@ export default function HeroScene3D() {
               variants={{
                 hidden: {},
                 visible: {
-                  transition: { staggerChildren: 0.15, delayChildren: 0.3 },
+                  transition: { staggerChildren: 0.15, delayChildren: 0.2 },
                 },
               }}
               className="max-w-3xl"
@@ -96,14 +164,31 @@ export default function HeroScene3D() {
               {/* Badge */}
               <m.div
                 variants={{
-                  hidden: { opacity: 0, y: 20, filter: 'blur(10px)' },
-                  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.6, type: 'spring', bounce: 0 } },
+                  hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    transition: { duration: 0.6, type: "spring", bounce: 0 },
+                  },
                 }}
               >
                 <Button
-                  className={`h-9 overflow-hidden border-1 px-[18px] py-2 text-small font-normal leading-5 rounded-none mb-6 ${theme === 'dark' ? 'border-[#DCFF37]/40 bg-[#DCFF37]/10 text-[#DCFF37]' : 'border-[#F5F0E1]/40 bg-[#F5F0E1]/15 text-[#F5F0E1]'}`}
+                  className={`h-9 overflow-hidden border-1 px-[18px] py-2 text-small font-normal leading-5 rounded-none mb-6 ${
+                    isDark
+                      ? "border-[#DCFF37]/40 bg-[#DCFF37]/10 text-[#DCFF37]"
+                      : "border-[#F5F0E1]/40 bg-[#F5F0E1]/15 text-[#F5F0E1]"
+                  }`}
                   endContent={
-                    <Icon className={theme === 'dark' ? 'flex-none text-[#DCFF37]' : 'flex-none text-[#F5F0E1]'} icon="solar:arrow-right-linear" width={20} />
+                    <Icon
+                      className={
+                        isDark
+                          ? "flex-none text-[#DCFF37]"
+                          : "flex-none text-[#F5F0E1]"
+                      }
+                      icon="solar:arrow-right-linear"
+                      width={20}
+                    />
                   }
                   radius="none"
                   variant="bordered"
@@ -117,41 +202,58 @@ export default function HeroScene3D() {
               <m.h1
                 className={`${electrolize.className} text-[clamp(32px,8vw,72px)] font-bold leading-[1.05] tracking-tight mb-6`}
                 variants={{
-                  hidden: { opacity: 0, y: 30, filter: 'blur(16px)' },
-                  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, type: 'spring', bounce: 0 } },
+                  hidden: { opacity: 0, y: 30, filter: "blur(16px)" },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    transition: { duration: 0.8, type: "spring", bounce: 0 },
+                  },
                 }}
               >
-                <span className="text-[#F5F0E1]">COMPETE.</span>{' '}
-                <span className={logo({ color: 'battleOrange' })}>ANALYZE.</span>{' '}
-                <span className={theme === 'dark' ? 'text-[#DCFF37]' : 'text-[#FFC700]'}>EARN.</span>
+                <span className="text-[#F5F0E1]">COMPETE.</span>{" "}
+                <span className={logo({ color: "battleOrange" })}>ANALYZE.</span>{" "}
+                <span className={isDark ? "text-[#DCFF37]" : "text-[#FFC700]"}>EARN.</span>
               </m.h1>
 
               {/* Subheadline */}
               <m.p
                 className="text-base sm:text-lg text-[#F5F0E1]/80 max-w-xl mb-8 leading-relaxed"
                 variants={{
-                  hidden: { opacity: 0, y: 20, filter: 'blur(10px)' },
-                  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.7, type: 'spring', bounce: 0 } },
+                  hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    transition: { duration: 0.7, type: "spring", bounce: 0 },
+                  },
                 }}
               >
-                AI-powered replay analysis, skill-based matchmaking, and transparent prize pools.
-                The all-in-one competitive gaming platform for players who want to go pro.
+                AI-powered replay analysis, skill-based matchmaking, and
+                transparent prize pools. The all-in-one competitive gaming
+                platform for players who want to go pro.
               </m.p>
 
               {/* CTAs */}
               <m.div
                 className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-12"
                 variants={{
-                  hidden: { opacity: 0, y: 20, filter: 'blur(10px)' },
-                  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.6, type: 'spring', bounce: 0 } },
+                  hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    filter: "blur(0px)",
+                    transition: { duration: 0.6, type: "spring", bounce: 0 },
+                  },
                 }}
               >
                 <Button
                   className="h-14 sm:h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-all rounded-none touch-target w-full sm:w-auto"
                   style={{
-                    backgroundColor: theme === 'dark' ? '#DCFF37' : '#FF4654',
-                    color: theme === 'dark' ? '#34445C' : '#ffffff',
-                    clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)',
+                    backgroundColor: isDark ? "#DCFF37" : "#FF4654",
+                    color: isDark ? "#34445C" : "#ffffff",
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
                   }}
                   radius="none"
                   size="lg"
@@ -160,12 +262,28 @@ export default function HeroScene3D() {
                   Start Playing Free
                 </Button>
                 <Button
-                  className={`h-14 sm:h-12 px-8 text-base font-medium border-2 text-[#F5F0E1] rounded-none touch-target w-full sm:w-auto transition-all ${theme === 'dark' ? 'border-[#DCFF37]/40 hover:bg-[#DCFF37]/10' : 'border-[#F5F0E1]/40 hover:bg-[#F5F0E1]/10'}`}
+                  className={`h-14 sm:h-12 px-8 text-base font-medium border-2 text-[#F5F0E1] rounded-none touch-target w-full sm:w-auto transition-all ${
+                    isDark
+                      ? "border-[#DCFF37]/40 hover:bg-[#DCFF37]/10"
+                      : "border-[#F5F0E1]/40 hover:bg-[#F5F0E1]/10"
+                  }`}
                   endContent={
-                    <span className={`pointer-events-none flex h-[22px] w-[22px] items-center justify-center ${theme === 'dark' ? 'bg-[#DCFF37]/15' : 'bg-[#F5F0E1]/15'}`}
-                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)' }}
+                    <span
+                      className={`pointer-events-none flex h-[22px] w-[22px] items-center justify-center ${
+                        isDark ? "bg-[#DCFF37]/15" : "bg-[#F5F0E1]/15"
+                      }`}
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)",
+                      }}
                     >
-                      <Icon className={`[&>path]:stroke-[1.5] ${theme === 'dark' ? 'text-[#DCFF37]' : 'text-[#F5F0E1]'}`} icon="solar:arrow-right-linear" width={16} />
+                      <Icon
+                        className={`[&>path]:stroke-[1.5] ${
+                          isDark ? "text-[#DCFF37]" : "text-[#F5F0E1]"
+                        }`}
+                        icon="solar:arrow-right-linear"
+                        width={16}
+                      />
                     </span>
                   }
                   radius="none"
@@ -177,17 +295,35 @@ export default function HeroScene3D() {
                 </Button>
               </m.div>
 
-              {/* Stats Row */}
+              {/* Feature highlights instead of fake stats */}
               <m.div
-                className="flex gap-8 sm:gap-12"
+                className="flex flex-wrap gap-x-6 gap-y-3"
                 variants={{
                   hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2 } },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.6, delay: 0.2 },
+                  },
                 }}
               >
-                <StatCounter value={63000} label="Players" suffix="+" />
-                <StatCounter value={12500} label="Matches" suffix="+" />
-                <StatCounter value={890} label="Prize Pool" suffix="K" />
+                {[
+                  { icon: "solar:cpu-bolt-bold", text: "AI Replay Analysis" },
+                  { icon: "solar:gamepad-bold", text: "Skill-Based Matchmaking" },
+                  { icon: "solar:wallet-money-bold", text: "Instant Payouts" },
+                ].map((feat) => (
+                  <div
+                    key={feat.text}
+                    className="flex items-center gap-2 text-sm text-[#F5F0E1]/60"
+                  >
+                    <Icon
+                      icon={feat.icon}
+                      width={16}
+                      className={isDark ? "text-[#DCFF37]/70" : "text-[#FFC700]/70"}
+                    />
+                    <span className={electrolize.className}>{feat.text}</span>
+                  </div>
+                ))}
               </m.div>
             </m.div>
           </LazyMotion>
@@ -197,10 +333,16 @@ export default function HeroScene3D() {
         <m.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="text-xs uppercase tracking-[0.3em] text-[#F5F0E1]/50">Scroll</span>
-          <Icon icon="solar:alt-arrow-down-linear" width={20} className="text-[#F5F0E1]/50" />
+          <span className="text-xs uppercase tracking-[0.3em] text-[#F5F0E1]/50">
+            Scroll
+          </span>
+          <Icon
+            icon="solar:alt-arrow-down-linear"
+            width={20}
+            className="text-[#F5F0E1]/50"
+          />
         </m.div>
       </div>
     </div>
