@@ -93,6 +93,9 @@ const nextConfig = {
   },
   images: {
     remotePatterns: getImageRemotePatterns(),
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "inline",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   webpack: (config) => {
     config.resolve = config.resolve || {};
