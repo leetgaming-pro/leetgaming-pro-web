@@ -37,7 +37,7 @@ export function ClientLayoutWrapper({
   return (
     <Box>
       <Providers
-        themeProps={{ attribute: "class", defaultTheme: "dark", nonce }}
+        themeProps={{ attribute: "class", defaultTheme: "dark", enableSystem: true, nonce }}
       >
         <div className="relative flex flex-col h-screen w-full">
           <Navbar />
