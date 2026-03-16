@@ -311,6 +311,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --silent
+
+      - name: Build application for Docker
+        run: npm run build --silent
+        env:
+          NEXT_PUBLIC_REPLAY_API_URL: ${{ secrets.REPLAY_API_URL || 'http://localhost:8080' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.APP_URL || 'http://localhost:3030' }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'build-secret' }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'http://localhost:3030' }}
+          STEAM_VHASH_SOURCE: ${{ secrets.STEAM_VHASH_SOURCE || 'build-vhash-source' }}
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
