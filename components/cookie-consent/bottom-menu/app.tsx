@@ -64,8 +64,8 @@ export default function CookieBottomMenu() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 px-6 pb-6 z-10">
-      <div className="pointer-events-auto ml-auto max-w-sm rounded-large border border-divider bg-background/15 p-6 shadow-small backdrop-blur">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 px-4 pb-4 md:bottom-0 md:px-6 md:pb-6">
+      <div className="pointer-events-auto mx-auto w-full max-w-sm rounded-large border border-divider bg-background/15 p-6 shadow-small backdrop-blur md:ml-auto md:mr-0">
         <p className="text-small font-normal text-default-700">
           We use cookies on our website to give you the most relevant experience by remembering your
           preferences and repeat visits. By clicking&nbsp;
