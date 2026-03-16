@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { normalizeClientCallbackUrl } from "@/lib/auth/callback-url";
 
 import { SteamIcon } from "../icons";
 import { EsportsButton } from "../ui/esports-button";
@@ -15,7 +16,17 @@ import { AuthBackground } from "./auth-background";
 export default function BrandedSignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/match-making";
+  const callbackUrl = React.useMemo(() => {
+    if (typeof window === "undefined") {
+      return "/match-making";
+    }
+
+    return normalizeClientCallbackUrl(
+      searchParams.get("callbackUrl"),
+      window.location.origin,
+      "/match-making",
+    );
+  }, [searchParams]);
   const [isVisible, setIsVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");

@@ -7,7 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { getBackendUrl } from "@/lib/api/backend-url";
 
-const BACKEND_URL = getBackendUrl();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /**
  * GET /api/auth/password-reset/validate?token=xxx
@@ -15,6 +16,7 @@ const BACKEND_URL = getBackendUrl();
  */
 export async function GET(request: NextRequest) {
   try {
+    const backendUrl = getBackendUrl();
     const searchParams = request.nextUrl.searchParams;
     const token = searchParams.get("token");
 
@@ -27,12 +29,13 @@ export async function GET(request: NextRequest) {
 
     // Forward to backend
     const response = await fetch(
-      `${BACKEND_URL}/auth/password-reset/validate?token=${encodeURIComponent(token)}`,
+      `${backendUrl}/auth/password-reset/validate?token=${encodeURIComponent(token)}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       }
     );
 

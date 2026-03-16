@@ -10,6 +10,9 @@ import { logger } from "@/lib/logger";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 import { SubscriptionsAPI } from "@/types/replay-api/subscriptions.sdk";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * GET /api/subscriptions/current
  * Get the current user's subscription

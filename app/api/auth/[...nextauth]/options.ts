@@ -11,6 +11,7 @@
 
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { normalizeServerRedirectUrl } from "@/lib/auth/callback-url";
 
 // GoogleProfile and SteamUserProfile are declared globally in types/next-auth.d.ts
 
@@ -51,16 +52,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Must mirror route.ts redirect callback
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      try {
-        const urlObj = new URL(url);
-        const baseObj = new URL(baseUrl);
-        if (urlObj.origin === baseObj.origin) return url;
-      } catch {
-        // Invalid URL — fall through to default
-      }
-      return `${baseUrl}/match-making`;
+      return normalizeServerRedirectUrl(url, baseUrl, "/match-making");
     },
     async jwt({ token, account, profile }) {
       // Preserve existing token data from any provider

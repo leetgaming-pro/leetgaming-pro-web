@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Button,
@@ -14,13 +14,27 @@ import { Icon } from '@iconify/react';
 import { Payment, PaymentStatus } from '@/components/checkout/types';
 import { useRequireAuth } from '@/hooks/use-auth';
 
-// Force runtime rendering for client-side features
-export const runtime = 'edge';
+// Keep this page on the Node.js runtime to avoid Vercel Edge bundle size limits.
+export const runtime = 'nodejs';
 
 // Force dynamic rendering since this page depends on search params and API calls
 export const dynamic = 'force-dynamic';
 
 export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
+}
+
+function CheckoutSuccessContent() {
   const { isLoading: isAuthLoading, isAuthenticated, isRedirecting } = useRequireAuth({ callbackUrl: '/checkout/success' });
   const isReady = !isAuthLoading && !isRedirecting;
   const searchParams = useSearchParams();

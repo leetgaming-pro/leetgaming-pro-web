@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from "crypto";
 
 import type { NextRequest } from "next/server";
+import { normalizeServerRedirectUrl } from "@/lib/auth/callback-url";
 
 const LOCALHOST_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
 
@@ -175,18 +176,11 @@ async function handler(
     callbacks: {
       async redirect({ url, baseUrl }) {
         const normalizedBaseUrl = requestBaseUrl || baseUrl;
-
-        if (url.startsWith("/")) return `${normalizedBaseUrl}${url}`;
-
-        try {
-          const urlObj = new URL(url);
-          const baseObj = new URL(normalizedBaseUrl);
-          if (urlObj.origin === baseObj.origin) return url;
-        } catch {
-          // Invalid URL — fall through to default
-        }
-
-        return `${normalizedBaseUrl}/match-making`;
+        return normalizeServerRedirectUrl(
+          url,
+          normalizedBaseUrl,
+          "/match-making",
+        );
       },
       async jwt(param) {
         if (param?.account?.provider === "steam") {

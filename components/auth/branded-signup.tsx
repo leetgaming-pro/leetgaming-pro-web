@@ -11,11 +11,22 @@ import { SteamIcon } from "../icons";
 import { EsportsButton } from "../ui/esports-button";
 import { AuthBackground } from "./auth-background";
 import DefaultLogo from "../logo/logo-default";
+import { normalizeClientCallbackUrl } from "@/lib/auth/callback-url";
 
 export default function BrandedSignUp() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/onboarding";
+  const callbackUrl = React.useMemo(() => {
+    if (typeof window === "undefined") {
+      return "/onboarding";
+    }
+
+    return normalizeClientCallbackUrl(
+      searchParams.get("callbackUrl"),
+      window.location.origin,
+      "/onboarding",
+    );
+  }, [searchParams]);
   const [isVisible, setIsVisible] = React.useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
