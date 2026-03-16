@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
-const REPLAY_API_URL =
-  process.env.REPLAY_API_URL ||
-  process.env.NEXT_PUBLIC_REPLAY_API_URL ||
-  "http://localhost:8080";
+const REPLAY_API_URL = getBackendUrl();
 
 export default async function handler(
   req: NextApiRequest,

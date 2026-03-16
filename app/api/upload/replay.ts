@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { getToken } from 'next-auth/jwt';
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 const game_id = 'cs2'
 export const POST = async (req: NextRequest) => {
@@ -33,7 +34,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await fetch(`${process.env.REPLAY_API_URL ?? ''}/games/${game_id}/replay`, {
+  const result = await fetch(`${getBackendUrl()}/games/${game_id}/replay`, {
     method: "POST",
     body: newFormData,
     headers: {

@@ -6,6 +6,7 @@ import crypto from "crypto";
 
 import type { NextRequest } from "next/server";
 import { normalizeServerRedirectUrl } from "@/lib/auth/callback-url";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 const LOCALHOST_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
 
@@ -46,10 +47,9 @@ function getVerificationSalt(): string {
   return salt || "";
 }
 
-const steamOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/steam`;
-const googleOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/google`;
-const emailOnboardingApiRoute = `${process.env.REPLAY_API_URL}/onboarding/email`;
-const emailLoginApiRoute = `${process.env.REPLAY_API_URL}/auth/login`;
+function getOnboardingUrl(path: string): string {
+  return `${getBackendUrl()}${path}`;
+}
 
 async function handler(
   req: NextRequest,
@@ -125,7 +125,7 @@ async function handler(
             .digest("hex");
 
           const apiRoute =
-            action === "signup" ? emailOnboardingApiRoute : emailLoginApiRoute;
+            action === "signup" ? getOnboardingUrl("/onboarding/email") : getOnboardingUrl("/auth/login");
 
           const body: Record<string, string> = {
             email,
@@ -227,7 +227,7 @@ async function handler(
             });
 
             try {
-              const ctoken = await fetch(steamOnboardingApiRoute, {
+              const ctoken = await fetch(getOnboardingUrl("/onboarding/steam"), {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -281,7 +281,7 @@ async function handler(
             });
 
             try {
-              const ctoken = await fetch(googleOnboardingApiRoute, {
+              const ctoken = await fetch(getOnboardingUrl("/onboarding/google"), {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

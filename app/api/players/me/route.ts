@@ -17,10 +17,11 @@ import {
   forwardAuthenticatedRequest,
   getUserIdFromToken,
 } from "@/lib/auth/server-auth";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 export const dynamic = "force-dynamic";
 
-const BACKEND_URL = process.env.REPLAY_API_URL || "http://localhost:8080";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/players/me

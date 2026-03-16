@@ -5,16 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Use server-side env var (REPLAY_API_URL) which is set correctly in K8s,
-// fallback to NEXT_PUBLIC for local dev, then localhost
-const REPLAY_API_URL =
-  process.env.REPLAY_API_URL ||
-  process.env.NEXT_PUBLIC_REPLAY_API_URL ||
-  "http://localhost:8080";
+const REPLAY_API_URL = getBackendUrl();
 
 /**
  * GET /api/billing/plans

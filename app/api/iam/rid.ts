@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 interface OnboardRequestBody {
   v_hash: string;
@@ -8,7 +9,7 @@ interface OnboardRequestBody {
 export const POST = async (req: NextRequest) => {
   const body = await req.json() as OnboardRequestBody;
 
-  const ctoken = await fetch(process.env.REPLAY_API_URL + '/onboard/steam', {
+  const ctoken = await fetch(`${getBackendUrl()}/onboard/steam`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
