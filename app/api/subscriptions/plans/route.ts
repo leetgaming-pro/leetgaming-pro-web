@@ -8,6 +8,9 @@ import { logger } from "@/lib/logger";
 import { createPublicSDK } from "@/lib/api/sdk-factory";
 import { SubscriptionsAPI } from "@/types/replay-api/subscriptions.sdk";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * GET /api/subscriptions/plans
  * Get available subscription plans (public endpoint, no auth required)

@@ -3,10 +3,12 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
 import { pressStart2P } from "@/config/fonts";
+import { metadataBase } from "@/lib/metadata-base";
 import clsx from "clsx";
 import { ClientLayoutWrapper } from "./client-layout-wrapper";
 
 export const metadata: Metadata = {
+  metadataBase,
   title: {
     default: siteConfig.name,
     template: `%s - ${siteConfig.name}`,

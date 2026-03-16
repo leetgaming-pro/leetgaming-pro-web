@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { metadataBase } from "@/lib/metadata-base";
 
 export const metadata: Metadata = {
+  metadataBase,
   title: "Investor Updates — LeetGaming.PRO | Esports Competition Platform",
   description:
     "Latest updates, milestones, and announcements for LeetGaming.PRO investors and stakeholders.",

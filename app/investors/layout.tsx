@@ -1,6 +1,8 @@
 import { Metadata } from "next";
+import { metadataBase } from "@/lib/metadata-base";
 
 export const metadata: Metadata = {
+	metadataBase,
 	title: "For Investors — LeetGaming.PRO | Esports Competition Platform",
 	description:
 		"Invest in the all-in-one esports competition platform. Replay analysis, skill-based matchmaking, tournaments, and transparent prize distribution for 63M+ competitive FPS players. $21.9B TAM.",

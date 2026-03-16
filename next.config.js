@@ -21,6 +21,18 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      // MetaMask SDK optionally references the React Native async-storage package
+      // in browser builds. It is not needed for our web app and breaks Vercel
+      // when webpack tries to resolve it from the RainbowKit connector graph.
+      "@react-native-async-storage/async-storage": false,
+    };
+
+    return config;
+  },
   // Proxy /api/* to the replay-api backend (for client-side requests to avoid CORS)
   async rewrites() {
     // In K8s, use internal service URL; locally, use localhost
