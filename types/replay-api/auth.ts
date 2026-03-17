@@ -518,10 +518,9 @@ interface GuestTokenResponse {
  */
 export async function createGuestToken(): Promise<GuestTokenResponse | null> {
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
-
-    const response = await fetch(`${apiUrl}/auth/guest`, {
+    // Use the Next.js API proxy to avoid CORS issues in production.
+    // The proxy route at /api/auth/guest forwards to the backend server-side.
+    const response = await fetch(`/api/auth/guest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
