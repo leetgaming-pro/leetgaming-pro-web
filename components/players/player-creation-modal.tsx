@@ -31,11 +31,8 @@ import {
 } from '@nextui-org/react';
 import { Icon } from '@iconify/react';
 import AvatarUploader from '@/components/avatar/avatar-uploader';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { useReplayApi } from '@/hooks/use-replay-api';
 import { logger } from '@/lib/logger';
-
-const sdk = new ReplayAPISDK(ReplayApiSettingsMock, logger);
 
 interface PlayerCreationModalProps {
   isOpen: boolean;
@@ -69,6 +66,7 @@ const RANKS = {
 
 export function PlayerCreationModal({ isOpen, onClose, onSuccess, defaultGame }: PlayerCreationModalProps) {
   const { isAuthenticated: _isAuthenticated, user: _user } = useAuth();
+  const { sdk } = useReplayApi();
   const { handleApiError } = usePlanLimit();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);

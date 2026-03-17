@@ -382,6 +382,19 @@ export class SquadAPI {
     visibility_type?: string;
   }): Promise<Squad | null> {
     const response = await this.client.post<Squad>("/squads", squad);
+
+    // Throw error with API message so callers can display meaningful feedback
+    if (response.error) {
+      const errorMessage =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Failed to create squad";
+      const error = new Error(errorMessage);
+      (error as any).status = response.status;
+      (error as any).apiError = response.error;
+      throw error;
+    }
+
     return response.data || null;
   }
 

@@ -293,7 +293,7 @@ export default function TeamsPage() {
                 clipPath:
                   "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
               }}
-              onPress={() => router.refresh()}
+              onPress={() => fetchSquads()}
               startContent={<Icon icon="solar:refresh-bold" width={18} />}
             >
               Try Again

@@ -18,11 +18,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const sdk = createAuthenticatedSDK();
 
-    const squads = await sdk.squads.searchSquads({
-      game_id: searchParams.get("game_id") || "cs2",
+    const filters: { game_id?: string; name?: string; page?: number; limit?: number } = {
       page: parseInt(searchParams.get("page") || "1"),
       limit: parseInt(searchParams.get("limit") || "20"),
-    });
+    };
+
+    const gameId = searchParams.get("game_id");
+    if (gameId) filters.game_id = gameId;
+
+    const name = searchParams.get("name") || searchParams.get("q");
+    if (name) filters.name = name;
+
+    const squads = await sdk.squads.searchSquads(filters);
 
     return NextResponse.json(
       {

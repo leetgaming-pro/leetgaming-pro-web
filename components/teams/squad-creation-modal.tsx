@@ -183,15 +183,14 @@ export function SquadCreationModal({
       };
 
       // Create squad via API
+      // Note: Logo upload is not yet supported by the backend.
+      // The logo file is ignored for now; it can be added after creation via the edit page.
       const squadData = {
         game_id: gameIdMap[formData.game] || (formData.game as GameIDKey),
         name: formData.teamName,
         symbol: formData.teamTag,
         description: formData.bio,
         slug_uri: formData.slug,
-        logo_uri: formData.logo
-          ? URL.createObjectURL(formData.logo)
-          : undefined,
       };
 
       const createdSquad = await sdk.squads.createSquad(squadData);
