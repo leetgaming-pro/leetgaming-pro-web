@@ -143,6 +143,10 @@ export interface MatchData {
   has_replay?: boolean; // Convenience field: true if match has replay
   slug?: string; // Reconciliation slug (e.g., "cs2:faze-vs-navi:2026-03-12:mirage")
   linked_match_ids?: string[]; // IDs of matches reconciled/linked to this one
+  // Match metadata from backend
+  visibility?: string; // public, private, shared
+  region_id?: string;
+  needs_review?: boolean;
   // Team data
   teams?: Team[];
 }
@@ -234,6 +238,7 @@ export interface Team {
   id?: string;
   name?: string;
   short_name?: string;
+  display_name?: string; // Current display name (set by OCR/import, may differ from name)
   players?: PlayerScoreboardEntry[];
 }
 

@@ -53,13 +53,13 @@ export function MatchCard({
   const team2Score = team2?.team_score ?? 0;
   const team1Side = (team1?.side || "CT") as "CT" | "T";
   const team2Side = (team2?.side || "T") as "CT" | "T";
-  const team1Name = team1?.team?.name || team1Side;
-  const team2Name = team2?.team?.name || team2Side;
+  const team1Name = team1?.team?.display_name || team1?.team?.name || team1Side;
+  const team2Name = team2?.team?.display_name || team2?.team?.name || team2Side;
   const team1Wins = team1Score > team2Score;
   const team2Wins = team2Score > team1Score;
   
   // Match metadata
-  const map = match.map || "Unknown Map";
+  const map = match.map_name || match.map || "Unknown Map";
   const playedAt = match.played_at || match.created_at;
   const formattedDate = playedAt ? new Date(playedAt).toLocaleDateString() : "Unknown";
   const totalRounds = team1Score + team2Score;

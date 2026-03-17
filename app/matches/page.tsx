@@ -297,7 +297,7 @@ export default function MatchesPage() {
                     orbitron.className,
                   )}
                 >
-                  <AnimatedCounter value={state.total || 247} />
+                  <AnimatedCounter value={state.total} />
                 </div>
                 <div className="text-[10px] sm:text-xs text-default-400 uppercase tracking-wider whitespace-nowrap">
                   Total Matches
@@ -326,10 +326,10 @@ export default function MatchesPage() {
                     orbitron.className,
                   )}
                 >
-                  <AnimatedCounter value={98} />%
+                  <AnimatedCounter value={state.matches.filter(m => m.status === "completed" || m.status === "analyzed").length} />
                 </div>
                 <div className="text-[10px] sm:text-xs text-default-400 uppercase tracking-wider whitespace-nowrap">
-                  Success Rate
+                  Analyzed
                 </div>
               </div>
             </m.div>
