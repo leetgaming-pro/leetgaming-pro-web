@@ -232,6 +232,8 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
         if (!selectedChain && walletStatus.addresses.length > 0) {
           setSelectedChain(walletStatus.addresses[0].chain_id);
         }
+      } else {
+        setWalletError('Wallet service is temporarily unavailable. Please try again later.');
       }
     } catch (err) {
       const message =

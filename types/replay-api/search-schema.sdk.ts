@@ -160,7 +160,7 @@ export class SearchSchemaAPI {
 
   private async fetchSchema(): Promise<SearchSchema | null> {
     try {
-      const response = await this.client.get<SearchSchema>('/api/search/schema');
+      const response = await this.client.get<SearchSchema>('/search/schema');
       if (response.data) {
         this.memoryCache = response.data;
         this.saveToLocalStorage(response.data);
