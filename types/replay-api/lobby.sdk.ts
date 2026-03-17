@@ -134,16 +134,20 @@ export class LobbyAPI {
    * Subscribe to lobby updates via WebSocket
    * Returns unsubscribe function
    *
-   * NOTE: WebSocket support is not yet implemented in ReplayApiClient
-   * Use pollLobbyStatus() as a fallback for now
+   * @deprecated Use the `useLobbyWebSocket` React hook instead.
+   * This SDK method cannot use React hooks internally;
+   * `useLobbyWebSocket` provides the same real-time lobby
+   * updates with ready-check event callbacks.
    */
   subscribeToLobbyUpdates(
     lobbyId: string,
     onEvent: (event: LobbyEvent) => void,
     onError?: (error: Error) => void
   ): () => void {
-    // TODO: Implement WebSocket support when backend is ready
-    console.warn('WebSocket not yet implemented, use pollLobbyStatus() instead');
+    console.warn(
+      '[LobbyAPI] subscribeToLobbyUpdates is deprecated. ' +
+      'Use the useLobbyWebSocket() React hook for real-time updates.'
+    );
     return () => {};
   }
 

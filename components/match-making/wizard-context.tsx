@@ -23,8 +23,26 @@ import { logger } from "@/lib/logger";
 import type {
   MatchmakingUIState,
   MatchmakingError,
+  SessionStatusResponse,
 } from "@/types/replay-api/matchmaking.types";
 import { ensureSession, createGuestToken } from "@/types/replay-api/auth";
+
+/** Ready check sub-state — active when a match is found and players must confirm */
+export interface ReadyCheckState {
+  isActive: boolean;
+  lobbyId: string;
+  gameName: string;
+  tier?: string;
+  prizePool?: string;
+  timeoutSeconds: number;
+  players: Array<{
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+    status: "pending" | "confirmed" | "declined" | "timed_out";
+  }>;
+  currentPlayerId: string;
+}
 
 export interface WizardState {
   // Step 0: Tier Selection
@@ -64,6 +82,9 @@ export interface WizardState {
 
   // Matchmaking State
   matchmaking?: MatchmakingUIState;
+
+  // Ready Check State (active when match found, awaiting confirmation)
+  readyCheck?: ReadyCheckState;
 }
 
 interface WizardContextType {
@@ -72,6 +93,12 @@ interface WizardContextType {
   resetState: () => void;
   startMatchmaking: (playerId: string) => Promise<void>;
   cancelMatchmaking: () => Promise<void>;
+  confirmReady: () => Promise<void>;
+  declineReady: () => Promise<void>;
+  /** Called by WebSocket/polling when a player's ready status changes */
+  updateReadyCheckPlayer: (playerId: string, status: "confirmed" | "declined" | "timed_out") => void;
+  /** Called when ALL players confirmed — navigates to match */
+  handleAllPlayersReady: (matchId?: string) => void;
   sdk: MatchmakingAPI;
 }
 
@@ -93,14 +120,37 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const elapsedTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
-  // Handle match found — navigate to the match/lobby
+  // Handle match found — enter ready check phase instead of navigating immediately
   const handleMatchFound = useCallback(
-    (matchId?: string, lobbyId?: string) => {
+    (status: SessionStatusResponse) => {
       matchmakingSDK.stopPolling();
       if (elapsedTimeIntervalRef.current) {
         clearInterval(elapsedTimeIntervalRef.current);
         elapsedTimeIntervalRef.current = null;
       }
+
+      const lobbyId = status.lobby_id || "";
+      const matchId = status.match_id;
+
+      // Build ready check state from session status
+      const readyCheckPlayers = status.ready_check?.players?.map((p) => ({
+        id: p.player_id,
+        displayName: p.display_name || p.player_id.slice(0, 8),
+        avatarUrl: p.avatar_url,
+        status: p.status as "pending" | "confirmed" | "declined" | "timed_out",
+      })) || [
+        // Fallback: create placeholder players for the current user
+        {
+          id: state.selectedProfileId || "unknown",
+          displayName: "You",
+          status: "pending" as const,
+        },
+        {
+          id: "opponent",
+          displayName: "Opponent",
+          status: "pending" as const,
+        },
+      ];
 
       setState((prev) => ({
         ...prev,
@@ -112,17 +162,124 @@ export function WizardProvider({ children }: { children: ReactNode }) {
               lobbyId,
             }
           : prev.matchmaking,
+        readyCheck: {
+          isActive: true,
+          lobbyId,
+          gameName: state.selectedGame?.toUpperCase() || "CS2",
+          tier: state.tier,
+          prizePool: state.expectedPool ? `$${state.expectedPool}` : undefined,
+          timeoutSeconds: status.ready_check?.timeout_seconds || 30,
+          players: readyCheckPlayers,
+          currentPlayerId: state.selectedProfileId || "unknown",
+        },
+      }));
+    },
+    [state.selectedGame, state.tier, state.expectedPool, state.selectedProfileId],
+  );
+
+  // Navigate after all players confirmed ready
+  const handleAllPlayersReady = useCallback(
+    (matchId?: string) => {
+      const lobbyId = state.readyCheck?.lobbyId;
+      const resolvedMatchId = matchId || state.matchmaking?.matchId;
+
+      // Clear ready check
+      setState((prev) => ({
+        ...prev,
+        readyCheck: undefined,
       }));
 
       // Navigate to the match detail page
-      if (matchId) {
+      if (resolvedMatchId) {
         const gameId = state.selectedGame || "cs2";
-        router.push(`/matches/${gameId}/${matchId}`);
+        router.push(`/matches/${gameId}/${resolvedMatchId}`);
       } else if (lobbyId) {
         router.push(`/matches?lobby=${lobbyId}`);
       }
     },
-    [router, state.selectedGame],
+    [router, state.selectedGame, state.readyCheck?.lobbyId, state.matchmaking?.matchId],
+  );
+
+  // Confirm readiness for the current player
+  const confirmReady = useCallback(async () => {
+    const lobbyId = state.readyCheck?.lobbyId;
+    if (!lobbyId) return;
+
+    try {
+      const res = await fetch(`/api/match-making/lobbies/${lobbyId}/commitments/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        logger.error("[WizardContext] Failed to confirm readiness", await res.text());
+        return;
+      }
+
+      // Optimistically update current player's status
+      setState((prev) => {
+        if (!prev.readyCheck) return prev;
+        return {
+          ...prev,
+          readyCheck: {
+            ...prev.readyCheck,
+            players: prev.readyCheck.players.map((p) =>
+              p.id === prev.readyCheck!.currentPlayerId
+                ? { ...p, status: "confirmed" as const }
+                : p
+            ),
+          },
+        };
+      });
+    } catch (err) {
+      logger.error("[WizardContext] Error confirming readiness", err);
+    }
+  }, [state.readyCheck?.lobbyId]);
+
+  // Decline readiness
+  const declineReady = useCallback(async () => {
+    const lobbyId = state.readyCheck?.lobbyId;
+    if (!lobbyId) return;
+
+    try {
+      await fetch(`/api/match-making/lobbies/${lobbyId}/commitments/decline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "player_declined" }),
+      });
+    } catch (err) {
+      logger.error("[WizardContext] Error declining readiness", err);
+    }
+
+    // Clear ready check and stop matchmaking
+    setState((prev) => ({
+      ...prev,
+      readyCheck: undefined,
+      matchmaking: prev.matchmaking
+        ? {
+            ...prev.matchmaking,
+            isSearching: false,
+            error: null,
+          }
+        : prev.matchmaking,
+    }));
+  }, [state.readyCheck?.lobbyId]);
+
+  // Update a player's ready check status (called from WebSocket callbacks)
+  const updateReadyCheckPlayer = useCallback(
+    (playerId: string, newStatus: "confirmed" | "declined" | "timed_out") => {
+      setState((prev) => {
+        if (!prev.readyCheck) return prev;
+        const updatedPlayers = prev.readyCheck.players.map((p) =>
+          p.id === playerId ? { ...p, status: newStatus } : p
+        );
+        return {
+          ...prev,
+          readyCheck: { ...prev.readyCheck, players: updatedPlayers },
+        };
+      });
+    },
+    [],
   );
 
   // Auto-increment elapsed time every second during matchmaking
@@ -236,14 +393,15 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
       // Start polling for updates
       matchmakingSDK.startPolling(response.session_id, (status) => {
-        // Check if match was found
+        // Check if match was found or ready check initiated
         if (
           status.status === "matched" ||
           status.status === "match_found" ||
+          status.status === "ready_check" ||
           status.match_id ||
           status.lobby_id
         ) {
-          handleMatchFound(status.match_id, status.lobby_id);
+          handleMatchFound(status);
           return;
         }
 
@@ -370,6 +528,10 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         resetState,
         startMatchmaking,
         cancelMatchmaking,
+        confirmReady,
+        declineReady,
+        updateReadyCheckPlayer,
+        handleAllPlayersReady,
         sdk: matchmakingSDK,
       }}
     >

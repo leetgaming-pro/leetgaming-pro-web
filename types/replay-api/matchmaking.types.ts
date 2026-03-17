@@ -10,6 +10,7 @@ export type SessionStatus =
   | "searching"
   | "matched"
   | "match_found"
+  | "ready_check"
   | "ready"
   | "cancelled"
   | "expired"
@@ -63,6 +64,18 @@ export interface SessionStatusResponse {
   total_queue_count?: number;
   match_id?: string;
   lobby_id?: string;
+  /** Ready check metadata — present when status is "ready_check" */
+  ready_check?: {
+    lobby_id: string;
+    timeout_seconds: number;
+    players: Array<{
+      player_id: string;
+      display_name: string;
+      avatar_url?: string;
+      status: "pending" | "confirmed" | "declined" | "timed_out";
+    }>;
+    started_at: string;
+  };
 }
 
 export interface PoolStatsResponse {
@@ -414,6 +427,11 @@ export const getSessionStatusConfig = (
       label: "Matched",
       icon: "solar:check-circle-bold",
     },
+    ready_check: {
+      color: "warning",
+      label: "Ready Check",
+      icon: "solar:shield-check-bold",
+    },
     ready: { color: "success", label: "Ready", icon: "solar:play-circle-bold" },
     cancelled: {
       color: "default",
@@ -515,7 +533,7 @@ export const isSessionTerminal = (status: SessionStatus): boolean => {
  * Check if session is actively searching
  */
 export const isSessionActive = (status: SessionStatus): boolean => {
-  return ["queued", "searching"].includes(status);
+  return ["queued", "searching", "ready_check"].includes(status);
 };
 
 /**

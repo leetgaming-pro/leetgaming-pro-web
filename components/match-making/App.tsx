@@ -17,6 +17,9 @@ import MultistepNavigationButtons from "./multistep-navigation-buttons";
 import { PrizeDistributionSelector } from "./prize-distribution-selector";
 import ReviewConfirmForm from "./review-confirm-form";
 import { WizardProvider, useWizard } from "./wizard-context";
+import { ReadyCheckOverlay } from "@/components/matchmaking/ReadyCheckOverlay";
+import type { ReadyCheckPlayer } from "@/components/matchmaking/ReadyCheckOverlay";
+import { useMatchmakingRealtime } from "@/hooks/use-matchmaking-realtime";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfiles } from "@/contexts/profile-context";
 import { GameTitle } from "@/types/replay-api/player.types";
@@ -52,12 +55,29 @@ const variants = {
 };
 
 function WizardContent() {
-  const { state, updateState, startMatchmaking, cancelMatchmaking } =
-    useWizard();
+  const {
+    state,
+    updateState,
+    startMatchmaking,
+    cancelMatchmaking,
+    confirmReady,
+    declineReady,
+    handleAllPlayersReady,
+    updateReadyCheckPlayer,
+  } = useWizard();
   const { isAuthenticated, isLoading: isAuthLoading, user: _user } = useAuth();
   const { hasProfiles: _hasProfiles, hasProfileForGame, activeProfile: _activeProfile } = useProfiles();
   const { showToast } = useToast();
   const [[page, direction], setPage] = React.useState([0, 0]);
+
+  // Wire lobby WebSocket for real-time ready check updates
+  useMatchmakingRealtime({
+    readyCheckActive: state.readyCheck?.isActive ?? false,
+    lobbyId: state.readyCheck?.lobbyId,
+    currentPlayerId: state.readyCheck?.currentPlayerId,
+    updateReadyCheckPlayer,
+    handleAllPlayersReady,
+  });
 
   // Prevent SSR/client hydration mismatch: session state differs between
   // server (loading) and client (unauthenticated), which causes the auth
@@ -353,6 +373,21 @@ function WizardContent() {
           onNext={onNext}
         />
       </div>
+
+      {/* Ready Check Overlay — shown when match is found */}
+      <ReadyCheckOverlay
+        isOpen={state.readyCheck?.isActive ?? false}
+        lobbyId={state.readyCheck?.lobbyId ?? ""}
+        gameName={state.readyCheck?.gameName ?? "CS2"}
+        tier={state.readyCheck?.tier}
+        prizePool={state.readyCheck?.prizePool}
+        timeoutSeconds={state.readyCheck?.timeoutSeconds ?? 30}
+        players={(state.readyCheck?.players ?? []) as ReadyCheckPlayer[]}
+        currentPlayerId={state.readyCheck?.currentPlayerId ?? ""}
+        onConfirm={confirmReady}
+        onDecline={declineReady}
+        onTimeout={declineReady}
+      />
     </MultistepSidebar>
   );
 }
