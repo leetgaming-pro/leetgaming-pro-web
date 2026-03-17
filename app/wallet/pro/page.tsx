@@ -412,6 +412,7 @@ export default function ProWalletDashboard() {
   const {
     wallet,
     isLoadingWallet,
+    walletError,
     activeMatches,
     isLoadingMatches: _isLoadingMatches,
     history,
@@ -500,6 +501,37 @@ export default function ProWalletDashboard() {
   }
 
   if (!isAuthenticated) return null;
+
+  // Show error state when wallet fails to load
+  if (walletError) {
+    return (
+      <div className="w-full max-w-7xl mx-auto p-6">
+        <Card className="rounded-none border-2 border-danger/30 bg-danger/5">
+          <CardBody className="py-12 text-center">
+            <div className="w-16 h-16 mx-auto rounded-full bg-danger/10 flex items-center justify-center mb-4">
+              <Icon icon="solar:danger-triangle-bold" width={32} className="text-danger" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#34445C] dark:text-white mb-2">
+              Unable to Load Wallet
+            </h3>
+            <p className="text-default-500 mb-1">
+              The wallet service is temporarily unavailable.
+            </p>
+            <p className="text-xs text-default-400 mb-6">
+              {walletError}
+            </p>
+            <EsportsButton
+              variant="primary"
+              onClick={() => refreshWallet()}
+              startContent={<Icon icon="solar:refresh-bold" width={18} />}
+            >
+              Try Again
+            </EsportsButton>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">

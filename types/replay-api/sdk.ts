@@ -627,6 +627,13 @@ export class PlayerProfileAPI {
     const response = await this.client.get<PlayerProfile[]>(
       `/players${queryString ? `?${queryString}` : ""}`,
     );
+    if (response.error) {
+      const msg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Failed to search players";
+      throw new Error(msg);
+    }
     return response.data || [];
   }
 
@@ -650,6 +657,13 @@ export class PlayerProfileAPI {
     const response = await this.client.get<PlayerProfile[]>(
       `/players?${params.toString()}`,
     );
+    if (response.error) {
+      const msg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Failed to fetch leaderboard";
+      throw new Error(msg);
+    }
     return response.data || [];
   }
 
