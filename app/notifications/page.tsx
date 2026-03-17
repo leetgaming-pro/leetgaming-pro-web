@@ -134,7 +134,13 @@ export default function NotificationsPage() {
     deleteNotification,
     deleteAll,
     getByType,
-  } = useNotifications(true, {}, false, 30000, true);
+  } = useNotifications(
+    isAuthenticated,           // autoFetch: only when authenticated
+    {},                         // initialFilters
+    false,                      // enablePolling
+    30000,                      // pollingIntervalMs
+    isAuthenticated,            // enableWebSocket: only when authenticated
+  );
 
   const handleMarkAsRead = useCallback(
     async (notificationId: string) => {

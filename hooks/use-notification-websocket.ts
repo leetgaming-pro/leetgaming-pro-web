@@ -117,8 +117,8 @@ export function useNotificationWebSocket(
 ): UseNotificationWebSocketResult {
   const {
     autoReconnect = true,
-    reconnectInterval = 3000,
-    maxReconnectAttempts = 10,
+    reconnectInterval = 5000,
+    maxReconnectAttempts = 5,
     onConnect,
     onDisconnect,
     onError,

@@ -90,9 +90,9 @@ export function useNotifications(
     }, []),
   });
 
-  // Connect/disconnect WebSocket based on flag
+  // Connect/disconnect WebSocket based on flag AND auth state
   useEffect(() => {
-    if (enableWebSocket) {
+    if (enableWebSocket && isSessionAuthenticated) {
       ws.connect();
     } else {
       ws.disconnect();
@@ -101,7 +101,7 @@ export function useNotifications(
       ws.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enableWebSocket]);
+  }, [enableWebSocket, isSessionAuthenticated]);
 
   const refresh = useCallback(
     async (newFilters?: NotificationFilters) => {

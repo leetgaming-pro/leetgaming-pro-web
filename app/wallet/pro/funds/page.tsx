@@ -134,7 +134,7 @@ export default function FundsPage() {
   const { isAuthenticated, isLoading: isAuthLoading, isRedirecting } = useRequireAuth({
     callbackUrl: '/wallet/pro/funds'
   });
-  const { balance, transactions, deposit, withdraw } = useWallet();
+  const { balance, transactions, deposit, withdraw } = useWallet(isAuthenticated);
   const { showToast } = useToast();
   const [walletType, setWalletType] = useState<CustodialWalletType>('full_custodial');
   const [primaryCurrency, setPrimaryCurrency] = useState<FiatCurrency>('USD');
