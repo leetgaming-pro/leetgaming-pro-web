@@ -5,7 +5,7 @@
  * Uses SDK via useSubscription hook - DO NOT use direct fetch calls
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Button,
   Card,
@@ -20,6 +20,7 @@ import {
   ModalFooter,
   ModalHeader,
   Progress,
+  Spinner,
   useDisclosure,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
@@ -30,6 +31,7 @@ import {
   BILLING_PERIOD_LABELS,
 } from "./types";
 import { useSubscription } from "@/hooks/use-subscription";
+import type { Subscription as SDKSubscription } from "@/types/replay-api/subscriptions.sdk";
 
 // ============================================================================
 // Types
@@ -44,6 +46,22 @@ interface SubscriptionManagementProps {
 // ============================================================================
 // Helpers
 // ============================================================================
+
+/** Map SDK subscription to checkout Subscription format */
+function mapSDKSubscription(sub: SDKSubscription): Subscription {
+  return {
+    id: sub.id,
+    planId: sub.plan_id,
+    planName: sub.plan?.name || "Unknown Plan",
+    status: sub.status as Subscription["status"],
+    currentPeriodStart: sub.current_period_start,
+    currentPeriodEnd: sub.current_period_end,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    amount: sub.plan?.price?.monthly || 0,
+    currency: sub.plan?.price?.currency || "usd",
+    billingPeriod: sub.billing_period as Subscription["billingPeriod"],
+  };
+}
 
 const formatAmount = (amount: number, currency: string): string => {
   return new Intl.NumberFormat("en-US", {
@@ -91,7 +109,7 @@ const getDaysRemaining = (endDate: string): number => {
 // ============================================================================
 
 export function SubscriptionManagement({
-  subscription,
+  subscription: subscriptionProp,
   onUpgrade: _onUpgrade,
   onCancel,
 }: SubscriptionManagementProps) {
@@ -99,8 +117,17 @@ export function SubscriptionManagement({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isCanceling, setIsCanceling] = useState(false);
 
-  // Use SDK-powered subscription hook for cancel operation
-  const { cancelSubscription } = useSubscription(false);
+  // Auto-fetch subscription when no prop is provided (e.g. from settings page)
+  const shouldAutoFetch = subscriptionProp === undefined;
+  const { cancelSubscription, currentSubscription, isLoadingSubscription } =
+    useSubscription(shouldAutoFetch);
+
+  // Use prop if provided, otherwise map from auto-fetched SDK subscription
+  const subscription = useMemo(() => {
+    if (subscriptionProp !== undefined) return subscriptionProp;
+    if (!currentSubscription) return null;
+    return mapSDKSubscription(currentSubscription);
+  }, [subscriptionProp, currentSubscription]);
 
   const handleCancel = async () => {
     setIsCanceling(true);
@@ -117,6 +144,17 @@ export function SubscriptionManagement({
       setIsCanceling(false);
     }
   };
+
+  // Show loading state when auto-fetching
+  if (shouldAutoFetch && isLoadingSubscription) {
+    return (
+      <Card className="border border-default-200">
+        <CardBody className="p-8 flex items-center justify-center">
+          <Spinner size="lg" color="primary" label="Loading subscription..." />
+        </CardBody>
+      </Card>
+    );
+  }
 
   // No subscription - show upgrade CTA
   if (!subscription) {
