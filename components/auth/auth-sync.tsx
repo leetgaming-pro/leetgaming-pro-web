@@ -44,6 +44,7 @@ export function AuthSync({ children }: AuthSyncProps) {
   const { data: session, status } = useSession();
   const lastSyncedRid = useRef<string | null>(null);
   const syncInProgress = useRef(false);
+  const ridRefreshFailed = useRef(false);
 
   useEffect(() => {
     const syncRIDToken = async () => {
@@ -63,6 +64,7 @@ export function AuthSync({ children }: AuthSyncProps) {
             syncInProgress.current = true;
             await getRIDTokenManager().clearToken();
             lastSyncedRid.current = null;
+            ridRefreshFailed.current = false;
           } catch (error) {
             console.warn("[AuthSync] Failed to clear RID token:", error);
           } finally {
@@ -72,8 +74,13 @@ export function AuthSync({ children }: AuthSyncProps) {
         return;
       }
 
-      // If session has no RID, try to refresh it from backend
+      // If session has no RID, try to refresh it from backend (once)
       if (!sessionRid) {
+        // Don't retry if we already failed — prevents infinite re-render loop
+        if (ridRefreshFailed.current) {
+          return;
+        }
+
         // Try to get RID from refresh endpoint
         try {
           syncInProgress.current = true;
@@ -96,13 +103,15 @@ export function AuthSync({ children }: AuthSyncProps) {
                 user_id: data.uid || "",
               });
               lastSyncedRid.current = data.rid;
+              ridRefreshFailed.current = false;
             }
           } else {
-            const errorData = await response.json();
-            console.warn("[AuthSync] RID refresh failed:", errorData);
+            console.warn("[AuthSync] RID refresh failed with status:", response.status);
+            ridRefreshFailed.current = true;
           }
         } catch (error) {
           console.error("[AuthSync] Error refreshing RID:", error);
+          ridRefreshFailed.current = true;
         } finally {
           syncInProgress.current = false;
         }

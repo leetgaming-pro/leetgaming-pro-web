@@ -144,10 +144,10 @@ export async function POST(_request: NextRequest) {
     if (!rid) {
       return NextResponse.json(
         {
-          error: "Could not obtain RID",
-          status: "failed",
+          error: "Could not obtain RID — backend may be unavailable",
+          status: "unavailable",
         },
-        { status: 500 },
+        { status: 503 },
       );
     }
 
