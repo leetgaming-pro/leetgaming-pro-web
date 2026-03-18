@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSDK } from '@/contexts/sdk-context';
 import { logger } from '@/lib/logger';
 import type {
@@ -46,6 +46,7 @@ export function useWallet(autoFetch = true, initialFilters: TransactionFilters =
   const [balanceError, setBalanceError] = useState<string | null>(null);
   const [transactionsError, setTransactionsError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>(initialFilters);
+  const filtersRef = useRef<TransactionFilters>(initialFilters);
 
   const refreshBalance = useCallback(async () => {
     setIsLoadingBalance(true);
@@ -65,8 +66,11 @@ export function useWallet(autoFetch = true, initialFilters: TransactionFilters =
   const refreshTransactions = useCallback(async (newFilters?: TransactionFilters) => {
     setIsLoadingTransactions(true);
     setTransactionsError(null);
-    const activeFilters = newFilters || filters;
-    if (newFilters) setFilters(newFilters);
+    const activeFilters = newFilters || filtersRef.current;
+    if (newFilters) {
+      filtersRef.current = newFilters;
+      setFilters(newFilters);
+    }
 
     try {
       const result = await sdk.wallet.getTransactions(activeFilters);
@@ -78,22 +82,24 @@ export function useWallet(autoFetch = true, initialFilters: TransactionFilters =
     } finally {
       setIsLoadingTransactions(false);
     }
-  }, [sdk, filters]);
+  }, [sdk]);
 
   const loadMore = useCallback(async () => {
     if (!transactions || isLoadingTransactions) return;
-    const newOffset = (filters.offset || 0) + (filters.limit || 20);
+    const currentFilters = filtersRef.current;
+    const newOffset = (currentFilters.offset || 0) + (currentFilters.limit || 20);
     if (newOffset >= transactions.total_count) return;
 
     setIsLoadingTransactions(true);
     try {
-      const newFilters = { ...filters, offset: newOffset };
+      const newFilters = { ...currentFilters, offset: newOffset };
       const result = await sdk.wallet.getTransactions(newFilters);
       if (result) {
-        setTransactions({
+        setTransactions((prev) => prev ? {
           ...result,
-          transactions: [...transactions.transactions, ...result.transactions],
-        });
+          transactions: [...prev.transactions, ...result.transactions],
+        } : result);
+        filtersRef.current = newFilters;
         setFilters(newFilters);
       }
     } catch (err: unknown) {
@@ -102,7 +108,7 @@ export function useWallet(autoFetch = true, initialFilters: TransactionFilters =
     } finally {
       setIsLoadingTransactions(false);
     }
-  }, [sdk, transactions, filters, isLoadingTransactions]);
+  }, [sdk, transactions, isLoadingTransactions]);
 
   const deposit = useCallback(async (request: DepositRequest): Promise<boolean> => {
     try {

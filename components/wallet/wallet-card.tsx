@@ -29,6 +29,7 @@ export function WalletCard({
   const {
     balance: wallet,
     isLoadingBalance: isLoading,
+    balanceError,
     refreshBalance,
   } = useWallet(true);
 
@@ -80,6 +81,21 @@ export function WalletCard({
             <Skeleton className="h-9 flex-1 rounded-lg" />
             <Skeleton className="h-9 flex-1 rounded-lg" />
           </div>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  if (balanceError) {
+    return (
+      <Card className="w-full max-w-sm border-2 border-dashed border-danger-300">
+        <CardBody className="gap-3 items-center justify-center py-6">
+          <Icon icon="solar:danger-triangle-bold-duotone" width={48} className="text-danger-400" />
+          <p className="text-sm text-danger-600">Failed to load wallet</p>
+          <p className="text-xs text-default-500 text-center max-w-[200px]">{balanceError}</p>
+          <Button color="primary" size="sm" onPress={refreshBalance} startContent={<Icon icon="solar:refresh-bold" />}>
+            Retry
+          </Button>
         </CardBody>
       </Card>
     );

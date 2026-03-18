@@ -56,8 +56,12 @@ export class WalletAPI {
       safeRequest,
     );
     if (response.error) {
-      console.error("Deposit failed:", response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Deposit failed";
+      console.error("Deposit failed:", errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -72,8 +76,12 @@ export class WalletAPI {
       safeRequest,
     );
     if (response.error) {
-      console.error("Withdrawal failed:", response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Withdrawal failed";
+      console.error("Withdrawal failed:", errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -96,8 +104,12 @@ export class WalletAPI {
 
     const response = await this.client.get<TransactionsResult>(url);
     if (response.error) {
-      console.error("Failed to fetch transactions:", response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Failed to fetch transactions";
+      console.error("Failed to fetch transactions:", errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
