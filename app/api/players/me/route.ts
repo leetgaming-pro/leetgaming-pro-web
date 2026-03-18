@@ -43,7 +43,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user ID from token for user-specific query
-    const userId = getUserIdFromToken();
+    let userId = getUserIdFromToken();
+
+    // Fallback to session UID when RID cookie is expired/missing
+    if (!userId && session.user.uid) {
+      userId = session.user.uid;
+      console.info("[API /api/players/me] Using session UID instead of cookie");
+    }
 
     if (!userId) {
       return NextResponse.json(

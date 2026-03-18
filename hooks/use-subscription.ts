@@ -70,12 +70,8 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
     setPlansError(null);
     try {
       const result = await api.getPlans();
-      if (result) {
-        // getPlans() now returns Plan[] directly (unwrapped by parseSuccessResponse)
-        setPlans(result);
-      } else {
-        setPlansError("Failed to fetch plans");
-      }
+      // getPlans() now returns Plan[] directly (unwrapped by parseSuccessResponse)
+      setPlans(result);
     } catch (err: unknown) {
       logger.error("[useSubscription] Error fetching plans:", err);
       setPlansError(err instanceof Error ? err.message : "Unknown error");

@@ -265,11 +265,11 @@ describe('SubscriptionsAPI', () => {
 
   describe('getPlans', () => {
     it('should return available subscription plans', async () => {
-      const mockPlans = { data: [mockSubscription.plan], total_count: 1 };
+      const mockPlans = [mockSubscription.plan];
       mockClient.get.mockResolvedValue({ data: mockPlans, status: 200 });
       
       const result = await subscriptionsApi.getPlans();
-      expect(result?.data).toHaveLength(1);
+      expect(result).toHaveLength(1);
       expect(mockClient.get).toHaveBeenCalledWith('/subscriptions/plans');
     });
   });

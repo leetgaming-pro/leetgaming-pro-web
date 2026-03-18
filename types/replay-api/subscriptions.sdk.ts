@@ -103,27 +103,28 @@ export class SubscriptionsAPI {
    * Note: parseSuccessResponse unwraps {success, data} from the backend,
    * so the resolved value is Plan[] (not PlansResult).
    */
-  async getPlans(): Promise<Plan[] | null> {
+  async getPlans(): Promise<Plan[]> {
     const response = await this.client.get<Plan[]>("/subscriptions/plans");
     if (response.error) {
-      console.error("Failed to fetch plans:", response.error);
-      return null;
+      throw new Error(`Failed to fetch plans: ${response.error}`);
     }
-    return response.data || null;
+    return response.data || [];
   }
 
   /**
    * Get a single plan by ID
    */
-  async getPlan(planId: string): Promise<Plan | null> {
+  async getPlan(planId: string): Promise<Plan> {
     const response = await this.client.get<Plan>(
       `/subscriptions/plans/${planId}`,
     );
     if (response.error) {
-      console.error("Failed to fetch plan:", response.error);
-      return null;
+      throw new Error(`Failed to fetch plan: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error(`Plan not found: ${planId}`);
+    }
+    return response.data;
   }
 
   /**
@@ -163,16 +164,18 @@ export class SubscriptionsAPI {
    */
   async create(
     request: CreateSubscriptionRequest,
-  ): Promise<Subscription | null> {
+  ): Promise<Subscription> {
     const response = await this.client.post<Subscription>(
       "/subscriptions",
       request,
     );
     if (response.error) {
-      console.error("Failed to create subscription:", response.error);
-      return null;
+      throw new Error(`Failed to create subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
@@ -181,76 +184,86 @@ export class SubscriptionsAPI {
   async update(
     subscriptionId: string,
     request: UpdateSubscriptionRequest,
-  ): Promise<Subscription | null> {
+  ): Promise<Subscription> {
     const response = await this.client.put<Subscription>(
       `/subscriptions/${subscriptionId}`,
       request,
     );
     if (response.error) {
-      console.error("Failed to update subscription:", response.error);
-      return null;
+      throw new Error(`Failed to update subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
    * Cancel a subscription at the end of the current period
    */
-  async cancel(subscriptionId: string): Promise<Subscription | null> {
+  async cancel(subscriptionId: string): Promise<Subscription> {
     const response = await this.client.post<Subscription>(
       `/subscriptions/${subscriptionId}/cancel`,
       {},
     );
     if (response.error) {
-      console.error("Failed to cancel subscription:", response.error);
-      return null;
+      throw new Error(`Failed to cancel subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
    * Reactivate a canceled subscription (before period end)
    */
-  async reactivate(subscriptionId: string): Promise<Subscription | null> {
+  async reactivate(subscriptionId: string): Promise<Subscription> {
     const response = await this.client.post<Subscription>(
       `/subscriptions/${subscriptionId}/reactivate`,
       {},
     );
     if (response.error) {
-      console.error("Failed to reactivate subscription:", response.error);
-      return null;
+      throw new Error(`Failed to reactivate subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
    * Pause a subscription
    */
-  async pause(subscriptionId: string): Promise<Subscription | null> {
+  async pause(subscriptionId: string): Promise<Subscription> {
     const response = await this.client.post<Subscription>(
       `/subscriptions/${subscriptionId}/pause`,
       {},
     );
     if (response.error) {
-      console.error("Failed to pause subscription:", response.error);
-      return null;
+      throw new Error(`Failed to pause subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
    * Resume a paused subscription
    */
-  async resume(subscriptionId: string): Promise<Subscription | null> {
+  async resume(subscriptionId: string): Promise<Subscription> {
     const response = await this.client.post<Subscription>(
       `/subscriptions/${subscriptionId}/resume`,
       {},
     );
     if (response.error) {
-      console.error("Failed to resume subscription:", response.error);
-      return null;
+      throw new Error(`Failed to resume subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No subscription data returned");
+    }
+    return response.data;
   }
 
   /**
@@ -263,17 +276,19 @@ export class SubscriptionsAPI {
     proration_amount: number;
     new_amount: number;
     currency: string;
-  } | null> {
+  }> {
     const response = await this.client.get<{
       proration_amount: number;
       new_amount: number;
       currency: string;
     }>(`/subscriptions/${subscriptionId}/preview-change?plan_id=${newPlanId}`);
     if (response.error) {
-      console.error("Failed to preview subscription change:", response.error);
-      return null;
+      throw new Error(`Failed to preview subscription change: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No preview data returned");
+    }
+    return response.data;
   }
 
   /**
@@ -284,16 +299,18 @@ export class SubscriptionsAPI {
     billing_period?: BillingPeriod;
     payment_method?: string;
     args?: Record<string, unknown>;
-  }): Promise<{ success: boolean; message: string } | null> {
+  }): Promise<{ success: boolean; message: string }> {
     const response = await this.client.post<{
       success: boolean;
       message: string;
     }>("/subscriptions/upgrade", request);
     if (response.error) {
-      console.error("Failed to upgrade subscription:", response.error);
-      return null;
+      throw new Error(`Failed to upgrade subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No upgrade data returned");
+    }
+    return response.data;
   }
 
   /**
@@ -302,32 +319,36 @@ export class SubscriptionsAPI {
   async downgrade(request: {
     plan_id: string;
     args?: Record<string, unknown>;
-  }): Promise<{ success: boolean; message: string } | null> {
+  }): Promise<{ success: boolean; message: string }> {
     const response = await this.client.post<{
       success: boolean;
       message: string;
     }>("/subscriptions/downgrade", request);
     if (response.error) {
-      console.error("Failed to downgrade subscription:", response.error);
-      return null;
+      throw new Error(`Failed to downgrade subscription: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No downgrade data returned");
+    }
+    return response.data;
   }
 
   /**
    * Checkout: Create/upgrade subscription after payment
    * This orchestrates payment → subscription activation
    */
-  async checkout(request: CheckoutRequest): Promise<CheckoutResult | null> {
+  async checkout(request: CheckoutRequest): Promise<CheckoutResult> {
     const response = await this.client.post<CheckoutResult>(
       "/checkout",
       request,
     );
     if (response.error) {
-      console.error("Failed to process checkout:", response.error);
-      return null;
+      throw new Error(`Failed to process checkout: ${response.error}`);
     }
-    return response.data || null;
+    if (!response.data) {
+      throw new Error("No checkout data returned");
+    }
+    return response.data;
   }
 }
 

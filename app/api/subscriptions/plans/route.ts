@@ -5,8 +5,7 @@
 
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { createPublicSDK } from "@/lib/api/sdk-factory";
-import { SubscriptionsAPI } from "@/types/replay-api/subscriptions.sdk";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,21 +16,49 @@ export const revalidate = 0;
  */
 export async function GET() {
   try {
-    const sdk = createPublicSDK();
-    const subscriptionsApi = new SubscriptionsAPI(sdk.client);
-    const plans = await subscriptionsApi.getPlans();
+    const backendUrl = getBackendUrl();
 
-    if (!plans) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${backendUrl}/subscriptions/plans`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      const isTimeout = fetchErr instanceof Error && fetchErr.name === "AbortError";
+      const errMsg = isTimeout
+        ? `Backend timeout after 10s (${backendUrl})`
+        : `Backend unreachable: ${fetchErr instanceof Error ? fetchErr.message : String(fetchErr)} (${backendUrl})`;
+      logger.error("[API /api/subscriptions/plans] " + errMsg);
       return NextResponse.json(
-        { success: false, error: "Failed to fetch subscription plans" },
-        { status: 500 },
+        { success: false, error: errMsg },
+        { status: 502 },
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: "Failed to get plans" }));
+      logger.error("[API /api/subscriptions/plans] Backend error", {
+        status: response.status,
+        error: errorData,
+      });
+      return NextResponse.json(
+        { success: false, error: errorData.message || "Failed to fetch subscription plans" },
+        { status: response.status },
       );
     }
 
-    // SDK's parseSuccessResponse already unwraps {success,data} → Plan[]
-    // so `plans` is the raw Plan[] array, not a PlansResult wrapper
+    const data = await response.json();
+
     return NextResponse.json(
-      { success: true, data: plans },
+      { success: true, data },
       { status: 200 },
     );
   } catch (error) {
