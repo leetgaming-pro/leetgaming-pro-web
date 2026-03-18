@@ -71,7 +71,8 @@ export function useSubscription(autoFetch = true): UseSubscriptionResult {
     try {
       const result = await api.getPlans();
       if (result) {
-        setPlans(result.data);
+        // getPlans() now returns Plan[] directly (unwrapped by parseSuccessResponse)
+        setPlans(result);
       } else {
         setPlansError("Failed to fetch plans");
       }

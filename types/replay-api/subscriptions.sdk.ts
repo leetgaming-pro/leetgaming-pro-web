@@ -100,9 +100,11 @@ export class SubscriptionsAPI {
 
   /**
    * Get available subscription plans
+   * Note: parseSuccessResponse unwraps {success, data} from the backend,
+   * so the resolved value is Plan[] (not PlansResult).
    */
-  async getPlans(): Promise<PlansResult | null> {
-    const response = await this.client.get<PlansResult>("/subscriptions/plans");
+  async getPlans(): Promise<Plan[] | null> {
+    const response = await this.client.get<Plan[]>("/subscriptions/plans");
     if (response.error) {
       console.error("Failed to fetch plans:", response.error);
       return null;

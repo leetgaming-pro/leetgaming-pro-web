@@ -24,8 +24,12 @@ export class PaymentAPI {
   async getPayment(paymentId: string): Promise<Payment | null> {
     const response = await this.client.get<Payment>(`/payments/${paymentId}`);
     if (response.error) {
-      console.error('Failed to fetch payment:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to fetch payment';
+      console.error('Failed to fetch payment:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -47,8 +51,12 @@ export class PaymentAPI {
 
     const response = await this.client.get<PaymentsResult>(url);
     if (response.error) {
-      console.error('Failed to fetch payments:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to fetch payments';
+      console.error('Failed to fetch payments:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -59,8 +67,12 @@ export class PaymentAPI {
   async createPaymentIntent(request: CreatePaymentIntentRequest): Promise<PaymentIntentResult | null> {
     const response = await this.client.post<PaymentIntentResult>('/payments', request);
     if (response.error) {
-      console.error('Failed to create payment intent:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to create payment intent';
+      console.error('Failed to create payment intent:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -73,8 +85,12 @@ export class PaymentAPI {
       payment_method_id: request.payment_method_id,
     });
     if (response.error) {
-      console.error('Failed to confirm payment:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to confirm payment';
+      console.error('Failed to confirm payment:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -88,8 +104,12 @@ export class PaymentAPI {
       reason: request.reason,
     });
     if (response.error) {
-      console.error('Failed to refund payment:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to refund payment';
+      console.error('Failed to refund payment:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }
@@ -102,8 +122,12 @@ export class PaymentAPI {
       reason: request.reason,
     });
     if (response.error) {
-      console.error('Failed to cancel payment:', response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === 'string'
+          ? response.error
+          : response.error.message || 'Failed to cancel payment';
+      console.error('Failed to cancel payment:', errorMsg);
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }

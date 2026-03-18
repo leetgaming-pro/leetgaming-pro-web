@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { getBackendUrl } from '@/lib/api/backend-url';
 import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
@@ -27,10 +27,16 @@ export async function POST(
 
     const { payment_id } = params;
     const body = await request.json();
-    const authHeaders = getAuthHeadersFromCookies();
+    let authHeaders = getAuthHeadersFromCookies();
+
+    // Fallback to session RID if cookies are missing
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = { ...authHeaders, "X-Resource-Owner-ID": session.user.rid };
+      logger.info("[API /api/payments/:id/confirm] Using session RID instead of cookie");
+    }
 
     // Forward request to replay-api backend with auth headers
-    const response = await fetch(`${ReplayApiSettingsMock.baseUrl}/payments/${payment_id}/confirm`, {
+    const response = await fetch(`${getBackendUrl()}/payments/${payment_id}/confirm`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

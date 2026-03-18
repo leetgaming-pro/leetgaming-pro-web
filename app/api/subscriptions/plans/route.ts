@@ -28,8 +28,10 @@ export async function GET() {
       );
     }
 
+    // SDK's parseSuccessResponse already unwraps {success,data} → Plan[]
+    // so `plans` is the raw Plan[] array, not a PlansResult wrapper
     return NextResponse.json(
-      { success: true, data: plans.data },
+      { success: true, data: plans },
       { status: 200 },
     );
   } catch (error) {

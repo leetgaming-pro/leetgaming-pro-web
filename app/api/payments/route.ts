@@ -8,8 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
+import { getBackendUrl } from "@/lib/api/backend-url";
 import {
   validateAmount,
   checkRateLimit,
@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const authHeaders = getAuthHeadersFromCookies();
+    let authHeaders = getAuthHeadersFromCookies();
+
+    // Fallback to session RID if cookies are missing
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = { ...authHeaders, "X-Resource-Owner-ID": session.user.rid };
+      logger.info("[API /api/payments POST] Using session RID instead of cookie");
+    }
 
     // Rate limiting
     const rateLimited = checkRateLimit(session.user.email, RATE_LIMITS.payment);
@@ -66,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Forward request to replay-api backend with auth headers
     // SECURITY: wallet_id is forwarded but backend MUST validate it belongs to the authenticated user
-    const response = await fetch(`${ReplayApiSettingsMock.baseUrl}/payments`, {
+    const response = await fetch(`${getBackendUrl()}/payments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +137,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/payments - Get user's payments
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
@@ -144,10 +150,23 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
+    let authHeaders = getAuthHeadersFromCookies();
+
+    // Fallback to session RID if cookies are missing
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = { ...authHeaders, "X-Resource-Owner-ID": session.user.rid };
+      logger.info("[API /api/payments GET] Using session RID instead of cookie");
+    }
+
+    // Forward query parameters from client
+    const { searchParams } = request.nextUrl;
+    const queryString = searchParams.toString();
+    const backendUrl = queryString
+      ? `${getBackendUrl()}/payments?${queryString}`
+      : `${getBackendUrl()}/payments`;
 
     // Forward request to replay-api backend with auth headers
-    const response = await fetch(`${ReplayApiSettingsMock.baseUrl}/payments`, {
+    const response = await fetch(backendUrl, {
       method: "GET",
       headers: {
         ...authHeaders,

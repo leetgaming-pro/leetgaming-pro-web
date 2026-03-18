@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { getBackendUrl } from "@/lib/api/backend-url";
 import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
 import {
   validateAmount,
@@ -37,7 +37,13 @@ export async function POST(
 
     const { payment_id } = params;
     const body = await request.json().catch(() => ({}));
-    const authHeaders = getAuthHeadersFromCookies();
+    let authHeaders = getAuthHeadersFromCookies();
+
+    // Fallback to session RID if cookies are missing
+    if (!authHeaders["X-Resource-Owner-ID"] && session.user.rid) {
+      authHeaders = { ...authHeaders, "X-Resource-Owner-ID": session.user.rid };
+      logger.info("[API /api/payments/:id/refund] Using session RID instead of cookie");
+    }
 
     // Rate limiting
     const rateLimited = checkRateLimit(session.user.email, RATE_LIMITS.refund);
@@ -65,7 +71,7 @@ export async function POST(
     });
 
     const response = await fetch(
-      `${ReplayApiSettingsMock.baseUrl}/payments/${payment_id}/refund`,
+      `${getBackendUrl()}/payments/${payment_id}/refund`,
       {
         method: "POST",
         headers: {
