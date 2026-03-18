@@ -45,12 +45,13 @@ export async function POST(
       `[API /api/match-making/lobbies/${params.lobby_id}/commitments/decline] Error`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to decline readiness",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

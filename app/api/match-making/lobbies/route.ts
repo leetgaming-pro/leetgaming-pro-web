@@ -48,13 +48,14 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/matchmaking/lobbies] Error listing lobbies", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to list lobbies",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Use authenticated SDK for creating lobbies (requires user context)
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.lobbies.createLobby(body);
 
     if (!result) {
@@ -98,13 +99,14 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/matchmaking/lobbies] Error creating lobby", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to create lobby",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

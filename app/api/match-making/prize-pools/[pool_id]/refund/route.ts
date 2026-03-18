@@ -30,7 +30,7 @@ export async function POST(
     const { pool_id } = params;
     const body = await request.json();
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.prizePools.refundPrizePool({
       pool_id,
       ...body,
@@ -55,6 +55,7 @@ export async function POST(
       `[API /api/matchmaking/prize-pools/${params.pool_id}/refund] Error refunding prize pool`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
@@ -63,7 +64,7 @@ export async function POST(
             ? error.message
             : "Failed to refund prize pool",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

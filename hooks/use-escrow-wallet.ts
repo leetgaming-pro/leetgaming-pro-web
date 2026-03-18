@@ -6,7 +6,7 @@
  * multi-chain support, match entry, and prize claiming
  */
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useSDK } from "@/contexts/sdk-context";
 import { logger } from "@/lib/logger";
 import type {
@@ -96,8 +96,10 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
   // Notifications
   const [notifications, setNotifications] = useState<WalletNotification[]>([]);
 
-  // Selected chain
+  // Selected chain — use a ref to avoid recreating refreshWallet on every change
   const [selectedChain, setSelectedChain] = useState<ChainID | null>(null);
+  const selectedChainRef = useRef<ChainID | null>(null);
+  selectedChainRef.current = selectedChain;
 
   // Unread notification count
   const unreadCount = useMemo(() => {
@@ -228,8 +230,8 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
 
         setWallet(walletStatus);
 
-        // Set default selected chain
-        if (!selectedChain && walletStatus.addresses.length > 0) {
+        // Set default selected chain (use ref to avoid dependency cycle)
+        if (!selectedChainRef.current && walletStatus.addresses.length > 0) {
           setSelectedChain(walletStatus.addresses[0].chain_id);
         }
       } else {
@@ -243,7 +245,7 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
     } finally {
       setIsLoadingWallet(false);
     }
-  }, [sdk, selectedChain]);
+  }, [sdk]);
 
   // Refresh active matches
   const refreshMatches = useCallback(async () => {

@@ -56,7 +56,7 @@ export async function POST(
     const { pool_id } = params;
     const body = await request.json();
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.prizePools.resolveDispute({
       pool_id,
       ...body,
@@ -81,13 +81,14 @@ export async function POST(
       `[API /api/matchmaking/prize-pools/${params.pool_id}/resolve-dispute] Error resolving dispute`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to resolve dispute",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

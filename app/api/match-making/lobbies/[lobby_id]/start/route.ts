@@ -32,7 +32,7 @@ export async function POST(
     const { lobby_id } = params;
     const body = await request.json().catch(() => ({}));
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.lobbies.startMatch(lobby_id, body);
 
     if (!result) {
@@ -54,12 +54,13 @@ export async function POST(
       `[API /api/matchmaking/lobbies/${params.lobby_id}/start] Error starting match`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to start match",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

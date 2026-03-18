@@ -32,7 +32,7 @@ export async function DELETE(
     const { lobby_id } = params;
     const body = await request.json().catch(() => ({}));
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     await sdk.lobbies.leaveLobby(lobby_id, body);
 
     return NextResponse.json({
@@ -44,12 +44,13 @@ export async function DELETE(
       `[API /api/matchmaking/lobbies/${params.lobby_id}/leave] Error leaving lobby`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to leave lobby",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

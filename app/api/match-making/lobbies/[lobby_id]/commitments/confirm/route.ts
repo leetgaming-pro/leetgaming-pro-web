@@ -44,12 +44,13 @@ export async function POST(
       `[API /api/match-making/lobbies/${params.lobby_id}/commitments/confirm] Error`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to confirm readiness",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

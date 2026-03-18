@@ -32,7 +32,7 @@ export async function PUT(
     const { lobby_id } = params;
     const body = await request.json();
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.lobbies.setPlayerReady(lobby_id, body);
 
     if (!result) {
@@ -54,6 +54,7 @@ export async function PUT(
       `[API /api/matchmaking/lobbies/${params.lobby_id}/ready] Error updating ready status`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
@@ -62,7 +63,7 @@ export async function PUT(
             ? error.message
             : "Failed to update ready status",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { getBackendUrl } from "@/lib/api/backend-url";
 import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
 import type { UserWallet } from "@/types/replay-api/wallet.types";
 
@@ -40,21 +40,43 @@ export async function GET(_request: NextRequest) {
       );
     }
 
+    const backendUrl = getBackendUrl();
     logger.info("[API /api/wallet/balance] Fetching wallet balance", {
       hasRID: !!authHeaders["X-Resource-Owner-ID"],
+      backendUrl,
     });
 
-    // Forward request to replay-api backend
-    const response = await fetch(
-      `${ReplayApiSettingsMock.baseUrl}/wallet/balance`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders,
+    // Forward request to replay-api backend with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    let response: Response;
+    try {
+      response = await fetch(
+        `${backendUrl}/wallet/balance`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+          signal: controller.signal,
         },
-      },
-    );
+      );
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      const isTimeout = fetchErr instanceof Error && fetchErr.name === "AbortError";
+      const errMsg = isTimeout
+        ? `Backend timeout after 10s (${backendUrl})`
+        : `Backend unreachable: ${fetchErr instanceof Error ? fetchErr.message : String(fetchErr)} (${backendUrl})`;
+      logger.error("[API /api/wallet/balance] " + errMsg);
+      return NextResponse.json(
+        { success: false, error: errMsg },
+        { status: 502 },
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       const errorData = await response
@@ -77,7 +99,7 @@ export async function GET(_request: NextRequest) {
     const data: UserWallet = await response.json();
 
     logger.info("[API /api/wallet/balance] Wallet balance retrieved", {
-      wallet_id: data.id,
+      wallet_id: data.wallet_id || data.id,
     });
 
     return NextResponse.json(data);

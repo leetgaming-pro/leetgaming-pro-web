@@ -35,8 +35,13 @@ export class WalletAPI {
   async getBalance(): Promise<WalletBalance | null> {
     const response = await this.client.get<WalletBalance>("/wallet/balance");
     if (response.error) {
-      console.error("Failed to fetch wallet balance:", response.error);
-      return null;
+      const errorMsg =
+        typeof response.error === "string"
+          ? response.error
+          : response.error.message || "Failed to fetch wallet balance";
+      const status = typeof response.error === "object" ? response.error.status : undefined;
+      console.error("Failed to fetch wallet balance:", errorMsg, { status });
+      throw new Error(errorMsg);
     }
     return response.data || null;
   }

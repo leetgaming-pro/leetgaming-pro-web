@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
+import { getBackendUrl } from '@/lib/api/backend-url';
 import { getAuthHeadersFromCookies } from '@/lib/auth/server-auth';
 import type { TransactionHistoryResponse } from '@/types/replay-api/wallet.types';
 
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     // Forward request to replay-api backend
     const response = await fetch(
-      `${ReplayApiSettingsMock.baseUrl}/wallet/transactions?${queryParams.toString()}`,
+      `${getBackendUrl()}/wallet/transactions?${queryParams.toString()}`,
       {
         method: 'GET',
         headers: {

@@ -16,7 +16,8 @@ import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
  */
 export async function GET(request: NextRequest) {
   try {
-    const sdk = createAuthenticatedSDK();
+    const session = await getServerSession(authOptions);
+    const sdk = createAuthenticatedSDK(session);
     const { searchParams } = new URL(request.url);
 
     const filters: {
@@ -35,9 +36,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, data: players }, { status: 200 });
   } catch (error) {
     logger.error("[API /api/players] Players search error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to search players" },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const body = await request.json();
 
     const profile = await sdk.playerProfiles.createPlayerProfile({
@@ -79,6 +81,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: profile }, { status: 201 });
   } catch (error) {
     logger.error("[API /api/players] Create player error:", error);
+    const status = (error as Record<string, unknown>)?.status;
+    const apiError = (error as Record<string, unknown>)?.apiError;
     return NextResponse.json(
       {
         success: false,
@@ -86,8 +90,9 @@ export async function POST(request: NextRequest) {
           error instanceof Error
             ? error.message
             : "Failed to create player profile",
+        ...(apiError ? { apiError } : {}),
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

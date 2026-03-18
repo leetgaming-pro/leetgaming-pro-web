@@ -73,6 +73,7 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
   const elapsedRef = useRef<NodeJS.Timeout | null>(null);
   const lobbyPollingRef = useRef<NodeJS.Timeout | null>(null);
   const lastActionRef = useRef<(() => Promise<void>) | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   const isSearching = useMemo(() => {
     return session !== null && isSessionActive(session.status as SessionStatus);
@@ -97,6 +98,80 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     }
   }, []);
 
+  // ─── Real-time WebSocket for instant match_found delivery ─────
+  // Opens /ws/notifications while the player is in queue.
+  // On "match_found" the session is refreshed immediately, avoiding
+  // up to 2 s of polling latency.  Falls back gracefully to HTTP
+  // polling if the WebSocket cannot connect.
+
+  const closeNotificationWs = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+  }, []);
+
+  const openNotificationWs = useCallback(
+    (sessionId: string) => {
+      closeNotificationWs(); // idempotent
+
+      try {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_REPLAY_API_URL || "http://localhost:8080";
+        const wsUrl = apiUrl
+          .replace(/^http/, "ws")
+          .replace(/\/$/, "");
+        const ws = new WebSocket(`${wsUrl}/ws/notifications`);
+
+        ws.onopen = () => {
+          logger.info("[useMatchmaking] WS notifications connected");
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (
+              msg.type === "match_found" ||
+              msg.type === "all_players_ready" ||
+              msg.type === "ready_check_timeout"
+            ) {
+              logger.info("[useMatchmaking] WS received", { type: msg.type });
+              // Trigger an immediate poll to pick up the new state
+              sdk.matchmaking.getSessionStatus(sessionId).then((status) => {
+                if (status) {
+                  setSession(status);
+                  // Extract lobby_id from session status if available
+                  if (status.lobby_id) {
+                    setLobbyId(status.lobby_id);
+                  }
+                }
+              });
+            }
+          } catch {
+            // non-JSON or unknown message — ignore
+          }
+        };
+
+        ws.onerror = () => {
+          logger.warn(
+            "[useMatchmaking] WS notifications error — falling back to polling"
+          );
+        };
+
+        ws.onclose = () => {
+          logger.info("[useMatchmaking] WS notifications closed");
+        };
+
+        wsRef.current = ws;
+      } catch {
+        logger.warn(
+          "[useMatchmaking] Failed to open WS notifications — polling only"
+        );
+      }
+    },
+    [sdk, closeNotificationWs]
+  );
+
   // Start polling for session status
   const startPolling = useCallback(
     (sessionId: string) => {
@@ -112,6 +187,7 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
             if (isSessionTerminal(status.status as SessionStatus)) {
               stopPolling();
               stopElapsedTimer();
+              closeNotificationWs();
             }
           }
         } catch (err) {
@@ -171,6 +247,7 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
           });
           startPolling(result.session_id);
           startElapsedTimer();
+          openNotificationWs(result.session_id);
         } else {
           setError("NETWORK_ERROR");
         }
@@ -191,7 +268,7 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
         setIsLoading(false);
       }
     },
-    [sdk, startPolling, startElapsedTimer]
+    [sdk, startPolling, startElapsedTimer, openNotificationWs]
   );
 
   const leaveQueue = useCallback(async (): Promise<boolean> => {
@@ -205,6 +282,7 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
       if (success) {
         stopPolling();
         stopElapsedTimer();
+        closeNotificationWs();
         setSession(null);
         setElapsedTime(0);
       } else {
@@ -482,8 +560,9 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
       stopPolling();
       stopElapsedTimer();
       stopLobbyPolling();
+      closeNotificationWs();
     };
-  }, [stopPolling, stopElapsedTimer, stopLobbyPolling]);
+  }, [stopPolling, stopElapsedTimer, stopLobbyPolling, closeNotificationWs]);
 
   return {
     session,

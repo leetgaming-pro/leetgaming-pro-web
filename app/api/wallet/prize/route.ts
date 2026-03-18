@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
-import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { getBackendUrl } from "@/lib/api/backend-url";
 import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
 import { validateAmount, checkRateLimit, RATE_LIMITS } from "@/lib/security/validation";
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     });
 
     const response = await fetch(
-      `${ReplayApiSettingsMock.baseUrl}/wallet/prize`,
+      `${getBackendUrl()}/wallet/prize`,
       {
         method: "POST",
         headers: {

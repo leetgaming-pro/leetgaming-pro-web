@@ -49,12 +49,13 @@ export async function GET(
       `[API /api/matchmaking/lobbies/${params.lobby_id}] Error fetching lobby`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to fetch lobby",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
@@ -80,7 +81,7 @@ export async function DELETE(
     const body = await request.json().catch(() => ({}));
 
     // Use authenticated SDK for cancelling lobbies
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     await sdk.lobbies.cancelLobby(lobby_id, body);
 
     return NextResponse.json({
@@ -92,13 +93,14 @@ export async function DELETE(
       `[API /api/matchmaking/lobbies/${params.lobby_id}] Error cancelling lobby`,
       error,
     );
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to cancel lobby",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
