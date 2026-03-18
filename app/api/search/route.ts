@@ -4,6 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 
@@ -27,7 +29,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const sdk = createAuthenticatedSDK();
+    const session = await getServerSession(authOptions);
+    const sdk = createAuthenticatedSDK(session);
     const result = await sdk.search.search(query, { category, limit });
 
     return NextResponse.json({

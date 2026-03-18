@@ -44,12 +44,13 @@ export async function GET(
     );
   } catch (error) {
     logger.error(`[API /api/squads/${params.id}] Error fetching squad`, error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to fetch squad",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
@@ -72,7 +73,7 @@ export async function PUT(
 
     const body = await request.json();
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const squad = await sdk.squads.updateSquad(params.id, body);
 
     if (!squad) {
@@ -91,13 +92,14 @@ export async function PUT(
     });
   } catch (error) {
     logger.error(`[API /api/squads/${params.id}] Error updating squad`, error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to update squad",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
@@ -118,7 +120,7 @@ export async function DELETE(
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const success = await sdk.squads.deleteSquad(params.id);
 
     if (!success) {
@@ -137,13 +139,14 @@ export async function DELETE(
     });
   } catch (error) {
     logger.error(`[API /api/squads/${params.id}] Error deleting squad`, error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to delete squad",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

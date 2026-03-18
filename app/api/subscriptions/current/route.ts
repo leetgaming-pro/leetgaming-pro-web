@@ -28,7 +28,7 @@ export async function GET() {
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const subscription = await subscriptionsApi.getCurrentSubscription();
 
@@ -38,9 +38,10 @@ export async function GET() {
     );
   } catch (error) {
     logger.error("[API /api/subscriptions/current] Error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to fetch subscription" },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }

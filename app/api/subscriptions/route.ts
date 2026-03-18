@@ -30,7 +30,7 @@ export async function GET() {
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const subscription = await subscriptionsApi.getCurrentSubscription();
 
@@ -40,9 +40,10 @@ export async function GET() {
     );
   } catch (error) {
     logger.error("[API /api/subscriptions] GET Error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to fetch subscription" },
-      { status: 500 }
+      { status: typeof status === "number" && status >= 400 ? status : 500 }
     );
   }
 }
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const subscription = await subscriptionsApi.create(body);
 
@@ -79,9 +80,10 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/subscriptions] POST Error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to create subscription" },
-      { status: 500 }
+      { status: typeof status === "number" && status >= 400 ? status : 500 }
     );
   }
 }
@@ -101,7 +103,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const subscription = await subscriptionsApi.update(body.subscription_id, body);
 
@@ -118,9 +120,10 @@ export async function PUT(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/subscriptions] PUT Error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to update subscription" },
-      { status: 500 }
+      { status: typeof status === "number" && status >= 400 ? status : 500 }
     );
   }
 }
@@ -139,7 +142,7 @@ export async function DELETE() {
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const subscriptionsApi = new SubscriptionsAPI(sdk.client);
     const result = await subscriptionsApi.cancel("current");
 
@@ -156,9 +159,10 @@ export async function DELETE() {
     );
   } catch (error) {
     logger.error("[API /api/subscriptions] DELETE Error:", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       { success: false, error: "Failed to cancel subscription" },
-      { status: 500 }
+      { status: typeof status === "number" && status >= 400 ? status : 500 }
     );
   }
 }

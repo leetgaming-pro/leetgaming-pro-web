@@ -7,6 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 import { hasValidRIDToken } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
@@ -16,7 +18,8 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const sdk = createAuthenticatedSDK();
+    const session = await getServerSession(authOptions);
+    const sdk = createAuthenticatedSDK(session);
 
     const filters: { game_id?: string; name?: string; page?: number; limit?: number } = {
       page: parseInt(searchParams.get("page") || "1"),
@@ -44,19 +47,22 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/squads] Error searching squads", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to search squads",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
     // Check if user has valid (non-expired) token
     if (!hasValidRIDToken()) {
       return NextResponse.json(
@@ -68,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sdk = createAuthenticatedSDK();
+    const sdk = createAuthenticatedSDK(session);
     const body = await request.json();
 
     // Validate required fields
@@ -111,13 +117,14 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logger.error("[API /api/squads] Error creating squad", error);
+    const status = (error as Record<string, unknown>)?.status;
     return NextResponse.json(
       {
         success: false,
         error:
           error instanceof Error ? error.message : "Failed to create squad",
       },
-      { status: 500 },
+      { status: typeof status === "number" && status >= 400 ? status : 500 },
     );
   }
 }
