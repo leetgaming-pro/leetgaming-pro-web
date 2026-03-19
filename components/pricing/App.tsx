@@ -47,8 +47,51 @@ interface ApiPlan {
     monthly?: ApiPlanPrice;
     yearly?: ApiPlanPrice;
   };
+  all_prices?: {
+    monthly?: ApiPlanPrice[];
+    yearly?: ApiPlanPrice[];
+  };
+  regions?: string[];
+  languages?: string[];
   features: string[];
   display_priority_score: number;
+}
+
+// Currency symbol map for display
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  BRL: "R$",
+  EUR: "€",
+  MXN: "MX$",
+  CNY: "¥",
+  GBP: "£",
+  JPY: "¥",
+  KRW: "₩",
+  INR: "₹",
+};
+
+// Get the currency symbol for a given currency code
+function getCurrencySymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency?.toUpperCase()] || "$";
+}
+
+// Detect user's region from browser locale/timezone for price filtering
+function detectUserRegion(): string {
+  if (typeof window === "undefined") return "NA";
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+  const lang = navigator.language || "en-US";
+
+  if (tz.startsWith("America/Sao_Paulo") || tz.startsWith("America/Fortaleza") || tz.startsWith("America/Recife") || tz.startsWith("America/Bahia") || tz.startsWith("America/Belem") || tz.startsWith("America/Manaus") || lang.startsWith("pt-BR")) {
+    return "BR";
+  }
+  if (tz.startsWith("Europe/")) return "EU";
+  if (tz.startsWith("America/Mexico") || tz.startsWith("America/Bogota") || tz.startsWith("America/Lima") || tz.startsWith("America/Santiago") || tz.startsWith("America/Buenos_Aires") || tz.startsWith("America/Argentina")) {
+    return "LATAM";
+  }
+  if (tz.startsWith("Asia/Shanghai") || tz.startsWith("Asia/Chongqing") || tz.startsWith("Asia/Hong_Kong") || tz.startsWith("Asia/Tokyo") || tz.startsWith("Asia/Seoul") || tz.startsWith("Asia/Singapore")) {
+    return "ASIA";
+  }
+  return "NA";
 }
 
 // Map API plan kind to frontend TiersEnum
@@ -76,13 +119,14 @@ export default function Component() {
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userRegion] = useState(() => detectUserRegion());
 
-  // Fetch plans from API via Next.js proxy rewrites
+  // Fetch plans from API with region parameter for currency filtering
   useEffect(() => {
     async function fetchPlans() {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/plans`);
+        const response = await fetch(`/api/plans?region=${userRegion}`);
         if (!response.ok) {
           throw new Error("Failed to fetch plans");
         }
@@ -102,9 +146,10 @@ export default function Component() {
       }
     }
     fetchPlans();
-  }, [t]);
+  }, [t, userRegion]);
 
-  // Merge API plans with static tier data for styling/features
+  // Merge API plans with static tier data for styling/layout
+  // PRICING COMES FROM DB — static tiers only provide UI metadata (buttonColor, etc.)
   const tiers = useMemo(() => {
     if (apiPlans.length === 0) {
       return staticTiers; // Fallback to static data during loading
@@ -115,10 +160,13 @@ export default function Component() {
       const staticTier =
         staticTiers.find((t) => t.key === tierKey) || staticTiers[0];
 
-      // Build price object with actual API values
+      // Prices come from the DB (filtered by region on the API side)
+      const currencySymbol = getCurrencySymbol(
+        apiPlan.prices?.monthly?.currency || apiPlan.price_currency || "USD",
+      );
       const monthlyPrice =
         apiPlan.prices?.monthly?.amount ?? apiPlan.price_amount;
-      const yearlyPrice = apiPlan.prices?.yearly?.amount ?? monthlyPrice * 0.8; // Default 20% discount
+      const yearlyPrice = apiPlan.prices?.yearly?.amount ?? monthlyPrice * 0.8;
 
       return {
         ...staticTier,
@@ -135,8 +183,8 @@ export default function Component() {
         price: apiPlan.is_free
           ? t("pricing.free")
           : {
-              [FrequencyEnum.Monthly]: `$${monthlyPrice.toFixed(2)}`,
-              [FrequencyEnum.Yearly]: `$${yearlyPrice.toFixed(2)}`,
+              [FrequencyEnum.Monthly]: `${currencySymbol}${monthlyPrice.toFixed(2)}`,
+              [FrequencyEnum.Yearly]: `${currencySymbol}${yearlyPrice.toFixed(2)}`,
             },
         features:
           apiPlan.features.length > 0

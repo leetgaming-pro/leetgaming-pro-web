@@ -15,10 +15,22 @@ const REPLAY_API_URL = getBackendUrl();
 /**
  * GET /api/billing/plans
  * Returns available subscription plans from the backend
+ * Supports query params: ?region=XX or ?currency=YYY for regional pricing
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${REPLAY_API_URL}/plans`, {
+    // Forward region/currency query params to the backend
+    const { searchParams } = new URL(request.url);
+    const backendParams = new URLSearchParams();
+    const region = searchParams.get("region");
+    const currency = searchParams.get("currency");
+    if (region) backendParams.set("region", region);
+    if (currency) backendParams.set("currency", currency);
+
+    const queryString = backendParams.toString();
+    const backendUrl = `${REPLAY_API_URL}/plans${queryString ? `?${queryString}` : ""}`;
+
+    const response = await fetch(backendUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -11,6 +11,11 @@ export const frequencies: Array<Frequency> = [
   { key: FrequencyEnum.Yearly, label: "Pay Yearly", priceSuffix: "per month" }, // Shows monthly rate even when billed yearly
 ];
 
+// FALLBACK TIERS — These are only used while the API is loading or unavailable.
+// Actual pricing comes from the database via GET /api/plans?region=XX.
+// Do NOT update prices here; update the MongoDB seed data instead:
+//   - scripts/seed-plans.js (production/dev seed)
+//   - e2e/db-init/01-seed-data.js (E2E test seed)
 export const tiers: Array<Tier> = [
   {
     key: TiersEnum.Free,
