@@ -5,22 +5,25 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { investorSubNavCopy } from "@/lib/investors/shared-copy";
 
 const navItems = [
   {
-    label: "Overview",
+    key: "overview",
     href: "/investors",
     icon: "solar:chart-2-bold",
     exact: true,
   },
   {
-    label: "Pitch Deck",
+    key: "deck",
     href: "/investors/deck",
     icon: "solar:presentation-graph-bold",
     exact: false,
   },
   {
-    label: "Updates",
+    key: "updates",
     href: "/investors/updates",
     icon: "solar:document-text-bold",
     exact: false,
@@ -29,6 +32,8 @@ const navItems = [
 
 export function InvestorSubNav() {
   const pathname = usePathname();
+  const { locale } = useTranslation();
+  const copy = investorSubNavCopy[getTierOneLocale(locale)];
 
   const isActive = (item: (typeof navItems)[0]) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);
@@ -70,7 +75,7 @@ export function InvestorSubNav() {
                 )}
                 <span className="relative z-10 flex items-center gap-2">
                   <Icon icon={item.icon} width={18} />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className="hidden sm:inline">{copy[item.key]}</span>
                 </span>
               </div>
             </Link>

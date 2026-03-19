@@ -1136,7 +1136,7 @@ export function WithdrawalCenter({
           selectedMethod === "crypto"
             ? (withdrawalDetails as CryptoWithdrawalDetails).token
             : currency,
-        method: selectedMethod ?? 'pix',
+        method: selectedMethod ?? "pix",
         bankDetails:
           selectedMethod === "bank_transfer"
             ? (withdrawalDetails as BankAccountDetails)
@@ -1225,6 +1225,23 @@ export function WithdrawalCenter({
           </div>
         </div>
       </div>
+
+      <Card className="rounded-none border border-warning/30 bg-warning/10">
+        <CardBody className="py-3 px-4">
+          <div className="flex items-start gap-3">
+            <Icon
+              icon="solar:shield-warning-bold"
+              className="text-warning mt-0.5"
+              width={18}
+            />
+            <p className="text-sm text-default-700 dark:text-default-300 leading-relaxed">
+              Withdrawals and cashouts are limited to eligible users 18+ and may
+              require enhanced KYC, age verification, source-of-funds review, or
+              higher age eligibility in some jurisdictions.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Progress Steps */}
       {step !== "success" && (

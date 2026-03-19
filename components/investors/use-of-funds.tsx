@@ -4,43 +4,110 @@ import React from "react";
 import { Card, CardBody } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { useOfFundsCopy } from "@/lib/investors/shared-copy";
 
-const fundAllocations = [
-  {
-    label: "Engineering & Product",
-    percentage: 40,
-    icon: "solar:code-square-bold",
-    color: "#FF4654",
-    description:
+const allocationMeta = [
+  { percentage: 40, icon: "solar:code-square-bold", color: "#FF4654" },
+  { percentage: 25, icon: "solar:magnet-bold", color: "#FFC700" },
+  { percentage: 20, icon: "solar:server-bold", color: "#DCFF37" },
+  { percentage: 15, icon: "solar:shield-check-bold", color: "#34445C" },
+] as const;
+
+const localizedAllocations = {
+  "en-US": [
+    [
+      "Engineering & Product",
       "Core platform development, replay analysis AI, matchmaking algorithms, mobile app",
-  },
-  {
-    label: "Marketing & User Acquisition",
-    percentage: 25,
-    icon: "solar:magnet-bold",
-    color: "#FFC700",
-    description:
+    ],
+    [
+      "Marketing & User Acquisition",
       "Community growth, streamer partnerships, esports org collaborations, content creation",
-  },
-  {
-    label: "Operations & Infrastructure",
-    percentage: 20,
-    icon: "solar:server-bold",
-    color: "#DCFF37",
-    description:
+    ],
+    [
+      "Operations & Infrastructure",
       "Cloud infrastructure, multi-region deployment, security, customer support",
-  },
-  {
-    label: "Legal, Compliance & Reserves",
-    percentage: 15,
-    icon: "solar:shield-check-bold",
-    color: "#34445C",
-    description:
+    ],
+    [
+      "Legal, Compliance & Reserves",
       "Gaming licenses, regulatory compliance, IP protection, operational reserves",
-  },
-];
+    ],
+  ],
+  "pt-BR": [
+    [
+      "Engenharia e produto",
+      "Desenvolvimento do core da plataforma, IA de replay, algoritmos de matchmaking e app móvel",
+    ],
+    [
+      "Marketing e aquisição",
+      "Crescimento de comunidade, parcerias com streamers, orgs de esports e conteúdo",
+    ],
+    [
+      "Operações e infraestrutura",
+      "Infraestrutura em nuvem, deploy multirregional, segurança e suporte ao cliente",
+    ],
+    [
+      "Jurídico, compliance e reservas",
+      "Licenças, conformidade regulatória, proteção de IP e reservas operacionais",
+    ],
+  ],
+  "es-ES": [
+    [
+      "Ingeniería y producto",
+      "Desarrollo del core de la plataforma, IA de replay, algoritmos de matchmaking y app móvil",
+    ],
+    [
+      "Marketing y adquisición",
+      "Crecimiento de comunidad, acuerdos con streamers, orgs esports y creación de contenido",
+    ],
+    [
+      "Operaciones e infraestructura",
+      "Infraestructura cloud, despliegue multirregión, seguridad y soporte al cliente",
+    ],
+    [
+      "Legal, compliance y reservas",
+      "Licencias, cumplimiento regulatorio, protección IP y reservas operativas",
+    ],
+  ],
+  "es-LA": [
+    [
+      "Ingeniería y producto",
+      "Desarrollo del core de la plataforma, IA de replay, algoritmos de matchmaking y app móvil",
+    ],
+    [
+      "Marketing y adquisición",
+      "Crecimiento de comunidad, alianzas con streamers, orgs esports y contenido",
+    ],
+    [
+      "Operaciones e infraestructura",
+      "Infraestructura cloud, despliegue multirregión, seguridad y soporte al cliente",
+    ],
+    [
+      "Legal, compliance y reservas",
+      "Licencias, cumplimiento regulatorio, protección IP y reservas operativas",
+    ],
+  ],
+  "zh-CN": [
+    ["工程与产品", "核心平台开发、回放分析 AI、匹配算法与移动应用"],
+    ["营销与获客", "社区增长、主播合作、电竞组织合作与内容制作"],
+    ["运营与基础设施", "云基础设施、多区域部署、安全与客户支持"],
+    ["法务、合规与储备", "游戏牌照、监管合规、IP 保护与运营储备"],
+  ],
+} as const;
 
 export function UseOfFunds() {
+  const { locale } = useTranslation();
+  const tierOneLocale = getTierOneLocale(locale);
+  const copy = useOfFundsCopy[tierOneLocale];
+  const fundAllocations = localizedAllocations[tierOneLocale].map(
+    ([label, description], index) => ({
+      label,
+      description,
+      ...allocationMeta[index],
+    }),
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -68,7 +135,7 @@ export function UseOfFunds() {
                   />
                 </div>
                 <h4 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
-                  Use of Funds
+                  {copy.title}
                 </h4>
               </div>
 

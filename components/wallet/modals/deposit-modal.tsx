@@ -294,6 +294,11 @@ export function DepositModal({
           </ModalHeader>
 
           <ModalBody className="leet-modal-body gap-6 py-6">
+            <div className="rounded-none border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-default-700 dark:text-default-300">
+              Deposits are available only to eligible users 18+ and may require
+              identity, age, payment, or jurisdiction verification before
+              processing.
+            </div>
             <AnimatePresence mode="wait">
               {step === "amount" && (
                 <AmountStep

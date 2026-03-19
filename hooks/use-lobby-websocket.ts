@@ -18,17 +18,17 @@ const MessageTypes = {
   READY_STATUS_CHANGED: 'ready_status_changed',
   PRIZE_POOL_UPDATE: 'prize_pool_update',
   MATCH_STARTING: 'match_starting',
-  LOBBY_CREATED: 'LOBBY_CREATED',
-  LOBBY_UPDATED: 'LOBBY_UPDATED',
-  LOBBY_READY: 'LOBBY_READY',
-  LOBBY_CANCELLED: 'LOBBY_CANCELLED',
+  LOBBY_CREATED: 'lobby_created',
+  LOBBY_UPDATED: 'lobby_updated',
+  LOBBY_READY: 'lobby_ready',
+  LOBBY_CANCELLED: 'lobby_cancelled',
   // Readiness confirmation events
-  READY_CHECK_STARTED: 'READY_CHECK_STARTED',
-  READINESS_CONFIRMED: 'READINESS_CONFIRMED',
-  READINESS_DECLINED: 'READINESS_DECLINED',
-  READY_CHECK_TIMEOUT: 'READY_CHECK_TIMEOUT',
-  ALL_PLAYERS_READY: 'ALL_PLAYERS_READY',
-  GAME_CONNECTION_INFO: 'GAME_CONNECTION_INFO',
+  READY_CHECK_STARTED: 'ready_check_started',
+  READINESS_CONFIRMED: 'readiness_confirmed',
+  READINESS_DECLINED: 'readiness_declined',
+  READY_CHECK_TIMEOUT: 'ready_check_timeout',
+  ALL_PLAYERS_READY: 'all_players_ready',
+  GAME_CONNECTION_INFO: 'game_connection_info',
 } as const;
 
 // WebSocket message structure
@@ -123,11 +123,11 @@ interface UseLobbyWebSocketResult {
   reconnect: () => void;
 }
 
-const getWebSocketUrl = (): string => {
+const getWebSocketUrl = (lobbyId: string): string => {
   const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
   // Convert http(s) to ws(s)
-  const wsUrl = apiUrl.replace(/^http/, 'ws');
-  return `${wsUrl}/ws`;
+  const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/$/, '');
+  return `${wsUrl}/ws/lobby/${lobbyId}`;
 };
 
 export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLobbyWebSocketResult {
@@ -162,7 +162,12 @@ export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLo
       return;
     }
 
-    const wsUrl = getWebSocketUrl();
+    if (!subscribedLobbyIdRef.current) {
+	  logger.warn('[useLobbyWebSocket] Cannot connect without lobby subscription');
+	  return;
+	}
+
+    const wsUrl = getWebSocketUrl(subscribedLobbyIdRef.current);
     logger.info('[useLobbyWebSocket] Connecting to', wsUrl);
     setConnectionState('connecting');
 

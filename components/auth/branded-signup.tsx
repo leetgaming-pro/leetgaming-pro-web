@@ -34,6 +34,7 @@ export default function BrandedSignUp() {
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [termsAccepted, setTermsAccepted] = React.useState(false);
+  const [ageConfirmed, setAgeConfirmed] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -89,6 +90,11 @@ export default function BrandedSignUp() {
 
     if (!termsAccepted) {
       setError("You must accept the Terms and Privacy Policy");
+      return;
+    }
+
+    if (!ageConfirmed) {
+      setError("You must confirm that you are at least 18 years old");
       return;
     }
 
@@ -154,7 +160,7 @@ export default function BrandedSignUp() {
                 </span>
               </h1>
               <p className="text-xl text-white/60 max-w-md">
-                Create your account and join the most competitive gaming
+                Create your account and join our 18+ competitive gaming
                 community.
               </p>
             </div>
@@ -165,7 +171,10 @@ export default function BrandedSignUp() {
                 { icon: "solar:gamepad-bold", text: "Multi-game matchmaking" },
                 { icon: "solar:cup-star-bold", text: "Compete in tournaments" },
                 { icon: "solar:chart-bold", text: "Track your progress" },
-                { icon: "solar:wallet-money-bold", text: "Win real prizes" },
+                {
+                  icon: "solar:wallet-money-bold",
+                  text: "18+ prize competitions",
+                },
               ].map((feature, i) => (
                 <motion.div
                   key={i}
@@ -235,7 +244,7 @@ export default function BrandedSignUp() {
                   Create Account
                 </h2>
                 <p className="text-white/50 text-sm">
-                  Start your competitive journey today
+                  18+ platform • money-flow features require eligibility checks
                 </p>
               </div>
 
@@ -337,8 +346,8 @@ export default function BrandedSignUp() {
                             getStrengthColor() === "success"
                               ? "text-[#DCFF37]"
                               : getStrengthColor() === "warning"
-                              ? "text-[#FFC700]"
-                              : "text-[#FF4654]"
+                                ? "text-[#FFC700]"
+                                : "text-[#FF4654]"
                           }`}
                         >
                           {getStrengthLabel()}
@@ -401,6 +410,21 @@ export default function BrandedSignUp() {
                   </Link>
                 </Checkbox>
 
+                <Checkbox
+                  size="sm"
+                  isSelected={ageConfirmed}
+                  onValueChange={setAgeConfirmed}
+                  isDisabled={isLoading}
+                  classNames={{
+                    wrapper:
+                      "before:border-white/30 rounded-none after:bg-[#DCFF37]",
+                    label: "text-white/70 text-sm",
+                  }}
+                >
+                  I confirm that I am at least 18 years old and meet any higher
+                  legal age required in my jurisdiction for LeetGaming.PRO.
+                </Checkbox>
+
                 <EsportsButton
                   variant="action"
                   size="lg"
@@ -413,11 +437,18 @@ export default function BrandedSignUp() {
                     !password ||
                     !confirmPassword ||
                     !username ||
-                    !termsAccepted
+                    !termsAccepted ||
+                    !ageConfirmed
                   }
                 >
                   {isLoading ? "Creating account..." : "JOIN THE BATTLE"}
                 </EsportsButton>
+
+                <p className="text-xs text-white/40 leading-relaxed">
+                  Deposits, withdrawals, subscriptions, and prize claims are
+                  only available to eligible adults and may require identity,
+                  age, and jurisdiction verification.
+                </p>
               </form>
 
               <div className="flex items-center gap-4 my-6">
@@ -433,9 +464,7 @@ export default function BrandedSignUp() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() =>
-                    signIn("steam", { callbackUrl })
-                  }
+                  onClick={() => signIn("steam", { callbackUrl })}
                 >
                   <SteamIcon className="w-5 h-5" />
                   Steam
@@ -444,9 +473,7 @@ export default function BrandedSignUp() {
                   variant="ghost"
                   size="md"
                   fullWidth
-                  onClick={() =>
-                    signIn("google", { callbackUrl })
-                  }
+                  onClick={() => signIn("google", { callbackUrl })}
                 >
                   <Icon icon="flat-color-icons:google" className="w-5 h-5" />
                   Google

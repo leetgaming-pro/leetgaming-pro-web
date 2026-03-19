@@ -1,7 +1,7 @@
 {
   "name": "LeetGaming",
   "short_name": "LeetGaming",
-  "description": "Competitive esports platform with monetized matchmaking, escrow system, and skill-based tournaments",
+  "description": "18+ competitive esports platform with monetized matchmaking, escrow rails, and skill-based tournaments where legal",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

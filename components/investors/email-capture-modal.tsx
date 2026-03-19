@@ -11,6 +11,9 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { EsportsButton } from "@/components/ui/esports-button";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { investorEmailModalCopy } from "@/lib/investors/shared-copy";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -24,6 +27,8 @@ export function EmailCaptureModal({
   onClose,
   source = "investor-page-one-pager",
 }: EmailCaptureModalProps) {
+  const { locale } = useTranslation();
+  const copy = investorEmailModalCopy[getTierOneLocale(locale)];
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
@@ -37,7 +42,7 @@ export function EmailCaptureModal({
         import("@react-pdf/renderer"),
         import("@/components/investors/one-pager-pdf"),
       ]);
-      const blob = await pdf(<OnePagerDocument />).toBlob();
+      const blob = await pdf(<OnePagerDocument locale={locale} />).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -56,7 +61,7 @@ export function EmailCaptureModal({
       link.click();
       document.body.removeChild(link);
     }
-  }, []);
+  }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +78,9 @@ export function EmailCaptureModal({
         pagePath:
           typeof window !== "undefined" ? window.location.pathname : undefined,
         referrer:
-          typeof document !== "undefined" ? document.referrer || undefined : undefined,
+          typeof document !== "undefined"
+            ? document.referrer || undefined
+            : undefined,
       };
 
       const response = await fetch("/api/investors/leads", {
@@ -102,7 +109,7 @@ export function EmailCaptureModal({
     } catch {
       try {
         const existingLeads = JSON.parse(
-          localStorage.getItem("investor-leads") || "[]"
+          localStorage.getItem("investor-leads") || "[]",
         );
         existingLeads.push({
           email,
@@ -117,9 +124,7 @@ export function EmailCaptureModal({
         // best effort fallback only
       }
 
-      setErrorMessage(
-        "We could not submit your details right now. Your download will still continue."
-      );
+      setErrorMessage(copy.fallbackError);
       await triggerDownload();
       onClose();
     } finally {
@@ -161,11 +166,9 @@ export function EmailCaptureModal({
                 />
               </div>
               <p className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">
-                Thank you! Your download has started.
+                {copy.thankYou}
               </p>
-              <p className="text-sm text-default-500">
-                We&apos;ll be in touch soon.
-              </p>
+              <p className="text-sm text-default-500">{copy.followUp}</p>
             </div>
           </ModalBody>
         ) : (
@@ -187,10 +190,10 @@ export function EmailCaptureModal({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
-                    Download Investor Brief
+                    {copy.title}
                   </h3>
                   <p className="text-xs text-default-500 font-normal">
-                    Get the one-pager covering market, projections, and verified score infrastructure
+                    {copy.subtitle}
                   </p>
                 </div>
               </div>
@@ -203,8 +206,8 @@ export function EmailCaptureModal({
                 </div>
               ) : null}
               <Input
-                label="Email"
-                placeholder="investor@example.com"
+                label={copy.emailLabel}
+                placeholder={copy.emailPlaceholder}
                 type="email"
                 value={email}
                 onValueChange={setEmail}
@@ -223,8 +226,8 @@ export function EmailCaptureModal({
                 }
               />
               <Input
-                label="Name"
-                placeholder="Your name (optional)"
+                label={copy.nameLabel}
+                placeholder={copy.namePlaceholder}
                 value={name}
                 onValueChange={setName}
                 variant="bordered"
@@ -241,8 +244,8 @@ export function EmailCaptureModal({
                 }
               />
               <Input
-                label="Organization"
-                placeholder="Fund / Company (optional)"
+                label={copy.organizationLabel}
+                placeholder={copy.organizationPlaceholder}
                 value={organization}
                 onValueChange={setOrganization}
                 variant="bordered"
@@ -267,18 +270,16 @@ export function EmailCaptureModal({
                 size="lg"
                 fullWidth
                 loading={isSubmitting}
-                startContent={
-                  <Icon icon="solar:download-bold" width={18} />
-                }
+                startContent={<Icon icon="solar:download-bold" width={18} />}
               >
-                Submit & Download
+                {copy.submit}
               </EsportsButton>
               <button
                 type="button"
                 onClick={handleSkip}
                 className="text-xs text-default-400 hover:text-[#FF4654] dark:hover:text-[#DCFF37] transition-colors py-2 underline underline-offset-2"
               >
-                Skip — download without providing info
+                {copy.skip}
               </button>
             </ModalFooter>
           </form>

@@ -24,20 +24,29 @@ import FooterColumns from "../footer-columns/app";
 import { MobileNavigation } from "@/components/ui/mobile-navigation";
 import Box from "./box";
 import { DevelopmentNotice } from "@/components/development-notice";
+import type { Locale } from "@/lib/i18n";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
   nonce?: string;
+  initialLocale?: Locale;
 }
 
 export function ClientLayoutWrapper({
   children,
   nonce,
+  initialLocale,
 }: ClientLayoutWrapperProps) {
   return (
     <Box>
       <Providers
-        themeProps={{ attribute: "class", defaultTheme: "dark", enableSystem: true, nonce }}
+        themeProps={{
+          attribute: "class",
+          defaultTheme: "dark",
+          enableSystem: true,
+          nonce,
+        }}
+        initialLocale={initialLocale}
       >
         <div className="relative flex flex-col h-screen w-full">
           <Navbar />

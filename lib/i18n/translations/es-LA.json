@@ -39,7 +39,11 @@
     "inactive": "Inactivo",
     "pending": "Pendiente",
     "completed": "Completado",
-    "failed": "Fallido"
+    "failed": "Fallido",
+    "changeLanguage": "Cambiar idioma",
+    "selectLanguage": "Seleccionar idioma",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -64,10 +68,12 @@
     "home": "Inicio",
     "play": "Jugar",
     "teams": "Equipos",
+    "matches": "Partidas",
     "players": "Jugadores",
     "tournaments": "Torneos",
     "cloud": "Nube",
     "replays": "Replays",
+    "highlights": "Destacados",
     "leaderboards": "Clasificaciones",
     "settings": "Configuración",
     "profile": "Perfil",
@@ -77,7 +83,20 @@
     "about": "Acerca de",
     "blog": "Blog",
     "pricing": "Precios",
-    "docs": "Documentación"
+    "docs": "Documentación",
+    "playNow": "Jugar Ahora",
+    "browseMatches": "Ver Partidas",
+    "cloudStorage": "Almacenamiento en la Nube",
+    "uploadContent": "Subir Contenido",
+    "pricingPlans": "Planes de Precios",
+    "supplyStore": "Tienda de Suministros",
+    "myWallet": "Mi Billetera",
+    "subscription": "Suscripción",
+    "serviceStatus": "Estado del Servicio",
+    "helpSupport": "Ayuda y Soporte",
+    "investors": "Para Inversores",
+    "terms": "Términos del Servicio",
+    "privacy": "Política de Privacidad"
   },
   "matchmaking": {
     "title": "Encontrar Partida",
@@ -241,6 +260,7 @@
     "notifications": "Notificaciones",
     "preferences": "Preferencias",
     "language": "Idioma",
+    "languageDescription": "Elige tu idioma preferido para la interfaz",
     "theme": "Tema",
     "darkMode": "Modo Oscuro",
     "lightMode": "Modo Claro",
@@ -258,6 +278,14 @@
     "termsOfService": "Términos de Servicio",
     "privacyPolicy": "Política de Privacidad",
     "cookiePolicy": "Política de Cookies",
+    "relatedDocuments": "Documentos Legales Relacionados",
+    "termsMetaTitle": "Términos de Servicio | LeetGaming.PRO",
+    "termsMetaDescription": "Lee los Términos de Servicio para usar la plataforma para adultos de gaming competitivo de LeetGaming.PRO.",
+    "privacyMetaTitle": "Política de Privacidad | LeetGaming.PRO",
+    "privacyMetaDescription": "Conoce cómo LeetGaming.PRO recopila, usa y protege la información personal en su plataforma para adultos de gaming competitivo.",
+    "cookieMetaTitle": "Política de Cookies | LeetGaming.PRO",
+    "cookieMetaDescription": "Conoce cómo LeetGaming.PRO usa cookies y tecnologías similares.",
+    "lastUpdated": "Última actualización: {date}",
     "acceptTerms": "Acepto los Términos de Servicio",
     "acceptPrivacy": "He leído y entiendo la Política de Privacidad",
     "acceptCookies": "Acepto el uso de cookies",
@@ -266,8 +294,27 @@
     "managePreferences": "Administrar Preferencias",
     "ageVerification": "Verificación de Edad",
     "iAmOver18": "Confirmo que tengo 18 años o más",
-    "iAmOver13": "Confirmo que tengo 13 años o más",
-    "parentalConsent": "Tengo consentimiento de mis padres"
+    "iAmOver13": "Confirmo que tengo 18 años o más",
+    "parentalConsent": "Confirmo que cumplo los requisitos legales de edad en mi jurisdicción"
+  },
+  "footer": {
+    "resources": "Recursos",
+    "community": "Comunidad",
+    "company": "Empresa",
+    "legal": "Legal",
+    "tagline": "Haz clutch en el escenario internacional.",
+    "uploadFiles": "Subir Archivos",
+    "aboutUs": "Sobre Nosotros",
+    "support": "Soporte",
+    "contact": "Contacto",
+    "cookiePolicy": "Política de Cookies",
+    "allRightsReserved": "Todos los derechos reservados."
+  },
+  "regions": {
+    "americas": "Américas",
+    "europe": "Europa",
+    "asia": "Asia",
+    "middleEast": "Oriente Medio"
   },
   "errors": {
     "notFound": "Página no encontrada",
@@ -285,6 +332,7 @@
     "free": "Gratis",
     "pro": "Pro",
     "team": "Equipo",
+    "organizer": "Organizador",
     "enterprise": "Empresa",
     "perMonth": "/mes",
     "perYear": "/año",
@@ -405,5 +453,127 @@
     "passport": "Pasaporte",
     "idCard": "Documento de Identidad",
     "driversLicense": "Licencia de Conducir"
+  },
+  "landing": {
+    "finalCta": {
+      "titlePrefix": "¿LISTO PARA",
+      "titleHighlight": "COMPETIR",
+      "subtitle": "Únete a miles de jugadores que ya compiten en LeetGaming.PRO. Empieza gratis. No necesitas tarjeta.",
+      "createAccount": "Crear Cuenta",
+      "explorePlans": "Explorar Planes",
+      "trust": {
+        "secure": "Seguro",
+        "instantSetup": "Configuración Instantánea",
+        "freeTier": "Plan Gratis Disponible",
+        "regions": "Más de 30 regiones"
+      }
+    },
+    "productOverview": {
+      "eyebrow": "LA PLATAFORMA",
+      "titlePrefix": "TODO LO QUE NECESITAS PARA",
+      "titleHighlight": "SUBIR DE NIVEL",
+      "subtitle": "Una plataforma que reemplaza herramientas fragmentadas por un ecosistema integrado de gaming competitivo.",
+      "pillars": {
+        "replay": {
+          "title": "Análisis de Replays con IA",
+          "description": "Sube tus demos y obtén al instante ratings estilo HLTV 2.0, ADR, KAST%, desglose económico por ronda y sugerencias de mejora con IA."
+        },
+        "matchmaking": {
+          "title": "Matchmaking Basado en Habilidad",
+          "description": "Sistema de rating con Elo/Glicko-2 y colas por nivel en más de 30 regiones globales. Partidas justas desde lo casual hasta la élite competitiva."
+        },
+        "tournaments": {
+          "title": "Torneos Automatizados",
+          "description": "Crea o únete a torneos de bracket con programación automática, espectado en vivo, protección anti-cheat y distribución verificada de premios."
+        },
+        "prizes": {
+          "title": "Bolsas de Premios Transparentes",
+          "description": "El escrow verificado en blockchain garantiza pagos justos. Soporte multidivisa con retiros instantáneos mediante Stripe, cripto o billetera interna."
+        }
+      }
+    }
+  },
+  "checkout": {
+    "paymentHistory": {
+      "title": "Historial de Pagos",
+      "loadFailed": "No se pudo cargar el historial de pagos",
+      "empty": "Todavía no hay historial de pagos",
+      "transactions": "{count} transacciones",
+      "ariaTable": "Tabla de historial de pagos",
+      "typeDeposit": "Depósito",
+      "typeWithdrawal": "Retiro",
+      "typeSubscription": "Suscripción",
+      "columns": {
+        "date": "FECHA",
+        "type": "TIPO",
+        "amount": "MONTO",
+        "status": "ESTADO",
+        "provider": "PROVEEDOR"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "processing": "Procesando",
+        "succeeded": "Completado",
+        "failed": "Fallido",
+        "canceled": "Cancelado",
+        "refunded": "Reembolsado"
+      }
+    },
+    "subscription": {
+      "loading": "Cargando suscripción...",
+      "upgradeTitle": "Mejorar a Pro",
+      "upgradeDescription": "Desbloquea replays ilimitados, analíticas avanzadas y funciones premium. Únete a miles de gamers competitivos.",
+      "upgradeNow": "Mejorar Ahora",
+      "planTitle": "Plan {plan}",
+      "billingSuffix": "de facturación",
+      "currentBillingPeriod": "Período de facturación actual",
+      "daysLeft": "Quedan {count} días",
+      "expiresToday": "Vence hoy",
+      "nextPayment": "Próximo pago",
+      "renewalDate": "Fecha de renovación",
+      "notRenewing": "No se renovará",
+      "paymentMethodFallback": "Método de pago",
+      "expiresLabel": "Vence",
+      "update": "Actualizar",
+      "endingTitle": "Suscripción por finalizar",
+      "endingDescription": "Tu suscripción terminará el {date}. Puedes reactivarla en cualquier momento antes de esa fecha.",
+      "alreadyCancelled": "Ya cancelada",
+      "cancel": "Cancelar suscripción",
+      "changePlan": "Cambiar plan",
+      "reactivate": "Reactivar",
+      "cancelModalTitle": "Cancelar Suscripción",
+      "cancelConfirm": "¿Seguro que quieres cancelar tu suscripción?",
+      "whenCancel": "Cuando canceles:",
+      "cancelBenefitAccess": "Mantendrás acceso hasta {date}",
+      "cancelBenefitNoCharge": "No se te volverá a cobrar",
+      "cancelBenefitReactivate": "Puedes reactivarla cuando quieras",
+      "keepSubscription": "Mantener suscripción",
+      "confirmCancel": "Sí, cancelar",
+      "billingPeriod": {
+        "monthly": "Mensual",
+        "quarterly": "Trimestral",
+        "yearly": "Anual"
+      },
+      "status": {
+        "active": "Activa",
+        "canceled": "Cancelada",
+        "past_due": "Vencida",
+        "trialing": "En prueba",
+        "paused": "Pausada"
+      }
+    }
+  },
+  "pricingPage": {
+    "eyebrow": "Precios Competitivos",
+    "titlePrefix": "Elige tu",
+    "titleHighlight": "Ventaja Competitiva",
+    "subtitle": "Desde el gaming casual hasta los esports profesionales, encuentra el plan perfecto para tu camino competitivo.",
+    "loadFailed": "No se pudieron cargar los planes de precios",
+    "yearlySavings": "Ahorra un 20% con facturación anual",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "moreFeatures": "+{count} funciones más",
+    "compareTitle": "Compara Todas las Funciones",
+    "compareSubtitle": "Mira exactamente qué incluye cada plan. Todos los planes incluyen las funciones principales de nuestra plataforma de esports."
   }
 }

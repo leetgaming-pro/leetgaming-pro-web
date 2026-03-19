@@ -25,12 +25,9 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import {
-  Subscription,
-  SubscriptionStatus,
-  BILLING_PERIOD_LABELS,
-} from "./types";
+import { Subscription, SubscriptionStatus } from "./types";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Subscription as SDKSubscription } from "@/types/replay-api/subscriptions.sdk";
 
 // ============================================================================
@@ -52,7 +49,7 @@ function mapSDKSubscription(sub: SDKSubscription): Subscription {
   return {
     id: sub.id,
     planId: sub.plan_id,
-    planName: sub.plan?.name || "Unknown Plan",
+    planName: sub.plan?.name || "Unknown",
     status: sub.status as Subscription["status"],
     currentPeriodStart: sub.current_period_start,
     currentPeriodEnd: sub.current_period_end,
@@ -63,15 +60,19 @@ function mapSDKSubscription(sub: SDKSubscription): Subscription {
   };
 }
 
-const formatAmount = (amount: number, currency: string): string => {
-  return new Intl.NumberFormat("en-US", {
+const formatAmount = (
+  amount: number,
+  currency: string,
+  locale: string,
+): string => {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency.toUpperCase(),
   }).format(amount / 100);
 };
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString("en-US", {
+const formatDate = (dateString: string, locale: string): string => {
+  return new Date(dateString).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -79,7 +80,7 @@ const formatDate = (dateString: string): string => {
 };
 
 const getStatusColor = (
-  status: SubscriptionStatus
+  status: SubscriptionStatus,
 ): "success" | "warning" | "danger" | "default" | "primary" => {
   switch (status) {
     case SubscriptionStatus.ACTIVE:
@@ -113,6 +114,7 @@ export function SubscriptionManagement({
   onUpgrade: _onUpgrade,
   onCancel,
 }: SubscriptionManagementProps) {
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isCanceling, setIsCanceling] = useState(false);
@@ -150,7 +152,11 @@ export function SubscriptionManagement({
     return (
       <Card className="border border-default-200">
         <CardBody className="p-8 flex items-center justify-center">
-          <Spinner size="lg" color="primary" label="Loading subscription..." />
+          <Spinner
+            size="lg"
+            color="primary"
+            label={t("checkout.subscription.loading")}
+          />
         </CardBody>
       </Card>
     );
@@ -164,10 +170,11 @@ export function SubscriptionManagement({
           <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
             <Icon icon="solar:crown-bold" className="text-primary w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold mb-2">Upgrade to Pro</h3>
+          <h3 className="text-xl font-bold mb-2">
+            {t("checkout.subscription.upgradeTitle")}
+          </h3>
           <p className="text-default-500 mb-6 max-w-md mx-auto">
-            Unlock unlimited replays, advanced analytics, and premium features.
-            Join thousands of competitive gamers.
+            {t("checkout.subscription.upgradeDescription")}
           </p>
           <Button
             color="primary"
@@ -175,7 +182,7 @@ export function SubscriptionManagement({
             onPress={() => router.push("/checkout")}
             startContent={<Icon icon="solar:star-bold" className="w-5 h-5" />}
           >
-            Upgrade Now
+            {t("checkout.subscription.upgradeNow")}
           </Button>
         </CardBody>
       </Card>
@@ -185,7 +192,7 @@ export function SubscriptionManagement({
   const daysRemaining = getDaysRemaining(subscription.currentPeriodEnd);
   const progressPercent = Math.max(
     0,
-    Math.min(100, ((30 - daysRemaining) / 30) * 100)
+    Math.min(100, ((30 - daysRemaining) / 30) * 100),
   );
 
   return (
@@ -197,15 +204,21 @@ export function SubscriptionManagement({
               <Icon icon="solar:crown-bold" className="text-primary w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold">{subscription.planName} Plan</h3>
+              <h3 className="font-semibold">
+                {t("checkout.subscription.planTitle", {
+                  plan: subscription.planName,
+                })}
+              </h3>
               <p className="text-sm text-default-500">
-                {BILLING_PERIOD_LABELS[subscription.billingPeriod]} billing
+                {t(
+                  `checkout.subscription.billingPeriod.${subscription.billingPeriod}`,
+                )}{" "}
+                {t("checkout.subscription.billingSuffix")}
               </p>
             </div>
           </div>
           <Chip color={getStatusColor(subscription.status)} variant="flat">
-            {subscription.status.charAt(0).toUpperCase() +
-              subscription.status.slice(1)}
+            {t(`checkout.subscription.status.${subscription.status}`)}
           </Chip>
         </CardHeader>
 
@@ -215,11 +228,15 @@ export function SubscriptionManagement({
           {/* Billing Cycle Progress */}
           <div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-default-500">Current billing period</span>
+              <span className="text-default-500">
+                {t("checkout.subscription.currentBillingPeriod")}
+              </span>
               <span className="font-medium">
                 {daysRemaining > 0
-                  ? `${daysRemaining} days left`
-                  : "Expires today"}
+                  ? t("checkout.subscription.daysLeft", {
+                      count: daysRemaining,
+                    })
+                  : t("checkout.subscription.expiresToday")}
               </span>
             </div>
             <Progress
@@ -229,25 +246,33 @@ export function SubscriptionManagement({
               className="mb-2"
             />
             <div className="flex justify-between text-xs text-default-400">
-              <span>{formatDate(subscription.currentPeriodStart)}</span>
-              <span>{formatDate(subscription.currentPeriodEnd)}</span>
+              <span>{formatDate(subscription.currentPeriodStart, locale)}</span>
+              <span>{formatDate(subscription.currentPeriodEnd, locale)}</span>
             </div>
           </div>
 
           {/* Subscription Details */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-content2 rounded-lg">
-              <p className="text-sm text-default-500 mb-1">Next payment</p>
+              <p className="text-sm text-default-500 mb-1">
+                {t("checkout.subscription.nextPayment")}
+              </p>
               <p className="font-semibold">
-                {formatAmount(subscription.amount, subscription.currency)}
+                {formatAmount(
+                  subscription.amount,
+                  subscription.currency,
+                  locale,
+                )}
               </p>
             </div>
             <div className="p-4 bg-content2 rounded-lg">
-              <p className="text-sm text-default-500 mb-1">Renewal date</p>
+              <p className="text-sm text-default-500 mb-1">
+                {t("checkout.subscription.renewalDate")}
+              </p>
               <p className="font-semibold">
                 {subscription.cancelAtPeriodEnd
-                  ? "Not renewing"
-                  : formatDate(subscription.currentPeriodEnd)}
+                  ? t("checkout.subscription.notRenewing")
+                  : formatDate(subscription.currentPeriodEnd, locale)}
               </p>
             </div>
           </div>
@@ -264,18 +289,20 @@ export function SubscriptionManagement({
                   <p className="font-medium">
                     {subscription.paymentMethod.brand
                       ? `${subscription.paymentMethod.brand} ****${subscription.paymentMethod.last4}`
-                      : subscription.paymentMethod.email || "Payment method"}
+                      : subscription.paymentMethod.email ||
+                        t("checkout.subscription.paymentMethodFallback")}
                   </p>
                   {subscription.paymentMethod.expiryMonth && (
                     <p className="text-sm text-default-500">
-                      Expires {subscription.paymentMethod.expiryMonth}/
+                      {t("checkout.subscription.expiresLabel")}{" "}
+                      {subscription.paymentMethod.expiryMonth}/
                       {subscription.paymentMethod.expiryYear}
                     </p>
                   )}
                 </div>
               </div>
               <Button variant="light" size="sm">
-                Update
+                {t("checkout.subscription.update")}
               </Button>
             </div>
           )}
@@ -288,11 +315,13 @@ export function SubscriptionManagement({
                 className="text-warning w-5 h-5 mt-0.5 flex-shrink-0"
               />
               <div>
-                <p className="font-medium text-warning">Subscription ending</p>
+                <p className="font-medium text-warning">
+                  {t("checkout.subscription.endingTitle")}
+                </p>
                 <p className="text-sm text-default-500">
-                  Your subscription will end on{" "}
-                  {formatDate(subscription.currentPeriodEnd)}. You can
-                  reactivate anytime before then.
+                  {t("checkout.subscription.endingDescription", {
+                    date: formatDate(subscription.currentPeriodEnd, locale),
+                  })}
                 </p>
               </div>
             </div>
@@ -309,15 +338,17 @@ export function SubscriptionManagement({
             isDisabled={subscription.cancelAtPeriodEnd}
           >
             {subscription.cancelAtPeriodEnd
-              ? "Already cancelled"
-              : "Cancel subscription"}
+              ? t("checkout.subscription.alreadyCancelled")
+              : t("checkout.subscription.cancel")}
           </Button>
           <div className="flex gap-2">
             <Button variant="bordered" onPress={() => router.push("/checkout")}>
-              Change plan
+              {t("checkout.subscription.changePlan")}
             </Button>
             {subscription.cancelAtPeriodEnd && (
-              <Button color="primary">Reactivate</Button>
+              <Button color="primary">
+                {t("checkout.subscription.reactivate")}
+              </Button>
             )}
           </div>
         </CardFooter>
@@ -332,49 +363,52 @@ export function SubscriptionManagement({
                 icon="solar:danger-triangle-bold"
                 className="text-danger w-5 h-5"
               />
-              Cancel Subscription
+              {t("checkout.subscription.cancelModalTitle")}
             </div>
           </ModalHeader>
           <ModalBody>
-            <p>Are you sure you want to cancel your subscription?</p>
+            <p>{t("checkout.subscription.cancelConfirm")}</p>
             <div className="bg-content2 rounded-lg p-4 mt-4">
-              <p className="text-sm text-default-500">When you cancel:</p>
+              <p className="text-sm text-default-500">
+                {t("checkout.subscription.whenCancel")}
+              </p>
               <ul className="text-sm mt-2 space-y-1">
                 <li className="flex items-center gap-2">
                   <Icon
                     icon="solar:check-circle-bold"
                     className="text-success w-4 h-4"
                   />
-                  You&apos;ll keep access until{" "}
-                  {formatDate(subscription.currentPeriodEnd)}
+                  {t("checkout.subscription.cancelBenefitAccess", {
+                    date: formatDate(subscription.currentPeriodEnd, locale),
+                  })}
                 </li>
                 <li className="flex items-center gap-2">
                   <Icon
                     icon="solar:check-circle-bold"
                     className="text-success w-4 h-4"
                   />
-                  You won&apos;t be charged again
+                  {t("checkout.subscription.cancelBenefitNoCharge")}
                 </li>
                 <li className="flex items-center gap-2">
                   <Icon
                     icon="solar:check-circle-bold"
                     className="text-success w-4 h-4"
                   />
-                  You can reactivate anytime
+                  {t("checkout.subscription.cancelBenefitReactivate")}
                 </li>
               </ul>
             </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={onClose}>
-              Keep subscription
+              {t("checkout.subscription.keepSubscription")}
             </Button>
             <Button
               color="danger"
               onPress={handleCancel}
               isLoading={isCanceling}
             >
-              Yes, cancel
+              {t("checkout.subscription.confirmCancel")}
             </Button>
           </ModalFooter>
         </ModalContent>

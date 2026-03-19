@@ -33,11 +33,13 @@ import { Button } from "@nextui-org/react";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { LanguageSelector } from "@/components/i18n/language-selector";
 import { ConnectWalletButton } from "@/components/web3/connect-wallet-button";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Handle menu item click - close menu and navigate
   const handleMenuItemClick = useCallback(
@@ -45,7 +47,7 @@ export const Navbar = () => {
       setIsMenuOpen(false);
       router.push(href);
     },
-    [router]
+    [router],
   );
 
   const { theme: themeValue } = useTheme();
@@ -112,22 +114,22 @@ export const Navbar = () => {
                     isPrimary
                       ? "esports-nav-link-primary bg-gradient-to-br from-[#34445C] to-[#2a3749] text-[#F5F0E1] dark:from-[#DCFF37] dark:to-[#B8D930] dark:text-zinc-900 hover:shadow-lg hover:shadow-[#34445C]/30 dark:hover:shadow-[#DCFF37]/30"
                       : isCloud
-                      ? clsx(
-                          "esports-nav-link bg-gradient-to-br from-[#34445C] to-[#2a3749] text-[#F5F0E1] hover:from-[#3d5068] hover:to-[#34445C] dark:from-zinc-600 dark:to-zinc-700 dark:text-zinc-100 dark:hover:from-zinc-500 dark:hover:to-zinc-600",
-                          active && "esports-nav-link-active"
-                        )
-                      : clsx(
-                          "esports-nav-link",
-                          active
-                            ? "esports-nav-link-active text-[#F5F0E1] dark:text-[#DCFF37]"
-                            : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10"
-                        ),
+                        ? clsx(
+                            "esports-nav-link bg-gradient-to-br from-[#34445C] to-[#2a3749] text-[#F5F0E1] hover:from-[#3d5068] hover:to-[#34445C] dark:from-zinc-600 dark:to-zinc-700 dark:text-zinc-100 dark:hover:from-zinc-500 dark:hover:to-zinc-600",
+                            active && "esports-nav-link-active",
+                          )
+                        : clsx(
+                            "esports-nav-link",
+                            active
+                              ? "esports-nav-link-active text-[#F5F0E1] dark:text-[#DCFF37]"
+                              : "text-[#34445C]/80 dark:text-[#F5F0E1]/80 hover:text-[#34445C] dark:hover:text-[#F5F0E1] hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10",
+                          ),
                     index === 0 &&
-                      "!ml-0" /* primeiro item sem margem negativa */
+                      "!ml-0" /* primeiro item sem margem negativa */,
                   )}
                   href={item.href}
                 >
-                  <span>{item.label}</span>
+                  <span>{item.labelKey ? t(item.labelKey) : item.label}</span>
                 </NextLink>
               </NavbarItem>
             );
@@ -167,7 +169,7 @@ export const Navbar = () => {
         <NotificationCenter enableRealtime={true} />
         <ThemeSwitch />
         <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={isMenuOpen ? t("common.closeMenu") : t("common.openMenu")}
         />
       </NavbarContent>
 
@@ -199,8 +201,8 @@ export const Navbar = () => {
                     isHighlight
                       ? "bg-gradient-to-r from-[#FF4654] to-[#FFC700] text-white font-semibold dark:from-[#DCFF37] dark:to-[#34445C] dark:text-[#1a1a1a]"
                       : active
-                      ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
-                      : "hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 text-foreground"
+                        ? "bg-[#34445C] text-white dark:bg-[#DCFF37] dark:text-[#1a1a1a] font-semibold border-l-4 border-[#FF4654] dark:border-[#1a1a1a]"
+                        : "hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 text-foreground",
                   )}
                   style={{
                     clipPath:
@@ -216,11 +218,11 @@ export const Navbar = () => {
                         "w-5 h-5 flex-shrink-0",
                         isHighlight || active
                           ? "text-current"
-                          : "text-default-500"
+                          : "text-default-500",
                       )}
                     />
                   )}
-                  <span>{item.label}</span>
+                  <span>{item.labelKey ? t(item.labelKey) : item.label}</span>
                 </button>
               </NavbarMenuItem>
             );
@@ -247,7 +249,7 @@ export const Navbar = () => {
                     signOut({ callbackUrl: "/" });
                   }}
                 >
-                  Log Out
+                  {t("auth.signOut")}
                 </Button>
               </NavbarMenuItem>
             </>

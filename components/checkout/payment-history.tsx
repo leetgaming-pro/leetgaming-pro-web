@@ -21,12 +21,13 @@ import { PaymentStatus, PaymentType, PAYMENT_STATUS_COLORS } from "./types";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Payment } from "@/types/replay-api/payment.types";
 
 // Initialize SDK (uses /api proxy for client-side requests)
 const sdk = new ReplayAPISDK(
   { ...ReplayApiSettingsMock, baseUrl: "/api" },
-  logger
+  logger,
 );
 
 // ============================================================================
@@ -42,15 +43,19 @@ interface PaymentHistoryProps {
 // Helpers
 // ============================================================================
 
-const formatAmount = (amount: number, currency: string): string => {
-  return new Intl.NumberFormat("en-US", {
+const formatAmount = (
+  amount: number,
+  currency: string,
+  locale: string,
+): string => {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency.toUpperCase(),
   }).format(amount / 100);
 };
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString("en-US", {
+const formatDate = (dateString: string, locale: string): string => {
+  return new Date(dateString).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -70,14 +75,17 @@ const getTypeIcon = (type: PaymentType): string => {
   }
 };
 
-const getTypeLabel = (type: string): string => {
+const getTypeLabel = (
+  type: string,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string => {
   switch (type) {
     case "deposit":
-      return "Deposit";
+      return t("checkout.paymentHistory.typeDeposit");
     case "withdrawal":
-      return "Withdrawal";
+      return t("checkout.paymentHistory.typeWithdrawal");
     case "subscription":
-      return "Subscription";
+      return t("checkout.paymentHistory.typeSubscription");
     default:
       return type;
   }
@@ -91,6 +99,7 @@ export function PaymentHistory({
   limit = 10,
   showPagination = true,
 }: PaymentHistoryProps) {
+  const { t, locale } = useTranslation();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,11 +115,13 @@ export function PaymentHistory({
         if (result) {
           setPayments(result.payments);
         } else {
-          setError("Failed to load payment history");
+          setError(t("checkout.paymentHistory.loadFailed"));
         }
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : "Failed to load payment history";
+          err instanceof Error
+            ? err.message
+            : t("checkout.paymentHistory.loadFailed");
         setError(message);
       } finally {
         setIsLoading(false);
@@ -118,13 +129,15 @@ export function PaymentHistory({
     };
 
     fetchPayments();
-  }, []);
+  }, [t]);
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <h3 className="text-lg font-semibold">Payment History</h3>
+          <h3 className="text-lg font-semibold">
+            {t("checkout.paymentHistory.title")}
+          </h3>
         </CardHeader>
         <CardBody>
           <div className="space-y-4">
@@ -155,14 +168,18 @@ export function PaymentHistory({
     return (
       <Card>
         <CardHeader>
-          <h3 className="text-lg font-semibold">Payment History</h3>
+          <h3 className="text-lg font-semibold">
+            {t("checkout.paymentHistory.title")}
+          </h3>
         </CardHeader>
         <CardBody className="p-8 text-center">
           <Icon
             icon="solar:wallet-bold"
             className="w-12 h-12 text-default-300 mx-auto mb-4"
           />
-          <p className="text-default-500">No payment history yet</p>
+          <p className="text-default-500">
+            {t("checkout.paymentHistory.empty")}
+          </p>
         </CardBody>
       </Card>
     );
@@ -171,15 +188,19 @@ export function PaymentHistory({
   return (
     <Card>
       <CardHeader className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Payment History</h3>
+        <h3 className="text-lg font-semibold">
+          {t("checkout.paymentHistory.title")}
+        </h3>
         <Chip size="sm" variant="flat">
-          {payments.length} transactions
+          {t("checkout.paymentHistory.transactions", {
+            count: payments.length,
+          })}
         </Chip>
       </CardHeader>
       <Divider />
       <CardBody className="p-0">
         <Table
-          aria-label="Payment history table"
+          aria-label={t("checkout.paymentHistory.ariaTable")}
           removeWrapper
           classNames={{
             th: "bg-transparent text-default-500 font-medium",
@@ -187,18 +208,28 @@ export function PaymentHistory({
           }}
         >
           <TableHeader>
-            <TableColumn>DATE</TableColumn>
-            <TableColumn>TYPE</TableColumn>
-            <TableColumn>AMOUNT</TableColumn>
-            <TableColumn>STATUS</TableColumn>
-            <TableColumn>PROVIDER</TableColumn>
+            <TableColumn>
+              {t("checkout.paymentHistory.columns.date")}
+            </TableColumn>
+            <TableColumn>
+              {t("checkout.paymentHistory.columns.type")}
+            </TableColumn>
+            <TableColumn>
+              {t("checkout.paymentHistory.columns.amount")}
+            </TableColumn>
+            <TableColumn>
+              {t("checkout.paymentHistory.columns.status")}
+            </TableColumn>
+            <TableColumn>
+              {t("checkout.paymentHistory.columns.provider")}
+            </TableColumn>
           </TableHeader>
           <TableBody>
             {paginatedPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
                   <span className="text-sm">
-                    {formatDate(payment.created_at)}
+                    {formatDate(payment.created_at, locale)}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -212,7 +243,7 @@ export function PaymentHistory({
                       }`}
                     />
                     <span className="text-sm">
-                      {getTypeLabel(payment.type)}
+                      {getTypeLabel(payment.type, t)}
                     </span>
                   </div>
                 </TableCell>
@@ -223,7 +254,7 @@ export function PaymentHistory({
                     }`}
                   >
                     {payment.type === "deposit" ? "+" : ""}
-                    {formatAmount(payment.amount, payment.currency)}
+                    {formatAmount(payment.amount, payment.currency, locale)}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -235,8 +266,7 @@ export function PaymentHistory({
                     variant="flat"
                     size="sm"
                   >
-                    {payment.status.charAt(0).toUpperCase() +
-                      payment.status.slice(1)}
+                    {t(`checkout.paymentHistory.status.${payment.status}`)}
                   </Chip>
                 </TableCell>
                 <TableCell>

@@ -1,22 +1,33 @@
-'use client';
+"use client";
 
-import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
-import { useRequireAuth } from '@/hooks/use-auth';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Card, CardBody, Spinner } from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { CheckoutFlow } from '@/components/checkout';
-import { ReplayAPISDK } from '@/types/replay-api/sdk';
-import { ReplayApiSettingsMock } from '@/types/replay-api/settings';
-import { logger } from '@/lib/logger';
+import React, {
+  Suspense,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
+import { useRequireAuth } from "@/hooks/use-auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Card, CardBody, Spinner } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { CheckoutFlow } from "@/components/checkout";
+import { ReplayAPISDK } from "@/types/replay-api/sdk";
+import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
+import { logger } from "@/lib/logger";
 
 function CheckoutPageContent() {
-  const { isAuthenticated, isLoading: isAuthLoading, isRedirecting, user } = useRequireAuth({
-    callbackUrl: '/checkout'
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    isRedirecting,
+    user,
+  } = useRequireAuth({
+    callbackUrl: "/checkout",
   });
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialPlanId = searchParams.get('plan') || undefined;
+  const initialPlanId = searchParams.get("plan") || undefined;
   const sdkRef = useRef<ReplayAPISDK>();
   const [walletId, setWalletId] = useState<string | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
@@ -43,12 +54,12 @@ function CheckoutPageContent() {
         if (profile?.wallet_id) {
           setWalletId(profile.wallet_id);
         } else {
-          setWalletError('No wallet found. Please set up your wallet first.');
+          setWalletError("No wallet found. Please set up your wallet first.");
         }
       }
     } catch (error) {
-      logger.error('Failed to fetch wallet', error);
-      setWalletError('Failed to load wallet information. Please try again.');
+      logger.error("Failed to fetch wallet", error);
+      setWalletError("Failed to load wallet information. Please try again.");
     } finally {
       setWalletLoading(false);
     }
@@ -94,7 +105,8 @@ function CheckoutPageContent() {
             </div>
             <h2 className="text-xl font-bold mb-2">Wallet not found</h2>
             <p className="text-default-500 mb-6">
-              {walletError || 'Please set up your wallet to continue with checkout.'}
+              {walletError ||
+                "Please set up your wallet to continue with checkout."}
             </p>
             <div className="flex gap-3">
               <Button
@@ -102,7 +114,9 @@ function CheckoutPageContent() {
                 size="lg"
                 className="flex-1"
                 onPress={() => fetchWallet()}
-                startContent={<Icon icon="solar:refresh-bold" className="w-5 h-5" />}
+                startContent={
+                  <Icon icon="solar:refresh-bold" className="w-5 h-5" />
+                }
               >
                 Retry
               </Button>
@@ -110,8 +124,10 @@ function CheckoutPageContent() {
                 color="primary"
                 size="lg"
                 className="flex-1"
-                onPress={() => router.push('/settings?tab=billing')}
-                startContent={<Icon icon="solar:settings-bold" className="w-5 h-5" />}
+                onPress={() => router.push("/settings?tab=billing")}
+                startContent={
+                  <Icon icon="solar:settings-bold" className="w-5 h-5" />
+                }
               >
                 Set up wallet
               </Button>
@@ -126,9 +142,16 @@ function CheckoutPageContent() {
     <div className="py-8 lg:py-12 xl:py-16 px-4 sm:px-6 lg:px-8 xl:px-12 max-w-7xl mx-auto">
       {/* Header */}
       <div className="text-center mb-12 lg:mb-16">
-        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 lg:mb-4">Choose your plan</h1>
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 lg:mb-4">
+          Choose your plan
+        </h1>
         <p className="text-default-500 text-base lg:text-lg max-w-xl mx-auto">
           Unlock powerful features and take your gaming to the next level
+        </p>
+        <p className="text-default-500/90 text-sm lg:text-base max-w-2xl mx-auto mt-4">
+          Billing and any money-flow features on LeetGaming.PRO are available
+          only to eligible users 18+ and may require additional identity, age,
+          or jurisdiction verification, including 21+ checks where required.
         </p>
       </div>
 
@@ -137,12 +160,16 @@ function CheckoutPageContent() {
 
       {/* Help Section */}
       <div className="mt-16 lg:mt-24 text-center">
-        <p className="text-default-500 mb-4 lg:mb-6 text-base lg:text-lg">Need help with your purchase?</p>
+        <p className="text-default-500 mb-4 lg:mb-6 text-base lg:text-lg">
+          Need help with your purchase?
+        </p>
         <div className="flex justify-center gap-4 lg:gap-6">
           <Button
             variant="light"
             size="lg"
-            startContent={<Icon icon="solar:chat-round-dots-bold" className="w-5 h-5" />}
+            startContent={
+              <Icon icon="solar:chat-round-dots-bold" className="w-5 h-5" />
+            }
           >
             Live Chat
           </Button>
@@ -161,11 +188,13 @@ function CheckoutPageContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner size="lg" color="primary" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Spinner size="lg" color="primary" />
+        </div>
+      }
+    >
       <CheckoutPageContent />
     </Suspense>
   );

@@ -28,13 +28,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import {
-  Card,
-  CardBody,
-  Chip,
-  Input,
-  Divider,
-} from "@nextui-org/react";
+import { Card, CardBody, Chip, Input, Divider } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@nextui-org/react";
@@ -1009,7 +1003,7 @@ export function FundingCenter({
           selectedMethod === "crypto"
             ? (selectedToken as CryptoCurrency)
             : currency,
-        method: selectedMethod ?? 'pix',
+        method: selectedMethod ?? "pix",
         cryptoChain: selectedMethod === "crypto" ? selectedChain : undefined,
       });
 
@@ -1093,6 +1087,23 @@ export function FundingCenter({
           </p>
         </div>
       </div>
+
+      <Card className="rounded-none border border-warning/30 bg-warning/10">
+        <CardBody className="py-3 px-4">
+          <div className="flex items-start gap-3">
+            <Icon
+              icon="solar:shield-warning-bold"
+              className="text-warning mt-0.5"
+              width={18}
+            />
+            <p className="text-sm text-default-700 dark:text-default-300 leading-relaxed">
+              Deposits are available only to eligible users 18+ and may require
+              identity, payment, sanctions, or jurisdiction verification before
+              funds are credited.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Progress Steps */}
       <div className="flex items-center gap-2">

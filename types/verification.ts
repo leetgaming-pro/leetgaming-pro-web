@@ -50,36 +50,31 @@ export interface AgeRequirement {
 export const REGION_AGE_REQUIREMENTS: Record<string, AgeRequirement> = {
   US: {
     region: "United States",
-    minimumAge: 13,
-    requiresParentalConsent: { underAge: 18, consentRequired: true },
+    minimumAge: 18,
     restrictedFeatures: ["real-money-tournaments", "trading", "crypto-wallet"],
     gamblingRestricted: true,
   },
   BR: {
     region: "Brazil",
-    minimumAge: 13,
-    requiresParentalConsent: { underAge: 18, consentRequired: true },
+    minimumAge: 18,
     restrictedFeatures: ["real-money-tournaments", "trading"],
     gamblingRestricted: false,
   },
   EU: {
     region: "European Union",
-    minimumAge: 16, // GDPR
-    requiresParentalConsent: { underAge: 18, consentRequired: true },
+    minimumAge: 18,
     restrictedFeatures: ["real-money-tournaments"],
     gamblingRestricted: true,
   },
   KR: {
     region: "South Korea",
-    minimumAge: 14,
-    requiresParentalConsent: { underAge: 18, consentRequired: true },
+    minimumAge: 18,
     restrictedFeatures: ["real-money-tournaments", "trading", "extended-play"],
     gamblingRestricted: true,
   },
   CN: {
     region: "China",
-    minimumAge: 8,
-    requiresParentalConsent: { underAge: 18, consentRequired: true },
+    minimumAge: 18,
     restrictedFeatures: ["real-money-transactions", "trading", "extended-play"],
     gamblingRestricted: true,
   },
@@ -207,11 +202,11 @@ export const FEATURE_REQUIREMENTS: Record<
   string,
   { kycLevel: KYCLevel; minAge?: number }
 > = {
-  "free-tournaments": { kycLevel: "none", minAge: 13 },
-  "basic-matchmaking": { kycLevel: "none", minAge: 13 },
-  "replay-upload": { kycLevel: "basic", minAge: 13 },
-  "coaching-booking": { kycLevel: "basic", minAge: 13 },
-  "store-purchase": { kycLevel: "basic", minAge: 13 },
+  "free-tournaments": { kycLevel: "none", minAge: 18 },
+  "basic-matchmaking": { kycLevel: "none", minAge: 18 },
+  "replay-upload": { kycLevel: "basic", minAge: 18 },
+  "coaching-booking": { kycLevel: "basic", minAge: 18 },
+  "store-purchase": { kycLevel: "basic", minAge: 18 },
   "wallet-deposit": { kycLevel: "intermediate", minAge: 18 },
   "wallet-withdraw": { kycLevel: "full", minAge: 18 },
   "real-money-tournaments": { kycLevel: "intermediate", minAge: 18 },
@@ -267,7 +262,7 @@ export function getVerificationStatusLabel(status: VerificationStatus): string {
 export function canAccessFeature(
   feature: string,
   verification: UserVerification | null,
-  userRegion: string
+  userRegion: string,
 ): FeatureAccess {
   const requirement = FEATURE_REQUIREMENTS[feature];
   const regionRequirement = REGION_AGE_REQUIREMENTS[userRegion];
@@ -289,7 +284,7 @@ export function canAccessFeature(
       accessible: false,
       requiresVerification: { kycLevel: requirement.kycLevel },
       blockedReason: `This feature requires ${getKYCLevelLabel(
-        requirement.kycLevel
+        requirement.kycLevel,
       )} status`,
     };
   }
@@ -311,12 +306,12 @@ export function canAccessFeature(
     const age = verification?.dateOfBirth
       ? calculateAge(verification.dateOfBirth)
       : 0;
-    if (age < (regionRequirement.requiresParentalConsent?.underAge ?? 18)) {
+    if (age < regionRequirement.minimumAge) {
       return {
         feature,
         accessible: false,
         blockedReason: `This feature is restricted in your region for users under ${
-          regionRequirement.requiresParentalConsent?.underAge ?? 18
+          regionRequirement.minimumAge
         }`,
       };
     }

@@ -24,7 +24,7 @@ import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateAge, REGION_AGE_REQUIREMENTS } from "@/types/verification";
 
-type VerificationStep = "intro" | "dob" | "parental" | "result";
+type VerificationStep = "intro" | "dob" | "result";
 
 interface AgeVerificationModalProps {
   isOpen: boolean;
@@ -89,13 +89,14 @@ export function AgeVerificationModal({
     }
 
     const dateOfBirth = `${year}-${String(month).padStart(2, "0")}-${String(
-      day
+      day,
     ).padStart(2, "0")}`;
     const age = calculateAge(dateOfBirth);
+    const effectiveMinimumAge = Math.max(minAge, regionRequirement.minimumAge);
 
-    if (age < regionRequirement.minimumAge) {
+    if (age < effectiveMinimumAge) {
       setError(
-        `Sorry, you must be at least ${regionRequirement.minimumAge} years old to use this platform.`
+        `Sorry, you must be at least ${effectiveMinimumAge} years old to use this platform or feature.`,
       );
       setVerificationResult({
         success: false,
@@ -106,40 +107,12 @@ export function AgeVerificationModal({
       return;
     }
 
-    // Check if parental consent is needed
-    const needsParentalConsent =
-      regionRequirement.requiresParentalConsent &&
-      age < regionRequirement.requiresParentalConsent.underAge &&
-      regionRequirement.requiresParentalConsent.consentRequired;
-
-    if (age < minAge && !needsParentalConsent) {
-      setError(
-        `Sorry, you must be at least ${minAge} years old to access this feature.`
-      );
-      setVerificationResult({
-        success: false,
-        age,
-        requiresParentalConsent: false,
-      });
-      setStep("result");
-      return;
-    }
-
-    if (needsParentalConsent) {
-      setVerificationResult({
-        success: true,
-        age,
-        requiresParentalConsent: true,
-      });
-      setStep("parental");
-    } else {
-      setVerificationResult({
-        success: true,
-        age,
-        requiresParentalConsent: false,
-      });
-      setStep("result");
-    }
+    setVerificationResult({
+      success: true,
+      age,
+      requiresParentalConsent: false,
+    });
+    setStep("result");
   }, [dobMonth, dobDay, dobYear, minAge, regionRequirement]);
 
   const handleVerify = useCallback(() => {
@@ -154,7 +127,7 @@ export function AgeVerificationModal({
     setTimeout(() => {
       const dateOfBirth = `${dobYear}-${String(parseInt(dobMonth, 10)).padStart(
         2,
-        "0"
+        "0",
       )}-${String(parseInt(dobDay, 10)).padStart(2, "0")}`;
       onVerified(true, dateOfBirth);
       setIsProcessing(false);
@@ -197,8 +170,9 @@ export function AgeVerificationModal({
               <p className="text-default-500">
                 To access{" "}
                 <span className="text-primary font-medium">{featureName}</span>,
-                we need to verify your age. This helps us comply with legal
-                requirements and keep our platform safe.
+                we need to verify your age. LeetGaming.PRO is an adults-only
+                platform, and some jurisdictions or regulated features may
+                require a higher legal age, including 21+.
               </p>
             </div>
 
@@ -237,7 +211,8 @@ export function AgeVerificationModal({
                 <strong>Region:</strong> {regionRequirement.region}
               </p>
               <p>
-                <strong>Minimum age:</strong> {minAge} years
+                <strong>Minimum age:</strong>{" "}
+                {Math.max(minAge, regionRequirement.minimumAge)} years
               </p>
             </div>
           </motion.div>
@@ -326,67 +301,6 @@ export function AgeVerificationModal({
           </motion.div>
         );
 
-      case "parental":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-4"
-          >
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                <Icon
-                  icon="solar:users-group-two-rounded-bold"
-                  className="w-8 h-8 text-primary"
-                />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">
-                Parental Consent Required
-              </h3>
-              <p className="text-default-500">
-                Since you&apos;re {verificationResult?.age} years old,
-                you&apos;ll need parental consent to access certain features in
-                your region.
-              </p>
-            </div>
-
-            <Card className="bg-default-50">
-              <CardBody className="space-y-3">
-                <p className="text-sm">
-                  To complete verification, please have a parent or guardian:
-                </p>
-                <ol className="list-decimal list-inside text-sm space-y-2 text-default-600">
-                  <li>Review our Terms of Service and Privacy Policy</li>
-                  <li>Provide their email address for consent verification</li>
-                  <li>Complete the parental consent form</li>
-                </ol>
-              </CardBody>
-            </Card>
-
-            <Checkbox
-              isSelected={acceptedTerms}
-              onValueChange={setAcceptedTerms}
-              size="sm"
-            >
-              <span className="text-sm">
-                I confirm that I will obtain parental consent and my
-                parent/guardian agrees to the Terms of Service
-              </span>
-            </Checkbox>
-
-            {error && (
-              <div className="flex items-center gap-2 p-3 bg-danger/10 rounded-lg">
-                <Icon
-                  icon="solar:danger-triangle-bold"
-                  className="w-5 h-5 text-danger"
-                />
-                <span className="text-sm text-danger">{error}</span>
-              </div>
-            )}
-          </motion.div>
-        );
-
       case "result":
         return (
           <motion.div
@@ -407,7 +321,9 @@ export function AgeVerificationModal({
                   Verification Successful!
                 </h3>
                 <p className="text-default-500">
-                  Your age has been verified. You can now access {featureName}.
+                  Your age has been verified. You can now access {featureName},
+                  subject to any additional identity, payment, or regional
+                  eligibility checks.
                 </p>
 
                 <Checkbox
@@ -462,17 +378,12 @@ export function AgeVerificationModal({
   };
 
   const getStepNumber = () => {
-    const steps = [
-      "intro",
-      "dob",
-      verificationResult?.requiresParentalConsent ? "parental" : null,
-      "result",
-    ].filter(Boolean);
+    const steps = ["intro", "dob", "result"];
     return steps.indexOf(step) + 1;
   };
 
   const getTotalSteps = () => {
-    return verificationResult?.requiresParentalConsent ? 4 : 3;
+    return 3;
   };
 
   return (
@@ -529,22 +440,6 @@ export function AgeVerificationModal({
                 isDisabled={!dobMonth || !dobDay || !dobYear}
               >
                 Verify Age
-              </Button>
-            </>
-          )}
-
-          {step === "parental" && (
-            <>
-              <Button variant="flat" onPress={() => setStep("dob")}>
-                Back
-              </Button>
-              <Button
-                color="primary"
-                onPress={() => setStep("result")}
-                className="rounded-none"
-                isDisabled={!acceptedTerms}
-              >
-                Continue
               </Button>
             </>
           )}

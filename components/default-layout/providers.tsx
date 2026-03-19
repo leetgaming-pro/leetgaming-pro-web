@@ -14,10 +14,13 @@ import { PlanLimitProvider, usePlanLimit } from "@/contexts/plan-limit-context";
 import { ErrorProvider } from "@/contexts/error-context";
 import { ToastProvider } from "@/components/toast/toast-provider";
 import { Web3Provider } from "@/components/web3/web3-provider";
+import { I18nProvider } from "@/lib/i18n/useTranslation";
+import type { Locale } from "@/lib/i18n";
 
 export interface ProvidersProps {
   children: React.ReactNode;
   themeProps?: ThemeProviderProps;
+  initialLocale?: Locale;
 }
 
 /**
@@ -51,30 +54,38 @@ function ErrorProviderWithPlanLimit({
  *                                                         └── GlobalSearchProvider
  *                                                               └── Application Content
  */
-export function Providers({ children, themeProps }: ProvidersProps) {
+export function Providers({
+  children,
+  themeProps,
+  initialLocale,
+}: ProvidersProps) {
   const router = useRouter();
 
   return (
     <>
       <NextUIProvider navigate={router.push}>
         <NextThemesProvider {...themeProps}>
-          <SessionProvider basePath="/api/auth">
-            <AuthSync>
-              <SDKProvider>
-                <Web3Provider>
-                  <ProfileProvider>
-                    <PlanLimitProvider>
-                      <ErrorProviderWithPlanLimit>
-                        <ToastProvider>
-                          <GlobalSearchProvider>{children}</GlobalSearchProvider>
-                        </ToastProvider>
-                      </ErrorProviderWithPlanLimit>
-                    </PlanLimitProvider>
-                  </ProfileProvider>
-                </Web3Provider>
-              </SDKProvider>
-            </AuthSync>
-          </SessionProvider>
+          <I18nProvider initialLocale={initialLocale}>
+            <SessionProvider basePath="/api/auth">
+              <AuthSync>
+                <SDKProvider>
+                  <Web3Provider>
+                    <ProfileProvider>
+                      <PlanLimitProvider>
+                        <ErrorProviderWithPlanLimit>
+                          <ToastProvider>
+                            <GlobalSearchProvider>
+                              {children}
+                            </GlobalSearchProvider>
+                          </ToastProvider>
+                        </ErrorProviderWithPlanLimit>
+                      </PlanLimitProvider>
+                    </ProfileProvider>
+                  </Web3Provider>
+                </SDKProvider>
+              </AuthSync>
+            </SessionProvider>
+          </I18nProvider>
         </NextThemesProvider>
       </NextUIProvider>
     </>

@@ -3,6 +3,9 @@
 import React, { useState, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { EsportsButton } from "@/components/ui/esports-button";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { investorPdfButtonCopy } from "@/lib/investors/shared-copy";
 
 interface PdfDownloadButtonProps {
   variant?: "primary" | "action" | "ghost";
@@ -23,11 +26,13 @@ export function PdfDownloadButton({
   variant = "primary",
   size = "lg",
   fullWidth = false,
-  label = "Download One-Pager",
+  label,
   onBeforeDownload,
   className,
 }: PdfDownloadButtonProps) {
   const [generating, setGenerating] = useState(false);
+  const { locale } = useTranslation();
+  const copy = investorPdfButtonCopy[getTierOneLocale(locale)];
 
   const handleClick = useCallback(async () => {
     if (onBeforeDownload && !onBeforeDownload()) return;
@@ -40,7 +45,7 @@ export function PdfDownloadButton({
         import("@/components/investors/one-pager-pdf"),
       ]);
 
-      const blob = await pdf(<OnePagerDocument />).toBlob();
+      const blob = await pdf(<OnePagerDocument locale={locale} />).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -62,7 +67,7 @@ export function PdfDownloadButton({
     } finally {
       setGenerating(false);
     }
-  }, [onBeforeDownload]);
+  }, [locale, onBeforeDownload]);
 
   return (
     <EsportsButton
@@ -79,7 +84,7 @@ export function PdfDownloadButton({
         ) : undefined
       }
     >
-      {generating ? "Generating PDF…" : label}
+      {generating ? copy.generatingPdf : (label ?? copy.downloadOnePager)}
     </EsportsButton>
   );
 }

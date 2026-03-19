@@ -3,74 +3,9 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-
-interface RoadmapPhase {
-  phase: string;
-  title: string;
-  period: string;
-  status: "completed" | "in-progress" | "upcoming";
-  items: string[];
-  kpis?: string[];
-}
-
-const phases: RoadmapPhase[] = [
-  {
-    phase: "Phase 1",
-    title: "Production Stabilization",
-    period: "Q4 2025",
-    status: "completed",
-    items: [
-      "Infrastructure & CI/CD pipelines",
-      "Authentication (Steam & Google OAuth)",
-      "Core API architecture & MongoDB",
-      "Monitoring with Prometheus & Grafana",
-    ],
-    kpis: ["95% Infrastructure completion", "90% Auth completion"],
-  },
-  {
-    phase: "Phase 2",
-    title: "Core Feature Completion",
-    period: "Q1 2026",
-    status: "in-progress",
-    items: [
-      "Skill-based matchmaking live",
-      "Tournament system with brackets",
-      "Stripe payment integration",
-      "Wallet & escrow system",
-    ],
-    kpis: ["10,000 registered users", "$50K monthly transaction volume"],
-  },
-  {
-    phase: "Phase 3",
-    title: "Blockchain Integration",
-    period: "Q1–Q2 2026",
-    status: "upcoming",
-    items: [
-      "On-chain prize pool verification",
-      "Transparent prize distribution (Polygon/Base)",
-      "Wallet connect & crypto payments",
-      "Smart contract audit & deployment",
-    ],
-    kpis: ["100 prize pools created", "Blockchain verification live"],
-  },
-  {
-    phase: "Phase 4",
-    title: "Scale & Expansion",
-    period: "Q2–Q3 2026",
-    status: "upcoming",
-    items: [
-      "Multi-region deployment (LATAM, SEA, MENA)",
-      "Mobile companion app",
-      "Coaching marketplace launch",
-      "Multi-game expansion (Valorant, PUBG)",
-    ],
-    kpis: [
-      "500,000 registered users",
-      "$2.5M monthly transaction volume",
-      "100K Monthly Active Competitors",
-    ],
-  },
-];
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { roadmapTimelineCopy } from "@/lib/investors/shared-copy";
 
 const statusConfig = {
   completed: {
@@ -97,6 +32,22 @@ const statusConfig = {
 };
 
 export function RoadmapTimeline() {
+  const { locale } = useTranslation();
+  const copy = roadmapTimelineCopy[getTierOneLocale(locale)];
+  const phases = copy.phases.map((phase, index) => ({
+    ...phase,
+    status: (index === 0
+      ? "completed"
+      : index === 1
+        ? "in-progress"
+        : "upcoming") as "completed" | "in-progress" | "upcoming",
+  }));
+  const localizedStatusConfig = {
+    completed: { ...statusConfig.completed, label: copy.completed },
+    "in-progress": { ...statusConfig["in-progress"], label: copy.inProgress },
+    upcoming: { ...statusConfig.upcoming, label: copy.upcoming },
+  };
+
   return (
     <div className="relative">
       {/* Vertical line */}
@@ -104,7 +55,7 @@ export function RoadmapTimeline() {
 
       <div className="flex flex-col gap-8 lg:gap-12">
         {phases.map((phase, index) => {
-          const config = statusConfig[phase.status];
+          const config = localizedStatusConfig[phase.status];
           return (
             <motion.div
               key={phase.phase}
@@ -121,7 +72,8 @@ export function RoadmapTimeline() {
               />
 
               {/* Phase card */}
-              <div className="border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 p-6 lg:p-8 rounded-none hover:shadow-xl hover:shadow-[#FF4654]/5 dark:hover:shadow-[#DCFF37]/5 transition-all duration-300"
+              <div
+                className="border border-[#FF4654]/20 dark:border-[#DCFF37]/20 bg-white/50 dark:bg-[#0a0a0a]/50 p-6 lg:p-8 rounded-none hover:shadow-xl hover:shadow-[#FF4654]/5 dark:hover:shadow-[#DCFF37]/5 transition-all duration-300"
                 style={{
                   clipPath:
                     "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",

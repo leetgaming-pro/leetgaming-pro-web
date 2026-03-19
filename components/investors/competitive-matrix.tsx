@@ -3,6 +3,9 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { competitiveMatrixCopy } from "@/lib/investors/shared-copy";
 
 interface Competitor {
   name: string;
@@ -10,13 +13,13 @@ interface Competitor {
 }
 
 const features = [
-  { key: "replay", label: "Replay Analysis", icon: "solar:videocamera-record-bold" },
-  { key: "matchmaking", label: "Skill Matchmaking", icon: "solar:gamepad-bold" },
-  { key: "prizes", label: "Prize Distribution", icon: "solar:wallet-money-bold" },
-  { key: "multigame", label: "Multi-Game", icon: "solar:layers-bold" },
-  { key: "freemium", label: "Freemium Model", icon: "solar:tag-price-bold" },
-  { key: "blockchain", label: "Blockchain Verified", icon: "solar:shield-check-bold" },
-];
+  { key: "replay", icon: "solar:videocamera-record-bold" },
+  { key: "matchmaking", icon: "solar:gamepad-bold" },
+  { key: "prizes", icon: "solar:wallet-money-bold" },
+  { key: "multigame", icon: "solar:layers-bold" },
+  { key: "freemium", icon: "solar:tag-price-bold" },
+  { key: "blockchain", icon: "solar:shield-check-bold" },
+] as const;
 
 const competitors: Competitor[] = [
   {
@@ -88,6 +91,9 @@ const competitors: Competitor[] = [
 ];
 
 export function CompetitiveMatrix() {
+  const { locale } = useTranslation();
+  const copy = competitiveMatrixCopy[getTierOneLocale(locale)];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -101,7 +107,7 @@ export function CompetitiveMatrix() {
           <thead>
             <tr>
               <th className="text-left p-3 lg:p-4 text-sm font-semibold text-default-500 uppercase tracking-wider border-b border-default-200 dark:border-default-100/10">
-                Feature
+                {copy.feature}
               </th>
               {competitors.map((comp, i) => (
                 <th
@@ -118,7 +124,7 @@ export function CompetitiveMatrix() {
             </tr>
           </thead>
           <tbody>
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <tr
                 key={feature.key}
                 className="border-b border-default-100 dark:border-default-100/5 hover:bg-default-50 dark:hover:bg-default-50/5 transition-colors"
@@ -131,7 +137,7 @@ export function CompetitiveMatrix() {
                       width={18}
                     />
                     <span className="text-sm font-medium text-[#34445C] dark:text-[#F5F0E1]">
-                      {feature.label}
+                      {copy.features[index]}
                     </span>
                   </div>
                 </td>
@@ -139,9 +145,7 @@ export function CompetitiveMatrix() {
                   <td
                     key={comp.name}
                     className={`p-3 lg:p-4 text-center ${
-                      i === 0
-                        ? "bg-[#FF4654]/5 dark:bg-[#DCFF37]/5"
-                        : ""
+                      i === 0 ? "bg-[#FF4654]/5 dark:bg-[#DCFF37]/5" : ""
                     }`}
                   >
                     {comp.features[feature.key] ? (
@@ -172,7 +176,9 @@ export function CompetitiveMatrix() {
       {/* Mobile cards */}
       <div className="md:hidden flex flex-col gap-4">
         {competitors.map((comp, i) => {
-          const checkedCount = Object.values(comp.features).filter(Boolean).length;
+          const checkedCount = Object.values(comp.features).filter(
+            Boolean,
+          ).length;
           return (
             <div
               key={comp.name}
@@ -201,15 +207,12 @@ export function CompetitiveMatrix() {
                   {comp.name}
                 </span>
                 <span className="text-xs text-default-400">
-                  {checkedCount}/{features.length}
+                  {checkedCount}/{features.length} {copy.featureCountSuffix}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {features.map((feature) => (
-                  <div
-                    key={feature.key}
-                    className="flex items-center gap-1.5"
-                  >
+                {features.map((feature, index) => (
+                  <div key={feature.key} className="flex items-center gap-1.5">
                     <Icon
                       icon={
                         comp.features[feature.key]
@@ -226,7 +229,7 @@ export function CompetitiveMatrix() {
                       width={16}
                     />
                     <span className="text-xs text-default-600">
-                      {feature.label}
+                      {copy.features[index]}
                     </span>
                   </div>
                 ))}

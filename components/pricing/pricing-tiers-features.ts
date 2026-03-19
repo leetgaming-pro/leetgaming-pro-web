@@ -1,6 +1,6 @@
-import type {PricingFeatures} from "./pricing-comparison-types";
+import type { PricingFeatures } from "./pricing-comparison-types";
 
-import {TiersEnum} from "./pricing-types";
+import { TiersEnum } from "./pricing-types";
 
 const features: PricingFeatures = [
   {
@@ -14,7 +14,8 @@ const features: PricingFeatures = [
           [TiersEnum.Team]: "Unlimited",
           [TiersEnum.Organizer]: "Unlimited",
         },
-        helpText: "Upload CS2, Valorant, and other game replay files for analysis.",
+        helpText:
+          "Upload CS2, Valorant, and other game replay files for analysis.",
       },
       {
         title: "Cloud storage",
@@ -44,7 +45,8 @@ const features: PricingFeatures = [
           [TiersEnum.Team]: true,
           [TiersEnum.Organizer]: true,
         },
-        helpText: "Automatically generate highlight clips from your best plays.",
+        helpText:
+          "Automatically generate highlight clips from your best plays.",
       },
     ],
   },
@@ -69,7 +71,8 @@ const features: PricingFeatures = [
           [TiersEnum.Team]: true,
           [TiersEnum.Organizer]: true,
         },
-        helpText: "Economy analysis, utility usage, positioning heatmaps, and more.",
+        helpText:
+          "Economy analysis, utility usage, positioning heatmaps, and more.",
       },
       {
         title: "AI-powered recommendations",
@@ -219,7 +222,8 @@ const features: PricingFeatures = [
           [TiersEnum.Team]: true,
           [TiersEnum.Organizer]: true,
         },
-        helpText: "Compete for stakes in skill-based matches (where legal).",
+        helpText:
+          "Compete for stakes in skill-based matches where legal, for verified 18+ users only.",
       },
     ],
   },
@@ -309,7 +313,8 @@ const features: PricingFeatures = [
           [TiersEnum.Team]: "Full",
           [TiersEnum.Organizer]: "Custom bot",
         },
-        helpText: "Connect your Discord server for notifications and management.",
+        helpText:
+          "Connect your Discord server for notifications and management.",
       },
       {
         title: "API access",

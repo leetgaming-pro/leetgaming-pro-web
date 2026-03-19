@@ -5,12 +5,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getBackendUrl } from "@/lib/api/backend-url";
+import {
+  forwardAuthenticatedRequest,
+  getAuthContextFromRequest,
+} from "@/lib/auth/server-auth";
+
+export const dynamic = "force-dynamic";
 
 export async function PUT(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const { isAuthenticated } = getAuthContextFromRequest(session);
 
-    if (!session?.user) {
+    if (!isAuthenticated) {
       return NextResponse.json(
         {
           success: false,
@@ -20,10 +28,25 @@ export async function PUT(_request: NextRequest) {
       );
     }
 
-    // In production, mark all notifications as read in database
-    return NextResponse.json({
-      success: true,
-      message: "All notifications marked as read",
+    const backendUrl = getBackendUrl();
+    const response = await forwardAuthenticatedRequest(
+      `${backendUrl}/notifications/read-all`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      session ?? undefined,
+    );
+
+    const body = await response.text();
+
+    return new NextResponse(body || JSON.stringify({ success: response.ok }), {
+      status: response.status,
+      headers: {
+        "Content-Type": response.headers.get("content-type") || "application/json",
+      },
     });
   } catch (error) {
     console.error("[API /api/notifications/read-all] Error:", error);

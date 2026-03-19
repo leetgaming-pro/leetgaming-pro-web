@@ -39,7 +39,11 @@
     "inactive": "Inactive",
     "pending": "Pending",
     "completed": "Completed",
-    "failed": "Failed"
+    "failed": "Failed",
+    "changeLanguage": "Change language",
+    "selectLanguage": "Select language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "signIn": "Sign In",
@@ -64,10 +68,12 @@
     "home": "Home",
     "play": "Play",
     "teams": "Teams",
+    "matches": "Matches",
     "players": "Players",
     "tournaments": "Tournaments",
     "cloud": "Cloud",
     "replays": "Replays",
+    "highlights": "Highlights",
     "leaderboards": "Leaderboards",
     "settings": "Settings",
     "profile": "Profile",
@@ -77,7 +83,20 @@
     "about": "About",
     "blog": "Blog",
     "pricing": "Pricing",
-    "docs": "Documentation"
+    "docs": "Documentation",
+    "playNow": "Play Now",
+    "browseMatches": "Browse Matches",
+    "cloudStorage": "Cloud Storage",
+    "uploadContent": "Upload Content",
+    "pricingPlans": "Pricing Plans",
+    "supplyStore": "Supply Store",
+    "myWallet": "My Wallet",
+    "subscription": "Subscription",
+    "serviceStatus": "Service Status",
+    "helpSupport": "Help & Support",
+    "investors": "For Investors",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
   },
   "matchmaking": {
     "title": "Find a Match",
@@ -241,6 +260,7 @@
     "notifications": "Notifications",
     "preferences": "Preferences",
     "language": "Language",
+    "languageDescription": "Choose your preferred language for the interface",
     "theme": "Theme",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
@@ -258,6 +278,14 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "cookiePolicy": "Cookie Policy",
+    "relatedDocuments": "Related Legal Documents",
+    "termsMetaTitle": "Terms of Service | LeetGaming.PRO",
+    "termsMetaDescription": "Read the Terms of Service for using LeetGaming.PRO adult competitive gaming platform.",
+    "privacyMetaTitle": "Privacy Policy | LeetGaming.PRO",
+    "privacyMetaDescription": "Learn how LeetGaming.PRO collects, uses, and protects personal information for its adult competitive gaming platform.",
+    "cookieMetaTitle": "Cookie Policy | LeetGaming.PRO",
+    "cookieMetaDescription": "Learn about how LeetGaming.PRO uses cookies and similar technologies.",
+    "lastUpdated": "Last updated: {date}",
     "acceptTerms": "I accept the Terms of Service",
     "acceptPrivacy": "I have read and understand the Privacy Policy",
     "acceptCookies": "I accept the use of cookies",
@@ -266,8 +294,27 @@
     "managePreferences": "Manage Preferences",
     "ageVerification": "Age Verification",
     "iAmOver18": "I confirm that I am 18 years or older",
-    "iAmOver13": "I confirm that I am 13 years or older",
-    "parentalConsent": "I have parental consent"
+    "iAmOver13": "I confirm that I am 18 years or older",
+    "parentalConsent": "I confirm that I meet the legal age requirements in my jurisdiction"
+  },
+  "footer": {
+    "resources": "Resources",
+    "community": "Community",
+    "company": "Company",
+    "legal": "Legal",
+    "tagline": "Get to clutch on the international stage.",
+    "uploadFiles": "Upload Files",
+    "aboutUs": "About Us",
+    "support": "Support",
+    "contact": "Contact",
+    "cookiePolicy": "Cookie Policy",
+    "allRightsReserved": "All rights reserved."
+  },
+  "regions": {
+    "americas": "Americas",
+    "europe": "Europe",
+    "asia": "Asia",
+    "middleEast": "Middle East"
   },
   "errors": {
     "notFound": "Page not found",
@@ -285,6 +332,7 @@
     "free": "Free",
     "pro": "Pro",
     "team": "Team",
+    "organizer": "Organizer",
     "enterprise": "Enterprise",
     "perMonth": "/month",
     "perYear": "/year",
@@ -405,5 +453,127 @@
     "passport": "Passport",
     "idCard": "ID Card",
     "driversLicense": "Driver's License"
+  },
+  "landing": {
+    "finalCta": {
+      "titlePrefix": "READY TO",
+      "titleHighlight": "COMPETE",
+      "subtitle": "Join thousands of players already competing on LeetGaming.PRO. Free to start. No credit card required.",
+      "createAccount": "Create Account",
+      "explorePlans": "Explore Plans",
+      "trust": {
+        "secure": "Secure",
+        "instantSetup": "Instant Setup",
+        "freeTier": "Free Tier Available",
+        "regions": "30+ Regions"
+      }
+    },
+    "productOverview": {
+      "eyebrow": "THE PLATFORM",
+      "titlePrefix": "EVERYTHING YOU NEED TO",
+      "titleHighlight": "GO PRO",
+      "subtitle": "One platform that replaces fragmented tools with an integrated competitive gaming ecosystem.",
+      "pillars": {
+        "replay": {
+          "title": "AI Replay Analysis",
+          "description": "Upload your demos and get instant HLTV 2.0 ratings, ADR, KAST%, round-by-round economy breakdowns, and AI-powered improvement suggestions."
+        },
+        "matchmaking": {
+          "title": "Skill-Based Matchmaking",
+          "description": "Elo/Glicko-2 powered rating system with tiered queues across 30+ global regions. Fair matches from casual to elite competition."
+        },
+        "tournaments": {
+          "title": "Automated Tournaments",
+          "description": "Create or join bracket tournaments with automated scheduling, live spectating, anti-cheat protection, and verified prize distribution."
+        },
+        "prizes": {
+          "title": "Transparent Prize Pools",
+          "description": "Blockchain-verified escrow ensures fair payouts. Multi-currency support with instant withdrawals via Stripe, crypto, or in-platform wallet."
+        }
+      }
+    }
+  },
+  "checkout": {
+    "paymentHistory": {
+      "title": "Payment History",
+      "loadFailed": "Failed to load payment history",
+      "empty": "No payment history yet",
+      "transactions": "{count} transactions",
+      "ariaTable": "Payment history table",
+      "typeDeposit": "Deposit",
+      "typeWithdrawal": "Withdrawal",
+      "typeSubscription": "Subscription",
+      "columns": {
+        "date": "DATE",
+        "type": "TYPE",
+        "amount": "AMOUNT",
+        "status": "STATUS",
+        "provider": "PROVIDER"
+      },
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "canceled": "Canceled",
+        "refunded": "Refunded"
+      }
+    },
+    "subscription": {
+      "loading": "Loading subscription...",
+      "upgradeTitle": "Upgrade to Pro",
+      "upgradeDescription": "Unlock unlimited replays, advanced analytics, and premium features. Join thousands of competitive gamers.",
+      "upgradeNow": "Upgrade Now",
+      "planTitle": "{plan} Plan",
+      "billingSuffix": "billing",
+      "currentBillingPeriod": "Current billing period",
+      "daysLeft": "{count} days left",
+      "expiresToday": "Expires today",
+      "nextPayment": "Next payment",
+      "renewalDate": "Renewal date",
+      "notRenewing": "Not renewing",
+      "paymentMethodFallback": "Payment method",
+      "expiresLabel": "Expires",
+      "update": "Update",
+      "endingTitle": "Subscription ending",
+      "endingDescription": "Your subscription will end on {date}. You can reactivate anytime before then.",
+      "alreadyCancelled": "Already cancelled",
+      "cancel": "Cancel subscription",
+      "changePlan": "Change plan",
+      "reactivate": "Reactivate",
+      "cancelModalTitle": "Cancel Subscription",
+      "cancelConfirm": "Are you sure you want to cancel your subscription?",
+      "whenCancel": "When you cancel:",
+      "cancelBenefitAccess": "You'll keep access until {date}",
+      "cancelBenefitNoCharge": "You won't be charged again",
+      "cancelBenefitReactivate": "You can reactivate anytime",
+      "keepSubscription": "Keep subscription",
+      "confirmCancel": "Yes, cancel",
+      "billingPeriod": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "yearly": "Yearly"
+      },
+      "status": {
+        "active": "Active",
+        "canceled": "Canceled",
+        "past_due": "Past due",
+        "trialing": "Trialing",
+        "paused": "Paused"
+      }
+    }
+  },
+  "pricingPage": {
+    "eyebrow": "Competitive Pricing",
+    "titlePrefix": "Choose Your",
+    "titleHighlight": "Competitive Edge",
+    "subtitle": "From casual gaming to professional esports, find the perfect plan for your competitive journey.",
+    "loadFailed": "Failed to load pricing plans",
+    "yearlySavings": "Save 20% with yearly billing",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "moreFeatures": "+{count} more features",
+    "compareTitle": "Compare All Features",
+    "compareSubtitle": "See exactly what's included in each plan. All plans include our core esports platform features."
   }
 }

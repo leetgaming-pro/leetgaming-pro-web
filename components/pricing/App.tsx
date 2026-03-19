@@ -19,6 +19,7 @@ import {
 } from "@nextui-org/react";
 import { cn } from "@nextui-org/react";
 import { useTheme } from "next-themes";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 import { FrequencyEnum, TiersEnum } from "./pricing-types";
 import { frequencies, tiers as staticTiers } from "./pricing-tiers";
@@ -68,6 +69,7 @@ function mapPlanKindToTier(kind: string): TiersEnum {
 }
 
 export default function Component() {
+  const { t } = useTranslation();
   const [selectedFrequency, setSelectedFrequency] = React.useState(
     frequencies[0],
   );
@@ -94,13 +96,13 @@ export default function Component() {
         }
       } catch (err) {
         console.error("Failed to fetch plans:", err);
-        setError("Failed to load pricing plans");
+        setError(t("pricingPage.loadFailed"));
       } finally {
         setIsLoading(false);
       }
     }
     fetchPlans();
-  }, []);
+  }, [t]);
 
   // Merge API plans with static tier data for styling/features
   const tiers = useMemo(() => {
@@ -121,10 +123,17 @@ export default function Component() {
       return {
         ...staticTier,
         key: tierKey,
-        title: apiPlan.name.replace(" Tier", ""), // Remove "Tier" suffix if present
+        title:
+          tierKey === TiersEnum.Free
+            ? t("pricing.free")
+            : tierKey === TiersEnum.Pro
+              ? t("pricing.pro")
+              : tierKey === TiersEnum.Team
+                ? t("pricing.team")
+                : t("pricing.organizer"),
         description: apiPlan.description || staticTier.description,
         price: apiPlan.is_free
-          ? "Free"
+          ? t("pricing.free")
           : {
               [FrequencyEnum.Monthly]: `$${monthlyPrice.toFixed(2)}`,
               [FrequencyEnum.Yearly]: `$${yearlyPrice.toFixed(2)}`,
@@ -140,13 +149,13 @@ export default function Component() {
         featured: apiPlan.kind === "team" || apiPlan.kind === "business",
         badge:
           apiPlan.kind === "pro"
-            ? "Most Popular"
+            ? t("pricing.mostPopular")
             : apiPlan.kind === "business"
-              ? "Best Value"
+              ? t("pricing.bestValue")
               : staticTier.badge,
       };
     });
-  }, [apiPlans]);
+  }, [apiPlans, t]);
 
   const onFrequencyChange = (selectedKey: React.Key) => {
     const frequencyIndex = frequencies.findIndex((f) => f.key === selectedKey);
@@ -236,22 +245,23 @@ export default function Component() {
           </div>
 
           <p className="text-xs sm:text-sm lg:text-base font-medium text-[#FF4654] dark:text-[#DCFF37] mb-3 sm:mb-4 uppercase tracking-wider">
-            Competitive Pricing
+            {t("pricingPage.eyebrow")}
           </p>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 sm:mb-6 lg:mb-8">
-            <span className="text-foreground">Choose Your </span>
+            <span className="text-foreground">
+              {t("pricingPage.titlePrefix")}{" "}
+            </span>
             <span className="bg-gradient-to-r from-[#FF4654] via-[#FFC700] to-[#DCFF37] bg-clip-text text-transparent">
-              Competitive Edge
+              {t("pricingPage.titleHighlight")}
             </span>
           </h1>
 
           <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-default-500 max-w-2xl lg:max-w-3xl mx-auto leading-relaxed px-4">
-            From casual gaming to professional esports, find the perfect plan
-            for your competitive journey.
+            {t("pricingPage.subtitle")}
             {isYearly && (
               <span className="block mt-2 text-[#FF4654] dark:text-[#DCFF37] font-medium">
-                Save 20% with yearly billing
+                {t("pricingPage.yearlySavings")}
               </span>
             )}
           </p>
@@ -276,7 +286,7 @@ export default function Component() {
                 key={FrequencyEnum.Monthly}
                 title={
                   <span className="text-inherit text-sm sm:text-base">
-                    Monthly
+                    {t("pricingPage.monthly")}
                   </span>
                 }
               />
@@ -284,7 +294,9 @@ export default function Component() {
                 key={FrequencyEnum.Yearly}
                 title={
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <span className="text-sm sm:text-base">Yearly</span>
+                    <span className="text-sm sm:text-base">
+                      {t("pricingPage.yearly")}
+                    </span>
                     <Chip
                       size="sm"
                       className="bg-[#DCFF37] text-[#34445C] font-semibold rounded-none text-xs"
@@ -318,7 +330,7 @@ export default function Component() {
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-[#DCFF37] text-[#34445C] font-semibold rounded-none hover:bg-[#c8eb2e] transition-colors"
               >
-                Retry
+                {t("common.retry")}
               </button>
             </div>
           )}
@@ -443,7 +455,7 @@ export default function Component() {
                         )}
                         {isYearly && typeof tier.price !== "string" && (
                           <p className="text-[#FF4654] dark:text-[#DCFF37] text-xs mt-2 font-medium">
-                            Billed annually
+                            {t("pricing.billedAnnually")}
                           </p>
                         )}
                       </div>
@@ -637,7 +649,9 @@ export default function Component() {
                           })}
                           {(tier.features?.length || 0) > 5 && (
                             <li className="text-xs text-[#FF4654] dark:text-[#DCFF37] font-medium">
-                              +{(tier.features?.length || 0) - 5} more features
+                              {t("pricingPage.moreFeatures", {
+                                count: (tier.features?.length || 0) - 5,
+                              })}
                             </li>
                           )}
                         </ul>
@@ -694,11 +708,10 @@ export default function Component() {
         <div className="mb-16 lg:mb-24">
           <div className="text-center mb-12 lg:mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6 text-[#34445C] dark:text-[#F5F0E1]">
-              Compare All Features
+              {t("pricingPage.compareTitle")}
             </h2>
             <p className="text-[#34445C]/70 dark:text-[#F5F0E1]/60 max-w-2xl lg:max-w-3xl mx-auto text-base lg:text-lg">
-              See exactly what&apos;s included in each plan. All plans include
-              our core esports platform features.
+              {t("pricingPage.compareSubtitle")}
             </p>
           </div>
 
@@ -712,7 +725,7 @@ export default function Component() {
                 <tr className="border-b border-[#FF4654]/20 dark:border-[#DCFF37]/20">
                   <th className="text-left p-6 w-1/5">
                     <span className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1]">
-                      Features
+                      {t("pricing.features")}
                     </span>
                   </th>
                   {tiers.map((tier) => {
@@ -976,9 +989,11 @@ export default function Component() {
           <Spacer y={8} />
 
           <p className="text-[#34445C]/50 dark:text-[#F5F0E1]/40 text-xs sm:text-sm px-4">
-            All prices in USD. VAT may apply based on your location.{" "}
+            All prices in USD. VAT may apply based on your location.
+            Subscription billing is limited to users 18+ and may require
+            additional eligibility checks in some jurisdictions.{" "}
             <Link
-              href="/terms"
+              href="/legal/terms"
               className="underline text-[#FF4654] dark:text-[#DCFF37]"
             >
               Terms

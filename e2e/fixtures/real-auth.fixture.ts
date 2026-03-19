@@ -25,11 +25,74 @@ export const FREE_USER = {
   userId: '11111111-1111-1111-1111-111111111111',
 } as const;
 
+export const MATCHMAKING_TEST_USERS = [
+  PRO_USER,
+  FREE_USER,
+  {
+    email: 'mm.player1@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 1',
+    userId: '66666666-6666-6666-6666-666666666601',
+  },
+  {
+    email: 'mm.player2@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 2',
+    userId: '66666666-6666-6666-6666-666666666602',
+  },
+  {
+    email: 'mm.player3@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 3',
+    userId: '66666666-6666-6666-6666-666666666603',
+  },
+  {
+    email: 'mm.player4@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 4',
+    userId: '66666666-6666-6666-6666-666666666604',
+  },
+  {
+    email: 'mm.player5@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 5',
+    userId: '66666666-6666-6666-6666-666666666605',
+  },
+  {
+    email: 'mm.player6@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 6',
+    userId: '66666666-6666-6666-6666-666666666606',
+  },
+  {
+    email: 'mm.player7@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 7',
+    userId: '66666666-6666-6666-6666-666666666607',
+  },
+  {
+    email: 'mm.player8@leetgaming.gg',
+    password: 'LeetGaming2026!',
+    displayName: 'Matchmaking Player 8',
+    userId: '66666666-6666-6666-6666-666666666608',
+  },
+] as const;
+
 interface UserCredentials {
   email: string;
   password: string;
   displayName: string;
   userId: string;
+}
+
+export function getMatchmakingUser(index: number): UserCredentials {
+  const user = MATCHMAKING_TEST_USERS[index];
+
+  if (!user) {
+    throw new Error(`Unknown matchmaking test user index: ${index}`);
+  }
+
+  return user;
 }
 
 /**
@@ -59,13 +122,11 @@ async function performRealLogin(page: Page, user: UserCredentials): Promise<void
   const submitButton = page.getByRole('button', { name: /enter the arena|sign in/i });
   await submitButton.click();
 
-  // Wait for redirect away from signin page (goes to /match-making by default)
-  await page.waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 30000 });
-
   // Wait for session to be fully established
   // Poll the session endpoint until it returns a valid session with user data
   let retries = 0;
   const maxRetries = 10;
+  let sessionEstablished = false;
   while (retries < maxRetries) {
     const sessionResponse = await page.evaluate(async () => {
       const res = await fetch('/api/auth/session');
@@ -73,12 +134,35 @@ async function performRealLogin(page: Page, user: UserCredentials): Promise<void
     });
 
     if (sessionResponse?.user?.email) {
+      sessionEstablished = true;
       break;
+    }
+
+    const invalidCredentialsVisible = await page
+      .getByText(/invalid credentials/i)
+      .isVisible()
+      .catch(() => false);
+
+    if (invalidCredentialsVisible) {
+      throw new Error(`Real login failed for ${user.email}: invalid credentials`);
     }
 
     await page.waitForTimeout(1000);
     retries++;
   }
+
+  if (!sessionEstablished) {
+    throw new Error(`Real login failed for ${user.email}: session was not established`);
+  }
+
+  // Wait for redirect away from signin page (goes to /match-making by default)
+  // Some flows establish the session before navigation completes, so fall back to
+  // navigating explicitly once the session is valid.
+  await page
+    .waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 10000 })
+    .catch(async () => {
+      await page.goto('/match-making', { waitUntil: 'domcontentloaded' });
+    });
 }
 
 /**

@@ -4,73 +4,176 @@ import React from "react";
 import { Card, CardBody, Chip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { successMetricsCopy } from "@/lib/investors/shared-copy";
 
-interface KPIRow {
-  metric: string;
-  month6: string;
-  month12: string;
-  icon: string;
-}
-
-const northStar = {
-  metric: "Monthly Active Competitors",
-  target: "100K",
-  by: "Year 1",
-  icon: "solar:star-bold",
-};
-
-const kpis: KPIRow[] = [
-  {
-    metric: "Monthly Active Users (MAU)",
-    month6: "25K",
-    month12: "100K",
-    icon: "solar:users-group-rounded-bold",
+const localizedMetrics = {
+  "en-US": {
+    northStar: {
+      metric: "Monthly Active Competitors",
+      target: "100K",
+      icon: "solar:star-bold",
+    },
+    kpis: [
+      [
+        "Monthly Active Users (MAU)",
+        "25K",
+        "100K",
+        "solar:users-group-rounded-bold",
+      ],
+      ["Paid Subscribers", "2,500", "15K", "solar:crown-bold"],
+      [
+        "Monthly Recurring Revenue",
+        "$25K",
+        "$150K",
+        "solar:dollar-minimalistic-bold",
+      ],
+      [
+        "Replay Analyses / Month",
+        "50K",
+        "500K",
+        "solar:video-frame-play-horizontal-bold",
+      ],
+      ["Matches Played / Month", "100K", "1M", "solar:gamepad-bold"],
+      ["Tournament GMV", "$50K", "$500K", "solar:cup-star-bold"],
+      ["Net Promoter Score", "40+", "55+", "solar:graph-up-bold"],
+      ["Monthly Churn Rate", "<8%", "<5%", "solar:chart-bold"],
+    ],
   },
-  {
-    metric: "Paid Subscribers",
-    month6: "2,500",
-    month12: "15K",
-    icon: "solar:crown-bold",
+  "pt-BR": {
+    northStar: {
+      metric: "Competidores ativos mensais",
+      target: "100 mil",
+      icon: "solar:star-bold",
+    },
+    kpis: [
+      [
+        "Usuários ativos mensais (MAU)",
+        "25 mil",
+        "100 mil",
+        "solar:users-group-rounded-bold",
+      ],
+      ["Assinantes pagos", "2.500", "15 mil", "solar:crown-bold"],
+      [
+        "Receita recorrente mensal",
+        "$25 mil",
+        "$150 mil",
+        "solar:dollar-minimalistic-bold",
+      ],
+      [
+        "Análises de replay / mês",
+        "50 mil",
+        "500 mil",
+        "solar:video-frame-play-horizontal-bold",
+      ],
+      ["Partidas jogadas / mês", "100 mil", "1 mi", "solar:gamepad-bold"],
+      ["GMV de torneios", "$50 mil", "$500 mil", "solar:cup-star-bold"],
+      ["Net Promoter Score", "40+", "55+", "solar:graph-up-bold"],
+      ["Churn mensal", "<8%", "<5%", "solar:chart-bold"],
+    ],
   },
-  {
-    metric: "Monthly Recurring Revenue",
-    month6: "$25K",
-    month12: "$150K",
-    icon: "solar:dollar-minimalistic-bold",
+  "es-ES": {
+    northStar: {
+      metric: "Competidores activos mensuales",
+      target: "100K",
+      icon: "solar:star-bold",
+    },
+    kpis: [
+      [
+        "Usuarios activos mensuales (MAU)",
+        "25K",
+        "100K",
+        "solar:users-group-rounded-bold",
+      ],
+      ["Suscriptores de pago", "2.500", "15K", "solar:crown-bold"],
+      [
+        "Ingresos recurrentes mensuales",
+        "$25K",
+        "$150K",
+        "solar:dollar-minimalistic-bold",
+      ],
+      [
+        "Análisis de replay / mes",
+        "50K",
+        "500K",
+        "solar:video-frame-play-horizontal-bold",
+      ],
+      ["Partidas jugadas / mes", "100K", "1M", "solar:gamepad-bold"],
+      ["GMV de torneos", "$50K", "$500K", "solar:cup-star-bold"],
+      ["Net Promoter Score", "40+", "55+", "solar:graph-up-bold"],
+      ["Churn mensual", "<8%", "<5%", "solar:chart-bold"],
+    ],
   },
-  {
-    metric: "Replay Analyses / Month",
-    month6: "50K",
-    month12: "500K",
-    icon: "solar:video-frame-play-horizontal-bold",
+  "es-LA": {
+    northStar: {
+      metric: "Competidores activos mensuales",
+      target: "100K",
+      icon: "solar:star-bold",
+    },
+    kpis: [
+      [
+        "Usuarios activos mensuales (MAU)",
+        "25K",
+        "100K",
+        "solar:users-group-rounded-bold",
+      ],
+      ["Suscriptores pagos", "2,500", "15K", "solar:crown-bold"],
+      [
+        "Ingresos recurrentes mensuales",
+        "$25K",
+        "$150K",
+        "solar:dollar-minimalistic-bold",
+      ],
+      [
+        "Análisis de replay / mes",
+        "50K",
+        "500K",
+        "solar:video-frame-play-horizontal-bold",
+      ],
+      ["Partidas jugadas / mes", "100K", "1M", "solar:gamepad-bold"],
+      ["GMV de torneos", "$50K", "$500K", "solar:cup-star-bold"],
+      ["Net Promoter Score", "40+", "55+", "solar:graph-up-bold"],
+      ["Churn mensual", "<8%", "<5%", "solar:chart-bold"],
+    ],
   },
-  {
-    metric: "Matches Played / Month",
-    month6: "100K",
-    month12: "1M",
-    icon: "solar:gamepad-bold",
+  "zh-CN": {
+    northStar: {
+      metric: "月活竞技玩家",
+      target: "100K",
+      icon: "solar:star-bold",
+    },
+    kpis: [
+      ["月活用户（MAU）", "25K", "100K", "solar:users-group-rounded-bold"],
+      ["付费订阅用户", "2,500", "15K", "solar:crown-bold"],
+      ["月度经常性收入", "$25K", "$150K", "solar:dollar-minimalistic-bold"],
+      [
+        "每月回放分析次数",
+        "50K",
+        "500K",
+        "solar:video-frame-play-horizontal-bold",
+      ],
+      ["每月比赛场次", "100K", "1M", "solar:gamepad-bold"],
+      ["赛事 GMV", "$50K", "$500K", "solar:cup-star-bold"],
+      ["净推荐值", "40+", "55+", "solar:graph-up-bold"],
+      ["月流失率", "<8%", "<5%", "solar:chart-bold"],
+    ],
   },
-  {
-    metric: "Tournament GMV",
-    month6: "$50K",
-    month12: "$500K",
-    icon: "solar:cup-star-bold",
-  },
-  {
-    metric: "Net Promoter Score",
-    month6: "40+",
-    month12: "55+",
-    icon: "solar:graph-up-bold",
-  },
-  {
-    metric: "Monthly Churn Rate",
-    month6: "<8%",
-    month12: "<5%",
-    icon: "solar:chart-bold",
-  },
-];
+} as const;
 
 export function SuccessMetrics() {
+  const { locale } = useTranslation();
+  const tierOneLocale = getTierOneLocale(locale);
+  const copy = successMetricsCopy[tierOneLocale];
+  const data = localizedMetrics[tierOneLocale];
+  const northStar = { ...data.northStar, by: copy.year1 };
+  const kpis = data.kpis.map(([metric, month6, month12, icon]) => ({
+    metric,
+    month6,
+    month12,
+    icon,
+  }));
+
   return (
     <div className="w-full">
       {/* North Star */}
@@ -104,7 +207,7 @@ export function SuccessMetrics() {
                     variant="flat"
                     className="bg-[#FFC700]/20 text-[#FFC700] font-bold w-fit mx-auto sm:mx-0"
                   >
-                    NORTH STAR
+                    {copy.northStar}
                   </Chip>
                   <span className="text-xs text-default-500 uppercase tracking-wider">
                     {northStar.by}
@@ -138,13 +241,13 @@ export function SuccessMetrics() {
               {/* Header row */}
               <div className="grid grid-cols-[1fr_120px_120px] bg-[#34445C] dark:bg-[#1e2a38]">
                 <div className="px-6 py-3 text-sm font-bold text-[#F5F0E1]">
-                  Success Metric
+                  {copy.successMetric}
                 </div>
                 <div className="px-4 py-3 text-sm font-bold text-[#DCFF37] text-center">
-                  Month 6
+                  {copy.month6}
                 </div>
                 <div className="px-4 py-3 text-sm font-bold text-[#DCFF37] text-center">
-                  Month 12
+                  {copy.month12}
                 </div>
               </div>
               {/* Data rows */}
@@ -152,9 +255,7 @@ export function SuccessMetrics() {
                 <div
                   key={kpi.metric}
                   className={`grid grid-cols-[1fr_120px_120px] border-b border-default-100 dark:border-default-50/10 ${
-                    i % 2 === 0
-                      ? "bg-default-50/50 dark:bg-default-50/5"
-                      : ""
+                    i % 2 === 0 ? "bg-default-50/50 dark:bg-default-50/5" : ""
                   }`}
                 >
                   <div className="px-6 py-3 flex items-center gap-2">
@@ -202,13 +303,17 @@ export function SuccessMetrics() {
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs text-default-400">6mo:</span>
+                    <span className="text-xs text-default-400">
+                      {copy.month6Short}
+                    </span>
                     <span className="text-sm font-semibold text-default-600">
                       {kpi.month6}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs text-default-400">12mo:</span>
+                    <span className="text-xs text-default-400">
+                      {copy.month12Short}
+                    </span>
                     <span className="text-sm font-bold text-[#FF4654] dark:text-[#DCFF37]">
                       {kpi.month12}
                     </span>

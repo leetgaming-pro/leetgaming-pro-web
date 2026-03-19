@@ -25,14 +25,17 @@ interface LanguageSwitcherProps {
 }
 
 // Group locales by region
-const groupedLocales = locales.reduce((acc, locale) => {
-  const region = localeInfo[locale].region;
-  if (!acc[region]) {
-    acc[region] = [];
-  }
-  acc[region].push(locale);
-  return acc;
-}, {} as Record<string, Locale[]>);
+const groupedLocales = locales.reduce(
+  (acc, locale) => {
+    const region = localeInfo[locale].region;
+    if (!acc[region]) {
+      acc[region] = [];
+    }
+    acc[region].push(locale);
+    return acc;
+  },
+  {} as Record<string, Locale[]>,
+);
 
 const regionOrder = ["Americas", "Europe", "Asia", "Middle East"];
 
@@ -40,8 +43,14 @@ export function LanguageSwitcher({
   variant = "compact",
   className = "",
 }: LanguageSwitcherProps) {
-  const { locale, changeLocale, currentLocale } = useTranslation();
+  const { locale, changeLocale, currentLocale, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const regionLabels: Record<string, string> = {
+    Americas: t("regions.americas"),
+    Europe: t("regions.europe"),
+    Asia: t("regions.asia"),
+    "Middle East": t("regions.middleEast"),
+  };
 
   const handleSelect = (newLocale: Locale) => {
     changeLocale(newLocale);
@@ -56,18 +65,22 @@ export function LanguageSwitcher({
             variant="light"
             isIconOnly
             className={className}
-            aria-label="Change language"
+            aria-label={t("common.changeLanguage")}
           >
             <span className="text-lg">{currentLocale.flag}</span>
           </Button>
         </DropdownTrigger>
         <DropdownMenu
-          aria-label="Language selection"
+          aria-label={t("common.selectLanguage")}
           selectionMode="single"
           selectedKeys={new Set([locale])}
         >
           {regionOrder.map((region) => (
-            <DropdownSection key={region} title={region} showDivider>
+            <DropdownSection
+              key={region}
+              title={regionLabels[region] ?? region}
+              showDivider
+            >
               {(groupedLocales[region] || []).map((loc) => (
                 <DropdownItem
                   key={loc}
@@ -103,13 +116,17 @@ export function LanguageSwitcher({
         </Button>
       </DropdownTrigger>
       <DropdownMenu
-        aria-label="Language selection"
+        aria-label={t("common.selectLanguage")}
         selectionMode="single"
         selectedKeys={new Set([locale])}
         className="min-w-[200px]"
       >
         {regionOrder.map((region) => (
-          <DropdownSection key={region} title={region} showDivider>
+          <DropdownSection
+            key={region}
+            title={regionLabels[region] ?? region}
+            showDivider
+          >
             {(groupedLocales[region] || []).map((loc) => (
               <DropdownItem
                 key={loc}
@@ -137,7 +154,7 @@ export function LanguageSwitcherMini({
 }: {
   className?: string;
 }) {
-  const { locale, changeLocale, currentLocale } = useTranslation();
+  const { locale, changeLocale, currentLocale, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   // Tier 1 languages only for mini view
@@ -151,7 +168,7 @@ export function LanguageSwitcherMini({
         </Button>
       </DropdownTrigger>
       <DropdownMenu
-        aria-label="Language selection"
+        aria-label={t("common.selectLanguage")}
         selectionMode="single"
         selectedKeys={new Set([locale])}
       >
@@ -183,7 +200,7 @@ export function LanguageSettings() {
       <div>
         <h3 className="text-lg font-semibold mb-1">{t("settings.language")}</h3>
         <p className="text-sm text-default-500">
-          Choose your preferred language for the interface
+          {t("settings.languageDescription")}
         </p>
       </div>
 

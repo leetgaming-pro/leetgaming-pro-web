@@ -7,15 +7,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getBackendUrl } from "@/lib/api/backend-url";
-import { getAuthHeadersFromCookies } from "@/lib/auth/server-auth";
+import {
+  forwardAuthenticatedRequest,
+  getAuthContextFromRequest,
+} from "@/lib/auth/server-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const { isAuthenticated } = getAuthContextFromRequest(session);
 
-    if (!session?.user) {
+    if (!isAuthenticated) {
       return NextResponse.json({
         success: true,
         data: [],
@@ -23,16 +27,18 @@ export async function GET(_request: NextRequest) {
       });
     }
 
-    const authHeaders = getAuthHeadersFromCookies();
     const backendUrl = getBackendUrl();
 
-    const response = await fetch(`${backendUrl}/notifications`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders,
+    const response = await forwardAuthenticatedRequest(
+      `${backendUrl}/notifications`,
+      {
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-      cache: "no-store",
-    });
+      session ?? undefined,
+    );
 
     if (!response.ok) {
       return NextResponse.json({
@@ -62,8 +68,9 @@ export async function GET(_request: NextRequest) {
 export async function DELETE(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    const { isAuthenticated } = getAuthContextFromRequest(session);
 
-    if (!session?.user) {
+    if (!isAuthenticated) {
       return NextResponse.json(
         {
           success: false,
@@ -73,17 +80,30 @@ export async function DELETE(_request: NextRequest) {
       );
     }
 
-    // In production, delete all notifications for user
-    const authHeaders = getAuthHeadersFromCookies();
     const backendUrl = getBackendUrl();
 
-    await fetch(`${backendUrl}/notifications`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders,
+    const response = await forwardAuthenticatedRequest(
+      `${backendUrl}/notifications`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+      session ?? undefined,
+    );
+
+    if (!response.ok) {
+      const message = await response.text();
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: message || "Failed to delete notifications",
+        },
+        { status: response.status },
+      );
+    }
 
     return NextResponse.json({
       success: true,

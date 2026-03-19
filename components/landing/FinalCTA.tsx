@@ -5,26 +5,42 @@
 
 "use client";
 
-import React from 'react';
-import dynamic from 'next/dynamic';
+import React from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Electrolize } from "next/font/google";
-import { scrollAnimations, scrollViewport, springs } from '@/lib/design/animations';
+import { scrollViewport, springs } from "@/lib/design/animations";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
-const SceneWrapper = dynamic(() => import('@/lib/3d/scene-wrapper'), { ssr: false });
-const BrandParticles = dynamic(() => import('@/lib/3d/particles'), { ssr: false });
+const SceneWrapper = dynamic(() => import("@/lib/3d/scene-wrapper"), {
+  ssr: false,
+});
+const BrandParticles = dynamic(() => import("@/lib/3d/particles"), {
+  ssr: false,
+});
 
 // ─── Particle Background Scene ──────────────────────────────────────────────
 
 function CTAParticleScene() {
   return (
-    <SceneWrapper cameraPosition={[0, 0, 5]} cameraFov={50} style={{ width: '100%', height: '100%' }}>
-      <BrandParticles count={150} spread={12} speed={0.1} size={0.02} colorScheme="mixed" opacity={0.4} />
+    <SceneWrapper
+      cameraPosition={[0, 0, 5]}
+      cameraFov={50}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <BrandParticles
+        count={150}
+        spread={12}
+        speed={0.1}
+        size={0.02}
+        colorScheme="mixed"
+        opacity={0.4}
+      />
     </SceneWrapper>
   );
 }
@@ -34,15 +50,18 @@ function CTAParticleScene() {
 export default function FinalCTA() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <section className="landing-section relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Gradient background */}
-      <div className="absolute inset-0"
+      <div
+        className="absolute inset-0"
         style={{
-          background: theme === 'dark'
-            ? 'linear-gradient(135deg, #0a0a0a 0%, #1e2a38 30%, #0a0a0a 70%, #0d1117 100%)'
-            : 'linear-gradient(135deg, #34445C 0%, #2a3749 40%, #34445C 70%, #1e2a38 100%)',
+          background:
+            theme === "dark"
+              ? "linear-gradient(135deg, #0a0a0a 0%, #1e2a38 30%, #0a0a0a 70%, #0d1117 100%)"
+              : "linear-gradient(135deg, #34445C 0%, #2a3749 40%, #34445C 70%, #1e2a38 100%)",
         }}
       />
 
@@ -52,8 +71,14 @@ export default function FinalCTA() {
       </div>
 
       {/* Decorative lines */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: theme === 'dark' ? 'linear-gradient(90deg, transparent, #DCFF37, transparent)' : 'linear-gradient(90deg, transparent, #FF4654, transparent)' }}
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background:
+            theme === "dark"
+              ? "linear-gradient(90deg, transparent, #DCFF37, transparent)"
+              : "linear-gradient(90deg, transparent, #FF4654, transparent)",
+        }}
       />
 
       {/* Content */}
@@ -77,10 +102,20 @@ export default function FinalCTA() {
                 onscreen: { opacity: 1, scale: 1, transition: springs.bouncy },
               }}
             >
-              <div className={`w-16 h-16 mx-auto flex items-center justify-center border-2 ${theme === 'dark' ? 'border-[#DCFF37]/30 bg-[#DCFF37]/10' : 'border-[#FF4654]/30 bg-[#FF4654]/10'}`}
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}
+              <div
+                className={`w-16 h-16 mx-auto flex items-center justify-center border-2 ${theme === "dark" ? "border-[#DCFF37]/30 bg-[#DCFF37]/10" : "border-[#FF4654]/30 bg-[#FF4654]/10"}`}
+                style={{
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
+                }}
               >
-                <Icon icon="solar:gamepad-bold" width={32} className={theme === 'dark' ? 'text-[#DCFF37]' : 'text-[#FF4654]'} />
+                <Icon
+                  icon="solar:gamepad-bold"
+                  width={32}
+                  className={
+                    theme === "dark" ? "text-[#DCFF37]" : "text-[#FF4654]"
+                  }
+                />
               </div>
             </m.div>
 
@@ -88,12 +123,24 @@ export default function FinalCTA() {
             <m.h2
               className={`${electrolize.className} text-4xl sm:text-5xl lg:text-7xl font-bold text-[#F5F0E1] uppercase tracking-tight mb-6`}
               variants={{
-                offscreen: { opacity: 0, y: 30, filter: 'blur(10px)' },
-                onscreen: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.7 } },
+                offscreen: { opacity: 0, y: 30, filter: "blur(10px)" },
+                onscreen: {
+                  opacity: 1,
+                  y: 0,
+                  filter: "blur(0px)",
+                  transition: { duration: 0.7 },
+                },
               }}
             >
-              READY TO{' '}
-              <span className={theme === 'dark' ? 'text-[#DCFF37]' : 'text-[#FF4654]'}>COMPETE</span>?
+              {t("landing.finalCta.titlePrefix")}{" "}
+              <span
+                className={
+                  theme === "dark" ? "text-[#DCFF37]" : "text-[#FF4654]"
+                }
+              >
+                {t("landing.finalCta.titleHighlight")}
+              </span>
+              ?
             </m.h2>
 
             {/* Subtext */}
@@ -104,8 +151,7 @@ export default function FinalCTA() {
                 onscreen: { opacity: 1, y: 0, transition: springs.gentle },
               }}
             >
-              Join thousands of players already competing on LeetGaming.PRO.
-              Free to start. No credit card required.
+              {t("landing.finalCta.subtitle")}
             </m.p>
 
             {/* CTAs */}
@@ -119,25 +165,32 @@ export default function FinalCTA() {
               <Button
                 className="h-14 px-10 text-lg font-bold shadow-xl hover:shadow-2xl transition-all rounded-none touch-target w-full sm:w-auto"
                 style={{
-                  backgroundColor: theme === 'dark' ? '#DCFF37' : '#FF4654',
-                  color: theme === 'dark' ? '#34445C' : '#ffffff',
-                  clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)',
+                  backgroundColor: theme === "dark" ? "#DCFF37" : "#FF4654",
+                  color: theme === "dark" ? "#34445C" : "#ffffff",
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
                 }}
                 radius="none"
                 size="lg"
                 onPress={() => router.push("/onboarding")}
               >
-                Create Account
+                {t("landing.finalCta.createAccount")}
               </Button>
               <Button
                 className="h-14 px-10 text-lg font-medium border-2 border-[#F5F0E1]/30 text-[#F5F0E1] rounded-none touch-target w-full sm:w-auto hover:bg-[#F5F0E1]/10 transition-all"
-                endContent={<Icon icon="solar:arrow-right-linear" width={20} className="text-[#F5F0E1]" />}
+                endContent={
+                  <Icon
+                    icon="solar:arrow-right-linear"
+                    width={20}
+                    className="text-[#F5F0E1]"
+                  />
+                }
                 radius="none"
                 size="lg"
                 variant="bordered"
                 onPress={() => router.push("/pricing")}
               >
-                Explore Plans
+                {t("landing.finalCta.explorePlans")}
               </Button>
             </m.div>
 
@@ -146,24 +199,27 @@ export default function FinalCTA() {
               className="flex flex-wrap justify-center gap-6 mt-10 text-[#F5F0E1]/30"
               variants={{
                 offscreen: { opacity: 0 },
-                onscreen: { opacity: 1, transition: { delay: 0.3, duration: 0.5 } },
+                onscreen: {
+                  opacity: 1,
+                  transition: { delay: 0.3, duration: 0.5 },
+                },
               }}
             >
               <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
                 <Icon icon="solar:shield-check-bold" width={14} />
-                <span>Secure</span>
+                <span>{t("landing.finalCta.trust.secure")}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
                 <Icon icon="solar:bolt-bold" width={14} />
-                <span>Instant Setup</span>
+                <span>{t("landing.finalCta.trust.instantSetup")}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
                 <Icon icon="solar:card-bold" width={14} />
-                <span>Free Tier Available</span>
+                <span>{t("landing.finalCta.trust.freeTier")}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
                 <Icon icon="solar:earth-bold" width={14} />
-                <span>30+ Regions</span>
+                <span>{t("landing.finalCta.trust.regions")}</span>
               </div>
             </m.div>
           </m.div>

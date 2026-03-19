@@ -41,7 +41,7 @@ const PLANS = [
       "25 GB cloud storage",
       "Advanced analytics & AI insights",
       "Priority matchmaking queue",
-      "Skill-based wager matches",
+      "18+ skill-based wager matches where legal",
       "Ad-free experience",
     ],
     popular: true,
@@ -92,7 +92,8 @@ export function SubscriptionStep() {
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2">Choose Your Plan</h2>
         <p className="text-default-500">
-          Start free, upgrade anytime. Save 20% with yearly billing.
+          Start free, upgrade anytime. Plans and money-flow features are
+          available only to eligible users 18+.
         </p>
       </div>
 
@@ -112,8 +113,8 @@ export function SubscriptionStep() {
                     ? plan.color === "primary"
                       ? "border-[#FF4654] bg-[#FF4654]/5 shadow-lg shadow-[#FF4654]/10"
                       : plan.color === "secondary"
-                      ? "border-[#DCFF37] bg-[#DCFF37]/5 shadow-lg shadow-[#DCFF37]/10"
-                      : "border-primary bg-primary/5 shadow-lg"
+                        ? "border-[#DCFF37] bg-[#DCFF37]/5 shadow-lg shadow-[#DCFF37]/10"
+                        : "border-primary bg-primary/5 shadow-lg"
                     : "border-default-200 hover:border-default-400 hover:shadow-md"
                 }
               `}

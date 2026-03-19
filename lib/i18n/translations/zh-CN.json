@@ -39,7 +39,11 @@
     "inactive": "不活跃",
     "pending": "待处理",
     "completed": "已完成",
-    "failed": "失败"
+    "failed": "失败",
+    "changeLanguage": "切换语言",
+    "selectLanguage": "选择语言",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单"
   },
   "auth": {
     "signIn": "登录",
@@ -64,10 +68,12 @@
     "home": "首页",
     "play": "开始游戏",
     "teams": "战队",
+    "matches": "比赛",
     "players": "选手",
     "tournaments": "锦标赛",
     "cloud": "云存储",
     "replays": "录像",
+    "highlights": "精彩集锦",
     "leaderboards": "排行榜",
     "settings": "设置",
     "profile": "个人资料",
@@ -77,7 +83,20 @@
     "about": "关于",
     "blog": "博客",
     "pricing": "定价",
-    "docs": "文档"
+    "docs": "文档",
+    "playNow": "立即开始",
+    "browseMatches": "查看比赛",
+    "cloudStorage": "云存储",
+    "uploadContent": "上传内容",
+    "pricingPlans": "定价方案",
+    "supplyStore": "补给商店",
+    "myWallet": "我的钱包",
+    "subscription": "订阅",
+    "serviceStatus": "服务状态",
+    "helpSupport": "帮助与支持",
+    "investors": "投资者",
+    "terms": "服务条款",
+    "privacy": "隐私政策"
   },
   "matchmaking": {
     "title": "寻找比赛",
@@ -241,6 +260,7 @@
     "notifications": "通知",
     "preferences": "偏好设置",
     "language": "语言",
+    "languageDescription": "选择界面的首选语言",
     "theme": "主题",
     "darkMode": "深色模式",
     "lightMode": "浅色模式",
@@ -258,6 +278,14 @@
     "termsOfService": "服务条款",
     "privacyPolicy": "隐私政策",
     "cookiePolicy": "Cookie政策",
+    "relatedDocuments": "相关法律文件",
+    "termsMetaTitle": "服务条款 | LeetGaming.PRO",
+    "termsMetaDescription": "阅读 LeetGaming.PRO 成人竞技游戏平台的服务条款。",
+    "privacyMetaTitle": "隐私政策 | LeetGaming.PRO",
+    "privacyMetaDescription": "了解 LeetGaming.PRO 如何在其成人竞技游戏平台中收集、使用和保护个人信息。",
+    "cookieMetaTitle": "Cookie 政策 | LeetGaming.PRO",
+    "cookieMetaDescription": "了解 LeetGaming.PRO 如何使用 Cookie 和类似技术。",
+    "lastUpdated": "最后更新：{date}",
     "acceptTerms": "我接受服务条款",
     "acceptPrivacy": "我已阅读并理解隐私政策",
     "acceptCookies": "我接受使用Cookie",
@@ -266,8 +294,27 @@
     "managePreferences": "管理偏好设置",
     "ageVerification": "年龄验证",
     "iAmOver18": "我确认已满18周岁",
-    "iAmOver13": "我确认已满13周岁",
-    "parentalConsent": "我已获得家长同意"
+    "iAmOver13": "我确认自己已满18周岁",
+    "parentalConsent": "我确认自己符合所在司法辖区的法定年龄要求"
+  },
+  "footer": {
+    "resources": "资源",
+    "community": "社区",
+    "company": "公司",
+    "legal": "法律",
+    "tagline": "在国际舞台上打出关键一击。",
+    "uploadFiles": "上传文件",
+    "aboutUs": "关于我们",
+    "support": "支持",
+    "contact": "联系我们",
+    "cookiePolicy": "Cookie 政策",
+    "allRightsReserved": "版权所有。"
+  },
+  "regions": {
+    "americas": "美洲",
+    "europe": "欧洲",
+    "asia": "亚洲",
+    "middleEast": "中东"
   },
   "errors": {
     "notFound": "页面未找到",
@@ -285,6 +332,7 @@
     "free": "免费版",
     "pro": "专业版",
     "team": "战队版",
+    "organizer": "赛事主办方版",
     "enterprise": "企业版",
     "perMonth": "/月",
     "perYear": "/年",
@@ -405,5 +453,127 @@
     "passport": "护照",
     "idCard": "身份证",
     "driversLicense": "驾驶证"
+  },
+  "landing": {
+    "finalCta": {
+      "titlePrefix": "准备好",
+      "titleHighlight": "开战",
+      "subtitle": "加入已经在 LeetGaming.PRO 竞技的数千名玩家。免费开始，无需信用卡。",
+      "createAccount": "创建账号",
+      "explorePlans": "查看方案",
+      "trust": {
+        "secure": "安全可靠",
+        "instantSetup": "快速开通",
+        "freeTier": "提供免费档位",
+        "regions": "30+ 地区"
+      }
+    },
+    "productOverview": {
+      "eyebrow": "平台能力",
+      "titlePrefix": "助你进阶所需的一切",
+      "titleHighlight": "尽在这里",
+      "subtitle": "一个整合型竞技游戏平台，用统一体验替代零散工具。",
+      "pillars": {
+        "replay": {
+          "title": "AI 回放分析",
+          "description": "上传你的 demo，即可获得类似 HLTV 2.0 的即时评分、ADR、KAST%、逐回合经济拆解，以及 AI 提升建议。"
+        },
+        "matchmaking": {
+          "title": "基于实力的匹配",
+          "description": "采用 Elo/Glicko-2 评分体系，在 30+ 全球地区提供分级队列，从休闲到高端竞技都更公平。"
+        },
+        "tournaments": {
+          "title": "自动化锦标赛",
+          "description": "创建或加入淘汰赛，支持自动排程、实时观战、反作弊保护和经过验证的奖金发放。"
+        },
+        "prizes": {
+          "title": "透明奖金池",
+          "description": "区块链验证托管确保公平支付。支持多币种，并可通过 Stripe、加密货币或平台钱包即时提现。"
+        }
+      }
+    }
+  },
+  "checkout": {
+    "paymentHistory": {
+      "title": "支付历史",
+      "loadFailed": "加载支付历史失败",
+      "empty": "暂时还没有支付记录",
+      "transactions": "{count} 笔交易",
+      "ariaTable": "支付历史表格",
+      "typeDeposit": "充值",
+      "typeWithdrawal": "提现",
+      "typeSubscription": "订阅",
+      "columns": {
+        "date": "日期",
+        "type": "类型",
+        "amount": "金额",
+        "status": "状态",
+        "provider": "服务商"
+      },
+      "status": {
+        "pending": "待处理",
+        "processing": "处理中",
+        "succeeded": "成功",
+        "failed": "失败",
+        "canceled": "已取消",
+        "refunded": "已退款"
+      }
+    },
+    "subscription": {
+      "loading": "正在加载订阅...",
+      "upgradeTitle": "升级到 Pro",
+      "upgradeDescription": "解锁无限回放、高级分析和更多高级功能。加入数千名竞技玩家。",
+      "upgradeNow": "立即升级",
+      "planTitle": "{plan} 方案",
+      "billingSuffix": "计费",
+      "currentBillingPeriod": "当前计费周期",
+      "daysLeft": "剩余 {count} 天",
+      "expiresToday": "今天到期",
+      "nextPayment": "下一次付款",
+      "renewalDate": "续费日期",
+      "notRenewing": "不再续费",
+      "paymentMethodFallback": "支付方式",
+      "expiresLabel": "到期",
+      "update": "更新",
+      "endingTitle": "订阅即将结束",
+      "endingDescription": "你的订阅将在 {date} 结束。在此之前你可以随时重新激活。",
+      "alreadyCancelled": "已取消",
+      "cancel": "取消订阅",
+      "changePlan": "更改方案",
+      "reactivate": "重新激活",
+      "cancelModalTitle": "取消订阅",
+      "cancelConfirm": "确定要取消你的订阅吗？",
+      "whenCancel": "取消后：",
+      "cancelBenefitAccess": "你仍可使用至 {date}",
+      "cancelBenefitNoCharge": "不会再次扣费",
+      "cancelBenefitReactivate": "你可以随时重新激活",
+      "keepSubscription": "保留订阅",
+      "confirmCancel": "是，取消",
+      "billingPeriod": {
+        "monthly": "月付",
+        "quarterly": "季付",
+        "yearly": "年付"
+      },
+      "status": {
+        "active": "有效",
+        "canceled": "已取消",
+        "past_due": "逾期",
+        "trialing": "试用中",
+        "paused": "已暂停"
+      }
+    }
+  },
+  "pricingPage": {
+    "eyebrow": "竞技定价",
+    "titlePrefix": "选择你的",
+    "titleHighlight": "竞技优势",
+    "subtitle": "从休闲玩家到职业电竞选手，都能找到适合自己竞技之路的方案。",
+    "loadFailed": "加载定价方案失败",
+    "yearlySavings": "选择年付可节省 20%",
+    "monthly": "月付",
+    "yearly": "年付",
+    "moreFeatures": "+{count} 项更多功能",
+    "compareTitle": "对比全部功能",
+    "compareSubtitle": "清楚查看每个方案包含的内容。所有方案都包含我们的核心电竞平台功能。"
   }
 }

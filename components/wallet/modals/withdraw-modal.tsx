@@ -215,6 +215,11 @@ export function WithdrawModal({
         </ModalHeader>
 
         <ModalBody className="gap-4 py-4">
+          <div className="rounded-none border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-default-700 dark:text-default-300">
+            Withdrawals are limited to eligible users 18+ and may require
+            enhanced verification or higher legal age checks in some
+            jurisdictions before release of funds.
+          </div>
           <AnimatePresence mode="wait">
             {step === "amount" && (
               <AmountStep

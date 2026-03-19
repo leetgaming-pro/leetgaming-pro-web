@@ -2,11 +2,18 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { cookies } from "next/headers";
 import { siteConfig } from "@/config/site";
 import { pressStart2P } from "@/config/fonts";
 import { metadataBase } from "@/lib/metadata-base";
 import clsx from "clsx";
 import { ClientLayoutWrapper } from "./client-layout-wrapper";
+import {
+  LOCALE_COOKIE_KEY,
+  defaultLocale,
+  localeInfo,
+  normalizeLocale,
+} from "@/lib/i18n";
 
 export const metadata: Metadata = {
   metadataBase,
@@ -59,9 +66,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const nonce = headers().get("x-nonce") ?? undefined;
+  const cookieStore = await cookies();
+  const initialLocale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_KEY)?.value ?? defaultLocale,
+  );
 
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html
+      lang={initialLocale}
+      dir={localeInfo[initialLocale].direction}
+      suppressHydrationWarning={true}
+    >
       <head />
       <body
         className={clsx(
@@ -69,7 +84,9 @@ export default async function RootLayout({
           pressStart2P.className,
         )}
       >
-        <ClientLayoutWrapper nonce={nonce}>{children}</ClientLayoutWrapper>
+        <ClientLayoutWrapper nonce={nonce} initialLocale={initialLocale}>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );

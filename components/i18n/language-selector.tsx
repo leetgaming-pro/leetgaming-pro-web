@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -8,26 +8,28 @@ import {
   DropdownItem,
   DropdownSection,
   Button,
-} from '@nextui-org/react';
-import { Icon } from '@iconify/react';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { locales, localeInfo, Locale } from '@/lib/i18n';
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { locales, localeInfo, Locale } from "@/lib/i18n";
 
 interface LanguageSelectorProps {
-  variant?: 'flat' | 'bordered' | 'faded' | 'shadow';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "flat" | "bordered" | "faded" | "shadow";
+  size?: "sm" | "md" | "lg";
   showFlag?: boolean;
   showName?: boolean;
 }
 
-export function LanguageSelector({ 
-  variant = 'flat', 
-  size = 'sm',
+export function LanguageSelector({
+  variant = "flat",
+  size = "sm",
   showFlag = true,
   showName = false,
 }: LanguageSelectorProps) {
-  const { locale, changeLocale: _changeLocale, currentLocale, isLoading } = useTranslation();
+  const { locale, changeLocale, currentLocale, isLoading, t } =
+    useTranslation();
   const [mounted, setMounted] = useState(false);
+  const selectedKeys = useMemo(() => new Set([locale]), [locale]);
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -35,30 +37,29 @@ export function LanguageSelector({
   }, []);
 
   // Group locales by region
-  const groupedLocales = locales.reduce((acc, loc) => {
-    const info = localeInfo[loc];
-    if (!acc[info.region]) {
-      acc[info.region] = [];
-    }
-    acc[info.region].push(loc);
-    return acc;
-  }, {} as Record<string, Locale[]>);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleLocaleChange = (keys: any) => {
-    const selected = Array.from(keys)[0] as Locale;
-    if (selected && selected !== locale) {
-      // Write to localStorage directly first to ensure it's saved before reload
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('leetgaming-locale', selected);
-        // Update HTML attributes
-        document.documentElement.lang = selected;
-        document.documentElement.dir = localeInfo[selected].direction;
+  const groupedLocales = locales.reduce(
+    (acc, loc) => {
+      const info = localeInfo[loc];
+      if (!acc[info.region]) {
+        acc[info.region] = [];
       }
-      // Small delay to ensure localStorage is written, then reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 50);
+      acc[info.region].push(loc);
+      return acc;
+    },
+    {} as Record<string, Locale[]>,
+  );
+
+  const regionLabels: Record<string, string> = {
+    Americas: t("regions.americas"),
+    Europe: t("regions.europe"),
+    Asia: t("regions.asia"),
+    "Middle East": t("regions.middleEast"),
+  };
+
+  const handleLocaleChange = (key: React.Key) => {
+    const selected = String(key) as Locale;
+    if (selected !== locale) {
+      changeLocale(selected);
     }
   };
 
@@ -70,8 +71,13 @@ export function LanguageSelector({
         size={size}
         className="rounded-none min-w-unit-10 border border-[#34445C]/30 dark:border-[#DCFF37]/30"
         isDisabled
+        aria-label={t("common.changeLanguage")}
       >
-        <Icon icon="solar:global-bold" width={18} className="text-[#34445C] dark:text-[#DCFF37]" />
+        <Icon
+          icon="solar:global-bold"
+          width={18}
+          className="text-[#34445C] dark:text-[#DCFF37]"
+        />
       </Button>
     );
   }
@@ -79,26 +85,47 @@ export function LanguageSelector({
   return (
     <Dropdown
       classNames={{
-        content: "rounded-none border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30 bg-[#F5F0E1] dark:bg-[#1a1a1a] shadow-lg",
+        content:
+          "rounded-none border-2 border-[#FF4654]/30 dark:border-[#DCFF37]/30 bg-[#F5F0E1] dark:bg-[#1a1a1a] shadow-lg",
       }}
     >
       <DropdownTrigger>
         <Button
           variant={variant}
           size={size}
+          data-testid="language-selector-trigger"
+          aria-label={t("common.changeLanguage")}
           className="rounded-none min-w-unit-10 border border-[#34445C]/30 dark:border-[#DCFF37]/30 hover:bg-[#34445C]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)' }}
-          startContent={showFlag && <span className="text-base">{currentLocale.flag}</span>}
+          style={{
+            clipPath:
+              "polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)",
+          }}
+          startContent={
+            showFlag && <span className="text-base">{currentLocale.flag}</span>
+          }
         >
-          {showName && <span className="ml-1 text-[#34445C] dark:text-[#DCFF37]">{currentLocale.nativeName}</span>}
-          {!showName && !showFlag && <Icon icon="solar:global-bold" width={18} className="text-[#34445C] dark:text-[#DCFF37]" />}
+          {showName && (
+            <span className="ml-1 text-[#34445C] dark:text-[#DCFF37]">
+              {currentLocale.nativeName}
+            </span>
+          )}
+          {!showName && !showFlag && (
+            <Icon
+              icon="solar:global-bold"
+              width={18}
+              className="text-[#34445C] dark:text-[#DCFF37]"
+            />
+          )}
         </Button>
       </DropdownTrigger>
       <DropdownMenu
-        aria-label="Select Language"
+        data-testid="language-selector-menu"
+        aria-label={t("common.selectLanguage")}
         selectionMode="single"
-        selectedKeys={[locale]}
-        onSelectionChange={handleLocaleChange}
+        disallowEmptySelection
+        closeOnSelect
+        selectedKeys={selectedKeys}
+        onAction={handleLocaleChange}
         classNames={{
           base: "rounded-none p-0",
           list: "max-h-[400px] overflow-y-auto",
@@ -117,12 +144,13 @@ export function LanguageSelector({
         }}
       >
         {Object.entries(groupedLocales).map(([region, regionLocales]) => (
-          <DropdownSection 
-            key={region} 
-            title={region} 
+          <DropdownSection
+            key={region}
+            title={regionLabels[region] ?? region}
             showDivider
             classNames={{
-              heading: "text-xs font-bold uppercase tracking-wider text-[#FF4654] dark:text-[#DCFF37] px-2 py-1",
+              heading:
+                "text-xs font-bold uppercase tracking-wider text-[#FF4654] dark:text-[#DCFF37] px-2 py-1",
               divider: "bg-[#34445C]/20 dark:bg-[#DCFF37]/20",
             }}
           >
@@ -132,15 +160,17 @@ export function LanguageSelector({
               return (
                 <DropdownItem
                   key={loc}
+                  data-testid={`language-option-${loc}`}
+                  textValue={info.nativeName}
                   startContent={
                     <span className="text-lg mr-2">{info.flag}</span>
                   }
                   endContent={
                     isSelected && (
-                      <Icon 
-                        icon="solar:check-circle-bold" 
-                        width={18} 
-                        className="text-[#FF4654] dark:text-[#DCFF37]" 
+                      <Icon
+                        icon="solar:check-circle-bold"
+                        width={18}
+                        className="text-[#FF4654] dark:text-[#DCFF37]"
                       />
                     )
                   }
@@ -158,4 +188,3 @@ export function LanguageSelector({
 }
 
 export default LanguageSelector;
-

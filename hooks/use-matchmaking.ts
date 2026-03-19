@@ -381,62 +381,14 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
     [sdk, session]
   );
 
-  const acceptMatch = useCallback(async (): Promise<boolean> => {
-    if (!lobbyId || !session) return false;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const lobbySdk = sdk.lobbies;
-      await lobbySdk.setPlayerReady(lobbyId, {
-        player_id: session.session_id, // This should be the actual player ID
-        is_ready: true,
-      });
-
-      // Stop lobby polling as we're now ready
-      stopLobbyPolling();
-
-      return true;
-    } catch (err: unknown) {
-      logger.error("[useMatchmaking] Error accepting match:", err);
-      setError("LOBBY_ERROR");
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [sdk, lobbyId, session]);
-
-  const declineMatch = useCallback(async (): Promise<boolean> => {
-    if (!lobbyId || !session) return false;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Leave the lobby
-      const lobbySdk = sdk.lobbies;
-      await lobbySdk.leaveLobby(lobbyId, {
-        player_id: session.session_id,
-      });
-
-      // Leave the queue
-      await leaveQueue();
-
-      setLobbyId(undefined);
-      stopLobbyPolling();
-
-      return true;
-    } catch (err: unknown) {
-      logger.error("[useMatchmaking] Error declining match:", err);
-      setError("LOBBY_ERROR");
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [sdk, lobbyId, session, leaveQueue]);
-
   // Lobby polling functions
+  const stopLobbyPolling = useCallback(() => {
+    if (lobbyPollingRef.current) {
+      clearInterval(lobbyPollingRef.current);
+      lobbyPollingRef.current = null;
+    }
+  }, []);
+
   const startLobbyPolling = useCallback(
     (lobbyId: string) => {
       if (lobbyPollingRef.current) {
@@ -480,15 +432,72 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
       // Set up interval
       lobbyPollingRef.current = setInterval(poll, 1500); // Poll every 1.5 seconds
     },
-    [sdk]
+    [sdk, stopLobbyPolling]
   );
 
-  const stopLobbyPolling = useCallback(() => {
-    if (lobbyPollingRef.current) {
-      clearInterval(lobbyPollingRef.current);
-      lobbyPollingRef.current = null;
+  const acceptMatch = useCallback(async (): Promise<boolean> => {
+    if (!lobbyId || !session) return false;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await sdk.lobbies.confirmReadiness(lobbyId);
+      if (!result) {
+        setError("LOBBY_ERROR");
+        return false;
+      }
+
+      if (result.all_ready) {
+        stopLobbyPolling();
+      }
+
+      return true;
+    } catch (err: unknown) {
+      logger.error("[useMatchmaking] Error accepting match:", err);
+      setError("LOBBY_ERROR");
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [sdk, lobbyId, session, stopLobbyPolling]);
+
+  const declineMatch = useCallback(async (): Promise<boolean> => {
+    if (!lobbyId || !session) return false;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await sdk.lobbies.declineReadiness(lobbyId, "player_declined");
+      if (!result) {
+        setError("LOBBY_ERROR");
+        return false;
+      }
+
+      stopPolling();
+      closeNotificationWs();
+      stopElapsedTimer();
+      setLobbyId(undefined);
+      stopLobbyPolling();
+      setSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: "cancelled",
+            }
+          : null
+      );
+
+      return true;
+    } catch (err: unknown) {
+      logger.error("[useMatchmaking] Error declining match:", err);
+      setError("LOBBY_ERROR");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sdk, lobbyId, session, stopPolling, closeNotificationWs, stopElapsedTimer, stopLobbyPolling]);
 
   // ─── Readiness Confirmation Actions ───────────────────────────
 

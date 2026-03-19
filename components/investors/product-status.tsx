@@ -4,93 +4,223 @@ import React from "react";
 import { Card, CardBody, Chip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import { getTierOneLocale } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { productStatusCopy } from "@/lib/investors/shared-copy";
 
-const statusData = [
-  {
-    area: "Infrastructure & DevOps",
-    progress: 95,
-    status: "live" as const,
-    icon: "solar:server-bold",
-    details: "Kubernetes, CI/CD, monitoring, multi-region ready",
-  },
-  {
-    area: "Frontend (Next.js)",
-    progress: 93,
-    status: "live" as const,
-    icon: "solar:monitor-bold",
-    details: "Competition hub, analytics dashboard, wallet, tournaments",
-  },
-  {
-    area: "Authentication & Billing",
-    progress: 90,
-    status: "live" as const,
-    icon: "solar:shield-keyhole-bold",
-    details: "Steam OAuth, Stripe integration, subscription management",
-  },
-  {
-    area: "Backend Services (Go)",
-    progress: 85,
-    status: "live" as const,
-    icon: "solar:code-square-bold",
-    details: "Replay API, matchmaking, tournament engine, scoring",
-  },
-  {
-    area: "Wallet & Payments",
-    progress: 85,
-    status: "live" as const,
-    icon: "solar:wallet-money-bold",
-    details: "Fiat wallet, Stripe payouts, escrow system operational",
-  },
-  {
-    area: "Payment Integration",
-    progress: 80,
-    status: "beta" as const,
-    icon: "solar:hand-money-bold",
-    details: "Stripe live, PayPal & PIX planned, wager settlement",
-  },
-  {
-    area: "Testing & QA",
-    progress: 50,
-    status: "active" as const,
-    icon: "solar:test-tube-bold",
-    details: "Unit, integration, E2E (Playwright), load testing planned",
-  },
-  {
-    area: "Blockchain Bridge",
-    progress: 30,
-    status: "dev" as const,
-    icon: "solar:link-circle-bold",
-    details: "Polygon/Base smart contracts, NFT achievements, on-chain prizes",
-  },
-];
+const statusIcons = [
+  "solar:server-bold",
+  "solar:monitor-bold",
+  "solar:shield-keyhole-bold",
+  "solar:code-square-bold",
+  "solar:wallet-money-bold",
+  "solar:hand-money-bold",
+  "solar:test-tube-bold",
+  "solar:link-circle-bold",
+] as const;
 
-const statusConfig = {
-  live: {
-    label: "Live",
-    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    barColor: "from-emerald-500 to-emerald-400",
-  },
-  beta: {
-    label: "Beta",
-    color: "bg-[#FFC700]/10 text-[#FFC700] dark:text-[#FFC700]",
-    barColor: "from-[#FFC700] to-[#FF4654]",
-  },
-  active: {
-    label: "Active",
-    color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    barColor: "from-blue-500 to-blue-400",
-  },
-  dev: {
-    label: "In Dev",
-    color: "bg-[#FF4654]/10 text-[#FF4654] dark:text-[#DCFF37]",
-    barColor: "from-[#FF4654] to-[#DCFF37]",
-  },
-};
+const statusProgress = [95, 93, 90, 85, 85, 80, 50, 30] as const;
+
+const localizedStatusData = {
+  "en-US": [
+    [
+      "Infrastructure & DevOps",
+      "Kubernetes, CI/CD, monitoring, multi-region ready",
+    ],
+    [
+      "Frontend (Next.js)",
+      "Competition hub, analytics dashboard, wallet, tournaments",
+    ],
+    [
+      "Authentication & Billing",
+      "Steam OAuth, Stripe integration, subscription management",
+    ],
+    [
+      "Backend Services (Go)",
+      "Replay API, matchmaking, tournament engine, scoring",
+    ],
+    [
+      "Wallet & Payments",
+      "Fiat wallet, Stripe payouts, escrow system operational",
+    ],
+    [
+      "Payment Integration",
+      "Stripe live, PayPal & PIX planned, wager settlement",
+    ],
+    [
+      "Testing & QA",
+      "Unit, integration, E2E (Playwright), load testing planned",
+    ],
+    [
+      "Blockchain Bridge",
+      "Polygon/Base smart contracts, NFT achievements, on-chain prizes",
+    ],
+  ],
+  "pt-BR": [
+    [
+      "Infraestrutura e DevOps",
+      "Kubernetes, CI/CD, monitoramento e pronto para múltiplas regiões",
+    ],
+    [
+      "Frontend (Next.js)",
+      "Competition hub, dashboard de analytics, carteira e torneios",
+    ],
+    [
+      "Autenticação e billing",
+      "Steam OAuth, integração com Stripe e gestão de assinaturas",
+    ],
+    [
+      "Serviços backend (Go)",
+      "Replay API, matchmaking, motor de torneios e scoring",
+    ],
+    [
+      "Carteira e pagamentos",
+      "Carteira fiat, payouts via Stripe e sistema de escrow operacional",
+    ],
+    [
+      "Integração de pagamentos",
+      "Stripe ao vivo, PayPal e PIX planejados, liquidação de wagers",
+    ],
+    [
+      "Testes e QA",
+      "Unit, integration, E2E (Playwright) e load testing planejados",
+    ],
+    [
+      "Bridge blockchain",
+      "Smart contracts em Polygon/Base, conquistas NFT e prêmios on-chain",
+    ],
+  ],
+  "es-ES": [
+    [
+      "Infraestructura y DevOps",
+      "Kubernetes, CI/CD, monitorización y preparado para multirregión",
+    ],
+    [
+      "Frontend (Next.js)",
+      "Competition hub, panel de analítica, wallet y torneos",
+    ],
+    [
+      "Autenticación y billing",
+      "Steam OAuth, integración con Stripe y gestión de suscripciones",
+    ],
+    [
+      "Servicios backend (Go)",
+      "Replay API, matchmaking, motor de torneos y scoring",
+    ],
+    [
+      "Wallet y pagos",
+      "Wallet fiat, payouts con Stripe y sistema de escrow operativo",
+    ],
+    [
+      "Integración de pagos",
+      "Stripe en vivo, PayPal y PIX planificados, liquidación de wagers",
+    ],
+    [
+      "Testing y QA",
+      "Unit, integration, E2E (Playwright) y load testing planificados",
+    ],
+    [
+      "Puente blockchain",
+      "Smart contracts en Polygon/Base, logros NFT y premios on-chain",
+    ],
+  ],
+  "es-LA": [
+    [
+      "Infraestructura y DevOps",
+      "Kubernetes, CI/CD, monitoreo y listo para multirregión",
+    ],
+    [
+      "Frontend (Next.js)",
+      "Competition hub, dashboard de analítica, wallet y torneos",
+    ],
+    [
+      "Autenticación y billing",
+      "Steam OAuth, integración con Stripe y gestión de suscripciones",
+    ],
+    [
+      "Servicios backend (Go)",
+      "Replay API, matchmaking, motor de torneos y scoring",
+    ],
+    [
+      "Wallet y pagos",
+      "Wallet fiat, payouts con Stripe y sistema de escrow operativo",
+    ],
+    [
+      "Integración de pagos",
+      "Stripe en vivo, PayPal y PIX planificados, liquidación de wagers",
+    ],
+    [
+      "Testing y QA",
+      "Unit, integration, E2E (Playwright) y load testing planificados",
+    ],
+    [
+      "Puente blockchain",
+      "Smart contracts en Polygon/Base, logros NFT y premios on-chain",
+    ],
+  ],
+  "zh-CN": [
+    ["基础设施与 DevOps", "Kubernetes、CI/CD、监控，多区域就绪"],
+    ["前端（Next.js）", "赛事中心、分析面板、钱包与赛事功能"],
+    ["认证与计费", "Steam OAuth、Stripe 集成与订阅管理"],
+    ["后端服务（Go）", "Replay API、匹配、赛事引擎与评分"],
+    ["钱包与支付", "法币钱包、Stripe 打款与托管系统已运行"],
+    ["支付集成", "Stripe 已上线，计划接入 PayPal 与 PIX，支持 wager 结算"],
+    ["测试与 QA", "单元、集成、E2E（Playwright）及负载测试规划中"],
+    ["区块链桥接层", "Polygon/Base 智能合约、NFT 成就与链上奖金"],
+  ],
+} as const;
 
 export function ProductStatus() {
-  const avgProgress = Math.round(
-    statusData.reduce((sum, s) => sum + s.progress, 0) / statusData.length
+  const { locale } = useTranslation();
+  const tierOneLocale = getTierOneLocale(locale);
+  const copy = productStatusCopy[tierOneLocale];
+  const statusData = localizedStatusData[tierOneLocale].map(
+    ([area, details], index) => ({
+      area,
+      details,
+      progress: statusProgress[index],
+      icon: statusIcons[index],
+      status: (
+        [
+          "live",
+          "live",
+          "live",
+          "live",
+          "live",
+          "beta",
+          "active",
+          "dev",
+        ] as const
+      )[index],
+    }),
   );
+
+  const avgProgress = Math.round(
+    statusData.reduce((sum, s) => sum + s.progress, 0) / statusData.length,
+  );
+
+  const statusConfig = {
+    live: {
+      label: copy.statuses.live,
+      color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+      barColor: "from-emerald-500 to-emerald-400",
+    },
+    beta: {
+      label: copy.statuses.beta,
+      color: "bg-[#FFC700]/10 text-[#FFC700] dark:text-[#FFC700]",
+      barColor: "from-[#FFC700] to-[#FF4654]",
+    },
+    active: {
+      label: copy.statuses.active,
+      color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      barColor: "from-blue-500 to-blue-400",
+    },
+    dev: {
+      label: copy.statuses.dev,
+      color: "bg-[#FF4654]/10 text-[#FF4654] dark:text-[#DCFF37]",
+      barColor: "from-[#FF4654] to-[#DCFF37]",
+    },
+  };
 
   return (
     <div className="w-full">
@@ -118,11 +248,9 @@ export function ProductStatus() {
           </div>
           <div>
             <h4 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
-              Platform Readiness
+              {copy.platformReadiness}
             </h4>
-            <p className="text-sm text-default-500">
-              Live progress across all systems
-            </p>
+            <p className="text-sm text-default-500">{copy.liveProgress}</p>
           </div>
         </div>
 
@@ -137,9 +265,9 @@ export function ProductStatus() {
             {avgProgress}%
           </span>
           <span className="text-xs text-default-500 uppercase tracking-wider">
-            Overall
+            {copy.overall}
             <br />
-            Complete
+            {copy.complete}
           </span>
         </div>
       </motion.div>
