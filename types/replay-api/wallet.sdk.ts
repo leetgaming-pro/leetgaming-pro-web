@@ -41,7 +41,7 @@ export class WalletAPI {
           : response.error.message || "Failed to fetch wallet balance";
       const status = typeof response.error === "object" ? response.error.status : undefined;
       console.error("Failed to fetch wallet balance:", errorMsg, { status });
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -61,7 +61,7 @@ export class WalletAPI {
           ? response.error
           : response.error.message || "Deposit failed";
       console.error("Deposit failed:", errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -81,7 +81,7 @@ export class WalletAPI {
           ? response.error
           : response.error.message || "Withdrawal failed";
       console.error("Withdrawal failed:", errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -109,7 +109,7 @@ export class WalletAPI {
           ? response.error
           : response.error.message || "Failed to fetch transactions";
       console.error("Failed to fetch transactions:", errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }

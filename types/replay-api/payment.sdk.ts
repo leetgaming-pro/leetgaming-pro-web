@@ -29,7 +29,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to fetch payment';
       console.error('Failed to fetch payment:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -56,7 +56,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to fetch payments';
       console.error('Failed to fetch payments:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -72,7 +72,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to create payment intent';
       console.error('Failed to create payment intent:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -90,7 +90,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to confirm payment';
       console.error('Failed to confirm payment:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -109,7 +109,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to refund payment';
       console.error('Failed to refund payment:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
@@ -127,7 +127,7 @@ export class PaymentAPI {
           ? response.error
           : response.error.message || 'Failed to cancel payment';
       console.error('Failed to cancel payment:', errorMsg);
-      throw new Error(errorMsg);
+      return null;
     }
     return response.data || null;
   }
