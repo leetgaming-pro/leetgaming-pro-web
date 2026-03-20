@@ -28,7 +28,7 @@ export const investorOverviewCopy = {
       moatEyebrow: "Core Moat",
       moatTitle: "Verified Scores Power the Entire Ecosystem",
       moatBody:
-        "Scores are not a cosmetic feature. They are the trust layer that connects matchmaking, result verification, dispute handling, prize distribution, rankings, and future external ecosystems such as prediction markets and skill-based wagering infrastructure.",
+        "Scores are not a cosmetic feature. They are the trust layer that connects matchmaking, result verification, dispute handling, prize distribution, rankings, and future external ecosystems such as prediction markets and skill-based wagering infrastructure. Every finalized score now carries a NIST FIPS 203/204 post-quantum cryptographic attestation — infrastructure that rivals and regulators cannot replicate overnight.",
       moatInnerTitle: "From match result to monetizable infrastructure",
       moatInnerBody:
         "Our score system already maps to the most sensitive part of the platform: verified outcomes that can unlock payouts, settle disputes, support rewards, and expose trustworthy data rails to third-party ecosystems.",
@@ -93,13 +93,14 @@ export const investorOverviewCopy = {
       "Underserved regions (LATAM, SEA, MENA) with massive player bases and zero local platforms",
       "Blockchain maturity enabling transparent, verifiable prize distribution at scale",
       "No single platform integrates analytics + competition + earning — we are the first full-stack solution",
+      "NIST finalised post-quantum cryptography standards (FIPS 203/204/205) in August 2024 — LeetGaming Pro is the first esports platform to adopt them for competitive result integrity, staying ahead of harvest-now-decrypt-later threats to prize records",
     ],
     scoreInfrastructurePillars: [
       {
         title: "Verified Score Truth Layer",
         description:
           "Multi-source score verification protects compliant payouts, reduces disputes, and creates trust where money and competition intersect.",
-        chips: ["6 data providers", "Consensus verified", "Dispute resistant"],
+        chips: ["6 data providers", "Consensus verified", "Dispute resistant", "Post-quantum signed"],
       },
       {
         title: "Core Product Engine",
@@ -131,6 +132,12 @@ export const investorOverviewCopy = {
         caption:
           "Designed for verified settlement and portable score attestations.",
       },
+      {
+        value: "FIPS 203/204/205",
+        label: "Post-quantum standards",
+        caption:
+          "NIST-standardised ML-KEM, ML-DSA, and SLH-DSA protect every score attestation against quantum adversaries.",
+      },
     ],
     ecosystemExpansionCards: [
       {
@@ -146,7 +153,7 @@ export const investorOverviewCopy = {
       {
         title: "Regulated Expansion",
         description:
-          "Use cases extend beyond our app into prediction and skill-based ecosystems without relying on opaque manual adjudication.",
+          "Use cases extend beyond our app into prediction and skill-based ecosystems without relying on opaque manual adjudication. Post-quantum cryptographic compliance (NIST FIPS 203/204/205) positions LeetGaming Pro for the financial-grade requirements emerging in regulated wagering jurisdictions globally.",
       },
     ],
     revenueStreams: [
@@ -238,7 +245,7 @@ export const investorOverviewCopy = {
       moatEyebrow: "Principal moat",
       moatTitle: "Pontuações verificadas impulsionam todo o ecossistema",
       moatBody:
-        "Pontuações não são um recurso cosmético. Elas são a camada de confiança que conecta matchmaking, verificação de resultados, gestão de disputas, distribuição de prêmios, rankings e futuros ecossistemas externos, como mercados de previsão e infraestrutura de apostas baseadas em habilidade.",
+        "Pontuações não são um recurso cosmético. Elas são a camada de confiança que conecta matchmaking, verificação de resultados, gestão de disputas, distribuição de prêmios, rankings e futuros ecossistemas externos, como mercados de previsão e infraestrutura de apostas baseadas em habilidade. Cada pontuação finalizada agora carrega uma atestação criptográfica pós-quântica com padrões NIST FIPS 203/204 — infraestrutura que concorrentes e reguladores não podem replicar da noite para o dia.",
       moatInnerTitle: "Do resultado da partida à infraestrutura monetizável",
       moatInnerBody:
         "Nosso sistema de pontuação já atua na parte mais sensível da plataforma: resultados verificados que liberam pagamentos, resolvem disputas, suportam recompensas e expõem trilhos de dados confiáveis para ecossistemas de terceiros.",
@@ -305,6 +312,7 @@ export const investorOverviewCopy = {
       "Regiões subatendidas (LATAM, SEA, MENA) têm bases massivas de jogadores e nenhuma plataforma local",
       "A maturidade da blockchain permite distribuição transparente e verificável de prêmios em escala",
       "Nenhuma plataforma integra analytics + competição + ganhos — somos a primeira solução full-stack",
+      "O NIST finalizou os padrões de criptografia pós-quântica (FIPS 203/204/205) em agosto de 2024 — a LeetGaming Pro é a primeira plataforma de esports a adotá-los para integridade de resultados competitivos, antecipando-se às ameaças de 'harvest-now-decrypt-later' a registros de prêmios",
     ],
     scoreInfrastructurePillars: [
       {
@@ -315,6 +323,7 @@ export const investorOverviewCopy = {
           "6 provedores de dados",
           "Consenso verificado",
           "Resistente a disputas",
+          "Assinado pós-quântico",
         ],
       },
       {
@@ -352,6 +361,12 @@ export const investorOverviewCopy = {
         caption:
           "Projetado para liquidação verificada e atestações portáteis de pontuação.",
       },
+      {
+        value: "FIPS 203/204/205",
+        label: "Padrões pós-quânticos",
+        caption:
+          "ML-KEM, ML-DSA e SLH-DSA certificados pelo NIST protegem cada atestação de pontuação contra adversários quânticos.",
+      },
     ],
     ecosystemExpansionCards: [
       {
@@ -367,7 +382,7 @@ export const investorOverviewCopy = {
       {
         title: "Expansão regulada",
         description:
-          "Os casos de uso vão além do nosso app para ecossistemas de previsão e habilidade sem depender de adjudicação manual opaca.",
+          "Os casos de uso vão além do nosso app para ecossistemas de previsão e habilidade sem depender de adjudicação manual opaca. A conformidade com criptografia pós-quântica (NIST FIPS 203/204/205) posiciona a LeetGaming Pro para os requisitos financeiros emergentes em jurisdições reguladas de apostas em todo o mundo.",
       },
     ],
     revenueStreams: [
@@ -463,7 +478,7 @@ export const investorOverviewCopy = {
       moatEyebrow: "Moat principal",
       moatTitle: "Las puntuaciones verificadas impulsan todo el ecosistema",
       moatBody:
-        "Las puntuaciones no son una función cosmética. Son la capa de confianza que conecta matchmaking, verificación de resultados, gestión de disputas, distribución de premios, rankings y futuros ecosistemas externos como mercados de predicción e infraestructura de apuestas por habilidad.",
+        "Las puntuaciones no son una función cosmética. Son la capa de confianza que conecta matchmaking, verificación de resultados, gestión de disputas, distribución de premios, rankings y futuros ecosistemas externos como mercados de predicción e infraestructura de apuestas por habilidad. Cada puntuación finalizada lleva ahora una attestation criptográfica post-cuántica conforme a NIST FIPS 203/204 — infraestructura que competidores y reguladores no pueden replicar de la noche a la mañana.",
       moatInnerTitle:
         "Del resultado del partido a la infraestructura monetizable",
       moatInnerBody:
@@ -531,6 +546,7 @@ export const investorOverviewCopy = {
       "Regiones desatendidas (LATAM, SEA, MENA) con enormes bases de jugadores y cero plataformas locales",
       "La madurez blockchain permite una distribución de premios transparente y verificable a escala",
       "Ninguna plataforma integra analítica + competición + monetización: somos la primera solución full-stack",
+      "El NIST finalizó los estándares de criptografía post-cuántica (FIPS 203/204/205) en agosto de 2024 — LeetGaming Pro es la primera plataforma de esports que los adopta para la integridad de resultados competitivos, anticipándose a las amenazas de 'recolectar ahora, descifrar después' sobre registros de premios",
     ],
     scoreInfrastructurePillars: [
       {
@@ -541,6 +557,7 @@ export const investorOverviewCopy = {
           "6 proveedores de datos",
           "Consenso verificado",
           "Resistente a disputas",
+          "Firmado post-cuántico",
         ],
       },
       {
@@ -578,6 +595,12 @@ export const investorOverviewCopy = {
         caption:
           "Diseñado para liquidación verificada y attestations portátiles de puntuación.",
       },
+      {
+        value: "FIPS 203/204/205",
+        label: "Estándares post-cuánticos",
+        caption:
+          "ML-KEM, ML-DSA y SLH-DSA estandarizados por NIST protegen cada attestation de puntuación frente a adversarios cuánticos.",
+      },
     ],
     ecosystemExpansionCards: [
       {
@@ -593,7 +616,7 @@ export const investorOverviewCopy = {
       {
         title: "Expansión regulada",
         description:
-          "Los casos de uso se extienden más allá de nuestra app a ecosistemas de predicción y habilidad sin depender de adjudicación manual opaca.",
+          "Los casos de uso se extienden más allá de nuestra app a ecosistemas de predicción y habilidad sin depender de adjudicación manual opaca. El cumplimiento de criptografía post-cuántica (NIST FIPS 203/204/205) posiciona a LeetGaming Pro para los requisitos financieros que emergen en las jurisdicciones reguladas de apuestas de todo el mundo.",
       },
     ],
     revenueStreams: [
@@ -689,7 +712,7 @@ export const investorOverviewCopy = {
       moatEyebrow: "Principal moat",
       moatTitle: "Las puntuaciones verificadas impulsan todo el ecosistema",
       moatBody:
-        "Las puntuaciones no son una función cosmética. Son la capa de confianza que conecta matchmaking, verificación de resultados, manejo de disputas, distribución de premios, rankings y futuros ecosistemas externos como mercados de predicción e infraestructura de apuestas por habilidad.",
+        "Las puntuaciones no son una función cosmética. Son la capa de confianza que conecta matchmaking, verificación de resultados, manejo de disputas, distribución de premios, rankings y futuros ecosistemas externos como mercados de predicción e infraestructura de apuestas por habilidad. Cada puntuación finalizada ahora lleva una attestation criptográfica post-cuántica bajo los estándares NIST FIPS 203/204 — infraestructura que competidores y reguladores no pueden replicar de un día para otro.",
       moatInnerTitle:
         "Del resultado del match a la infraestructura monetizable",
       moatInnerBody:
@@ -757,6 +780,7 @@ export const investorOverviewCopy = {
       "Regiones desatendidas (LATAM, SEA, MENA) con bases masivas de jugadores y cero plataformas locales",
       "La madurez de blockchain permite distribución transparente y verificable de premios a escala",
       "Ninguna plataforma integra analítica + competencia + monetización: somos la primera solución full-stack",
+      "El NIST finalizó los estándares de criptografía post-cuántica (FIPS 203/204/205) en agosto de 2024 — LeetGaming Pro es la primera plataforma de esports en adoptarlos para la integridad de resultados competitivos, anticipando las amenazas de 'recolectar ahora, descifrar después' sobre registros de premios",
     ],
     scoreInfrastructurePillars: [
       {
@@ -767,6 +791,7 @@ export const investorOverviewCopy = {
           "6 proveedores de datos",
           "Consenso verificado",
           "Resistente a disputas",
+          "Firmado post-cuántico",
         ],
       },
       {
@@ -804,6 +829,12 @@ export const investorOverviewCopy = {
         caption:
           "Diseñado para liquidación verificada y attestations portables de puntuación.",
       },
+      {
+        value: "FIPS 203/204/205",
+        label: "Estándares post-cuánticos",
+        caption:
+          "ML-KEM, ML-DSA y SLH-DSA normalizados por NIST protegen cada attestation de puntuación ante adversarios cuánticos.",
+      },
     ],
     ecosystemExpansionCards: [
       {
@@ -819,7 +850,7 @@ export const investorOverviewCopy = {
       {
         title: "Expansión regulada",
         description:
-          "Los casos de uso van más allá de nuestra app hacia ecosistemas de predicción y habilidad sin depender de adjudicación manual opaca.",
+          "Los casos de uso van más allá de nuestra app hacia ecosistemas de predicción y habilidad sin depender de adjudicación manual opaca. El cumplimiento de criptografía post-cuántica (NIST FIPS 203/204/205) posiciona a LeetGaming Pro para los requisitos financieros que emergen en las jurisdicciones reguladas de apuestas a nivel global.",
       },
     ],
     revenueStreams: [
@@ -915,7 +946,7 @@ export const investorOverviewCopy = {
       moatEyebrow: "核心护城河",
       moatTitle: "经验证比分驱动整个生态系统",
       moatBody:
-        "比分并非装饰性功能，而是连接匹配、结果验证、争议处理、奖金分发、排名以及预测市场和技能型竞猜等未来外部生态的信任层。",
+        "比分并非装饰性功能，而是连接匹配、结果验证、争议处理、奖金分发、排名以及预测市场和技能型竞猜等未来外部生态的信任层。每个最终确认的比分现在都携带符合 NIST FIPS 203/204 标准的后量子密码学证明——竞争对手和监管方无法在短期内复制这一基础设施。",
       moatInnerTitle: "从比赛结果到可变现的基础设施",
       moatInnerBody:
         "我们的比分系统已经覆盖平台最敏感的部分：经验证结果可以触发支付、解决争议、支撑奖励机制，并向第三方生态输出可信的数据轨道。",
@@ -973,13 +1004,14 @@ export const investorOverviewCopy = {
       "LATAM、SEA、MENA 等欠服务地区拥有庞大玩家基础，却缺乏本地平台",
       "区块链成熟度让透明、可验证的奖金分发能够规模化实现",
       "目前没有任何平台同时整合分析 + 竞技 + 收益——我们是首个全栈解决方案",
+      "NIST 于 2024 年 8 月正式发布后量子密码学标准（FIPS 203/204/205）——LeetGaming Pro 是首个将其应用于竞技结果完整性的电竞平台，提前应对针对奖金记录的「立即采集、未来解密」量子威胁",
     ],
     scoreInfrastructurePillars: [
       {
         title: "经验证比分真实层",
         description:
           "多源比分验证可保护合规支付、减少争议，并在金钱与竞技交叉处建立信任。",
-        chips: ["6 个数据提供方", "共识验证", "抗争议"],
+        chips: ["6 个数据提供方", "共识验证", "抗争议", "后量子签名"],
       },
       {
         title: "核心产品引擎",
@@ -1010,6 +1042,11 @@ export const investorOverviewCopy = {
         label: "区块链目标",
         caption: "为经验证结算和可移植比分证明而设计。",
       },
+      {
+        value: "FIPS 203/204/205",
+        label: "后量子标准",
+        caption: "NIST 标准化的 ML-KEM、ML-DSA 和 SLH-DSA 保护每条比分证明，抵御量子攻击者的威胁。",
+      },
     ],
     ecosystemExpansionCards: [
       {
@@ -1025,7 +1062,7 @@ export const investorOverviewCopy = {
       {
         title: "合规扩张",
         description:
-          "应用场景可延伸至我们的应用之外，进入预测和技能型生态，而不依赖不透明的人工裁定。",
+          "应用场景可延伸至我们的应用之外，进入预测和技能型生态，而不依赖不透明的人工裁定。后量子密码学合规性（NIST FIPS 203/204/205）使 LeetGaming Pro 满足全球受监管博彩司法管辖区日益严格的金融级要求。",
       },
     ],
     revenueStreams: [

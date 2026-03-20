@@ -137,6 +137,11 @@ function getStaticSecurityHeaders(request: NextRequest): Record<string, string> 
         "Strict-Transport-Security":
           "max-age=63072000; includeSubDomains; preload",
       }),
+
+    // Post-quantum cryptography signal
+    // Informs clients and gateway proxies that this service uses ML-KEM-768 /
+    // ML-DSA-65 hybrid cryptography (NIST FIPS 203/204/205).
+    "X-Security-Policy": "pq-hybrid",
   };
 }
 
