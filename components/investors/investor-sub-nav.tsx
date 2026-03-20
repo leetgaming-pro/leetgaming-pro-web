@@ -28,14 +28,16 @@ const navItems = [
     icon: "solar:document-text-bold",
     exact: false,
   },
-];
+] as const;
+
+type NavItem = (typeof navItems)[number];
 
 export function InvestorSubNav() {
   const pathname = usePathname();
   const { locale } = useTranslation();
   const copy = investorSubNavCopy[getTierOneLocale(locale)];
 
-  const isActive = (item: (typeof navItems)[0]) =>
+  const isActive = (item: NavItem) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);
 
   return (

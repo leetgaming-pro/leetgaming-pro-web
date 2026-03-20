@@ -134,7 +134,7 @@ function resetMatchmakingState(): void {
       'admin',
       '--quiet',
       '--eval',
-      'db=db.getSiblingDB("leetgaming"); db.matchmaking_sessions.deleteMany({});',
+      'db=db.getSiblingDB("leetgaming"); db.matchmaking_sessions.deleteMany({}); db.billable_entries.deleteMany({ operation_id: { $in: ["JoinMatchmakingQueue", "MatchMakingPriorityQueue"] } });',
     ],
     { stdio: 'pipe' },
   );
