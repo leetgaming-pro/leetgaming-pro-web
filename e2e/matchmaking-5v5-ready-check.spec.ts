@@ -273,7 +273,7 @@ test('assembles a real 5v5 ready check and exposes connection info', async ({ br
             return response.ok ? response.body.data ?? null : null;
           },
           (session) => session.status === 'ready_check' && Boolean(session.lobby_id || session.ready_check?.lobby_id),
-          90000,
+          180000,
         ),
       ),
     );

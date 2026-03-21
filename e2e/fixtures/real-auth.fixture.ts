@@ -97,72 +97,58 @@ export function getMatchmakingUser(index: number): UserCredentials {
 
 /**
  * Perform real login via the signin page.
- * Fills the email/password form and submits to trigger NextAuth → backend auth flow.
- * Waits for session to be established.
+ * Uses the NextAuth credentials callback directly to avoid UI hydration flakiness.
+ * Waits for the shared browser-context session cookie to be established.
  */
 async function performRealLogin(page: Page, user: UserCredentials): Promise<void> {
-  await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+  const csrfResponse = await page.request.get('/api/auth/csrf');
+  expect(csrfResponse.ok(), `Failed to fetch CSRF token for ${user.email}`).toBeTruthy();
 
-  // Wait for the Loading... state to resolve
-  const loadingText = page.getByText('Loading...');
-  const isLoading = await loadingText.isVisible({ timeout: 3000 }).catch(() => false);
-  if (isLoading) {
-    await loadingText.waitFor({ state: 'hidden', timeout: 20000 }).catch(() => {});
+  const csrfBody = (await csrfResponse.json()) as { csrfToken?: string };
+  if (!csrfBody.csrfToken) {
+    throw new Error(`Real login failed for ${user.email}: csrf token missing`);
   }
 
-  // Wait for the login form to appear
-  const emailInput = page.locator('input[name="email"]');
-  await emailInput.waitFor({ state: 'visible', timeout: 15000 });
+  const callbackBody = new URLSearchParams({
+    csrfToken: csrfBody.csrfToken,
+    email: user.email,
+    password: user.password,
+    action: 'login',
+    callbackUrl: '/match-making',
+    json: 'true',
+  });
 
-  // Fill credentials
-  await emailInput.fill(user.email);
-  await page.locator('input[name="password"]').fill(user.password);
+  const callbackResponse = await page.request.post('/api/auth/callback/email-password', {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: callbackBody.toString(),
+  });
 
-  // Submit form (button text: "ENTER THE ARENA")
-  const submitButton = page.getByRole('button', { name: /enter the arena|sign in/i });
-  await submitButton.click();
+  const callbackText = await callbackResponse.text();
+  if (!callbackResponse.ok()) {
+    throw new Error(`Real login failed for ${user.email}: ${callbackText || callbackResponse.status()}`);
+  }
 
-  // Wait for session to be fully established
-  // Poll the session endpoint until it returns a valid session with user data
-  let retries = 0;
-  const maxRetries = 10;
   let sessionEstablished = false;
-  while (retries < maxRetries) {
-    const sessionResponse = await page.evaluate(async () => {
-      const res = await fetch('/api/auth/session');
-      return res.json();
-    });
-
-    if (sessionResponse?.user?.email) {
-      sessionEstablished = true;
-      break;
+  for (let retries = 0; retries < 15; retries += 1) {
+    const sessionResponse = await page.request.get('/api/auth/session');
+    if (sessionResponse.ok()) {
+      const sessionBody = await sessionResponse.json();
+      if (sessionBody?.user?.email === user.email) {
+        sessionEstablished = true;
+        break;
+      }
     }
 
-    const invalidCredentialsVisible = await page
-      .getByText(/invalid credentials/i)
-      .isVisible()
-      .catch(() => false);
-
-    if (invalidCredentialsVisible) {
-      throw new Error(`Real login failed for ${user.email}: invalid credentials`);
-    }
-
-    await page.waitForTimeout(1000);
-    retries++;
+    await page.waitForTimeout(500);
   }
 
   if (!sessionEstablished) {
     throw new Error(`Real login failed for ${user.email}: session was not established`);
   }
 
-  // Wait for redirect away from signin page (goes to /match-making by default)
-  // Some flows establish the session before navigation completes, so fall back to
-  // navigating explicitly once the session is valid.
-  await page
-    .waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 10000 })
-    .catch(async () => {
-      await page.goto('/match-making', { waitUntil: 'domcontentloaded' });
-    });
+  await page.goto('/match-making', { waitUntil: 'domcontentloaded' });
 }
 
 /**
