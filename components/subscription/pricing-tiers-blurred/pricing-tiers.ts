@@ -33,8 +33,8 @@ export const tiers: Array<Tier> = [
     href: "/checkout?plan=pro",
     mostPopular: true,
     price: {
-      monthly: "$9.99",
-      yearly: "$7.99",
+      monthly: "—",
+      yearly: "—",
     },
     featured: false,
     features: [
@@ -55,8 +55,8 @@ export const tiers: Array<Tier> = [
     mostPopular: false,
     description: "Complete team management for esports teams.",
     price: {
-      monthly: "$29.99",
-      yearly: "$23.99",
+      monthly: "—",
+      yearly: "—",
     },
     priceSuffix: "for 10 seats",
     features: [
@@ -77,8 +77,8 @@ export const tiers: Array<Tier> = [
     mostPopular: false,
     description: "Professional tournament hosting platform.",
     price: {
-      monthly: "$99.99",
-      yearly: "$79.99",
+      monthly: "—",
+      yearly: "—",
     },
     features: [
       "500 GB enterprise storage",

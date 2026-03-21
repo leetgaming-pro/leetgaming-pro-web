@@ -39,8 +39,8 @@ export const tiers: Array<Tier> = [
     mostPopular: true,
     badge: "Most Popular",
     price: {
-      monthly: "$9.99",
-      yearly: "$7.99",
+      monthly: "—",
+      yearly: "—",
     },
     featured: false,
     features: [
@@ -67,8 +67,8 @@ export const tiers: Array<Tier> = [
     description: "Complete team management with analytics, scrim scheduling, and shared resources.",
     targetAudience: "Esports Teams",
     price: {
-      monthly: "$29.99",
-      yearly: "$23.99",
+      monthly: "—",
+      yearly: "—",
     },
     priceSuffix: "for 10 seats",
     features: [
@@ -95,8 +95,8 @@ export const tiers: Array<Tier> = [
     description: "Professional tournament hosting with white-label branding and automated prizes.",
     targetAudience: "Tournament Organizers",
     price: {
-      monthly: "$99.99",
-      yearly: "$79.99",
+      monthly: "—",
+      yearly: "—",
     },
     features: [
       "Everything in Team, plus:",

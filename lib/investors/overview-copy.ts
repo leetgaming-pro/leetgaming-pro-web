@@ -160,7 +160,7 @@ export const investorOverviewCopy = {
       {
         title: "Subscription Tiers",
         description:
-          "Free, Pro ($9.99/mo), and Team ($29.99/mo) plans with advanced analytics, priority matchmaking, and team features.",
+          "Free, Pro, and Team subscription tiers with advanced analytics, priority matchmaking, and team features. Pricing varies by region.",
       },
       {
         title: "Wager Rake (5–10%)",
@@ -389,7 +389,7 @@ export const investorOverviewCopy = {
       {
         title: "Planos de assinatura",
         description:
-          "Planos Free, Pro (US$ 9,99/mês) e Team (US$ 29,99/mês) com analytics avançado, matchmaking prioritário e recursos para times.",
+          "Planos de assinatura Free, Pro e Team com analytics avançado, matchmaking prioritário e recursos para times. Preços variam por região.",
       },
       {
         title: "Taxa sobre wagers (5–10%)",
@@ -623,7 +623,7 @@ export const investorOverviewCopy = {
       {
         title: "Planes de suscripción",
         description:
-          "Planes Free, Pro (9,99 $/mes) y Team (29,99 $/mes) con analítica avanzada, matchmaking prioritario y funciones para equipos.",
+          "Planes de suscripción Free, Pro y Team con analítica avanzada, matchmaking prioritario y funciones para equipos. Los precios varían por región.",
       },
       {
         title: "Comisión sobre wagers (5–10%)",
@@ -857,7 +857,7 @@ export const investorOverviewCopy = {
       {
         title: "Planes de suscripción",
         description:
-          "Planes Free, Pro (US$ 9.99/mes) y Team (US$ 29.99/mes) con analítica avanzada, matchmaking prioritario y funciones para equipos.",
+          "Planes de suscripción Free, Pro y Team con analítica avanzada, matchmaking prioritario y funciones para equipos. Los precios varían por región.",
       },
       {
         title: "Comisión sobre wagers (5–10%)",
@@ -1069,7 +1069,7 @@ export const investorOverviewCopy = {
       {
         title: "订阅层级",
         description:
-          "Free、Pro（$9.99/月）和 Team（$29.99/月）方案，提供高级分析、优先匹配和团队功能。",
+          "Free、Pro 和 Team 订阅方案，提供高级分析、优先匹配和团队功能。价格因地区而异。",
       },
       {
         title: "竞猜抽成（5–10%）",

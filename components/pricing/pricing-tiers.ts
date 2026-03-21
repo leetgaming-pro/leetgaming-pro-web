@@ -13,7 +13,8 @@ export const frequencies: Array<Frequency> = [
 
 // FALLBACK TIERS — These are only used while the API is loading or unavailable.
 // Actual pricing comes from the database via GET /api/plans?region=XX.
-// Do NOT update prices here; update the MongoDB seed data instead:
+// Price placeholders below are replaced with real values once the API responds.
+// Do NOT put real prices here; update the MongoDB seed data instead:
 //   - scripts/seed-plans.js (production/dev seed)
 //   - e2e/db-init/01-seed-data.js (E2E test seed)
 export const tiers: Array<Tier> = [
@@ -51,8 +52,8 @@ export const tiers: Array<Tier> = [
     mostPopular: true,
     badge: "Most Popular",
     price: {
-      monthly: "$9.99",
-      yearly: "$7.99",
+      monthly: "—",
+      yearly: "—",
     },
     featured: false,
     features: [
@@ -84,8 +85,8 @@ export const tiers: Array<Tier> = [
       "Complete team management with analytics, scrim scheduling, and shared resources.",
     targetAudience: "Esports Teams",
     price: {
-      monthly: "$29.99",
-      yearly: "$23.99",
+      monthly: "—",
+      yearly: "—",
     },
     priceSuffix: "for 10 seats",
     features: [
@@ -117,8 +118,8 @@ export const tiers: Array<Tier> = [
       "Professional tournament hosting with white-label branding and automated prize distribution.",
     targetAudience: "Tournament Organizers",
     price: {
-      monthly: "$99.99",
-      yearly: "$79.99",
+      monthly: "—",
+      yearly: "—",
     },
     features: [
       "Everything in Team, plus:",

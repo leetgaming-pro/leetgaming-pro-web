@@ -234,7 +234,7 @@ export const investorDeckCopy = {
         streams: [
           {
             title: "Subscriptions",
-            desc: "Free / Pro $9.99 / Team $29.99 — analytics, matchmaking, team management",
+            desc: "Free / Pro / Team tiers — analytics, matchmaking, team management",
           },
           {
             title: "Wager Rake (5–10%)",
@@ -502,7 +502,7 @@ export const investorDeckCopy = {
         streams: [
           {
             title: "Assinaturas",
-            desc: "Free / Pro US$ 9,99 / Team US$ 29,99 — analytics, matchmaking e gestão de times",
+            desc: "Free / Pro / Team — analytics, matchmaking e gestão de times",
           },
           {
             title: "Taxa sobre wagers (5–10%)",
@@ -771,7 +771,7 @@ export const investorDeckCopy = {
         streams: [
           {
             title: "Suscripciones",
-            desc: "Free / Pro 9,99 US$ / Team 29,99 US$ — analítica, matchmaking y gestión de equipos",
+            desc: "Free / Pro / Team — analítica, matchmaking y gestión de equipos",
           },
           {
             title: "Comisión sobre wager (5–10%)",
@@ -1040,7 +1040,7 @@ export const investorDeckCopy = {
         streams: [
           {
             title: "Suscripciones",
-            desc: "Free / Pro US$ 9.99 / Team US$ 29.99 — analítica, matchmaking y gestión de equipos",
+            desc: "Free / Pro / Team — analítica, matchmaking y gestión de equipos",
           },
           {
             title: "Comisión sobre wager (5–10%)",
@@ -1297,7 +1297,7 @@ export const investorDeckCopy = {
         streams: [
           {
             title: "订阅",
-            desc: "Free / Pro $9.99 / Team $29.99——提供分析、匹配和团队管理功能",
+            desc: "Free / Pro / Team——提供分析、匹配和团队管理功能",
           },
           {
             title: "Wager 抽成（5–10%）",
