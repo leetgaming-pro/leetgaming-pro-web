@@ -217,6 +217,10 @@ async function main(): Promise<void> {
   // ═══════════════════════════════════════════════════════════════
   printSection("Application URLs");
 
+  printInfo("If using Cloudflare Tunnel (e.g. leetgaming.pro → localhost), enter the PUBLIC domain here.");
+  printInfo("NEXTAUTH_URL must match the URL users actually access the app from.");
+  console.log("");
+
   config.NEXT_PUBLIC_APP_URL = await askWithDefault(
     "App URL (no trailing slash)",
     "http://localhost:3030"
@@ -230,15 +234,20 @@ async function main(): Promise<void> {
   printSection("Backend API Configuration");
 
   printInfo("The replay-api backend provides matchmaking and game services.");
-  printLink("Local dev", "http://localhost:8080 or http://localhost:30800");
+  printInfo("REPLAY_API_URL is used server-side (internal). NEXT_PUBLIC_REPLAY_API_URL is the public/CDN URL.");
+  printLink("Local dev", "http://localhost:8080");
   printLink("Production", "https://api.leetgaming.pro");
   console.log("");
 
   config.REPLAY_API_URL = await askWithDefault(
-    "Backend API URL",
-    "http://localhost:30800"
+    "Backend API URL (server-side internal)",
+    "http://localhost:8080"
   );
-  config.NEXT_PUBLIC_REPLAY_API_URL = config.REPLAY_API_URL;
+
+  config.NEXT_PUBLIC_REPLAY_API_URL = await askWithDefault(
+    "Public API URL (client-visible, used for browser → CDN/tunnel)",
+    "https://api.leetgaming.pro"
+  );
 
   config.REPLAY_API_REGION = await askWithDefault(
     "Region (local, na-east, na-west, eu-west, eu-east, sa, asia, oce)",
