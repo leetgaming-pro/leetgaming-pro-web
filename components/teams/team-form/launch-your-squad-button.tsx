@@ -218,31 +218,47 @@ export default function LaunchYourSquadButton() {
       // Provide user-friendly error messages
       let errorMessage = "Failed to create squad. Please try again.";
       const errMsg = error instanceof Error ? error.message : String(error);
+      const errStatus = (error as Record<string, unknown>)?.status;
 
       if (
+        errStatus === 401 ||
+        errMsg.includes("session") ||
+        errMsg.includes("sign in") ||
         errMsg.includes("401") ||
         errMsg.includes("Authentication")
       ) {
         errorMessage =
-          "🔐 You must be logged in to create a squad. Please sign in and try again.";
+          "🔐 Your session has expired. Please sign in again to create a squad.";
       } else if (
-        errMsg.includes("400") ||
-        errMsg.includes("validation")
-      ) {
-        errorMessage =
-          "📋 Please check all required fields are filled correctly.";
-      } else if (
-        errMsg.includes("409") ||
+        errStatus === 409 ||
         errMsg.includes("already exists")
       ) {
         errorMessage =
-          "⚠️ A squad with this name or tag already exists. Please choose different values.";
+          "⚠️ A squad with this name or URL already exists. Please choose different values.";
+      } else if (
+        errStatus === 402 ||
+        errMsg.includes("subscription") ||
+        errMsg.includes("limit") ||
+        errMsg.includes("plan")
+      ) {
+        errorMessage =
+          "📈 Squad creation limit reached for your current plan. Please upgrade your subscription.";
+      } else if (
+        errMsg.includes("400") ||
+        errMsg.includes("validation") ||
+        errMsg.includes("slug")
+      ) {
+        errorMessage =
+          "📋 Please check all required fields are filled correctly.";
       } else if (
         errMsg.includes("network") ||
         errMsg.includes("fetch")
       ) {
         errorMessage =
           "🌐 Network error. Please check your connection and try again.";
+      } else if (errMsg.includes("Something went wrong")) {
+        errorMessage =
+          "❌ Something went wrong creating your squad. Please ensure the squad name is unique and try again.";
       } else if (errMsg && errMsg !== "[object Object]") {
         errorMessage = `❌ ${errMsg}`;
       }

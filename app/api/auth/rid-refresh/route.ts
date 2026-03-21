@@ -112,7 +112,7 @@ export async function POST(_request: NextRequest) {
         .digest("hex");
 
       try {
-        const response = await fetch(`${REPLAY_API_BASE}/identity/steam`, {
+        const response = await fetch(`${REPLAY_API_BASE}/onboarding/steam`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

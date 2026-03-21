@@ -235,9 +235,24 @@ export function SquadCreationModal({
         router.refresh();
       }
     } catch (error) {
-      const errorMessage =
+      const rawMessage =
         error instanceof Error ? error.message : "Failed to create squad";
       logger.error("Failed to create squad", error);
+
+      // Map error messages to user-friendly text
+      const errStatus = (error as Record<string, unknown>)?.status;
+      let errorMessage = rawMessage;
+
+      if (errStatus === 401 || rawMessage.toLowerCase().includes("session") || rawMessage.toLowerCase().includes("sign in")) {
+        errorMessage = "Your session has expired. Please sign in again to create a squad.";
+      } else if (errStatus === 409 || rawMessage.toLowerCase().includes("already exists")) {
+        errorMessage = "A squad with this name or URL already exists. Please choose a different name or tag.";
+      } else if (errStatus === 402 || rawMessage.toLowerCase().includes("subscription") || rawMessage.toLowerCase().includes("limit")) {
+        errorMessage = "Squad creation limit reached for your current plan. Please upgrade your subscription.";
+      } else if (rawMessage.includes("Something went wrong on our end")) {
+        errorMessage = "Something went wrong creating your squad. Please check your squad name is unique and try again.";
+      }
+
       setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);

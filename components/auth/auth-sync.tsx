@@ -118,9 +118,54 @@ export function AuthSync({ children }: AuthSyncProps) {
         return;
       }
 
-      // Check if we already synced this RID
+      // Check if we already synced this RID AND local token is still valid
       if (lastSyncedRid.current === sessionRid && isAuthenticatedSync()) {
         return;
+      }
+
+      // If we have a sessionRid but the local token is expired (or never set),
+      // try to get a fresh RID from the backend before syncing the (potentially expired) one.
+      // The session JWT stores the original RID from login (1-hour expiry on backend),
+      // but NextAuth sessions last 7 days — so we need to refresh proactively.
+      const localTokenExpired = !isAuthenticatedSync();
+      if (localTokenExpired && !ridRefreshFailed.current) {
+        try {
+          syncInProgress.current = true;
+          const refreshResp = await fetch("/api/auth/rid-refresh", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (refreshResp.ok) {
+            const data = await refreshResp.json();
+            const freshRid = data.rid;
+            if (freshRid && freshRid !== sessionRid) {
+              // Got a genuinely fresh RID — use it
+              await getRIDTokenManager().setFromOnboarding({
+                profile: {
+                  id: data.uid || sessionUid || "",
+                  rid_source: IdentifierSourceType.Google,
+                  source_key: sessionUser?.email || sessionUser?.steam?.steamid || "",
+                },
+                rid: freshRid,
+                user_id: data.uid || sessionUid || "",
+              });
+              lastSyncedRid.current = freshRid;
+              ridRefreshFailed.current = false;
+              syncInProgress.current = false;
+              return;
+            }
+            // If the refresh returned the same RID, fall through to sync it
+          } else {
+            console.warn("[AuthSync] Proactive RID refresh failed, will use session RID");
+            ridRefreshFailed.current = true;
+          }
+        } catch (error) {
+          console.warn("[AuthSync] Proactive RID refresh error:", error);
+          ridRefreshFailed.current = true;
+        } finally {
+          syncInProgress.current = false;
+        }
       }
 
       // Need to sync the RID token

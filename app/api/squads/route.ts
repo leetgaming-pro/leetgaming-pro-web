@@ -12,6 +12,58 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
 import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
+import crypto from "crypto";
+import { getBackendUrl } from "@/lib/api/backend-url";
+
+/**
+ * Attempt to get a fresh RID token by re-authenticating with the backend.
+ * This handles the case where the RID token has expired (1-hour lifetime)
+ * but the NextAuth session is still valid (7-day lifetime).
+ */
+async function refreshRIDFromSession(
+  session: { user?: { email?: string | null; name?: string | null; rid?: string; uid?: string; google?: { sub?: string; email?: string }; steam?: { steamid?: string; personaname?: string } } } | null
+): Promise<string | null> {
+  if (!session?.user) return null;
+
+  const backendUrl = getBackendUrl();
+  const salt = process.env.STEAM_VHASH_SOURCE || "";
+
+  try {
+    // Try Google onboarding
+    const googleEmail = (session.user as any).google?.email || session.user?.email;
+    if (googleEmail) {
+      const vHash = crypto.createHash("sha256").update(`${googleEmail}${salt}`).digest("hex");
+      const resp = await fetch(`${backendUrl}/onboarding/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: googleEmail, name: session.user.name, v_hash: vHash }),
+      });
+      if (resp.ok) {
+        const rid = resp.headers.get("X-Resource-Owner-ID");
+        if (rid) return rid;
+      }
+    }
+
+    // Try Steam onboarding
+    const steamId = (session.user as any).steam?.steamid;
+    if (steamId) {
+      const vHash = crypto.createHash("sha256").update(`${steamId}${salt}`).digest("hex");
+      const resp = await fetch(`${backendUrl}/onboarding/steam`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steam: { id: steamId }, v_hash: vHash }),
+      });
+      if (resp.ok) {
+        const rid = resp.headers.get("X-Resource-Owner-ID");
+        if (rid) return rid;
+      }
+    }
+  } catch (err) {
+    logger.warn("[API /api/squads] RID refresh attempt failed", err);
+  }
+
+  return null;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -69,13 +121,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Authentication required",
+          error: "Authentication required. Please sign in and try again.",
         },
         { status: 401 },
       );
     }
 
-    const sdk = createAuthenticatedSDK(session);
     const body = await request.json();
 
     // Validate required fields
@@ -89,7 +140,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const squad = await sdk.squads.createSquad({
+    // Ensure slug_uri is not empty (backend requires >= 3 chars)
+    if (!body.slug_uri || body.slug_uri.trim().length < 3) {
+      const autoSlug = body.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (autoSlug.length < 3) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Squad URL slug must be at least 3 characters. Please use a longer squad name.",
+          },
+          { status: 400 },
+        );
+      }
+      body.slug_uri = autoSlug;
+    }
+
+    const squadPayload = {
       game_id: body.game_id || "cs2",
       name: body.name,
       symbol: body.symbol || "",
@@ -97,7 +166,42 @@ export async function POST(request: NextRequest) {
       slug_uri: body.slug_uri || "",
       logo_uri: body.logo_uri || "",
       visibility_type: body.visibility_type || "public",
-    });
+    };
+
+    let sdk = createAuthenticatedSDK(session);
+    let squad = null;
+
+    try {
+      squad = await sdk.squads.createSquad(squadPayload);
+    } catch (firstErr) {
+      const errStatus = (firstErr as Record<string, unknown>)?.status;
+      // If backend returned 401 (expired/invalid RID), try to refresh the token and retry once
+      if (errStatus === 401) {
+        logger.warn("[API /api/squads] Backend returned 401, attempting RID refresh");
+        const freshRid = await refreshRIDFromSession(session);
+        if (freshRid) {
+          const { ReplayAPISDK } = await import("@/types/replay-api/sdk");
+          const { ReplayApiSettingsMock } = await import("@/types/replay-api/settings");
+          sdk = new ReplayAPISDK({ ...ReplayApiSettingsMock, authToken: freshRid }, logger as any);
+          try {
+            squad = await sdk.squads.createSquad(squadPayload);
+          } catch (retryErr) {
+            throw retryErr;
+          }
+        } else {
+          // Could not refresh — user must re-login
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Your session has expired. Please sign in again to create a squad.",
+            },
+            { status: 401 },
+          );
+        }
+      } else {
+        throw firstErr;
+      }
+    }
 
     if (!squad) {
       return NextResponse.json(
@@ -119,11 +223,27 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error("[API /api/squads] Error creating squad", error);
     const status = (error as Record<string, unknown>)?.status;
+    const message = error instanceof Error ? error.message : "Failed to create squad";
+
+    // Map specific backend error messages to user-friendly responses
+    if (status === 401 || message.toLowerCase().includes("unauthorized") || message.toLowerCase().includes("sign in")) {
+      return NextResponse.json(
+        { success: false, error: "Your session has expired. Please sign in again." },
+        { status: 401 },
+      );
+    }
+
+    if (message.toLowerCase().includes("already exists") || status === 409) {
+      return NextResponse.json(
+        { success: false, error: "A squad with this name or URL already exists. Please choose a different name." },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to create squad",
+        error: message,
       },
       { status: typeof status === "number" && status >= 400 ? status : 500 },
     );

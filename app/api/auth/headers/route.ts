@@ -29,9 +29,10 @@ const CSRF_TOKEN_COOKIE = "csrf_token";
  */
 export async function GET(_request: NextRequest) {
   try {
-    // SECURITY: Require NextAuth session to prevent XSS from extracting RID tokens
+    // SECURITY: Require NextAuth session to prevent XSS from extracting RID tokens.
+    // We check session?.user (not email) to support Steam users who have no email.
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ headers: {} });
     }
 

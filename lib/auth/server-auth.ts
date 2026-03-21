@@ -109,8 +109,8 @@ export function getAuthContextFromRequest(
     authHeaders["X-Resource-Owner-ID"] = session.user.rid;
   }
 
-  // Accept either: NextAuth session with email, or valid RID token
-  const hasSession = !!session?.user?.email;
+  // Accept either: any valid NextAuth session (email OR Steam/OAuth without email), or valid RID token
+  const hasSession = !!session?.user;
   const hasRIDToken = !!authHeaders["X-Resource-Owner-ID"];
   const isAuthenticated = hasSession || hasRIDToken;
 
