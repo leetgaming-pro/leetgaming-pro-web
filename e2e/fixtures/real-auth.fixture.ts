@@ -9,7 +9,7 @@
  *   - FREE_USER: e2e.test@leetgaming.gg (Free tier, empty wallet)
  */
 
-import { test as base, Page, expect } from '@playwright/test';
+import { test as base, Page } from '@playwright/test';
 
 export const PRO_USER = {
   email: 'savelis.pedro@gmail.com',
@@ -96,42 +96,38 @@ export function getMatchmakingUser(index: number): UserCredentials {
 }
 
 /**
- * Perform real login via the signin page.
- * Uses the NextAuth credentials callback directly to avoid UI hydration flakiness.
- * Waits for the shared browser-context session cookie to be established.
+ * Perform real login via the backend auth flow (POST /auth/login → LoginEmailUserCommand).
+ * Navigates to the signin page and submits credentials via the UI form,
+ * which triggers NextAuth → authorize() → replay-api /auth/login usecase.
+ * Waits for the session to be established before returning.
  */
 async function performRealLogin(page: Page, user: UserCredentials): Promise<void> {
-  const csrfResponse = await page.request.get('/api/auth/csrf');
-  expect(csrfResponse.ok(), `Failed to fetch CSRF token for ${user.email}`).toBeTruthy();
+  await page.goto('/signin', { waitUntil: 'domcontentloaded' });
 
-  const csrfBody = (await csrfResponse.json()) as { csrfToken?: string };
-  if (!csrfBody.csrfToken) {
-    throw new Error(`Real login failed for ${user.email}: csrf token missing`);
+  // Wait for any Loading... hydration state to resolve
+  const loadingLocator = page.getByText('Loading...');
+  const isLoading = await loadingLocator.isVisible({ timeout: 4000 }).catch(() => false);
+  if (isLoading) {
+    await loadingLocator.waitFor({ state: 'hidden', timeout: 20000 });
   }
 
-  const callbackBody = new URLSearchParams({
-    csrfToken: csrfBody.csrfToken,
-    email: user.email,
-    password: user.password,
-    action: 'login',
-    callbackUrl: '/match-making',
-    json: 'true',
-  });
+  // Wait for the email input — signals the form is ready
+  const emailInput = page.locator('input[name="email"], input[type="email"]').first();
+  await emailInput.waitFor({ state: 'visible', timeout: 20000 });
 
-  const callbackResponse = await page.request.post('/api/auth/callback/email-password', {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    data: callbackBody.toString(),
-  });
+  await emailInput.fill(user.email);
+  await page.locator('input[name="password"], input[type="password"]').first().fill(user.password);
 
-  const callbackText = await callbackResponse.text();
-  if (!callbackResponse.ok()) {
-    throw new Error(`Real login failed for ${user.email}: ${callbackText || callbackResponse.status()}`);
-  }
+  // Submit — button text varies by locale; click the primary submit button
+  const submitButton = page.getByRole('button', { name: /enter the arena|sign in|login|entrar/i });
+  await submitButton.click();
 
+  // Wait for redirect away from /signin, which confirms NextAuth session + backend auth succeeded
+  await page.waitForURL((url) => !url.pathname.startsWith('/signin'), { timeout: 30000 });
+
+  // Confirm the session contains the authenticated user
   let sessionEstablished = false;
-  for (let retries = 0; retries < 15; retries += 1) {
+  for (let retries = 0; retries < 20; retries += 1) {
     const sessionResponse = await page.request.get('/api/auth/session');
     if (sessionResponse.ok()) {
       const sessionBody = await sessionResponse.json();
@@ -140,15 +136,17 @@ async function performRealLogin(page: Page, user: UserCredentials): Promise<void
         break;
       }
     }
-
     await page.waitForTimeout(500);
   }
 
   if (!sessionEstablished) {
-    throw new Error(`Real login failed for ${user.email}: session was not established`);
+    throw new Error(`Real login failed for ${user.email}: session was not established after redirect`);
   }
 
-  await page.goto('/match-making', { waitUntil: 'domcontentloaded' });
+  // Navigate to match-making if not already there
+  if (!page.url().includes('/match-making')) {
+    await page.goto('/match-making', { waitUntil: 'domcontentloaded' });
+  }
 }
 
 /**
