@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { logo } from "@/components/primitives";
 import { Electrolize } from "next/font/google";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
 
@@ -119,6 +120,7 @@ function Crosshair() {
 export default function HeroScene3D() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const isDark = theme === "dark";
 
@@ -194,7 +196,7 @@ export default function HeroScene3D() {
                   variant="bordered"
                   onPress={() => router.push("/onboarding")}
                 >
-                  Join the next generation of esports
+                  {t("landing.hero.badge")}
                 </Button>
               </m.div>
 
@@ -211,9 +213,9 @@ export default function HeroScene3D() {
                   },
                 }}
               >
-                <span className="text-[#F5F0E1]">COMPETE.</span>{" "}
-                <span className={logo({ color: "battleOrange" })}>ANALYZE.</span>{" "}
-                <span className={isDark ? "text-[#DCFF37]" : "text-[#FFC700]"}>EARN.</span>
+                <span className="text-[#F5F0E1]">{t("landing.hero.word1")}</span>{" "}
+                <span className={logo({ color: "battleOrange" })}>{t("landing.hero.word2")}</span>{" "}
+                <span className={isDark ? "text-[#DCFF37]" : "text-[#FFC700]"}>{t("landing.hero.word3")}</span>
               </m.h1>
 
               {/* Subheadline */}
@@ -229,9 +231,7 @@ export default function HeroScene3D() {
                   },
                 }}
               >
-                AI-powered replay analysis, skill-based matchmaking, and
-                transparent prize pools. The all-in-one competitive gaming
-                platform for players who want to go pro.
+                {t("landing.hero.subtitle")}
               </m.p>
 
               {/* CTAs */}
@@ -259,7 +259,7 @@ export default function HeroScene3D() {
                   size="lg"
                   onPress={() => router.push("/onboarding")}
                 >
-                  Start Playing Free
+                  {t("landing.hero.cta.play")}
                 </Button>
                 <Button
                   className={`h-14 sm:h-12 px-8 text-base font-medium border-2 text-[#F5F0E1] rounded-none touch-target w-full sm:w-auto transition-all ${
@@ -291,7 +291,7 @@ export default function HeroScene3D() {
                   variant="bordered"
                   onPress={() => router.push("/pricing")}
                 >
-                  See Plans
+                  {t("landing.hero.cta.plans")}
                 </Button>
               </m.div>
 
@@ -308,9 +308,9 @@ export default function HeroScene3D() {
                 }}
               >
                 {[
-                  { icon: "solar:cpu-bolt-bold", text: "AI Replay Analysis" },
-                  { icon: "solar:gamepad-bold", text: "Skill-Based Matchmaking" },
-                  { icon: "solar:wallet-money-bold", text: "Instant Payouts" },
+                  { icon: "solar:cpu-bolt-bold", text: t("landing.hero.feature.replay") },
+                  { icon: "solar:gamepad-bold", text: t("landing.hero.feature.matchmaking") },
+                  { icon: "solar:wallet-money-bold", text: t("landing.hero.feature.payouts") },
                 ].map((feat) => (
                   <div
                     key={feat.text}
@@ -336,7 +336,7 @@ export default function HeroScene3D() {
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
           <span className="text-xs uppercase tracking-[0.3em] text-[#F5F0E1]/50">
-            Scroll
+            {t("landing.hero.scroll")}
           </span>
           <Icon
             icon="solar:alt-arrow-down-linear"

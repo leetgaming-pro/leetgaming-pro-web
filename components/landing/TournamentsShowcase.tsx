@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Electrolize } from "next/font/google";
 import { scrollAnimations, scrollViewport, springs } from '@/lib/design/animations';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { useFrame } from '@react-three/fiber';
 import { Float, MeshReflectorMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -128,6 +129,7 @@ const BRACKET_TEAMS = [
 
 function BracketVisualization() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const accentColor = theme === 'dark' ? '#DCFF37' : '#FF4654';
   const mutedColor = theme === 'dark' ? 'rgba(220,255,55,0.2)' : 'rgba(255,70,84,0.2)';
 
@@ -171,7 +173,7 @@ function BracketVisualization() {
         transition={{ delay: 0.5, duration: 0.4 }}
       >
         <div className={`${electrolize.className} text-xs text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wider px-3 py-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20`}>
-          SEMI-FINALS
+          {t('landing.tournaments.semiFinals')}
         </div>
       </m.div>
 
@@ -187,7 +189,7 @@ function BracketVisualization() {
           style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}
         >
           <span className={`${electrolize.className} text-sm text-[#B8860B] dark:text-[#FFC700] uppercase tracking-wider font-bold`}>
-            🏆 GRAND FINAL
+            {t('landing.tournaments.grandFinal')}
           </span>
         </div>
       </m.div>
@@ -195,20 +197,19 @@ function BracketVisualization() {
   );
 }
 
-// ─── Feature Cards ──────────────────────────────────────────────────────────
-
-const TOURNAMENT_FEATURES = [
-  { icon: 'solar:widget-5-bold', title: 'Automated Brackets', desc: 'Single/double elimination, Swiss, round-robin formats with automated seeding' },
-  { icon: 'solar:shield-check-bold', title: 'Verified Prize Pools', desc: 'Blockchain-verified escrow ensures every dollar reaches the winners' },
-  { icon: 'solar:lock-keyhole-bold', title: 'Anti-Cheat Protection', desc: 'Built-in anti-cheat with VAC, FACEIT AC, and proprietary detection' },
-  { icon: 'solar:wallet-money-bold', title: 'Instant Payouts', desc: 'Winners receive prizes within minutes via Stripe, crypto, or wallet' },
-];
-
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function TournamentsShowcase() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const TOURNAMENT_FEATURES = [
+    { icon: 'solar:widget-5-bold', title: t('landing.tournaments.feature.brackets.title'), desc: t('landing.tournaments.feature.brackets.description') },
+    { icon: 'solar:shield-check-bold', title: t('landing.tournaments.feature.prizes.title'), desc: t('landing.tournaments.feature.prizes.description') },
+    { icon: 'solar:lock-keyhole-bold', title: t('landing.tournaments.feature.antiCheat.title'), desc: t('landing.tournaments.feature.antiCheat.description') },
+    { icon: 'solar:wallet-money-bold', title: t('landing.tournaments.feature.payouts.title'), desc: t('landing.tournaments.feature.payouts.description') },
+  ];
 
   return (
     <section className="landing-section relative py-24 md:py-32 bg-background overflow-hidden">
@@ -223,14 +224,14 @@ export default function TournamentsShowcase() {
             variants={scrollAnimations.fadeInUp}
           >
             <span className={`${electrolize.className} text-xs sm:text-sm uppercase tracking-[0.3em] text-[#FF4654] dark:text-[#DCFF37] mb-4 block`}>
-              COMPETE
+              {t('landing.tournaments.eyebrow')}
             </span>
             <h2 className={`${electrolize.className} text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 uppercase tracking-tight`}>
-              TOURNAMENTS &{' '}
-              <span className="text-[#FFC700]">PRIZE POOLS</span>
+              {t('landing.tournaments.headingPrefix')}{' '}
+              <span className="text-[#FFC700]">{t('landing.tournaments.headingHighlight')}</span>
             </h2>
             <p className="text-default-500 text-base sm:text-lg max-w-2xl mx-auto">
-              From grassroots competitions to elite tournaments. Create, join, and compete with guaranteed payouts.
+              {t('landing.tournaments.subtitle')}
             </p>
           </m.div>
 
@@ -256,7 +257,7 @@ export default function TournamentsShowcase() {
               variants={scrollAnimations.fadeInUp}
             >
               <h3 className={`${electrolize.className} text-sm uppercase tracking-wider text-default-500 mb-4`}>
-                AUTOMATED BRACKETS
+                {t('landing.tournaments.bracketHeading')}
               </h3>
               <BracketVisualization />
             </m.div>
@@ -317,7 +318,7 @@ export default function TournamentsShowcase() {
               endContent={<Icon icon="solar:arrow-right-linear" width={18} className="text-[#34445C]" />}
               onPress={() => router.push("/tournaments")}
             >
-              Browse Tournaments
+              {t('landing.tournaments.cta')}
             </Button>
           </m.div>
         </LazyMotion>

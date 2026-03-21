@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Electrolize } from "next/font/google";
 import { scrollAnimations, scrollViewport, springs } from '@/lib/design/animations';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -163,6 +164,7 @@ function StatCard({ value, label }: { value: string; label: string }) {
 export default function ReplayAnalysisShowcase() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <section className="landing-section relative py-24 md:py-32 overflow-hidden"
@@ -191,11 +193,11 @@ export default function ReplayAnalysisShowcase() {
             variants={scrollAnimations.fadeInUp}
           >
             <span className={`${electrolize.className} text-xs sm:text-sm uppercase tracking-[0.3em] text-[#FF4654] dark:text-[#DCFF37] mb-4 block`}>
-              CORE FEATURE
+              {t('landing.replayAnalysis.eyebrow')}
             </span>
             <h2 className={`${electrolize.className} text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 uppercase tracking-tight`}>
-              AI-POWERED{' '}
-              <span className="text-[#FF4654] dark:text-[#DCFF37]">REPLAY ANALYSIS</span>
+              {t('landing.replayAnalysis.headingPrefix')}{' '}
+              <span className="text-[#FF4654] dark:text-[#DCFF37]">{t('landing.replayAnalysis.headingHighlight')}</span>
             </h2>
           </m.div>
 
@@ -219,7 +221,7 @@ export default function ReplayAnalysisShowcase() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                 </span>
                 <span className={`${electrolize.className} text-xs text-[#FF4654] dark:text-[#DCFF37] uppercase tracking-wider`}>
-                  ANALYZING
+                  {t('landing.replayAnalysis.analyzing')}
                 </span>
               </div>
 
@@ -255,9 +257,7 @@ export default function ReplayAnalysisShowcase() {
                   onscreen: { opacity: 1, x: 0, transition: springs.gentle },
                 }}
               >
-                Upload your CS2 or Valorant demos and receive instant, professional-grade analysis
-                powered by machine learning. Understand your strengths, identify weaknesses, and
-                track your improvement over time.
+                {t('landing.replayAnalysis.description')}
               </m.p>
 
               {/* Feature bullets */}
@@ -289,9 +289,18 @@ export default function ReplayAnalysisShowcase() {
                   onscreen: { opacity: 1, y: 0, transition: springs.gentle },
                 }}
               >
-                <StatCard value="2.0" label="HLTV Rating" />
-                <StatCard value="89.3" label="ADR" />
-                <StatCard value="76%" label="KAST" />
+                <div className="text-center p-3 border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#FF4654]/5 dark:bg-[#DCFF37]/5" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                  <div className={`${electrolize.className} text-xl sm:text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]`}>2.0</div>
+                  <div className="text-xs text-default-500 uppercase tracking-wider mt-1">{t('landing.replayAnalysis.stat.hltvRating')}</div>
+                </div>
+                <div className="text-center p-3 border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#FF4654]/5 dark:bg-[#DCFF37]/5" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                  <div className={`${electrolize.className} text-xl sm:text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]`}>89.3</div>
+                  <div className="text-xs text-default-500 uppercase tracking-wider mt-1">{t('landing.replayAnalysis.stat.adr')}</div>
+                </div>
+                <div className="text-center p-3 border border-[#FF4654]/10 dark:border-[#DCFF37]/10 bg-[#FF4654]/5 dark:bg-[#DCFF37]/5" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
+                  <div className={`${electrolize.className} text-xl sm:text-2xl font-bold text-[#FF4654] dark:text-[#DCFF37]`}>76%</div>
+                  <div className="text-xs text-default-500 uppercase tracking-wider mt-1">{t('landing.replayAnalysis.stat.kast')}</div>
+                </div>
               </m.div>
 
               {/* CTA */}
@@ -312,7 +321,7 @@ export default function ReplayAnalysisShowcase() {
                   endContent={<Icon icon="solar:upload-bold" width={18} className={theme === 'dark' ? 'text-[#34445C]' : 'text-[#F5F0E1]'} />}
                   onPress={() => router.push("/replays/upload")}
                 >
-                  Upload Your First Replay
+                  {t('landing.replayAnalysis.cta')}
                 </Button>
               </m.div>
             </m.div>

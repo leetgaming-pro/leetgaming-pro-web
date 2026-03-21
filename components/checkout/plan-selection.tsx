@@ -121,12 +121,12 @@ export function PlanSelection({ onSelectPlan, initialPlanId }: PlanSelectionProp
   // Use SDK-powered subscription hook instead of direct fetch
   const {
     plans: apiPlans,
-    isLoadingPlans: _loading,
-    plansError: _error,
+    isLoadingPlans,
+    plansError,
   } = useSubscription(true);
 
-  // Transform API plans to match PricingPlan interface, fallback to defaults
-  const [plans, setPlans] = useState<PricingPlan[]>(DEFAULT_PRICING_PLANS);
+  // Empty during load so no stale prices are shown; fallback to defaults only on error
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
 
   useEffect(() => {
     if (apiPlans.length > 0) {
@@ -155,8 +155,11 @@ export function PlanSelection({ onSelectPlan, initialPlanId }: PlanSelectionProp
           handleSelectPlan(matchingPlan);
         }
       }
+    } else if (!isLoadingPlans && plansError) {
+      // API unavailable — show static defaults so the page is not blank
+      setPlans(DEFAULT_PRICING_PLANS);
     }
-  }, [apiPlans]);
+  }, [apiPlans, isLoadingPlans, plansError]);
 
   const handleSelectPlan = (plan: PricingPlan) => {
     selectPlan(plan);
@@ -217,7 +220,19 @@ export function PlanSelection({ onSelectPlan, initialPlanId }: PlanSelectionProp
 
       {/* Plan Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan) => {
+        {isLoadingPlans && plans.length === 0 ? (
+          // Loading skeleton — prevents stale hardcoded prices from flashing
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="rounded-none border border-[#34445C] animate-pulse" shadow="sm">
+              <CardBody className="p-6 space-y-4">
+                <div className="h-6 bg-[#34445C]/20 rounded w-1/2" />
+                <div className="h-4 bg-[#34445C]/10 rounded w-3/4" />
+                <div className="h-10 bg-[#34445C]/20 rounded w-1/3 mt-4" />
+              </CardBody>
+            </Card>
+          ))
+        ) : (
+        plans.map((plan) => {
           const isHighlighted = plan.highlighted;
           const savings = getSavingsPercentage(plan);
 
@@ -309,7 +324,8 @@ export function PlanSelection({ onSelectPlan, initialPlanId }: PlanSelectionProp
               </CardFooter>
             </Card>
           );
-        })}
+        })
+        )}
       </div>
 
       {/* Trust Badges */}

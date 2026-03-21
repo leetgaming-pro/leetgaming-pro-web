@@ -11,46 +11,44 @@ import { useTheme } from "next-themes";
 import { Electrolize } from "next/font/google";
 import { scrollAnimations, scrollViewport, springs } from "@/lib/design/animations";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
-
-// ─── Platform Capabilities ─────────────────────────────────────────────────
-
-const CAPABILITIES = [
-  {
-    icon: "solar:cpu-bolt-bold",
-    title: "AI REPLAY ANALYSIS",
-    description: "Frame-by-frame analysis powered by computer vision. Get actionable insights on aim, positioning, and utility usage.",
-  },
-  {
-    icon: "solar:shield-check-bold",
-    title: "FAIR MATCHMAKING",
-    description: "Elo-based skill matching across multiple game modes. Every match is balanced for a truly competitive experience.",
-  },
-  {
-    icon: "solar:wallet-money-bold",
-    title: "INSTANT PAYOUTS",
-    description: "On-chain prize distribution via smart contracts. Winnings hit your wallet the moment the match is verified.",
-  },
-  {
-    icon: "solar:earth-bold",
-    title: "MULTI-REGION SUPPORT",
-    description: "Low-latency infrastructure across global regions. Play competitive matches with minimal ping, wherever you are.",
-  },
-];
-
-// ─── Trust Indicators ───────────────────────────────────────────────────────
-
-const TRUST_ITEMS = [
-  { icon: "solar:lock-keyhole-bold", text: "Transparent Smart Contracts" },
-  { icon: "solar:verified-check-bold", text: "Anti-Cheat Integrated" },
-  { icon: "solar:server-bold", text: "99.9% Uptime Target" },
-];
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function SocialProofSection() {
   const { theme } = useTheme();
+  const { t } = useTranslation();
+
+  const CAPABILITIES = [
+    {
+      icon: "solar:cpu-bolt-bold",
+      title: t("landing.socialProof.capability.aiAnalysis.title"),
+      description: t("landing.socialProof.capability.aiAnalysis.description"),
+    },
+    {
+      icon: "solar:shield-check-bold",
+      title: t("landing.socialProof.capability.matchmaking.title"),
+      description: t("landing.socialProof.capability.matchmaking.description"),
+    },
+    {
+      icon: "solar:wallet-money-bold",
+      title: t("landing.socialProof.capability.payouts.title"),
+      description: t("landing.socialProof.capability.payouts.description"),
+    },
+    {
+      icon: "solar:earth-bold",
+      title: t("landing.socialProof.capability.multiRegion.title"),
+      description: t("landing.socialProof.capability.multiRegion.description"),
+    },
+  ];
+
+  const TRUST_ITEMS = [
+    { icon: "solar:lock-keyhole-bold", text: t("landing.socialProof.trust.smartContracts") },
+    { icon: "solar:verified-check-bold", text: t("landing.socialProof.trust.antiCheat") },
+    { icon: "solar:server-bold", text: t("landing.socialProof.trust.uptime") },
+  ];
 
   return (
     <section
@@ -90,17 +88,16 @@ export default function SocialProofSection() {
             <span
               className={`${electrolize.className} text-xs sm:text-sm uppercase tracking-[0.3em] text-[#DCFF37] mb-4 block`}
             >
-              WHY LEETGAMING
+              {t("landing.socialProof.eyebrow")}
             </span>
             <h2
               className={`${electrolize.className} text-3xl sm:text-4xl lg:text-5xl font-bold text-[#F5F0E1] mb-4 uppercase tracking-tight`}
             >
-              BUILT FOR{" "}
-              <span className="text-[#DCFF37]">COMPETITORS</span>
+              {t("landing.socialProof.headingPrefix")}{" "}
+              <span className="text-[#DCFF37]">{t("landing.socialProof.headingHighlight")}</span>
             </h2>
             <p className="text-sm sm:text-base text-[#F5F0E1]/60 max-w-xl mx-auto">
-              Every feature is designed to give you an edge — from AI-driven
-              analysis to trustless prize distribution.
+              {t("landing.socialProof.subtitle")}
             </p>
           </m.div>
 

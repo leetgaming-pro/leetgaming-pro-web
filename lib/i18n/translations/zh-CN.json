@@ -298,16 +298,27 @@
     "parentalConsent": "我确认自己符合所在司法辖区的法定年龄要求"
   },
   "footer": {
-    "resources": "资源",
-    "community": "社区",
     "company": "公司",
-    "legal": "法律",
-    "tagline": "在国际舞台上打出关键一击。",
+    "about": "关于我们",
+    "careers": "工作机会",
+    "press": "新闻",
+    "legal": "法律条款",
+    "resources": "资源",
+    "blog": "博客",
+    "help": "帮助中心",
+    "docs": "文档",
+    "api": "API",
+    "community": "社区",
+    "discord": "Discord",
+    "twitter": "Twitter",
+    "youtube": "YouTube",
+    "copyright": "© {year} LeetGaming。保留所有权利。",
     "uploadFiles": "上传文件",
     "aboutUs": "关于我们",
     "support": "支持",
     "contact": "联系我们",
     "cookiePolicy": "Cookie 政策",
+    "tagline": "为追求职业竞技的玩家打造的一站式竞技游戏平台。",
     "allRightsReserved": "版权所有。"
   },
   "regions": {
@@ -359,23 +370,6 @@
     "newMessage": "新消息",
     "paymentReceived": "收款到账",
     "prizeAwarded": "奖品发放"
-  },
-  "footer": {
-    "company": "公司",
-    "about": "关于我们",
-    "careers": "工作机会",
-    "press": "新闻",
-    "legal": "法律条款",
-    "resources": "资源",
-    "blog": "博客",
-    "help": "帮助中心",
-    "docs": "文档",
-    "api": "API",
-    "community": "社区",
-    "discord": "Discord",
-    "twitter": "Twitter",
-    "youtube": "YouTube",
-    "copyright": "© {year} LeetGaming。保留所有权利。"
   },
   "coaching": {
     "title": "教练服务",
@@ -491,6 +485,149 @@
           "description": "区块链验证托管确保公平支付。支持多币种，并可通过 Stripe、加密货币或平台钱包即时提现。"
         }
       }
+    },
+    "hero": {
+      "badge": "加入新一代电子竞技",
+      "word1": "竞技。",
+      "word2": "分析。",
+      "word3": "盈利。",
+      "subtitle": "AI驱动的录像分析、基于技能的匹配系统和透明的奖金池。为想要走向职业化的玩家打造的一站式竞技游戏平台。",
+      "cta": {
+        "play": "免费开始游戏",
+        "plans": "查看方案"
+      },
+      "feature": {
+        "replay": "AI 录像分析",
+        "matchmaking": "技能匹配",
+        "payouts": "即时到账"
+      },
+      "scroll": "滚动"
+    },
+    "lobbies": {
+      "liveBadge": "实时对战",
+      "headingPrefix": "加入",
+      "headingHighlight": "战场",
+      "subtitle": "与全球玩家一起参加竞技对战。创建你的房间或加入现有游戏。",
+      "playersOnline": "在线玩家",
+      "activeLobbies": "活跃房间",
+      "gamesToday": "今日对局",
+      "emptyHeading": "暂无活跃房间",
+      "emptyMessage": "成为第一个——创建房间开始游戏！",
+      "createLobby": "创建房间",
+      "browseAll": "浏览全部",
+      "featured": "精选",
+      "lobbyFull": "房间已满",
+      "joinNow": "立即加入",
+      "competitive": "竞技",
+      "custom": "自定义"
+    },
+    "matches": {
+      "badge": "近期对战",
+      "heading": "对战记录",
+      "subtitle": "回顾最激烈的对战。分析策略。提升实力。",
+      "matchesPlayed": "已完成对局",
+      "totalRounds": "总回合数",
+      "avgDuration": "平均时长",
+      "vs": "VS",
+      "rounds": "回合",
+      "players": "玩家",
+      "unknownMap": "未知地图",
+      "recent": "最近",
+      "viewMatch": "查看比赛",
+      "viewAll": "查看所有比赛",
+      "uploadReplay": "上传录像"
+    },
+    "replayAnalysis": {
+      "eyebrow": "核心功能",
+      "headingPrefix": "AI 驱动",
+      "headingHighlight": "录像分析",
+      "description": "上传您的 CS2 或 Valorant Demo 文件，即可获得由机器学习驱动的即时专业分析。了解您的优势、发现弱点，并追踪您的进步。",
+      "feature": {
+        "hltvRating": "HLTV 2.0 Rating、ADR、KAST% 分析",
+        "economy": "逐回合经济与道具使用分析",
+        "ai": "AI 驱动的改进建议",
+        "parsing": "CS2 & Valorant Demo 解析",
+        "team": "团队表现分析与教练提示",
+        "tracking": "历史进度追踪与趋势分析"
+      },
+      "analyzing": "分析中",
+      "stat": {
+        "hltvRating": "HLTV 评分",
+        "adr": "ADR",
+        "kast": "KAST"
+      },
+      "cta": "上传您的第一个录像"
+    },
+    "games": {
+      "eyebrow": "游戏",
+      "headingNumber": "11",
+      "headingText": "款游戏。一个平台。",
+      "subtitle": "从战术射击到 MOBA 和大逃杀。您的竞技之旅，跨越每个游戏。",
+      "moreGames": "+ Overwatch 2、Free Fire、Tibia 等即将推出",
+      "viewAll": "查看所有游戏",
+      "players": "玩家",
+      "capability": {
+        "aiAnalysis": "AI 分析",
+        "matchmaking": "匹配系统",
+        "tournaments": "锦标赛"
+      }
+    },
+    "socialProof": {
+      "eyebrow": "为何选择 LEETGAMING",
+      "headingPrefix": "专为",
+      "headingHighlight": "竞技玩家打造",
+      "subtitle": "每项功能都旨在给您带来优势——从 AI 驱动的分析到去信任化的奖金分配。",
+      "capability": {
+        "aiAnalysis": {
+          "title": "AI 录像分析",
+          "description": "由计算机视觉驱动的逐帧分析。获取关于瞬准、走位和道具使用的可操作洞察。"
+        },
+        "matchmaking": {
+          "title": "公平匹配",
+          "description": "基于 Elo 的多模式技能匹配。每场比赛都经过平衡，带来真正的竞技体验。"
+        },
+        "payouts": {
+          "title": "即时支付",
+          "description": "通过智能合约进行链上奖金分配。比赛验证后，奖励立即到账您的錢包。"
+        },
+        "multiRegion": {
+          "title": "多地区支持",
+          "description": "覆盖全球各地区的低延迟基础设施。无论身处何处，均可以极低延迟参与竞技对战。"
+        }
+      },
+      "trust": {
+        "smartContracts": "透明智能合约",
+        "antiCheat": "内置反作弄系统",
+        "uptime": "99.9% 可用性目标"
+      }
+    },
+    "tournaments": {
+      "eyebrow": "竞技",
+      "headingPrefix": "锦标赛与",
+      "headingHighlight": "奖金池",
+      "subtitle": "从本地赛事到精英锦标赛。创建、加入并参与有保证奖金的竞技。",
+      "bracketHeading": "自动晋级表",
+      "semiFinals": "半决赛",
+      "grandFinal": "🏆 总决赛",
+      "feature": {
+        "brackets": {
+          "title": "自动晋级表",
+          "description": "支持单败、双败、瑞士轮和循环赛格式，自动种子排列"
+        },
+        "prizes": {
+          "title": "已验证奖金池",
+          "description": "区块链验证的托管确保每一分奖金都到达获胜者手中"
+        },
+        "antiCheat": {
+          "title": "反作弄保护",
+          "description": "内置 VAC、FACEIT AC 及专有检测反作弄系统"
+        },
+        "payouts": {
+          "title": "即时支付",
+          "description": "获胜者可在数分钟内通过 Stripe、加密货币或平台錢包获得奖金"
+        }
+      },
+      "cta": "浏览锦标赛"
     }
   },
   "checkout": {

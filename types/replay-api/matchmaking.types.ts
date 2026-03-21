@@ -133,7 +133,8 @@ export interface MatchmakingUIState {
 export interface TierBenefits {
   tier: MatchmakingTier;
   name: string;
-  price: number;
+  /** Subscription plan key required to access this tier (undefined = free) */
+  requiresPlan?: string;
   features: string[];
   waitTimeReduction: number;
   priorityMultiplier: number;
@@ -145,7 +146,6 @@ export const TIER_BENEFITS: Record<MatchmakingTier, TierBenefits> = {
   free: {
     tier: "free",
     name: "Free",
-    price: 0,
     features: [
       "Standard matchmaking",
       "Basic region selection",
@@ -159,7 +159,7 @@ export const TIER_BENEFITS: Record<MatchmakingTier, TierBenefits> = {
   premium: {
     tier: "premium",
     name: "Premium",
-    price: 4.99,
+    requiresPlan: "pro",
     features: [
       "Priority queue (2x faster)",
       "Advanced map selection",
@@ -174,7 +174,7 @@ export const TIER_BENEFITS: Record<MatchmakingTier, TierBenefits> = {
   pro: {
     tier: "pro",
     name: "Pro",
-    price: 9.99,
+    requiresPlan: "pro",
     features: [
       "Ultra-priority queue (3x faster)",
       "Custom game modes",
@@ -190,7 +190,7 @@ export const TIER_BENEFITS: Record<MatchmakingTier, TierBenefits> = {
   elite: {
     tier: "elite",
     name: "Elite",
-    price: 19.99,
+    requiresPlan: "team",
     features: [
       "Instant priority (4x faster)",
       "Exclusive tournaments",

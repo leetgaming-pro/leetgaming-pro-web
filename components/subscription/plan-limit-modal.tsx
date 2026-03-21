@@ -15,7 +15,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Modal,
@@ -73,7 +73,6 @@ interface PlanInfo {
   color: string;
   gradient: string;
   limits: Record<string, number>;
-  price: { monthly: number; yearly: number };
 }
 
 const PLANS: Record<string, PlanInfo> = {
@@ -89,7 +88,6 @@ const PLANS: Record<string, PlanInfo> = {
       ReplayAnalysis: 2,
       JoinMatchmakingQueue: 10,
     },
-    price: { monthly: 0, yearly: 0 },
   },
   pro: {
     name: "Pro",
@@ -103,7 +101,6 @@ const PLANS: Record<string, PlanInfo> = {
       ReplayAnalysis: 15,
       JoinMatchmakingQueue: 100,
     },
-    price: { monthly: 9.99, yearly: 99.99 },
   },
   elite: {
     name: "Elite",
@@ -117,7 +114,6 @@ const PLANS: Record<string, PlanInfo> = {
       ReplayAnalysis: 50,
       JoinMatchmakingQueue: 1000,
     },
-    price: { monthly: 29.99, yearly: 299.99 },
   },
 };
 
@@ -244,6 +240,37 @@ export function PlanLimitModal({
   const router = useRouter();
   const { theme: _theme } = useTheme();
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [planPrices, setPlanPrices] = useState<Record<string, number | null>>({});
+
+  // Fetch real plan prices from DB when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch("/api/billing/plans")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          const prices: Record<string, number | null> = {};
+          data.data.forEach(
+            (plan: {
+              kind: string;
+              price_amount?: number;
+              prices?: { monthly?: { amount: number } };
+            }) => {
+              const key =
+                plan.kind === "business" || plan.kind === "organizer"
+                  ? "elite"
+                  : plan.kind;
+              prices[key] =
+                plan.prices?.monthly?.amount ?? plan.price_amount ?? null;
+            },
+          );
+          setPlanPrices(prices);
+        }
+      })
+      .catch(() => {
+        /* silently use pricing-page fallback */
+      });
+  }, [isOpen]);
 
   if (!error) return null;
 
@@ -534,7 +561,9 @@ export function PlanLimitModal({
                             {recommendedPlanInfo.name}
                           </p>
                           <p className="text-xs text-[#FF4654] dark:text-[#DCFF37]">
-                            ${recommendedPlanInfo.price.monthly}/mo
+                            {planPrices[error.recommendedPlan || "pro"] != null
+                              ? `$${planPrices[error.recommendedPlan || "pro"]!.toFixed(2)}/mo`
+                              : "See pricing →"}
                           </p>
                         </div>
                       </div>

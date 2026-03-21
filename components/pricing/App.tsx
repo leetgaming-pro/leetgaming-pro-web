@@ -126,7 +126,7 @@ export default function Component() {
     async function fetchPlans() {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/plans?region=${userRegion}`);
+        const response = await fetch(`/api/billing/plans?region=${userRegion}`);
         if (!response.ok) {
           throw new Error("Failed to fetch plans");
         }

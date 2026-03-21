@@ -112,7 +112,7 @@ export default function TierSelectionForm() {
                         </p>
                       </div>
                     </div>
-                    {tier.price > 0 ? (
+                    {tier.requiresPlan ? (
                       <Chip
                         size="sm"
                         variant="flat"
@@ -122,7 +122,7 @@ export default function TierSelectionForm() {
                             : "bg-default-100 text-default-600"
                         }`}
                       >
-                        ${tier.price}/mo
+                        {tier.requiresPlan.charAt(0).toUpperCase() + tier.requiresPlan.slice(1)}+
                       </Chip>
                     ) : (
                       <Chip

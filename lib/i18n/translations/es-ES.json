@@ -298,16 +298,27 @@
     "parentalConsent": "Confirmo que cumplo los requisitos legales de edad en mi jurisdicción"
   },
   "footer": {
-    "resources": "Recursos",
-    "community": "Comunidad",
     "company": "Empresa",
+    "about": "Acerca de",
+    "careers": "Carreras",
+    "press": "Prensa",
     "legal": "Legal",
-    "tagline": "Haz clutch en el escenario internacional.",
+    "resources": "Recursos",
+    "blog": "Blog",
+    "help": "Ayuda",
+    "docs": "Documentación",
+    "api": "API",
+    "community": "Comunidad",
+    "discord": "Discord",
+    "twitter": "Twitter",
+    "youtube": "YouTube",
+    "copyright": "© {year} LeetGaming. Todos los derechos reservados.",
     "uploadFiles": "Subir Archivos",
-    "aboutUs": "Sobre Nosotros",
+    "aboutUs": "Quiénes Somos",
     "support": "Soporte",
     "contact": "Contacto",
     "cookiePolicy": "Política de Cookies",
+    "tagline": "La plataforma todo en uno de gaming competitivo para jugadores que quieren ser pro.",
     "allRightsReserved": "Todos los derechos reservados."
   },
   "regions": {
@@ -359,23 +370,6 @@
     "newMessage": "Nuevo mensaje",
     "paymentReceived": "Pago recibido",
     "prizeAwarded": "Premio otorgado"
-  },
-  "footer": {
-    "company": "Empresa",
-    "about": "Acerca de",
-    "careers": "Carreras",
-    "press": "Prensa",
-    "legal": "Legal",
-    "resources": "Recursos",
-    "blog": "Blog",
-    "help": "Ayuda",
-    "docs": "Documentación",
-    "api": "API",
-    "community": "Comunidad",
-    "discord": "Discord",
-    "twitter": "Twitter",
-    "youtube": "YouTube",
-    "copyright": "© {year} LeetGaming. Todos los derechos reservados."
   },
   "coaching": {
     "title": "Coaching",
@@ -491,6 +485,149 @@
           "description": "El escrow verificado en blockchain garantiza pagos justos. Soporte multidivisa con retiros instantáneos mediante Stripe, cripto o monedero interno."
         }
       }
+    },
+    "hero": {
+      "badge": "Únete a la próxima generación de esports",
+      "word1": "COMPITE.",
+      "word2": "ANALIZA.",
+      "word3": "GANA.",
+      "subtitle": "Análisis de replays con IA, matchmaking basado en habilidad y prize pools transparentes. La plataforma todo en uno de gaming competitivo para jugadores que quieren ser pro.",
+      "cta": {
+        "play": "Empezar Gratis",
+        "plans": "Ver Planes"
+      },
+      "feature": {
+        "replay": "Análisis de Replay con IA",
+        "matchmaking": "Matchmaking por Habilidad",
+        "payouts": "Pagos Instantáneos"
+      },
+      "scroll": "Desplazar"
+    },
+    "lobbies": {
+      "liveBadge": "Partidas en Vivo",
+      "headingPrefix": "Únete a la",
+      "headingHighlight": "Batalla",
+      "subtitle": "Entra en partidas competitivas con jugadores de todo el mundo. Crea tu lobby o únete a un juego existente.",
+      "playersOnline": "Jugadores en Línea",
+      "activeLobbies": "Lobbies Activos",
+      "gamesToday": "Partidas Hoy",
+      "emptyHeading": "No hay lobbies activos ahora mismo",
+      "emptyMessage": "¡Sé el primero — crea un lobby y empieza a jugar!",
+      "createLobby": "Crear Lobby",
+      "browseAll": "Ver Todo",
+      "featured": "Destacado",
+      "lobbyFull": "Lobby Lleno",
+      "joinNow": "Unirse Ahora",
+      "competitive": "Competitivo",
+      "custom": "Personalizado"
+    },
+    "matches": {
+      "badge": "Batallas Recientes",
+      "heading": "Historial de Partidas",
+      "subtitle": "Revive las batallas más intensas. Analiza estrategias. Mejora tu juego.",
+      "matchesPlayed": "Partidas Jugadas",
+      "totalRounds": "Total de Rondas",
+      "avgDuration": "Duración Media",
+      "vs": "VS",
+      "rounds": "Rondas",
+      "players": "Jugadores",
+      "unknownMap": "Mapa Desconocido",
+      "recent": "Reciente",
+      "viewMatch": "Ver Partida",
+      "viewAll": "Ver Todas las Partidas",
+      "uploadReplay": "Subir Tu Replay"
+    },
+    "replayAnalysis": {
+      "eyebrow": "FUNCIONALIDAD PRINCIPAL",
+      "headingPrefix": "ANÁLISIS DE REPLAY",
+      "headingHighlight": "CON INTELIGENCIA ARTIFICIAL",
+      "description": "Sube tus demos de CS2 o Valorant y recibe análisis instantáneos y profesionales con machine learning. Comprende tus fortalezas, identifica debilidades y rastrea tu mejora.",
+      "feature": {
+        "hltvRating": "Análisis de HLTV 2.0 Rating, ADR, KAST%",
+        "economy": "Análisis de economía y utilidades ronda a ronda",
+        "ai": "Sugerencias de mejora con IA",
+        "parsing": "Análisis de demos CS2 & Valorant",
+        "team": "Insights de rendimiento de equipo y coaching",
+        "tracking": "Seguimiento histórico y tendencias"
+      },
+      "analyzing": "ANALIZANDO",
+      "stat": {
+        "hltvRating": "HLTV Rating",
+        "adr": "ADR",
+        "kast": "KAST"
+      },
+      "cta": "Subir Tu Primer Replay"
+    },
+    "games": {
+      "eyebrow": "JUEGOS",
+      "headingNumber": "11",
+      "headingText": "JUEGOS. UNA PLATAFORMA.",
+      "subtitle": "De shooters tácticos a MOBAs y battle royales. Tu camino competitivo, en todos los títulos.",
+      "moreGames": "+ Overwatch 2, Free Fire, Tibia y más próximamente",
+      "viewAll": "Ver Todos los Juegos",
+      "players": "Jugadores",
+      "capability": {
+        "aiAnalysis": "Análisis IA",
+        "matchmaking": "Matchmaking",
+        "tournaments": "Torneos"
+      }
+    },
+    "socialProof": {
+      "eyebrow": "POR QUÉ LEETGAMING",
+      "headingPrefix": "HECHO PARA",
+      "headingHighlight": "COMPETIDORES",
+      "subtitle": "Cada funcionalidad está diseñada para darte ventaja — desde análisis con IA hasta distribución de premios sin confianza.",
+      "capability": {
+        "aiAnalysis": {
+          "title": "ANÁLISIS DE REPLAY CON IA",
+          "description": "Análisis cuadro a cuadro con visión por computadora. Obtén insights accionables sobre puntería, posicionamiento y uso de utilidades."
+        },
+        "matchmaking": {
+          "title": "MATCHMAKING JUSTO",
+          "description": "Emparejamiento basado en Elo para múltiples modos de juego. Cada partida está equilibrada para una experiencia verdaderamente competitiva."
+        },
+        "payouts": {
+          "title": "PAGOS INSTANTÁNEOS",
+          "description": "Distribución de premios on-chain mediante contratos inteligentes. Las ganancias llegan a tu cartera en el momento en que se verifica la partida."
+        },
+        "multiRegion": {
+          "title": "SOPORTE MULTIRREGIONAL",
+          "description": "Infraestructura de baja latencia en regiones globales. Juega partidas competitivas con ping mínimo, estés donde estés."
+        }
+      },
+      "trust": {
+        "smartContracts": "Contratos Inteligentes Transparentes",
+        "antiCheat": "Anti-Cheat Integrado",
+        "uptime": "Objetivo de 99,9% de Disponibilidad"
+      }
+    },
+    "tournaments": {
+      "eyebrow": "COMPITE",
+      "headingPrefix": "TORNEOS Y",
+      "headingHighlight": "PRIZE POOLS",
+      "subtitle": "Desde competiciones locales hasta torneos de élite. Crea, únete y compite con pagos garantizados.",
+      "bracketHeading": "LLAVES AUTOMATIZADAS",
+      "semiFinals": "SEMIFINALES",
+      "grandFinal": "🏆 GRAN FINAL",
+      "feature": {
+        "brackets": {
+          "title": "Llaves Automatizadas",
+          "description": "Formatos de eliminación simple/doble, suizo y round-robin con seeding automático"
+        },
+        "prizes": {
+          "title": "Prize Pools Verificados",
+          "description": "Custodia verificada en blockchain garantiza que cada euro llegue a los ganadores"
+        },
+        "antiCheat": {
+          "title": "Protección Anti-Cheat",
+          "description": "Anti-cheat integrado con VAC, FACEIT AC y detección propia"
+        },
+        "payouts": {
+          "title": "Pagos Instantáneos",
+          "description": "Los ganadores reciben premios en minutos vía Stripe, cripto o cartera"
+        }
+      },
+      "cta": "Ver Torneos"
     }
   },
   "checkout": {

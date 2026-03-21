@@ -19,6 +19,7 @@ import { GAME_CONFIGS } from "@/config/games";
 import type { GameId } from "@/types/games";
 import type { MatchmakingLobby, LobbyType } from "@/types/replay-api/lobby.types";
 import { getLobbyPlayerCount, isLobbyFull } from "@/types/replay-api/lobby.types";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
 const orbitron = Orbitron({ weight: ["400", "700", "900"], subsets: ["latin"] });
@@ -98,6 +99,7 @@ function LivePulse({ className }: { className?: string }) {
 export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
   const router = useRouter();
   const { theme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // Use 'dark' as fallback during SSR/hydration to prevent mismatch
@@ -199,7 +201,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
                 "text-xs font-bold uppercase tracking-[0.3em] text-red-500",
                 orbitron.className
               )}>
-                Live Matches
+                {t("landing.lobbies.liveBadge")}
               </span>
             </div>
 
@@ -208,15 +210,14 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               "text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight mb-4",
               orbitron.className
             )}>
-              <span className="text-foreground">Join The </span>
+              <span className="text-foreground">{t("landing.lobbies.headingPrefix")} </span>
               <span className="bg-gradient-to-r from-[#FF4654] via-[#E6A800] to-[#34445C] dark:from-[#FF4654] dark:via-[#FFC700] dark:to-[#DCFF37] bg-clip-text text-transparent">
-                Battle
+                {t("landing.lobbies.headingHighlight")}
               </span>
             </h2>
 
             <p className="text-lg text-default-500 max-w-2xl mx-auto mb-8">
-              Jump into competitive matches with players worldwide. 
-              Create your lobby or join an existing game.
+              {t("landing.lobbies.subtitle")}
             </p>
 
             {/* Live Stats Bar */}
@@ -231,21 +232,21 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
                 <div className={clsx("text-2xl font-black text-[#FF4654] dark:text-[#DCFF37]", orbitron.className)}>
                   <AnimatedCounter value={stats.totalPlayers} />
                 </div>
-                <div className="text-xs text-default-400 uppercase tracking-wider">Players Online</div>
+                <div className="text-xs text-default-400 uppercase tracking-wider">{t("landing.lobbies.playersOnline")}</div>
               </div>
               <div className="w-px h-10 bg-default-200/50" />
               <div className="text-center">
                 <div className={clsx("text-2xl font-black text-[#FF4654]", orbitron.className)}>
                   <AnimatedCounter value={stats.activeLobbies} />
                 </div>
-                <div className="text-xs text-default-400 uppercase tracking-wider">Active Lobbies</div>
+                <div className="text-xs text-default-400 uppercase tracking-wider">{t("landing.lobbies.activeLobbies")}</div>
               </div>
               <div className="w-px h-10 bg-default-200/50" />
               <div className="text-center">
                 <div className={clsx("text-2xl font-black text-[#E6A800] dark:text-[#FFC700]", orbitron.className)}>
                   <AnimatedCounter value={stats.gamesPlayed} />+
                 </div>
-                <div className="text-xs text-default-400 uppercase tracking-wider">Games Today</div>
+                <div className="text-xs text-default-400 uppercase tracking-wider">{t("landing.lobbies.gamesToday")}</div>
               </div>
             </m.div>
           </m.div>
@@ -273,8 +274,8 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
                   initial={{ opacity: 0, y: 20 }}
                 >
                   <Icon icon="solar:gamepad-bold-duotone" width={64} className="text-default-300 dark:text-default-600 mb-4" />
-                  <p className="text-lg font-semibold text-default-500">No active lobbies right now</p>
-                  <p className="text-sm text-default-400 mt-1">Be the first — create a lobby and start playing!</p>
+                  <p className="text-lg font-semibold text-default-500">{t("landing.lobbies.emptyHeading")}</p>
+                  <p className="text-sm text-default-400 mt-1">{t("landing.lobbies.emptyMessage")}</p>
                 </m.div>
               ) : (
                 lobbies.map((lobby, index) => (
@@ -315,7 +316,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               }}
               onPress={handleCreateLobby}
             >
-              Create Lobby
+              {t("landing.lobbies.createLobby")}
             </Button>
             <Button
               className={clsx(
@@ -328,7 +329,7 @@ export default function LobbiesShowcase({ className }: LobbiesShowcaseProps) {
               variant="bordered"
               onPress={handleBrowseAll}
             >
-              Browse All
+              {t("landing.lobbies.browseAll")}
             </Button>
           </m.div>
         </div>
@@ -348,6 +349,7 @@ interface LobbyShowcaseCardProps {
 }
 
 function LobbyShowcaseCard({ lobby, index, theme: _theme, isHovered, onJoin, onHover }: LobbyShowcaseCardProps) {
+  const { t } = useTranslation();
   const gameConfig = lobby.game_id ? GAME_CONFIGS[lobby.game_id as GameId] : null;
   const gameAccent = GAME_ACCENTS[lobby.game_id || "cs2"] || GAME_ACCENTS.cs2;
   const typeStyle = LOBBY_TYPE_STYLES[lobby.type as LobbyType] || LOBBY_TYPE_STYLES.custom;
@@ -437,7 +439,7 @@ function LobbyShowcaseCard({ lobby, index, theme: _theme, isHovered, onJoin, onH
             {lobby.is_featured && (
               <div className="flex items-center gap-1 px-2 py-1 bg-amber-500/90 text-black text-xs font-bold uppercase">
                 <Icon icon="solar:star-bold" width={12} />
-                Featured
+                {t("landing.lobbies.featured")}
               </div>
             )}
           </div>
@@ -532,7 +534,7 @@ function LobbyShowcaseCard({ lobby, index, theme: _theme, isHovered, onJoin, onH
               color: "#000000",
             } : undefined}
           >
-            {isFull ? "Lobby Full" : "Join Now"}
+            {isFull ? t("landing.lobbies.lobbyFull") : t("landing.lobbies.joinNow")}
           </Button>
         </div>
 

@@ -298,16 +298,27 @@
     "parentalConsent": "I confirm that I meet the legal age requirements in my jurisdiction"
   },
   "footer": {
-    "resources": "Resources",
-    "community": "Community",
     "company": "Company",
+    "about": "About",
+    "careers": "Careers",
+    "press": "Press",
     "legal": "Legal",
-    "tagline": "Get to clutch on the international stage.",
+    "resources": "Resources",
+    "blog": "Blog",
+    "help": "Help",
+    "docs": "Documentation",
+    "api": "API",
+    "community": "Community",
+    "discord": "Discord",
+    "twitter": "Twitter",
+    "youtube": "YouTube",
+    "copyright": "© {year} LeetGaming. All rights reserved.",
     "uploadFiles": "Upload Files",
     "aboutUs": "About Us",
     "support": "Support",
     "contact": "Contact",
     "cookiePolicy": "Cookie Policy",
+    "tagline": "The all-in-one competitive gaming platform for players who want to go pro.",
     "allRightsReserved": "All rights reserved."
   },
   "regions": {
@@ -359,23 +370,6 @@
     "newMessage": "New message",
     "paymentReceived": "Payment received",
     "prizeAwarded": "Prize awarded"
-  },
-  "footer": {
-    "company": "Company",
-    "about": "About",
-    "careers": "Careers",
-    "press": "Press",
-    "legal": "Legal",
-    "resources": "Resources",
-    "blog": "Blog",
-    "help": "Help",
-    "docs": "Documentation",
-    "api": "API",
-    "community": "Community",
-    "discord": "Discord",
-    "twitter": "Twitter",
-    "youtube": "YouTube",
-    "copyright": "© {year} LeetGaming. All rights reserved."
   },
   "coaching": {
     "title": "Coaching",
@@ -491,6 +485,149 @@
           "description": "Blockchain-verified escrow ensures fair payouts. Multi-currency support with instant withdrawals via Stripe, crypto, or in-platform wallet."
         }
       }
+    },
+    "hero": {
+      "badge": "Join the next generation of esports",
+      "word1": "COMPETE.",
+      "word2": "ANALYZE.",
+      "word3": "EARN.",
+      "subtitle": "AI-powered replay analysis, skill-based matchmaking, and transparent prize pools. The all-in-one competitive gaming platform for players who want to go pro.",
+      "cta": {
+        "play": "Start Playing Free",
+        "plans": "See Plans"
+      },
+      "feature": {
+        "replay": "AI Replay Analysis",
+        "matchmaking": "Skill-Based Matchmaking",
+        "payouts": "Instant Payouts"
+      },
+      "scroll": "Scroll"
+    },
+    "lobbies": {
+      "liveBadge": "Live Matches",
+      "headingPrefix": "Join The",
+      "headingHighlight": "Battle",
+      "subtitle": "Jump into competitive matches with players worldwide. Create your lobby or join an existing game.",
+      "playersOnline": "Players Online",
+      "activeLobbies": "Active Lobbies",
+      "gamesToday": "Games Today",
+      "emptyHeading": "No active lobbies right now",
+      "emptyMessage": "Be the first — create a lobby and start playing!",
+      "createLobby": "Create Lobby",
+      "browseAll": "Browse All",
+      "featured": "Featured",
+      "lobbyFull": "Lobby Full",
+      "joinNow": "Join Now",
+      "competitive": "Competitive",
+      "custom": "Custom"
+    },
+    "matches": {
+      "badge": "Recent Battles",
+      "heading": "Match History",
+      "subtitle": "Relive the most intense battles. Analyze strategies. Improve your game.",
+      "matchesPlayed": "Matches Played",
+      "totalRounds": "Total Rounds",
+      "avgDuration": "Avg Duration",
+      "vs": "VS",
+      "rounds": "Rounds",
+      "players": "Players",
+      "unknownMap": "Unknown Map",
+      "recent": "Recent",
+      "viewMatch": "View Match",
+      "viewAll": "View All Matches",
+      "uploadReplay": "Upload Your Replay"
+    },
+    "replayAnalysis": {
+      "eyebrow": "CORE FEATURE",
+      "headingPrefix": "AI-POWERED",
+      "headingHighlight": "REPLAY ANALYSIS",
+      "description": "Upload your CS2 or Valorant demos and receive instant, professional-grade analysis powered by machine learning. Understand your strengths, identify weaknesses, and track your improvement over time.",
+      "feature": {
+        "hltvRating": "HLTV 2.0 Rating, ADR, KAST% analysis",
+        "economy": "Round-by-round economy & utility breakdown",
+        "ai": "AI-powered improvement suggestions",
+        "parsing": "CS2 & Valorant demo parsing",
+        "team": "Team performance insights & coaching cues",
+        "tracking": "Historical progress tracking & trends"
+      },
+      "analyzing": "ANALYZING",
+      "stat": {
+        "hltvRating": "HLTV Rating",
+        "adr": "ADR",
+        "kast": "KAST"
+      },
+      "cta": "Upload Your First Replay"
+    },
+    "games": {
+      "eyebrow": "GAMES",
+      "headingNumber": "11",
+      "headingText": "GAMES. ONE PLATFORM.",
+      "subtitle": "From tactical shooters to MOBAs and battle royales. Your competitive journey, across every title.",
+      "moreGames": "+ Overwatch 2, Free Fire, Tibia, and more coming soon",
+      "viewAll": "View All Games",
+      "players": "Players",
+      "capability": {
+        "aiAnalysis": "AI Analysis",
+        "matchmaking": "Matchmaking",
+        "tournaments": "Tournaments"
+      }
+    },
+    "socialProof": {
+      "eyebrow": "WHY LEETGAMING",
+      "headingPrefix": "BUILT FOR",
+      "headingHighlight": "COMPETITORS",
+      "subtitle": "Every feature is designed to give you an edge — from AI-driven analysis to trustless prize distribution.",
+      "capability": {
+        "aiAnalysis": {
+          "title": "AI REPLAY ANALYSIS",
+          "description": "Frame-by-frame analysis powered by computer vision. Get actionable insights on aim, positioning, and utility usage."
+        },
+        "matchmaking": {
+          "title": "FAIR MATCHMAKING",
+          "description": "Elo-based skill matching across multiple game modes. Every match is balanced for a truly competitive experience."
+        },
+        "payouts": {
+          "title": "INSTANT PAYOUTS",
+          "description": "On-chain prize distribution via smart contracts. Winnings hit your wallet the moment the match is verified."
+        },
+        "multiRegion": {
+          "title": "MULTI-REGION SUPPORT",
+          "description": "Low-latency infrastructure across global regions. Play competitive matches with minimal ping, wherever you are."
+        }
+      },
+      "trust": {
+        "smartContracts": "Transparent Smart Contracts",
+        "antiCheat": "Anti-Cheat Integrated",
+        "uptime": "99.9% Uptime Target"
+      }
+    },
+    "tournaments": {
+      "eyebrow": "COMPETE",
+      "headingPrefix": "TOURNAMENTS &",
+      "headingHighlight": "PRIZE POOLS",
+      "subtitle": "From grassroots competitions to elite tournaments. Create, join, and compete with guaranteed payouts.",
+      "bracketHeading": "AUTOMATED BRACKETS",
+      "semiFinals": "SEMI-FINALS",
+      "grandFinal": "🏆 GRAND FINAL",
+      "feature": {
+        "brackets": {
+          "title": "Automated Brackets",
+          "description": "Single/double elimination, Swiss, round-robin formats with automated seeding"
+        },
+        "prizes": {
+          "title": "Verified Prize Pools",
+          "description": "Blockchain-verified escrow ensures every dollar reaches the winners"
+        },
+        "antiCheat": {
+          "title": "Anti-Cheat Protection",
+          "description": "Built-in anti-cheat with VAC, FACEIT AC, and proprietary detection"
+        },
+        "payouts": {
+          "title": "Instant Payouts",
+          "description": "Winners receive prizes within minutes via Stripe, crypto, or wallet"
+        }
+      },
+      "cta": "Browse Tournaments"
     }
   },
   "checkout": {

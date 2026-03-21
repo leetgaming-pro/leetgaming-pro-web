@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
-import { hasValidRIDToken } from "@/lib/auth/server-auth";
+import { getAuthContextFromRequest } from "@/lib/auth/server-auth";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -63,8 +63,9 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    // Check if user has valid (non-expired) token
-    if (!hasValidRIDToken()) {
+    // Check if user is authenticated via RID token cookie OR valid NextAuth session
+    const { isAuthenticated } = getAuthContextFromRequest(session);
+    if (!isAuthenticated) {
       return NextResponse.json(
         {
           success: false,

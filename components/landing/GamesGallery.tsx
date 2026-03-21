@@ -14,6 +14,7 @@ import { Electrolize } from 'next/font/google';
 import { scrollAnimations, scrollViewport, springs } from '@/lib/design/animations';
 import { Icon } from '@iconify/react';
 import { Button } from '@nextui-org/react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
 
@@ -134,8 +135,7 @@ const GAMES: GameInfo[] = [
 // ─── Game Card with 3D Tilt ────────────────────────────────────────────────
 
 function GameCard({ game, index }: { game: GameInfo; index: number }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const x = useMotionValue(0);
+  const [isHovered, setIsHovered] = useState(false);  const { t } = useTranslation();  const x = useMotionValue(0);
   const y = useMotionValue(0);
 
   const rotateX = useTransform(y, [-100, 100], [8, -8]);
@@ -191,7 +191,7 @@ function GameCard({ game, index }: { game: GameInfo; index: number }) {
             style={{ borderColor: `${game.color}40`, clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%)' }}
           >
             <span className={`${electrolize.className} text-[10px] uppercase tracking-wider`} style={{ color: game.color }}>
-              {game.players} Players
+              {game.players} {t('landing.games.players')}
             </span>
           </div>
 
@@ -218,21 +218,21 @@ function GameCard({ game, index }: { game: GameInfo; index: number }) {
               <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider border bg-[#DCFF37]/10 border-[#DCFF37]/20 text-[#DCFF37]"
                 style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%)' }}
               >
-                AI Analysis
+                {t('landing.games.capability.aiAnalysis')}
               </span>
             )}
             {game.hasMatchmaking && (
               <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider border bg-[#FF4654]/10 border-[#FF4654]/20 text-[#FF4654] dark:text-[#FF4654]"
                 style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%)' }}
               >
-                Matchmaking
+                {t('landing.games.capability.matchmaking')}
               </span>
             )}
             {game.hasTournaments && (
               <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider border bg-[#FFC700]/10 border-[#FFC700]/20 text-[#FFC700]"
                 style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%)' }}
               >
-                Tournaments
+                {t('landing.games.capability.tournaments')}
               </span>
             )}
           </div>
@@ -255,6 +255,7 @@ function GameCard({ game, index }: { game: GameInfo; index: number }) {
 export default function GamesGallery() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <section className="landing-section relative py-24 md:py-32 overflow-hidden"
@@ -275,14 +276,13 @@ export default function GamesGallery() {
             variants={scrollAnimations.fadeInUp}
           >
             <span className={`${electrolize.className} text-xs sm:text-sm uppercase tracking-[0.3em] text-[#FF4654] dark:text-[#DCFF37] mb-4 block`}>
-              GAMES
+              {t('landing.games.eyebrow')}
             </span>
             <h2 className={`${electrolize.className} text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 uppercase tracking-tight`}>
-              <span className="text-[#FF4654] dark:text-[#DCFF37]">11</span> GAMES.{' '}
-              ONE PLATFORM.
+              <span className="text-[#FF4654] dark:text-[#DCFF37]">{t('landing.games.headingNumber')}</span> {t('landing.games.headingText')}
             </h2>
             <p className="text-default-500 text-base sm:text-lg max-w-2xl mx-auto">
-              From tactical shooters to MOBAs and battle royales. Your competitive journey, across every title.
+              {t('landing.games.subtitle')}
             </p>
           </m.div>
 
@@ -311,7 +311,7 @@ export default function GamesGallery() {
             variants={scrollAnimations.fadeInUp}
           >
             <p className="text-default-400 text-sm mb-4">
-              + Overwatch 2, Free Fire, Tibia, and more coming soon
+              {t('landing.games.moreGames')}
             </p>
             <Button
               className="h-10 px-6 text-sm font-medium border-1 border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#FF4654] dark:text-[#DCFF37] rounded-none touch-target hover:bg-[#FF4654]/10 dark:hover:bg-[#DCFF37]/10 transition-colors"
@@ -320,7 +320,7 @@ export default function GamesGallery() {
               endContent={<Icon icon="solar:arrow-right-linear" width={16} className="text-[#FF4654] dark:text-[#DCFF37]" />}
               onPress={() => router.push("/games")}
             >
-              View All Games
+              {t('landing.games.viewAll')}
             </Button>
           </m.div>
         </LazyMotion>

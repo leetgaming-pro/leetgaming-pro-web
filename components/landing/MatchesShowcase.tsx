@@ -16,6 +16,7 @@ import { Electrolize, Orbitron } from "next/font/google";
 import { useTheme } from "next-themes";
 
 import type { MatchData } from "@/types/replay-api/sdk";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const electrolize = Electrolize({ weight: "400", subsets: ["latin"] });
 const orbitron = Orbitron({ weight: ["400", "700", "900"], subsets: ["latin"] });
@@ -233,6 +234,7 @@ function TeamScore({
 // Match card component
 function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: number; theme?: string }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const gameId = match.game_id || "cs2";
   const _gameAccent = GAME_ACCENTS[gameId] || GAME_ACCENTS.cs2;
   const accentColor = theme === "dark" ? "#DCFF37" : "#FF4654";
@@ -250,12 +252,12 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
   const team2Wins = team2Score > team1Score;
   
   // Match metadata
-  const map = match.map || "Unknown Map";
+  const map = match.map || t("landing.matches.unknownMap");
   const mapBg = MAP_BACKGROUNDS[map.toLowerCase()] || MAP_BACKGROUNDS.default;
   const playedAt = match.played_at || match.created_at;
   const formattedDate = playedAt 
     ? new Date(playedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    : "Recent";
+    : t("landing.matches.recent");
   const formattedTime = playedAt
     ? new Date(playedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
     : "";
@@ -370,7 +372,7 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
           <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-default-200 dark:border-white/10">
             <div className="flex items-center gap-1.5 text-xs text-default-600 dark:text-default-400">
               <Icon icon="solar:refresh-circle-bold" width={14} />
-              <span>{totalRounds} Rounds</span>
+              <span>{totalRounds} {t("landing.matches.rounds")}</span>
             </div>
             
             {match.duration && (
@@ -382,7 +384,7 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
             
             <div className="flex items-center gap-1.5 text-xs text-default-600 dark:text-default-400">
               <Icon icon="solar:users-group-rounded-bold" width={14} />
-              <span>{(team1?.players?.length || 0) + (team2?.players?.length || 0)} Players</span>
+              <span>{(team1?.players?.length || 0) + (team2?.players?.length || 0)} {t("landing.matches.players")}</span>
             </div>
           </div>
           
@@ -402,7 +404,7 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
               className="font-semibold px-6"
               startContent={<Icon icon="solar:play-bold" width={14} />}
             >
-              View Match
+              {t("landing.matches.viewMatch")}
             </Button>
           </m.div>
         </CardBody>
@@ -414,6 +416,7 @@ function MatchShowcaseCard({ match, index, theme }: { match: MatchData; index: n
 export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
   const router = useRouter();
   const { theme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // Use 'dark' as fallback during SSR/hydration to prevent mismatch
@@ -534,7 +537,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                 className="w-5 h-5" 
                 style={{ color: activeTheme === "dark" ? "#DCFF37" : "#FF4654" }}
               />
-              <span className="text-sm font-semibold text-default-700 dark:text-white/80">Recent Battles</span>
+              <span className="text-sm font-semibold text-default-700 dark:text-white/80">{t("landing.matches.badge")}</span>
             </m.div>
             
             {/* Title */}
@@ -553,7 +556,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                   ? "from-[#00A8FF] via-white to-[#FFB800]"
                   : "from-[#FF4654] via-[#34445C] to-[#00A8FF]"
               )}>
-                Match History
+                {t("landing.matches.heading")}
               </span>
             </m.h2>
             
@@ -564,7 +567,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="text-lg text-default-600 dark:text-default-400 max-w-2xl mx-auto"
             >
-              Relive the most intense battles. Analyze strategies. Improve your game.
+              {t("landing.matches.subtitle")}
             </m.p>
             
             {/* Stats bar */}
@@ -582,7 +585,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                   <div className={clsx(electrolize.className, "text-2xl font-bold text-foreground")}>
                     <AnimatedCounter value={stats.totalMatches} />+
                   </div>
-                  <div className="text-xs text-default-500">Matches Played</div>
+                  <div className="text-xs text-default-500">{t("landing.matches.matchesPlayed")}</div>
                 </div>
               </div>
               
@@ -596,7 +599,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                   <div className={clsx(electrolize.className, "text-2xl font-bold text-foreground")}>
                     <AnimatedCounter value={stats.totalRounds} />
                   </div>
-                  <div className="text-xs text-default-500">Total Rounds</div>
+                  <div className="text-xs text-default-500">{t("landing.matches.totalRounds")}</div>
                 </div>
               </div>
               
@@ -617,7 +620,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
                   <div className={clsx(electrolize.className, "text-2xl font-bold text-foreground")}>
                     <AnimatedCounter value={stats.avgDuration} />m
                   </div>
-                  <div className="text-xs text-default-500">Avg Duration</div>
+                  <div className="text-xs text-default-500">{t("landing.matches.avgDuration")}</div>
                 </div>
               </div>
             </m.div>
@@ -676,7 +679,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               }}
               onPress={() => router.push("/matches")}
             >
-              View All Matches
+              {t("landing.matches.viewAll")}
             </Button>
             <Button
               className={clsx(
@@ -689,7 +692,7 @@ export default function MatchesShowcase({ className }: MatchesShowcaseProps) {
               variant="bordered"
               onPress={() => router.push("/upload")}
             >
-              Upload Your Replay
+              {t("landing.matches.uploadReplay")}
             </Button>
           </m.div>
         </div>
