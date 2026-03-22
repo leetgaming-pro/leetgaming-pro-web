@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useSDK } from "@/contexts/sdk-context";
 import { logger } from "@/lib/logger";
 import type {
@@ -61,6 +62,8 @@ export interface UseMatchmakingResult {
 
 export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
   const { sdk } = useSDK();
+  const { data: sessionData } = useSession();
+  const authToken = (sessionData?.user as Record<string, unknown>)?.rid as string | undefined;
   const [session, setSession] = useState<SessionStatusResponse | null>(null);
   const [poolStats, setPoolStats] = useState<PoolStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -121,7 +124,11 @@ export function useMatchmaking(pollIntervalMs = 2000): UseMatchmakingResult {
         const wsUrl = apiUrl
           .replace(/^http/, "ws")
           .replace(/\/$/, "");
-        const ws = new WebSocket(`${wsUrl}/ws/notifications`);
+        const ws = new WebSocket(
+          authToken
+            ? `${wsUrl}/ws/notifications?rid=${encodeURIComponent(authToken)}`
+            : `${wsUrl}/ws/notifications`
+        );
 
         ws.onopen = () => {
           logger.info("[useMatchmaking] WS notifications connected");

@@ -46,8 +46,9 @@ export function useNotifications(
   pollingIntervalMs = 30000,
   enableWebSocket = false,
 ): UseNotificationsResult {
-  const { status: sessionStatus } = useSession();
+  const { data: sessionData, status: sessionStatus } = useSession();
   const isSessionAuthenticated = sessionStatus === "authenticated";
+  const authToken = (sessionData?.user as Record<string, unknown>)?.rid as string | undefined;
   const { sdk } = useSDK();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +62,7 @@ export function useNotifications(
 
   // ── WebSocket real-time bridge ────────────────────────────────────────
   const ws = useNotificationWebSocket({
+    authToken: authToken ?? null,
     onNotification: useCallback((notification: Notification) => {
       // Prepend the new notification and bump counts
       setNotifications((prev) => {

@@ -45,6 +45,8 @@ type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 // Hook options
 interface UseLobbyWebSocketOptions {
+  /** RID token for authentication (browser WS cannot send custom headers) */
+  authToken?: string | null;
   autoReconnect?: boolean;
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
@@ -123,15 +125,20 @@ interface UseLobbyWebSocketResult {
   reconnect: () => void;
 }
 
-const getWebSocketUrl = (lobbyId: string): string => {
+const getWebSocketUrl = (lobbyId: string, authToken?: string | null): string => {
   const apiUrl = process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
   // Convert http(s) to ws(s)
   const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/$/, '');
-  return `${wsUrl}/ws/lobby/${lobbyId}`;
+  const base = `${wsUrl}/ws/lobby/${lobbyId}`;
+  if (authToken) {
+    return `${base}?rid=${encodeURIComponent(authToken)}`;
+  }
+  return base;
 };
 
 export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLobbyWebSocketResult {
   const {
+    authToken,
     autoReconnect = true,
     reconnectInterval = 3000,
     maxReconnectAttempts = 5,
@@ -167,8 +174,8 @@ export function useLobbyWebSocket(options: UseLobbyWebSocketOptions = {}): UseLo
 	  return;
 	}
 
-    const wsUrl = getWebSocketUrl(subscribedLobbyIdRef.current);
-    logger.info('[useLobbyWebSocket] Connecting to', wsUrl);
+    const wsUrl = getWebSocketUrl(subscribedLobbyIdRef.current, authToken);
+    logger.info('[useLobbyWebSocket] Connecting to', wsUrl.replace(/rid=[^&]+/, 'rid=***'));
     setConnectionState('connecting');
 
     try {

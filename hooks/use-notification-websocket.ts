@@ -62,6 +62,8 @@ export type NotificationConnectionState =
 // ── Hook Options ────────────────────────────────────────────────────────────
 
 export interface UseNotificationWebSocketOptions {
+  /** RID token for authentication (browser WS cannot send custom headers) */
+  authToken?: string | null;
   /** Auto-reconnect on disconnect (default: true) */
   autoReconnect?: boolean;
   /** Delay between reconnection attempts in ms (default: 3000) */
@@ -103,11 +105,15 @@ export interface UseNotificationWebSocketResult {
 
 // ── URL Builder ─────────────────────────────────────────────────────────────
 
-function getNotificationWebSocketUrl(): string {
+function getNotificationWebSocketUrl(authToken?: string | null): string {
   const apiUrl =
     process.env.NEXT_PUBLIC_REPLAY_API_URL || 'https://api.leetgaming.pro';
   const wsUrl = apiUrl.replace(/^http/, 'ws');
-  return `${wsUrl}/ws/notifications`;
+  const base = `${wsUrl}/ws/notifications`;
+  if (authToken) {
+    return `${base}?rid=${encodeURIComponent(authToken)}`;
+  }
+  return base;
 }
 
 // ── Hook ────────────────────────────────────────────────────────────────────
@@ -116,6 +122,7 @@ export function useNotificationWebSocket(
   options: UseNotificationWebSocketOptions = {},
 ): UseNotificationWebSocketResult {
   const {
+    authToken,
     autoReconnect = true,
     reconnectInterval = 5000,
     maxReconnectAttempts = 5,
@@ -189,8 +196,13 @@ export function useNotificationWebSocket(
       return;
     }
 
-    const wsUrl = getNotificationWebSocketUrl();
-    logger.info('[useNotificationWS] Connecting to', wsUrl);
+    if (!authToken) {
+      logger.warn('[useNotificationWS] No auth token available, skipping connection');
+      return;
+    }
+
+    const wsUrl = getNotificationWebSocketUrl(authToken);
+    logger.info('[useNotificationWS] Connecting to', wsUrl.replace(/rid=[^&]+/, 'rid=***'));
     setConnectionState('connecting');
 
     try {
@@ -260,6 +272,7 @@ export function useNotificationWebSocket(
       );
     }
   }, [
+    authToken,
     autoReconnect,
     reconnectInterval,
     maxReconnectAttempts,

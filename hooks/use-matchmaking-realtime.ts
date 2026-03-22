@@ -11,6 +11,7 @@
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { useLobbyWebSocket } from '@/hooks/use-lobby-websocket';
 import { useNotificationWebSocket } from '@/hooks/use-notification-websocket';
 import { useToast } from '@/components/toast/toast-provider';
@@ -39,6 +40,8 @@ export function useMatchmakingRealtime({
   handleAllPlayersReady,
 }: UseMatchmakingRealtimeOptions) {
   const { showToast } = useToast();
+  const { data: sessionData } = useSession();
+  const authToken = (sessionData?.user as Record<string, unknown>)?.rid as string | undefined;
 
   // Track whether we've already fired the all-ready handler to prevent double navigation
   const allReadyFiredRef = useRef(false);
@@ -120,6 +123,7 @@ export function useMatchmakingRealtime({
 
   // ── Lobby WebSocket hook ──────────────────────────────────────────────
   const lobbyWs = useLobbyWebSocket({
+    authToken: authToken ?? null,
     onReadyCheckStarted,
     onReadinessConfirmed,
     onReadinessDeclined,
@@ -176,6 +180,7 @@ export function useMatchmakingRealtime({
   );
 
   const notifWs = useNotificationWebSocket({
+    authToken: authToken ?? null,
     onNotification,
   });
 
