@@ -648,6 +648,39 @@ test.describe("Production Regression", () => {
       await expect(page.locator("body")).toBeVisible();
     });
 
+    test("clicking a team card opens team detail page (not 'team not found')", async ({
+      page,
+    }) => {
+      await page.goto("/teams", { waitUntil: "domcontentloaded" });
+      await waitForPageReady(page);
+
+      // Wait for at least one team card to appear
+      const teamCard = page.locator("[class*='cursor-pointer']").filter({ hasText: /\[/ }).first();
+      const hasCards = await teamCard.isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      if (!hasCards) {
+        // No teams in DB — skip gracefully
+        test.skip();
+        return;
+      }
+
+      // Click the first team card
+      await teamCard.click();
+
+      // Should navigate to /teams/<uuid> (not stay on /teams)
+      await page.waitForURL(/\/teams\/.+/, { timeout: LOAD_TIMEOUT });
+
+      // The detail page should NOT show the "Team not found" error
+      const notFound = page.getByText(/team not found/i);
+      const hasError = await notFound.isVisible({ timeout: 5_000 }).catch(() => false);
+      expect(hasError, "Team detail page should not show 'Team not found'").toBe(false);
+
+      // Should show team content (name, members, or stats)
+      const teamContent = page.getByText(/members|stats|matches|description|recruiting|team/i);
+      const hasContent = await teamContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+      expect(hasContent, "Team detail page should render team content").toBe(true);
+    });
+
     test("team creation page still accessible (no billing regression)", async ({
       page,
     }) => {

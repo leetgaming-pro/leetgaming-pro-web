@@ -63,7 +63,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
     const { members } = squad;
 
     const handleViewTeam = () => {
-      const teamPath = slug || id;
+      const teamPath = id || slug;
       if (teamPath) {
         router.push(`/teams/${teamPath}`);
       }
