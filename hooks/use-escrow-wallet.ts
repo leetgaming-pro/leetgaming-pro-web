@@ -62,6 +62,7 @@ export interface UseEscrowWalletResult {
   rejectSigning: (requestId: string) => Promise<boolean>;
   markNotificationRead: (notificationId: string) => void;
   dismissNotification: (notificationId: string) => void;
+  addChain: (chainId: ChainID) => void;
 
   // Helpers
   getChainBalance: (chainId: ChainID) => number;
@@ -116,27 +117,42 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
       const result = await sdk.wallet.getBalance();
 
       if (result) {
+        const evmAddress =
+          typeof result.evm_address === "string"
+            ? result.evm_address
+            : result.evm_address?.address || "";
+
+        // EVM addresses are universal — the same address works on all EVM chains.
+        // Pre-populate all supported mainnet chains.
+        const defaultEVMChains: Array<{
+          chain_id: ChainID;
+          native_symbol: string;
+        }> = [
+          { chain_id: "eip155:137", native_symbol: "POL" },  // Polygon
+          { chain_id: "eip155:1",   native_symbol: "ETH" },  // Ethereum
+          { chain_id: "eip155:8453", native_symbol: "ETH" }, // Base
+          { chain_id: "eip155:42161", native_symbol: "ETH" }, // Arbitrum
+        ];
+
+        const now = new Date().toISOString();
+        const chainAddresses = defaultEVMChains.map(({ chain_id, native_symbol }) => ({
+          chain_id,
+          address: evmAddress,
+          is_smart_wallet: true,
+          balance: {
+            native: { cents: 0, dollars: 0 },
+            native_symbol,
+            tokens: [],
+            last_updated_at: now,
+          },
+        }));
+
         // Transform to CustodialWalletStatus
         const walletStatus: CustodialWalletStatus = {
           wallet_id: result.wallet_id || "",
           user_id: result.user_id,
           wallet_type: "semi_custodial", // Default to MPC wallet
-          addresses: [
-            {
-              chain_id: "eip155:137", // Polygon default
-              address:
-                typeof result.evm_address === "string"
-                  ? result.evm_address
-                  : result.evm_address?.address || "",
-              is_smart_wallet: true,
-              balance: {
-                native: { cents: 0, dollars: 0 },
-                native_symbol: "MATIC",
-                tokens: [],
-                last_updated_at: new Date().toISOString(),
-              },
-            },
-          ],
+          addresses: chainAddresses,
           mpc_config: {
             wallet_id: result.wallet_id || "",
             threshold: 2,
@@ -699,6 +715,48 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
     return () => clearInterval(interval);
   }, [autoFetch, refreshMatches]);
 
+  // Add a chain to the wallet's address list (same EVM address, new chain)
+  const addChain = useCallback(
+    (chainId: ChainID) => {
+      setWallet((prev) => {
+        if (!prev) return prev;
+        if (prev.addresses.some((a) => a.chain_id === chainId)) return prev;
+
+        const nativeSymbols: Partial<Record<ChainID, string>> = {
+          "eip155:1":        "ETH",
+          "eip155:137":      "POL",
+          "eip155:8453":     "ETH",
+          "eip155:42161":    "ETH",
+          "eip155:10":       "ETH",
+          "eip155:43114":    "AVAX",
+          "eip155:56":       "BNB",
+          "eip155:11155111": "ETH",
+          "eip155:80001":    "MATIC",
+          "eip155:84532":    "ETH",
+        };
+
+        // Reuse the first available EVM address
+        const existingEvmAddress =
+          prev.addresses.find((a) => a.chain_id.startsWith("eip155:"))?.address || "";
+
+        const newEntry = {
+          chain_id: chainId,
+          address: existingEvmAddress,
+          is_smart_wallet: true,
+          balance: {
+            native: { cents: 0, dollars: 0 },
+            native_symbol: nativeSymbols[chainId] ?? "ETH",
+            tokens: [],
+            last_updated_at: new Date().toISOString(),
+          },
+        };
+
+        return { ...prev, addresses: [...prev.addresses, newEntry] };
+      });
+    },
+    [],
+  );
+
   return {
     // Wallet State
     wallet,
@@ -737,6 +795,7 @@ export function useEscrowWallet(autoFetch = true): UseEscrowWalletResult {
     rejectSigning,
     markNotificationRead,
     dismissNotification,
+    addChain,
 
     // Helpers
     getChainBalance,

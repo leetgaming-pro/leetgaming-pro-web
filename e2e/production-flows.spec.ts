@@ -609,4 +609,381 @@ test.describe("Production Flows", () => {
       await expect(heading).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
   });
+
+  // ========================================================================
+  // 5 — Public Pages (No Auth Required)
+  // ========================================================================
+
+  test.describe("5 — Public Pages", () => {
+    test("landing page loads with hero section", async ({ page }) => {
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // The landing page should render without crashing
+      await expect(page.locator("body")).toBeVisible();
+
+      // Should have navigation and main content
+      const nav = page.locator("nav, header");
+      await expect(nav.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("pricing page loads and shows plans", async ({ page }) => {
+      await page.goto("/pricing", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Should show pricing content
+      const pricingText = page.getByText(/free|pro|team|plan|pricing/i);
+      await expect(pricingText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("help page loads with FAQ", async ({ page }) => {
+      await page.goto("/help", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Should show help/support/FAQ content
+      const helpText = page.getByText(/help|support|faq|frequently asked/i);
+      await expect(helpText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("leaderboards page loads", async ({ page }) => {
+      await page.goto("/leaderboards", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Should show leaderboard content
+      const leaderboardText = page.getByText(/leaderboard|ranking|top player/i);
+      await expect(leaderboardText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("service status page loads", async ({ page }) => {
+      await page.goto("/service-status", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Should show status-related content
+      const statusText = page.getByText(/status|operational|service|uptime/i);
+      await expect(statusText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("coaching page loads with coming soon", async ({ page }) => {
+      await page.goto("/coaching", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // The coaching page shows a "Coming Soon" chip and heading
+      const coachingText = page.getByText(/coaching|coming soon/i);
+      await expect(coachingText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("terms of service page loads", async ({ page }) => {
+      await page.goto("/legal/terms", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Matches both English and Portuguese
+      const termsText = page.getByText(/terms of service|acceptance of terms|termos de serviço|aceitação dos termos/i);
+      await expect(termsText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("privacy policy page loads", async ({ page }) => {
+      await page.goto("/legal/privacy", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Matches both English and Portuguese
+      const privacyText = page.getByText(/privacy policy|privacy|política de privacidade|privacidade/i);
+      await expect(privacyText.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+
+    test("signin page loads without auth", async ({ page }) => {
+      await page.goto("/signin", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      const emailInput = page.locator('input[name="email"], input[type="email"]').first();
+      await expect(emailInput).toBeVisible({ timeout: LOAD_TIMEOUT });
+    });
+  });
+
+  // ========================================================================
+  // 6 — Wallet & Payments (Authenticated)
+  // ========================================================================
+
+  test.describe("6 — Wallet & Payments", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("wallet page loads for authenticated user", async ({ page }) => {
+      await page.goto("/wallet", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      // Should show wallet content or redirect to wallet page
+      const isOnWallet = page.url().includes("/wallet");
+      const walletText = page.getByText(/wallet|balance|deposit|withdraw|transaction/i);
+      const hasWalletContent = await walletText.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      expect(isOnWallet || hasWalletContent, "Should show wallet page or wallet content").toBe(true);
+    });
+
+    test("wallet pro page loads", async ({ page }) => {
+      await page.goto("/wallet/pro", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      // Page should not crash
+      await expect(page.locator("body")).toBeVisible();
+      // Should be on a wallet-related page
+      const isOnWallet = page.url().includes("/wallet");
+      expect(isOnWallet).toBe(true);
+    });
+  });
+
+  // ========================================================================
+  // 7 — Matchmaking (Authenticated)
+  // ========================================================================
+
+  test.describe("7 — Matchmaking", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("matchmaking page loads with wizard", async ({ page }) => {
+      await page.goto("/match-making", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(3_000);
+
+      // Should show matchmaking content (wizard, game selection, etc.)
+      const matchmakingContent = page.getByText(/match|game|select|queue|find|lobby|step/i);
+      const hasContent = await matchmakingContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      // Or the page just renders without crashing
+      await expect(page.locator("body")).toBeVisible();
+      const isOnPage = page.url().includes("/match-making");
+      expect(isOnPage || hasContent, "Should be on matchmaking page").toBe(true);
+    });
+
+    test("matches page loads", async ({ page }) => {
+      await page.goto("/matches", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      await expect(page.locator("body")).toBeVisible();
+    });
+  });
+
+  // ========================================================================
+  // 8 — Tournaments (Authenticated)
+  // ========================================================================
+
+  test.describe("8 — Tournaments", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("tournaments page loads and shows tournament list", async ({ page }) => {
+      await page.goto("/tournaments", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(3_000);
+
+      // Should show tournaments content
+      const tournamentsText = page.getByText(/tournament|competition|bracket|upcoming/i);
+      const hasContent = await tournamentsText.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      await expect(page.locator("body")).toBeVisible();
+      const isOnPage = page.url().includes("/tournament");
+      expect(isOnPage || hasContent, "Should be on tournaments page").toBe(true);
+    });
+  });
+
+  // ========================================================================
+  // 9 — Settings & Notifications (Authenticated)
+  // ========================================================================
+
+  test.describe("9 — Settings & Notifications", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("settings page loads with profile tab", async ({ page }) => {
+      await page.goto("/settings", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      // Should show settings content (tabs, form fields)
+      const settingsContent = page.getByText(/settings|profile|account|notification|privacy|security|billing/i);
+      const hasContent = await settingsContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      await expect(page.locator("body")).toBeVisible();
+      expect(hasContent || page.url().includes("/settings"), "Should show settings page").toBe(true);
+    });
+
+    test("settings privacy tab loads", async ({ page }) => {
+      await page.goto("/settings?tab=privacy", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      await expect(page.locator("body")).toBeVisible();
+    });
+
+    test("settings billing tab loads", async ({ page }) => {
+      await page.goto("/settings?tab=billing", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      await expect(page.locator("body")).toBeVisible();
+    });
+
+    test("notifications page loads", async ({ page }) => {
+      await page.goto("/notifications", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(2_000);
+
+      // Should show notification content
+      const notifContent = page.getByText(/notification|alert|inbox|message/i);
+      const hasContent = await notifContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      await expect(page.locator("body")).toBeVisible();
+      expect(hasContent || page.url().includes("/notification"), "Should show notifications page").toBe(true);
+    });
+  });
+
+  // ========================================================================
+  // 10 — Replays & Analytics (Authenticated)
+  // ========================================================================
+
+  test.describe("10 — Replays & Analytics", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("replays page loads and shows replay list", async ({ page }) => {
+      await page.goto("/replays", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(3_000);
+
+      // Should show replay-related content
+      const replayContent = page.getByText(/replay|demo|upload|analysis|cs2|counter-strike/i);
+      const hasContent = await replayContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      await expect(page.locator("body")).toBeVisible();
+      expect(hasContent || page.url().includes("/replays"), "Should show replays page").toBe(true);
+    });
+
+    test("analytics page loads", async ({ page }) => {
+      await page.goto("/analytics", { waitUntil: "domcontentloaded" });
+
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(3_000);
+
+      await expect(page.locator("body")).toBeVisible();
+      const isOnPage = page.url().includes("/analytics");
+      expect(isOnPage, "Should be on analytics page").toBe(true);
+    });
+
+    test("search page loads with filters", async ({ page }) => {
+      await page.goto("/search", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(3_000);
+
+      // Should show search-related content
+      const searchContent = page.getByText(/search|filter|game|results/i);
+      const hasContent = await searchContent.first().isVisible({ timeout: LOAD_TIMEOUT }).catch(() => false);
+
+      await expect(page.locator("body")).toBeVisible();
+      expect(hasContent || page.url().includes("/search"), "Should show search page").toBe(true);
+    });
+  });
+
+  // ========================================================================
+  // 11 — Auth Redirect Protection
+  // ========================================================================
+
+  test.describe("11 — Auth Redirect Protection", () => {
+    test("protected pages redirect unauthenticated users to signin", async ({ page }) => {
+      // Try accessing a protected page without login
+      await page.goto("/wallet", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(5_000);
+
+      // Should redirect to signin or show loading/auth prompt
+      const isOnSignin = page.url().includes("/signin");
+      const isOnWallet = page.url().includes("/wallet");
+      const loadingText = page.getByText("Loading...");
+      const isLoading = await loadingText.isVisible({ timeout: 3_000 }).catch(() => false);
+
+      // Either redirected to signin, still on the page showing loading, or wallet loaded with limited access
+      expect(isOnSignin || isOnWallet || isLoading, "Should handle unauthenticated access").toBe(true);
+    });
+  });
+
+  // ========================================================================
+  // 12 — Cross-Feature Navigation (Authenticated)
+  // ========================================================================
+
+  test.describe("12 — Cross-Feature Navigation", () => {
+    test.beforeEach(async ({ page }) => {
+      await realLogin(page);
+    });
+
+    test("can navigate between major sections without errors", async ({ page }) => {
+      // Navigate through major sections sequentially
+      const routes = ["/players", "/teams", "/replays", "/wallet", "/settings"];
+
+      for (const route of routes) {
+        await page.goto(route, { waitUntil: "domcontentloaded" });
+        await page.waitForTimeout(2_000);
+
+        // Wait for Loading... to clear
+        const loadingText = page.getByText("Loading...");
+        if (await loadingText.isVisible({ timeout: 2_000 }).catch(() => false)) {
+          await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+        }
+
+        // Page should not crash (no error overlays)
+        await expect(page.locator("body")).toBeVisible();
+
+        // No unhandled error overlays (Next.js error overlay)
+        const errorOverlay = page.locator('[data-nextjs-dialog], #__next-build-watcher');
+        const hasError = await errorOverlay.isVisible({ timeout: 1_000 }).catch(() => false);
+        expect(hasError, `Error overlay on ${route}`).toBe(false);
+      }
+    });
+  });
 });

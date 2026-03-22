@@ -15,6 +15,7 @@ import {
   Tabs,
   Tab,
   Badge,
+  Button,
   Modal,
   ModalContent,
   ModalHeader,
@@ -42,6 +43,8 @@ import type {
   WalletViewMode,
   MPCSigningRequest,
 } from "@/types/replay-api/escrow-wallet.types";
+import type { ChainID } from "@/types/replay-api/blockchain.types";
+import { CHAIN_CONFIGS } from "@/types/replay-api/blockchain.types";
 
 // MPC Signing Modal Component
 function MPCSigningModal({
@@ -431,6 +434,7 @@ export default function ProWalletDashboard() {
     refreshMatches: _refreshMatches,
     refreshHistory,
     getChainBalance: _getChainBalance,
+    addChain,
   } = useEscrowWallet(isAuthenticated);
 
   const [viewMode, setViewMode] = useState<WalletViewMode>("overview");
@@ -442,6 +446,11 @@ export default function ProWalletDashboard() {
     isOpen: isSigningOpen,
     onOpen: openSigning,
     onClose: closeSigning,
+  } = useDisclosure();
+  const {
+    isOpen: isAddChainOpen,
+    onOpen: openAddChain,
+    onClose: closeAddChain,
   } = useDisclosure();
 
   const isLoading = isAuthLoading || isLoadingWallet;
@@ -682,6 +691,7 @@ export default function ProWalletDashboard() {
                 addresses={wallet?.addresses || []}
                 selectedChain={selectedChain || undefined}
                 onSelectChain={setSelectedChain}
+                onAddChain={openAddChain}
                 onCopyAddress={(_addr) => {
                   // Show toast notification
                 }}
@@ -960,6 +970,7 @@ export default function ProWalletDashboard() {
                   addresses={wallet.addresses}
                   selectedChain={selectedChain || undefined}
                   onSelectChain={setSelectedChain}
+                  onAddChain={openAddChain}
                 />
               </>
             )}
@@ -1004,6 +1015,79 @@ export default function ProWalletDashboard() {
           }
         }}
       />
+
+      {/* Add Chain Modal */}
+      <Modal isOpen={isAddChainOpen} onClose={closeAddChain} size="sm">
+        <ModalContent className="rounded-none">
+          <ModalHeader className="flex items-center gap-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5">
+            <Icon
+              icon="solar:planet-bold-duotone"
+              width={24}
+              className="text-[#FF4654] dark:text-[#DCFF37]"
+            />
+            <span className="text-[#34445C] dark:text-white">Add Chain</span>
+          </ModalHeader>
+          <ModalBody className="gap-2 py-4">
+            <p className="text-sm text-default-500 mb-2">
+              Your EVM address works across all chains. Select additional
+              networks to track.
+            </p>
+            {(
+              [
+                "eip155:10",    // Optimism
+                "eip155:43114", // Avalanche
+                "eip155:56",    // BSC
+              ] as ChainID[]
+            )
+              .filter(
+                (chainId) =>
+                  !wallet?.addresses.some((a) => a.chain_id === chainId),
+              )
+              .map((chainId) => {
+                const config = CHAIN_CONFIGS[chainId];
+                return (
+                  <button
+                    key={chainId}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-default-200 hover:border-[#FF4654] dark:hover:border-[#DCFF37] hover:bg-default-100 transition-colors text-left w-full"
+                    onClick={() => {
+                      addChain(chainId);
+                      closeAddChain();
+                    }}
+                  >
+                    <Icon
+                      icon="solar:planet-bold-duotone"
+                      width={20}
+                      className="text-default-400 shrink-0"
+                    />
+                    <div>
+                      <p className="font-medium text-sm text-[#34445C] dark:text-white">
+                        {config?.name ?? chainId}
+                      </p>
+                      <p className="text-xs text-default-500">
+                        {config?.native_currency ?? "ETH"}
+                        {config?.is_testnet && " · Testnet"}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            {wallet?.addresses.length === 7 && (
+              <p className="text-sm text-default-400 text-center py-2">
+                All supported chains are already connected.
+              </p>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="light"
+              className="rounded-none"
+              onPress={closeAddChain}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
