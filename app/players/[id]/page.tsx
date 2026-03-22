@@ -530,7 +530,7 @@ export default function PlayerDetailPage() {
         </div>
 
         {/* Profile Info Card (overlapping banner) */}
-        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 -mt-14 md:-mt-16 mx-2 md:mx-0 mb-6 relative z-10">
+        <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 -mt-14 md:-mt-16 mx-2 md:mx-0 mb-6 relative z-10 overflow-visible">
           <CardBody className="p-5 md:p-8">
             <div className="flex flex-col md:flex-row gap-6 items-start">
               {/* Avatar */}
@@ -545,7 +545,7 @@ export default function PlayerDetailPage() {
                   <Avatar
                     src={player.avatar}
                     className="w-full h-full"
-                    imgProps={{ className: "object-cover" }}
+                    imgProps={{ className: "object-cover object-top" }}
                   />
                 </div>
                 <div
