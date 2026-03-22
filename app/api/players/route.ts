@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { logger } from "@/lib/logger";
 import { createAuthenticatedSDK } from "@/lib/api/sdk-factory";
+import { executeWithRIDRefresh } from "@/lib/api/rid-refresh";
 
 /**
  * GET /api/players
@@ -62,14 +63,27 @@ export async function POST(request: NextRequest) {
     const sdk = createAuthenticatedSDK(session);
     const body = await request.json();
 
-    const profile = await sdk.playerProfiles.createPlayerProfile({
+    const profilePayload = {
       game_id: body.game_id,
       nickname: body.nickname,
       slug_uri: body.slug_uri,
       avatar_uri: body.avatar_uri,
       roles: body.roles,
       description: body.description,
+    };
+
+    const outcome = await executeWithRIDRefresh(session, sdk, async (activeSDK) => {
+      return activeSDK.playerProfiles.createPlayerProfile(profilePayload);
     });
+
+    if ("error" in outcome) {
+      return NextResponse.json(
+        { success: false, error: "Your session has expired. Please sign in again." },
+        { status: 401 },
+      );
+    }
+
+    const profile = outcome.result;
 
     if (!profile) {
       return NextResponse.json(
