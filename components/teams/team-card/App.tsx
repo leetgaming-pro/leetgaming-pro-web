@@ -92,7 +92,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
             className={cn(
               "absolute inset-0 flex flex-col items-center justify-between px-5 py-6 text-center",
               "bg-content1 border border-default-200 dark:border-[#DCFF37]/20",
-              "shadow-small"
+              "shadow-small",
             )}
             style={{
               backfaceVisibility: "hidden",
@@ -145,7 +145,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
                         ? social.twitter
                         : `https://twitter.com/${social.twitter.replace(
                             "@",
-                            ""
+                            "",
                           )}`
                     }
                   >
@@ -182,10 +182,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
                     href={
                       social.github.startsWith("http")
                         ? social.github
-                        : `https://github.com/${social.github.replace(
-                            "@",
-                            ""
-                          )}`
+                        : `https://github.com/${social.github.replace("@", "")}`
                     }
                   >
                     <Icon
@@ -222,7 +219,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
             className={cn(
               "absolute inset-0 flex flex-col px-5 py-5",
               "bg-content1 border border-[#FF4654]/30 dark:border-[#DCFF37]/30",
-              "shadow-lg shadow-[#FF4654]/5 dark:shadow-[#DCFF37]/5"
+              "shadow-lg shadow-[#FF4654]/5 dark:shadow-[#DCFF37]/5",
             )}
             style={{
               backfaceVisibility: "hidden",
@@ -264,7 +261,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
                     "flex items-center gap-3 px-3 py-2.5",
                     "bg-gradient-to-r from-[#34445C]/5 to-transparent dark:from-[#DCFF37]/5 dark:to-transparent",
                     "border border-default-200/50 dark:border-[#DCFF37]/10",
-                    "transition-colors hover:from-[#34445C]/10 dark:hover:from-[#DCFF37]/10"
+                    "transition-colors hover:from-[#34445C]/10 dark:hover:from-[#DCFF37]/10",
                   )}
                   style={{ clipPath: MEMBER_CLIP }}
                 >
@@ -313,9 +310,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
             <Button
               className="mt-3 bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] text-[#F5F0E1] dark:text-[#34445C] rounded-none w-full font-semibold"
               style={{ clipPath: BTN_CLIP }}
-              startContent={
-                <Icon icon="solar:arrow-right-bold" width={18} />
-              }
+              startContent={<Icon icon="solar:arrow-right-bold" width={18} />}
               onPress={handleViewTeam}
             >
               View Team Profile
@@ -324,7 +319,7 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 TeamCard.displayName = "TeamCard";

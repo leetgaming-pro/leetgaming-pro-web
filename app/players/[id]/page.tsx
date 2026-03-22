@@ -45,7 +45,10 @@ import {
   SkillProfile,
   SkillCategory,
 } from "@/types/replay-api/player-profile.types";
-import { SkillRadarChart, SkillRadarMini } from "@/components/profile/skills/skill-radar-chart";
+import {
+  SkillRadarChart,
+  SkillRadarMini,
+} from "@/components/profile/skills/skill-radar-chart";
 import { SkillBarList } from "@/components/profile/skills/skill-bar";
 import { TraitShowcase } from "@/components/profile/traits/trait-badge";
 import { TeamHistoryTimeline } from "@/components/profile/history/team-history-timeline";
@@ -55,15 +58,24 @@ import {
   getDemoTeamHistory,
   getDemoProfile,
 } from "@/lib/demo/player-profile-demo";
-import { useViewTracking, useViewStatistics, useViewInsights } from "@/hooks/use-view-analytics";
+import {
+  useViewTracking,
+  useViewStatistics,
+  useViewInsights,
+} from "@/hooks/use-view-analytics";
 import { ViewCounter } from "@/components/analytics/view-counter";
 import { WhoViewedPanel } from "@/components/analytics/who-viewed-panel";
 import { ViewStatisticsCard } from "@/components/analytics/view-statistics-card";
-import { getDemoViewStatistics, getDemoViewerInsights } from "@/lib/demo/view-analytics-demo";
+import {
+  getDemoViewStatistics,
+  getDemoViewerInsights,
+} from "@/lib/demo/view-analytics-demo";
 
 /** Extended player profile from API response - uses Omit to avoid type conflicts with base Date properties */
-interface PlayerAPIResponse
-  extends Omit<PlayerProfileBase, "created_at" | "updated_at"> {
+interface PlayerAPIResponse extends Omit<
+  PlayerProfileBase,
+  "created_at" | "updated_at"
+> {
   player_id?: string;
   name?: string;
   steam_id?: string;
@@ -154,12 +166,20 @@ export default function PlayerDetailPage() {
 
   // View analytics
   useViewTracking("player", playerId);
-  const { stats: viewStats, loading: viewStatsLoading } = useViewStatistics("player", playerId);
-  const { insights: viewInsights, total: viewInsightsTotal, loading: viewInsightsLoading } = useViewInsights("player", playerId);
+  const { stats: viewStats, loading: viewStatsLoading } = useViewStatistics(
+    "player",
+    playerId,
+  );
+  const {
+    insights: viewInsights,
+    total: viewInsightsTotal,
+    loading: viewInsightsLoading,
+  } = useViewInsights("player", playerId);
 
   // Demo fallback for view analytics
   const effectiveViewStats = viewStats || getDemoViewStatistics(playerId);
-  const effectiveViewInsights = viewInsights.length > 0 ? viewInsights : getDemoViewerInsights();
+  const effectiveViewInsights =
+    viewInsights.length > 0 ? viewInsights : getDemoViewerInsights();
 
   useEffect(() => {
     async function fetchPlayerProfile() {
@@ -251,20 +271,26 @@ export default function PlayerDetailPage() {
           sdk.playerProfiles.getPlayerTeamHistory?.(pid) ?? Promise.resolve([]),
         ]);
 
-        const resolvedSkills = skillsData.status === "fulfilled" ? skillsData.value : [];
-        const resolvedTraits = traitsData.status === "fulfilled" ? traitsData.value : [];
-        const resolvedHistory = historyData.status === "fulfilled" ? historyData.value : [];
+        const resolvedSkills =
+          skillsData.status === "fulfilled" ? skillsData.value : [];
+        const resolvedTraits =
+          traitsData.status === "fulfilled" ? traitsData.value : [];
+        const resolvedHistory =
+          historyData.status === "fulfilled" ? historyData.value : [];
 
         // Use demo data as fallback when API returns empty
-        const finalSkills = (resolvedSkills as PlayerSkill[]).length > 0
-          ? (resolvedSkills as PlayerSkill[])
-          : (getDemoSkills(pid) ?? []);
-        const finalTraits = (resolvedTraits as PlayerTrait[]).length > 0
-          ? (resolvedTraits as PlayerTrait[])
-          : (getDemoTraits(pid) ?? []);
-        const finalHistory = (resolvedHistory as TeamHistoryEntry[]).length > 0
-          ? (resolvedHistory as TeamHistoryEntry[])
-          : (getDemoTeamHistory(pid) ?? []);
+        const finalSkills =
+          (resolvedSkills as PlayerSkill[]).length > 0
+            ? (resolvedSkills as PlayerSkill[])
+            : (getDemoSkills(pid) ?? []);
+        const finalTraits =
+          (resolvedTraits as PlayerTrait[]).length > 0
+            ? (resolvedTraits as PlayerTrait[])
+            : (getDemoTraits(pid) ?? []);
+        const finalHistory =
+          (resolvedHistory as TeamHistoryEntry[]).length > 0
+            ? (resolvedHistory as TeamHistoryEntry[])
+            : (getDemoTeamHistory(pid) ?? []);
 
         setSkills(finalSkills);
         setTraits(finalTraits);
@@ -287,8 +313,10 @@ export default function PlayerDetailPage() {
           const avgCategories = Object.fromEntries(
             Object.entries(categories).map(([k, vals]) => [
               k,
-              vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0,
-            ])
+              vals.length > 0
+                ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
+                : 0,
+            ]),
           ) as Record<SkillCategory, number>;
 
           setSkillProfile({
@@ -334,13 +362,17 @@ export default function PlayerDetailPage() {
             const avgCategories = Object.fromEntries(
               Object.entries(categories).map(([k, vals]) => [
                 k,
-                vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0,
-              ])
+                vals.length > 0
+                  ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
+                  : 0,
+              ]),
             ) as Record<SkillCategory, number>;
             setSkillProfile({
               player_id: playerId,
               categories: avgCategories,
-              top_skills: [...demoSkills].sort((a, b) => b.level - a.level).slice(0, 5),
+              top_skills: [...demoSkills]
+                .sort((a, b) => b.level - a.level)
+                .slice(0, 5),
               total_endorsements: totalEndorsements,
             });
           }
@@ -424,12 +456,16 @@ export default function PlayerDetailPage() {
     );
   }
 
-  const winRate = player.stats.matches_played > 0
-    ? ((player.stats.wins / player.stats.matches_played) * 100).toFixed(1)
-    : "0.0";
-  const kd = player.stats.deaths > 0
-    ? (player.stats.kills / player.stats.deaths).toFixed(2)
-    : player.stats.kills > 0 ? player.stats.kills.toFixed(2) : "0.00";
+  const winRate =
+    player.stats.matches_played > 0
+      ? ((player.stats.wins / player.stats.matches_played) * 100).toFixed(1)
+      : "0.0";
+  const kd =
+    player.stats.deaths > 0
+      ? (player.stats.kills / player.stats.deaths).toFixed(2)
+      : player.stats.kills > 0
+        ? player.stats.kills.toFixed(2)
+        : "0.00";
 
   /** Handle skill endorsement */
   const handleEndorseSkill = async (skillId: string) => {
@@ -449,8 +485,8 @@ export default function PlayerDetailPage() {
                   : s.endorsement_count + 1,
                 endorsed_by_viewer: !s.endorsed_by_viewer,
               }
-            : s
-        )
+            : s,
+        ),
       );
       // TODO: Call sdk.playerProfiles.endorseSkill(playerId, skillId, authToken)
     } catch {
@@ -475,8 +511,8 @@ export default function PlayerDetailPage() {
                   : t.endorsement_count + 1,
                 endorsed_by_viewer: !t.endorsed_by_viewer,
               }
-            : t
-        )
+            : t,
+        ),
       );
       // TODO: Call sdk.playerProfiles.endorseTrait(playerId, traitId, authToken)
     } catch {
@@ -503,15 +539,31 @@ export default function PlayerDetailPage() {
           }}
         >
           {/* Decorative grid overlay */}
-          <div className="absolute inset-0 opacity-10 dark:opacity-20" style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }} />
+          <div
+            className="absolute inset-0 opacity-10 dark:opacity-20"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
           {/* Floating achievement icons */}
           <div className="absolute right-8 top-6 hidden md:flex items-center gap-3 opacity-30 dark:opacity-40">
-            <Icon icon="solar:cup-star-bold" width={48} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
-            <Icon icon="solar:target-bold" width={36} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
-            <Icon icon="solar:medal-star-bold" width={42} className="text-[#F5F0E1] dark:text-[#DCFF37]" />
+            <Icon
+              icon="solar:cup-star-bold"
+              width={48}
+              className="text-[#F5F0E1] dark:text-[#DCFF37]"
+            />
+            <Icon
+              icon="solar:target-bold"
+              width={36}
+              className="text-[#F5F0E1] dark:text-[#DCFF37]"
+            />
+            <Icon
+              icon="solar:medal-star-bold"
+              width={42}
+              className="text-[#F5F0E1] dark:text-[#DCFF37]"
+            />
           </div>
           {/* Rating badge on banner */}
           <div className="absolute right-4 bottom-6 md:right-8">
@@ -522,9 +574,17 @@ export default function PlayerDetailPage() {
                   "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)",
               }}
             >
-              <Icon icon="solar:star-bold" width={18} className="text-[#FFC700]" />
-              <span className="text-2xl font-black text-[#FF4654] dark:text-[#DCFF37]">{player.stats.rating}</span>
-              <span className="text-xs text-default-500 uppercase tracking-wider">Rating</span>
+              <Icon
+                icon="solar:star-bold"
+                width={18}
+                className="text-[#FFC700]"
+              />
+              <span className="text-2xl font-black text-[#FF4654] dark:text-[#DCFF37]">
+                {player.stats.rating}
+              </span>
+              <span className="text-xs text-default-500 uppercase tracking-wider">
+                Rating
+              </span>
             </div>
           </div>
         </div>
@@ -574,7 +634,17 @@ export default function PlayerDetailPage() {
                       size="sm"
                       variant="flat"
                       className="rounded-none"
-                      startContent={<span className="text-lg">{player.country.length === 2 ? String.fromCodePoint(...[...player.country.toUpperCase()].map(c => 0x1F1E6 - 65 + c.charCodeAt(0))) : "🌍"}</span>}
+                      startContent={
+                        <span className="text-lg">
+                          {player.country.length === 2
+                            ? String.fromCodePoint(
+                                ...[...player.country.toUpperCase()].map(
+                                  (c) => 0x1f1e6 - 65 + c.charCodeAt(0),
+                                ),
+                              )
+                            : "🌍"}
+                        </span>
+                      }
                     >
                       {player.country}
                     </Chip>
@@ -596,13 +666,29 @@ export default function PlayerDetailPage() {
                       size="sm"
                       variant="bordered"
                       className="rounded-none border-[#FF4654]/40 dark:border-[#DCFF37]/40 text-[#34445C] dark:text-[#F5F0E1]"
-                      startContent={<Icon icon="solar:users-group-rounded-bold" width={12} />}
+                      startContent={
+                        <Icon
+                          icon="solar:users-group-rounded-bold"
+                          width={12}
+                        />
+                      }
                     >
-                      {teamHistory[0].squad_tag ? `[${teamHistory[0].squad_tag}] ` : ""}{teamHistory.sort((a,b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())[0]?.squad_name}
+                      {teamHistory[0].squad_tag
+                        ? `[${teamHistory[0].squad_tag}] `
+                        : ""}
+                      {
+                        teamHistory.sort(
+                          (a, b) =>
+                            new Date(b.joined_at).getTime() -
+                            new Date(a.joined_at).getTime(),
+                        )[0]?.squad_name
+                      }
                     </Chip>
                   )}
                 </div>
-                <p className="text-default-600 text-sm md:text-base leading-relaxed mb-3 max-w-2xl">{player.description}</p>
+                <p className="text-default-600 text-sm md:text-base leading-relaxed mb-3 max-w-2xl">
+                  {player.description}
+                </p>
                 <div className="flex flex-wrap gap-4 text-sm text-default-500">
                   {player.steam_id && (
                     <div className="flex items-center gap-1">
@@ -624,8 +710,14 @@ export default function PlayerDetailPage() {
                   </div>
                   {skillProfile && (
                     <div className="flex items-center gap-1">
-                      <Icon icon="solar:like-bold" width={16} className="text-[#FF4654] dark:text-[#DCFF37]" />
-                      <span className="font-semibold text-[#FF4654] dark:text-[#DCFF37]">{skillProfile.total_endorsements}</span>
+                      <Icon
+                        icon="solar:like-bold"
+                        width={16}
+                        className="text-[#FF4654] dark:text-[#DCFF37]"
+                      />
+                      <span className="font-semibold text-[#FF4654] dark:text-[#DCFF37]">
+                        {skillProfile.total_endorsements}
+                      </span>
                       <span>endorsements</span>
                     </div>
                   )}
@@ -652,10 +744,10 @@ export default function PlayerDetailPage() {
                             trait.tier === "diamond"
                               ? "bg-cyan-400/10 text-cyan-400 border-cyan-400/30"
                               : trait.tier === "gold"
-                              ? "bg-[#FFC700]/10 text-[#FFC700] border-[#FFC700]/30"
-                              : trait.tier === "silver"
-                              ? "bg-slate-300/10 text-slate-400 border-slate-400/30"
-                              : "bg-default-100 text-default-600"
+                                ? "bg-[#FFC700]/10 text-[#FFC700] border-[#FFC700]/30"
+                                : trait.tier === "silver"
+                                  ? "bg-slate-300/10 text-slate-400 border-slate-400/30"
+                                  : "bg-default-100 text-default-600"
                           } border`}
                           startContent={<Icon icon={trait.icon} width={12} />}
                         >
@@ -663,7 +755,11 @@ export default function PlayerDetailPage() {
                         </Chip>
                       ))}
                       {traits.length > 4 && (
-                        <Chip size="sm" variant="flat" className="rounded-none bg-default-100 text-default-500">
+                        <Chip
+                          size="sm"
+                          variant="flat"
+                          className="rounded-none bg-default-100 text-default-500"
+                        >
                           +{traits.length - 4} more
                         </Chip>
                       )}
@@ -689,14 +785,21 @@ export default function PlayerDetailPage() {
                         Edit Profile
                       </Button>
                     </Tooltip>
-                    <Tooltip content="Delete this profile" placement="bottom" color="danger">
+                    <Tooltip
+                      content="Delete this profile"
+                      placement="bottom"
+                      color="danger"
+                    >
                       <Button
                         variant="bordered"
                         className="rounded-none border-danger/50 text-danger hover:bg-danger/10"
                         isIconOnly
                         onPress={onDeleteOpen}
                       >
-                        <Icon icon="solar:trash-bin-minimalistic-bold" width={20} />
+                        <Icon
+                          icon="solar:trash-bin-minimalistic-bold"
+                          width={20}
+                        />
                       </Button>
                     </Tooltip>
                   </>
@@ -709,23 +812,38 @@ export default function PlayerDetailPage() {
                         clipPath:
                           "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
                       }}
-                      startContent={<Icon icon="solar:user-plus-bold" width={20} />}
+                      startContent={
+                        <Icon icon="solar:user-plus-bold" width={20} />
+                      }
                       onPress={() => {
                         if (!isAuthenticated) {
-                          router.push(`/signin?callbackUrl=/players/${playerId}`);
+                          router.push(
+                            `/signin?callbackUrl=/players/${playerId}`,
+                          );
                         }
                       }}
                     >
                       Add Friend
                     </Button>
-                    <Tooltip content={isAuthenticated ? "Send a message" : "Sign in to message"} placement="bottom">
+                    <Tooltip
+                      content={
+                        isAuthenticated
+                          ? "Send a message"
+                          : "Sign in to message"
+                      }
+                      placement="bottom"
+                    >
                       <Button
                         variant="bordered"
                         className="rounded-none border-[#FF4654]/30 dark:border-[#DCFF37]/30 text-[#34445C] dark:text-[#F5F0E1] hover:border-[#FF4654] dark:hover:border-[#DCFF37]"
-                        startContent={<Icon icon="solar:chat-round-bold" width={20} />}
+                        startContent={
+                          <Icon icon="solar:chat-round-bold" width={20} />
+                        }
                         onPress={() => {
                           if (!isAuthenticated) {
-                            router.push(`/signin?callbackUrl=/players/${playerId}`);
+                            router.push(
+                              `/signin?callbackUrl=/players/${playerId}`,
+                            );
                           }
                         }}
                       >
@@ -755,25 +873,80 @@ export default function PlayerDetailPage() {
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         {[
-          { icon: "solar:gamepad-bold", value: player.stats.matches_played.toLocaleString(), label: "Matches", color: "text-[#FF4654] dark:text-[#DCFF37]" },
-          { icon: "solar:chart-bold", value: `${winRate}%`, label: "Win Rate", color: parseFloat(winRate) >= 60 ? "text-success" : parseFloat(winRate) >= 50 ? "text-warning" : "text-danger" },
-          { icon: "solar:target-bold", value: kd, label: "K/D Ratio", color: parseFloat(kd) >= 1.2 ? "text-success" : parseFloat(kd) >= 1.0 ? "text-[#FFC700]" : "text-danger" },
-          { icon: "solar:star-bold", value: player.stats.rating.toString(), label: "Rating", color: "text-[#FF4654] dark:text-[#DCFF37]" },
-          { icon: "solar:bomb-bold", value: `${player.stats.headshot_percentage}%`, label: "HS %", color: player.stats.headshot_percentage >= 50 ? "text-success" : "text-warning" },
-          { icon: "solar:fire-bold", value: player.stats.adr.toString(), label: "ADR", color: player.stats.adr >= 80 ? "text-success" : "text-warning" },
+          {
+            icon: "solar:gamepad-bold",
+            value: player.stats.matches_played.toLocaleString(),
+            label: "Matches",
+            color: "text-[#FF4654] dark:text-[#DCFF37]",
+          },
+          {
+            icon: "solar:chart-bold",
+            value: `${winRate}%`,
+            label: "Win Rate",
+            color:
+              parseFloat(winRate) >= 60
+                ? "text-success"
+                : parseFloat(winRate) >= 50
+                  ? "text-warning"
+                  : "text-danger",
+          },
+          {
+            icon: "solar:target-bold",
+            value: kd,
+            label: "K/D Ratio",
+            color:
+              parseFloat(kd) >= 1.2
+                ? "text-success"
+                : parseFloat(kd) >= 1.0
+                  ? "text-[#FFC700]"
+                  : "text-danger",
+          },
+          {
+            icon: "solar:star-bold",
+            value: player.stats.rating.toString(),
+            label: "Rating",
+            color: "text-[#FF4654] dark:text-[#DCFF37]",
+          },
+          {
+            icon: "solar:bomb-bold",
+            value: `${player.stats.headshot_percentage}%`,
+            label: "HS %",
+            color:
+              player.stats.headshot_percentage >= 50
+                ? "text-success"
+                : "text-warning",
+          },
+          {
+            icon: "solar:fire-bold",
+            value: player.stats.adr.toString(),
+            label: "ADR",
+            color: player.stats.adr >= 80 ? "text-success" : "text-warning",
+          },
         ].map((stat, i) => (
-          <Card key={stat.label} className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+          <Card
+            key={stat.label}
+            className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20"
+          >
             <CardBody className="text-center py-4 px-2">
               <div
                 className="w-8 h-8 mx-auto mb-1.5 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                style={{
+                  clipPath:
+                    "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                }}
               >
-                <Icon icon={stat.icon} width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                <Icon
+                  icon={stat.icon}
+                  width={16}
+                  className="text-[#F5F0E1] dark:text-[#34445C]"
+                />
               </div>
               <div className={`text-2xl font-black ${stat.color}`}>
                 {stat.value}
               </div>
-              <div className="text-[11px] text-default-500 font-medium uppercase tracking-wider">{stat.label}</div>
+              <div className="text-[11px] text-default-500 font-medium uppercase tracking-wider">
+                {stat.label}
+              </div>
             </CardBody>
           </Card>
         ))}
@@ -785,541 +958,731 @@ export default function PlayerDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-      <Tabs
-        aria-label="Player tabs"
-        size="lg"
-        className="mb-6"
-        classNames={{
-          tabList:
-            "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
-          tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
-          cursor:
-            "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
-        }}
-      >
-        <Tab key="overview" title="Overview">
-          <div className="space-y-6">
-            {/* Row 1: Skill Profile + Combat Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Skill Radar — hero section */}
-              {skillProfile && (
+        <Tabs
+          aria-label="Player tabs"
+          size="lg"
+          className="mb-6"
+          classNames={{
+            tabList:
+              "bg-[#34445C]/10 dark:bg-[#DCFF37]/10 p-1 rounded-none gap-1 border border-[#FF4654]/20 dark:border-[#DCFF37]/20",
+            tab: "text-sm font-semibold rounded-none text-[#34445C] dark:text-[#F5F0E1] data-[selected=true]:text-[#F5F0E1] dark:data-[selected=true]:text-[#1a1a1a] data-[hover=true]:text-[#FF4654] dark:data-[hover=true]:text-[#DCFF37]",
+            cursor:
+              "bg-gradient-to-r from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C] rounded-none",
+          }}
+        >
+          <Tab key="overview" title="Overview">
+            <div className="space-y-6">
+              {/* Row 1: Skill Profile + Combat Stats */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Skill Radar — hero section */}
+                {skillProfile && (
+                  <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 lg:col-span-1">
+                    <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                          }}
+                        >
+                          <Icon
+                            icon="solar:chart-bold"
+                            width={16}
+                            className="text-[#F5F0E1] dark:text-[#34445C]"
+                          />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                          Skill Profile
+                        </h3>
+                      </div>
+                    </CardHeader>
+                    <CardBody className="flex flex-col items-center justify-center py-6">
+                      <SkillRadarChart
+                        profile={skillProfile}
+                        size={220}
+                        showLabels
+                        interactive
+                      />
+                      {skillProfile.top_skills.length > 0 && (
+                        <div className="mt-4 w-full px-2">
+                          <p className="text-[10px] uppercase tracking-widest text-default-400 mb-2 font-semibold">
+                            Top Skills
+                          </p>
+                          <div className="space-y-1.5">
+                            {skillProfile.top_skills.slice(0, 3).map((s) => (
+                              <div
+                                key={s.id}
+                                className="flex items-center justify-between text-xs"
+                              >
+                                <span className="text-default-600">
+                                  {s.skill_name}
+                                </span>
+                                <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                                  {s.level}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                )}
+
+                {/* Combat Stats */}
+                <Card
+                  className={`rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 ${skillProfile ? "lg:col-span-1" : "lg:col-span-2"}`}
+                >
+                  <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                        }}
+                      >
+                        <Icon
+                          icon="solar:target-bold"
+                          width={16}
+                          className="text-[#F5F0E1] dark:text-[#34445C]"
+                        />
+                      </div>
+                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                        Combat Statistics
+                      </h3>
+                    </div>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-default-600">
+                          Headshot %
+                        </span>
+                        <span className="font-semibold text-sm">
+                          {player.stats.headshot_percentage}%
+                        </span>
+                      </div>
+                      <Progress
+                        value={player.stats.headshot_percentage}
+                        color="danger"
+                        className="rounded-none"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-default-600">
+                          Accuracy
+                        </span>
+                        <span className="font-semibold text-sm">
+                          {player.stats.accuracy}%
+                        </span>
+                      </div>
+                      <Progress
+                        value={player.stats.accuracy}
+                        color="warning"
+                        className="rounded-none"
+                      />
+                    </div>
+                    <Divider />
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-success">
+                          {player.stats.kills.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-default-500">Kills</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-danger">
+                          {player.stats.deaths.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-default-500">Deaths</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-primary">
+                          {player.stats.assists.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-default-500">Assists</div>
+                      </div>
+                    </div>
+                    <Divider />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-default-600">
+                        ADR (Avg Damage/Round)
+                      </span>
+                      <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">
+                        {player.stats.adr}
+                      </span>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                {/* Achievements + Career Highlights */}
                 <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 lg:col-span-1">
                   <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                      >
-                        <Icon icon="solar:chart-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                      </div>
-                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Skill Profile</h3>
-                    </div>
-                  </CardHeader>
-                  <CardBody className="flex flex-col items-center justify-center py-6">
-                    <SkillRadarChart profile={skillProfile} size={220} showLabels interactive />
-                    {skillProfile.top_skills.length > 0 && (
-                      <div className="mt-4 w-full px-2">
-                        <p className="text-[10px] uppercase tracking-widest text-default-400 mb-2 font-semibold">Top Skills</p>
-                        <div className="space-y-1.5">
-                          {skillProfile.top_skills.slice(0, 3).map((s) => (
-                            <div key={s.id} className="flex items-center justify-between text-xs">
-                              <span className="text-default-600">{s.skill_name}</span>
-                              <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">{s.level}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </CardBody>
-                </Card>
-              )}
-
-              {/* Combat Stats */}
-              <Card className={`rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 ${skillProfile ? 'lg:col-span-1' : 'lg:col-span-2'}`}>
-                <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                    >
-                      <Icon icon="solar:target-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                    </div>
-                    <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Combat Statistics</h3>
-                  </div>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-default-600">Headshot %</span>
-                      <span className="font-semibold text-sm">
-                        {player.stats.headshot_percentage}%
-                      </span>
-                    </div>
-                    <Progress
-                      value={player.stats.headshot_percentage}
-                      color="danger"
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-default-600">Accuracy</span>
-                      <span className="font-semibold text-sm">
-                        {player.stats.accuracy}%
-                      </span>
-                    </div>
-                    <Progress value={player.stats.accuracy} color="warning" className="rounded-none" />
-                  </div>
-                  <Divider />
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-success">
-                        {player.stats.kills.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-default-500">Kills</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-danger">
-                        {player.stats.deaths.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-default-500">Deaths</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-primary">
-                        {player.stats.assists.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-default-500">Assists</div>
-                    </div>
-                  </div>
-                  <Divider />
-                  <div className="flex justify-between text-sm">
-                    <span className="text-default-600">ADR (Avg Damage/Round)</span>
-                    <span className="font-bold text-[#FF4654] dark:text-[#DCFF37]">
-                      {player.stats.adr}
-                    </span>
-                  </div>
-                </CardBody>
-              </Card>
-
-              {/* Achievements + Career Highlights */}
-              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20 lg:col-span-1">
-                <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                    >
-                      <Icon icon="solar:cup-star-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                    </div>
-                    <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Achievements</h3>
-                    {player.achievements.length > 0 && (
-                      <Chip size="sm" variant="flat" className="rounded-none bg-[#FFC700]/10 text-[#FFC700] h-5">
-                        {player.achievements.length}
-                      </Chip>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardBody className="space-y-2.5 max-h-[400px] overflow-y-auto">
-                  {player.achievements.length === 0 && (
-                    <div className="text-center py-8">
-                      <Icon icon="solar:cup-star-bold" width={32} className="text-default-300 mx-auto mb-2" />
-                      <p className="text-sm text-default-400">Achievements earned from tournaments and milestones will appear here</p>
-                    </div>
-                  )}
-                  {player.achievements.map((achievement) => (
-                    <div
-                      key={achievement.id}
-                      className="flex items-center gap-3 p-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
-                      style={{
-                        clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
-                      }}
-                    >
-                      <div
-                        className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 flex items-center justify-center"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                      >
-                        <Icon
-                          icon={achievement.icon}
-                          width={20}
-                          className="text-[#FFC700]"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm text-[#34445C] dark:text-[#F5F0E1] truncate">{achievement.name}</div>
-                        <div className="text-[11px] text-default-500 truncate">
-                          {achievement.description}
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-default-400 flex-shrink-0">
-                        {new Date(achievement.earned_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))}
-                </CardBody>
-              </Card>
-            </div>
-
-            {/* Row 2: Traits Showcase + Team History Snapshot */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Traits Preview */}
-              {traits.length > 0 && (
-                <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-                  <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                      >
-                        <Icon icon="solar:medal-ribbons-star-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                      </div>
-                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Professional Traits</h3>
-                      <Chip size="sm" variant="flat" className="rounded-none bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] h-5">
-                        {traits.length}
-                      </Chip>
-                    </div>
-                  </CardHeader>
-                  <CardBody className="p-5">
-                    <TraitShowcase
-                      traits={traits}
-                      onEndorse={handleEndorseTrait}
-                      canEndorse={isAuthenticated && !isOwner}
-                    />
-                  </CardBody>
-                </Card>
-              )}
-
-              {/* Career Snapshot */}
-              {teamHistory.length > 0 && (
-                <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-                  <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                      >
-                        <Icon icon="solar:history-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                      </div>
-                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Career Journey</h3>
-                      <span className="text-xs text-default-400">{teamHistory.length} {teamHistory.length === 1 ? "team" : "teams"}</span>
-                    </div>
-                  </CardHeader>
-                  <CardBody className="p-5">
-                    <TeamHistoryTimeline
-                      history={teamHistory}
-                      onTeamClick={(squadId) => router.push(`/teams/${squadId}`)}
-                    />
-                  </CardBody>
-                </Card>
-              )}
-            </div>
-
-            {/* Row 3: Recent Match Performance */}
-            {player.recent_matches.length > 0 && (
-              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-                <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                    >
-                      <Icon icon="solar:gamepad-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                    </div>
-                    <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">Recent Performance</h3>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                    {player.recent_matches.slice(0, 4).map((match) => (
-                      <div
-                        key={match.id}
-                        className={`p-3 border ${match.result === 'win' ? 'border-success/20 bg-success/[0.03]' : match.result === 'loss' ? 'border-danger/20 bg-danger/[0.03]' : 'border-default-200'}`}
                         style={{
-                          clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)",
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
                         }}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-bold text-sm text-[#34445C] dark:text-[#F5F0E1]">{match.map_name || match.map}</span>
-                          <Chip
-                            size="sm"
-                            className={`rounded-none h-5 text-[10px] font-bold ${match.result === 'win' ? 'bg-success/20 text-success' : match.result === 'loss' ? 'bg-danger/20 text-danger' : 'bg-default-100 text-default-600'}`}
-                          >
-                            {match.result.toUpperCase()}
-                          </Chip>
+                        <Icon
+                          icon="solar:cup-star-bold"
+                          width={16}
+                          className="text-[#F5F0E1] dark:text-[#34445C]"
+                        />
+                      </div>
+                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                        Achievements
+                      </h3>
+                      {player.achievements.length > 0 && (
+                        <Chip
+                          size="sm"
+                          variant="flat"
+                          className="rounded-none bg-[#FFC700]/10 text-[#FFC700] h-5"
+                        >
+                          {player.achievements.length}
+                        </Chip>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardBody className="space-y-2.5 max-h-[400px] overflow-y-auto">
+                    {player.achievements.length === 0 && (
+                      <div className="text-center py-8">
+                        <Icon
+                          icon="solar:cup-star-bold"
+                          width={32}
+                          className="text-default-300 mx-auto mb-2"
+                        />
+                        <p className="text-sm text-default-400">
+                          Achievements earned from tournaments and milestones
+                          will appear here
+                        </p>
+                      </div>
+                    )}
+                    {player.achievements.map((achievement) => (
+                      <div
+                        key={achievement.id}
+                        className="flex items-center gap-3 p-3 bg-[#34445C]/5 dark:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                        }}
+                      >
+                        <div
+                          className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-[#FF4654]/20 to-[#FFC700]/20 dark:from-[#DCFF37]/20 dark:to-[#34445C]/20 flex items-center justify-center"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                          }}
+                        >
+                          <Icon
+                            icon={achievement.icon}
+                            width={20}
+                            className="text-[#FFC700]"
+                          />
                         </div>
-                        <div className="text-xs text-default-500 mb-1">{match.score}</div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="text-success font-semibold">{match.kills}</span>
-                          <span className="text-default-300">/</span>
-                          <span className="text-danger font-semibold">{match.deaths}</span>
-                          <span className="text-default-300">/</span>
-                          <span className="text-primary font-semibold">{match.assists}</span>
-                          <span className="text-default-400 ml-auto">{new Date(match.date).toLocaleDateString()}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm text-[#34445C] dark:text-[#F5F0E1] truncate">
+                            {achievement.name}
+                          </div>
+                          <div className="text-[11px] text-default-500 truncate">
+                            {achievement.description}
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-default-400 flex-shrink-0">
+                          {new Date(achievement.earned_at).toLocaleDateString()}
                         </div>
                       </div>
                     ))}
-                  </div>
-                </CardBody>
-              </Card>
-            )}
-
-            {/* Row 4: Profile Analytics & Who Viewed */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <ViewStatisticsCard
-                  stats={effectiveViewStats}
-                  loading={viewStatsLoading}
-                />
+                  </CardBody>
+                </Card>
               </div>
-              <div className="lg:col-span-1">
-                <WhoViewedPanel
-                  viewers={effectiveViewInsights}
-                  totalViewers={viewInsightsTotal || effectiveViewInsights.length}
-                  loading={viewInsightsLoading}
-                  isOwner={isOwner}
-                />
-              </div>
-            </div>
-          </div>
-        </Tab>
 
-        <Tab key="matches" title="Match History">
-          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <CardBody>
-              <div className="space-y-3">
-                {player.recent_matches.length === 0 && (
-                  <div className="text-center py-12">
-                    <div
-                      className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
-                    >
-                      <Icon icon="solar:gamepad-bold" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1] mb-2">No matches yet</h3>
-                    <p className="text-default-500">Match history will appear here after playing</p>
-                  </div>
-                )}
-                {player.recent_matches.map((match) => (
-                  <Card
-                    key={match.id}
-                    isPressable
-                    className="hover:bg-[#34445C]/5 dark:hover:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
-                  >
-                    <CardBody>
-                      <div className="flex items-center gap-4">
-                        <Chip
-                          color={
-                            match.result === "win"
-                              ? "success"
-                              : match.result === "loss"
-                              ? "danger"
-                              : "default"
-                          }
-                          variant="flat"
-                          size="lg"
+              {/* Row 2: Traits Showcase + Team History Snapshot */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Traits Preview */}
+                {traits.length > 0 && (
+                  <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                    <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                          }}
                         >
-                          {match.result.toUpperCase()}
+                          <Icon
+                            icon="solar:medal-ribbons-star-bold"
+                            width={16}
+                            className="text-[#F5F0E1] dark:text-[#34445C]"
+                          />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                          Professional Traits
+                        </h3>
+                        <Chip
+                          size="sm"
+                          variant="flat"
+                          className="rounded-none bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] h-5"
+                        >
+                          {traits.length}
                         </Chip>
-                        <div className="flex-1">
-                          <div className="font-semibold">{match.map_name || match.map}</div>
-                          <div className="text-sm text-default-500">
-                            {new Date(match.date).toLocaleDateString()} • Score:{" "}
+                      </div>
+                    </CardHeader>
+                    <CardBody className="p-5">
+                      <TraitShowcase
+                        traits={traits}
+                        onEndorse={handleEndorseTrait}
+                        canEndorse={isAuthenticated && !isOwner}
+                      />
+                    </CardBody>
+                  </Card>
+                )}
+
+                {/* Career Snapshot */}
+                {teamHistory.length > 0 && (
+                  <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                    <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                          }}
+                        >
+                          <Icon
+                            icon="solar:history-bold"
+                            width={16}
+                            className="text-[#F5F0E1] dark:text-[#34445C]"
+                          />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                          Career Journey
+                        </h3>
+                        <span className="text-xs text-default-400">
+                          {teamHistory.length}{" "}
+                          {teamHistory.length === 1 ? "team" : "teams"}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardBody className="p-5">
+                      <TeamHistoryTimeline
+                        history={teamHistory}
+                        onTeamClick={(squadId) =>
+                          router.push(`/teams/${squadId}`)
+                        }
+                      />
+                    </CardBody>
+                  </Card>
+                )}
+              </div>
+
+              {/* Row 3: Recent Match Performance */}
+              {player.recent_matches.length > 0 && (
+                <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                  <CardHeader className="border-b border-[#FF4654]/10 dark:border-[#DCFF37]/10">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                        }}
+                      >
+                        <Icon
+                          icon="solar:gamepad-bold"
+                          width={16}
+                          className="text-[#F5F0E1] dark:text-[#34445C]"
+                        />
+                      </div>
+                      <h3 className="text-lg font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                        Recent Performance
+                      </h3>
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                      {player.recent_matches.slice(0, 4).map((match) => (
+                        <div
+                          key={match.id}
+                          className={`p-3 border ${match.result === "win" ? "border-success/20 bg-success/[0.03]" : match.result === "loss" ? "border-danger/20 bg-danger/[0.03]" : "border-default-200"}`}
+                          style={{
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)",
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-bold text-sm text-[#34445C] dark:text-[#F5F0E1]">
+                              {match.map_name || match.map}
+                            </span>
+                            <Chip
+                              size="sm"
+                              className={`rounded-none h-5 text-[10px] font-bold ${match.result === "win" ? "bg-success/20 text-success" : match.result === "loss" ? "bg-danger/20 text-danger" : "bg-default-100 text-default-600"}`}
+                            >
+                              {match.result.toUpperCase()}
+                            </Chip>
+                          </div>
+                          <div className="text-xs text-default-500 mb-1">
                             {match.score}
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm">
+                          <div className="flex items-center gap-2 text-xs">
                             <span className="text-success font-semibold">
                               {match.kills}
-                            </span>{" "}
-                            /{" "}
+                            </span>
+                            <span className="text-default-300">/</span>
                             <span className="text-danger font-semibold">
                               {match.deaths}
-                            </span>{" "}
-                            /{" "}
+                            </span>
+                            <span className="text-default-300">/</span>
                             <span className="text-primary font-semibold">
                               {match.assists}
                             </span>
-                          </div>
-                          <div className="text-xs text-default-500">
-                            K / D / A
+                            <span className="text-default-400 ml-auto">
+                              {new Date(match.date).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
-              </div>
-            </CardBody>
-            <CardFooter>
-              <EsportsButton
-                variant="ghost"
-                fullWidth
-              >
-                Load More Matches
-              </EsportsButton>
-            </CardFooter>
-          </Card>
-        </Tab>
-
-        <Tab key="stats" title="Detailed Stats">
-          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <CardBody className="text-center py-12">
-              <div
-                className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10"
-                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
-              >
-                <Icon
-                  icon="solar:chart-2-bold"
-                  width={32}
-                  className="text-[#FF4654] dark:text-[#DCFF37]"
-                />
-              </div>
-              <p className="text-lg text-[#34445C] dark:text-[#F5F0E1] font-semibold">
-                Advanced statistics coming soon
-              </p>
-              <p className="text-sm text-default-400 mt-2">
-                Heatmaps, weapon stats, performance trends, and more
-              </p>
-            </CardBody>
-          </Card>
-        </Tab>
-
-        {/* ============================================= */}
-        {/* Professional Profile Tabs                     */}
-        {/* ============================================= */}
-
-        <Tab
-          key="skills"
-          title={
-            <div className="flex items-center gap-2">
-              <Icon icon="solar:target-bold" width={16} />
-              Skills
-            </div>
-          }
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Skill Radar Chart */}
-            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-              <CardBody className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div
-                    className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                  >
-                    <Icon icon="solar:chart-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                  </div>
-                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Skill Profile</h3>
-                </div>
-                {skillProfile ? (
-                  <SkillRadarChart profile={skillProfile} size={280} showLabels interactive />
-                ) : (
-                  <div className="text-center py-16">
-                    <div
-                      className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
-                      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)" }}
-                    >
-                      <Icon icon="solar:target-bold" width={32} className="text-[#34445C] dark:text-[#DCFF37]" />
+                      ))}
                     </div>
-                    <p className="text-default-500">Skills will be calculated after match data is available</p>
-                  </div>
-                )}
+                  </CardBody>
+                </Card>
+              )}
+
+              {/* Row 4: Profile Analytics & Who Viewed */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <ViewStatisticsCard
+                    stats={effectiveViewStats}
+                    loading={viewStatsLoading}
+                  />
+                </div>
+                <div className="lg:col-span-1">
+                  <WhoViewedPanel
+                    viewers={effectiveViewInsights}
+                    totalViewers={
+                      viewInsightsTotal || effectiveViewInsights.length
+                    }
+                    loading={viewInsightsLoading}
+                    isOwner={isOwner}
+                  />
+                </div>
+              </div>
+            </div>
+          </Tab>
+
+          <Tab key="matches" title="Match History">
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody>
+                <div className="space-y-3">
+                  {player.recent_matches.length === 0 && (
+                    <div className="text-center py-12">
+                      <div
+                        className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+                        }}
+                      >
+                        <Icon
+                          icon="solar:gamepad-bold"
+                          width={32}
+                          className="text-[#34445C] dark:text-[#DCFF37]"
+                        />
+                      </div>
+                      <h3 className="text-lg font-semibold text-[#34445C] dark:text-[#F5F0E1] mb-2">
+                        No matches yet
+                      </h3>
+                      <p className="text-default-500">
+                        Match history will appear here after playing
+                      </p>
+                    </div>
+                  )}
+                  {player.recent_matches.map((match) => (
+                    <Card
+                      key={match.id}
+                      isPressable
+                      className="hover:bg-[#34445C]/5 dark:hover:bg-[#DCFF37]/5 rounded-none border border-[#FF4654]/10 dark:border-[#DCFF37]/10"
+                    >
+                      <CardBody>
+                        <div className="flex items-center gap-4">
+                          <Chip
+                            color={
+                              match.result === "win"
+                                ? "success"
+                                : match.result === "loss"
+                                  ? "danger"
+                                  : "default"
+                            }
+                            variant="flat"
+                            size="lg"
+                          >
+                            {match.result.toUpperCase()}
+                          </Chip>
+                          <div className="flex-1">
+                            <div className="font-semibold">
+                              {match.map_name || match.map}
+                            </div>
+                            <div className="text-sm text-default-500">
+                              {new Date(match.date).toLocaleDateString()} •
+                              Score: {match.score}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm">
+                              <span className="text-success font-semibold">
+                                {match.kills}
+                              </span>{" "}
+                              /{" "}
+                              <span className="text-danger font-semibold">
+                                {match.deaths}
+                              </span>{" "}
+                              /{" "}
+                              <span className="text-primary font-semibold">
+                                {match.assists}
+                              </span>
+                            </div>
+                            <div className="text-xs text-default-500">
+                              K / D / A
+                            </div>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </CardBody>
+              <CardFooter>
+                <EsportsButton variant="ghost" fullWidth>
+                  Load More Matches
+                </EsportsButton>
+              </CardFooter>
+            </Card>
+          </Tab>
+
+          <Tab key="stats" title="Detailed Stats">
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody className="text-center py-12">
+                <div
+                  className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-[#FF4654]/10 to-[#FFC700]/10 dark:from-[#DCFF37]/10 dark:to-[#34445C]/10"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+                  }}
+                >
+                  <Icon
+                    icon="solar:chart-2-bold"
+                    width={32}
+                    className="text-[#FF4654] dark:text-[#DCFF37]"
+                  />
+                </div>
+                <p className="text-lg text-[#34445C] dark:text-[#F5F0E1] font-semibold">
+                  Advanced statistics coming soon
+                </p>
+                <p className="text-sm text-default-400 mt-2">
+                  Heatmaps, weapon stats, performance trends, and more
+                </p>
               </CardBody>
             </Card>
+          </Tab>
 
-            {/* Skill Bars */}
+          {/* ============================================= */}
+          {/* Professional Profile Tabs                     */}
+          {/* ============================================= */}
+
+          <Tab
+            key="skills"
+            title={
+              <div className="flex items-center gap-2">
+                <Icon icon="solar:target-bold" width={16} />
+                Skills
+              </div>
+            }
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Skill Radar Chart */}
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardBody className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                      }}
+                    >
+                      <Icon
+                        icon="solar:chart-bold"
+                        width={16}
+                        className="text-[#F5F0E1] dark:text-[#34445C]"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                      Skill Profile
+                    </h3>
+                  </div>
+                  {skillProfile ? (
+                    <SkillRadarChart
+                      profile={skillProfile}
+                      size={280}
+                      showLabels
+                      interactive
+                    />
+                  ) : (
+                    <div className="text-center py-16">
+                      <div
+                        className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-[#34445C]/10 dark:bg-[#DCFF37]/10"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)",
+                        }}
+                      >
+                        <Icon
+                          icon="solar:target-bold"
+                          width={32}
+                          className="text-[#34445C] dark:text-[#DCFF37]"
+                        />
+                      </div>
+                      <p className="text-default-500">
+                        Skills will be calculated after match data is available
+                      </p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+
+              {/* Skill Bars */}
+              <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+                <CardBody className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                      }}
+                    >
+                      <Icon
+                        icon="solar:graph-up-bold"
+                        width={16}
+                        className="text-[#F5F0E1] dark:text-[#34445C]"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                      Individual Skills
+                    </h3>
+                  </div>
+                  {skills.length > 0 ? (
+                    <SkillBarList
+                      skills={skills}
+                      onEndorse={handleEndorseSkill}
+                      canEndorse={isAuthenticated && !isOwner}
+                      sortBy="level"
+                    />
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-default-500">
+                        No individual skill data available yet
+                      </p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          </Tab>
+
+          <Tab
+            key="traits"
+            title={
+              <div className="flex items-center gap-2">
+                <Icon icon="solar:medal-ribbons-star-bold" width={16} />
+                Traits
+                {traits.length > 0 && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    className="rounded-none bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] h-5 min-w-5"
+                  >
+                    {traits.length}
+                  </Chip>
+                )}
+              </div>
+            }
+          >
             <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
               <CardBody className="p-6">
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-6">
                   <div
                     className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                    }}
                   >
-                    <Icon icon="solar:graph-up-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+                    <Icon
+                      icon="solar:medal-ribbons-star-bold"
+                      width={16}
+                      className="text-[#F5F0E1] dark:text-[#34445C]"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Individual Skills</h3>
+                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                    Professional Traits
+                  </h3>
+                  <span className="text-sm text-default-400 ml-2">
+                    Earned through competitive play
+                  </span>
                 </div>
-                {skills.length > 0 ? (
-                  <SkillBarList
-                    skills={skills}
-                    onEndorse={handleEndorseSkill}
-                    canEndorse={isAuthenticated && !isOwner}
-                    sortBy="level"
-                  />
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-default-500">No individual skill data available yet</p>
-                  </div>
-                )}
+                <TraitShowcase
+                  traits={traits}
+                  onEndorse={handleEndorseTrait}
+                  canEndorse={isAuthenticated && !isOwner}
+                />
               </CardBody>
             </Card>
-          </div>
-        </Tab>
+          </Tab>
 
-        <Tab
-          key="traits"
-          title={
-            <div className="flex items-center gap-2">
-              <Icon icon="solar:medal-ribbons-star-bold" width={16} />
-              Traits
-              {traits.length > 0 && (
-                <Chip size="sm" variant="flat" className="rounded-none bg-[#FF4654]/10 dark:bg-[#DCFF37]/10 text-[#FF4654] dark:text-[#DCFF37] h-5 min-w-5">
-                  {traits.length}
-                </Chip>
-              )}
-            </div>
-          }
-        >
-          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <CardBody className="p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <div
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                  style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                >
-                  <Icon icon="solar:medal-ribbons-star-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Professional Traits</h3>
-                <span className="text-sm text-default-400 ml-2">
-                  Earned through competitive play
-                </span>
+          <Tab
+            key="career"
+            title={
+              <div className="flex items-center gap-2">
+                <Icon icon="solar:history-bold" width={16} />
+                Career
               </div>
-              <TraitShowcase
-                traits={traits}
-                onEndorse={handleEndorseTrait}
-                canEndorse={isAuthenticated && !isOwner}
-              />
-            </CardBody>
-          </Card>
-        </Tab>
-
-        <Tab
-          key="career"
-          title={
-            <div className="flex items-center gap-2">
-              <Icon icon="solar:history-bold" width={16} />
-              Career
-            </div>
-          }
-        >
-          <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
-            <CardBody className="p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <div
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
-                  style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)" }}
-                >
-                  <Icon icon="solar:history-bold" width={16} className="text-[#F5F0E1] dark:text-[#34445C]" />
+            }
+          >
+            <Card className="rounded-none border border-[#FF4654]/20 dark:border-[#DCFF37]/20">
+              <CardBody className="p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4654] to-[#FFC700] dark:from-[#DCFF37] dark:to-[#34445C]"
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)",
+                    }}
+                  >
+                    <Icon
+                      icon="solar:history-bold"
+                      width={16}
+                      className="text-[#F5F0E1] dark:text-[#34445C]"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">
+                    Team History
+                  </h3>
                 </div>
-                <h3 className="text-xl font-bold text-[#34445C] dark:text-[#F5F0E1]">Team History</h3>
-              </div>
-              <TeamHistoryTimeline
-                history={teamHistory}
-                onTeamClick={(squadId) => router.push(`/teams/${squadId}`)}
-              />
-            </CardBody>
-          </Card>
-        </Tab>
-      </Tabs>
+                <TeamHistoryTimeline
+                  history={teamHistory}
+                  onTeamClick={(squadId) => router.push(`/teams/${squadId}`)}
+                />
+              </CardBody>
+            </Card>
+          </Tab>
+        </Tabs>
       </motion.div>
 
       {/* Delete Confirmation Modal */}

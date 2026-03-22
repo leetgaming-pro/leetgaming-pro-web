@@ -304,9 +304,9 @@ test.describe("Production Regression", () => {
 
       // The bell button has aria-label starting with "Notifications"
       // .first() because it appears in both desktop and mobile nav
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await expect(bellButton).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
@@ -314,14 +314,16 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await expect(bellButton).toBeVisible({ timeout: LOAD_TIMEOUT });
       await bellButton.click();
 
       // Popover dialog should appear
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
     });
 
@@ -329,31 +331,43 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await bellButton.click();
 
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
 
       // Tab filters should be present: All, Matches, Teams, Social, Rewards
       const tabList = popover.locator('[role="tablist"]');
       await expect(tabList).toBeVisible({ timeout: 5_000 });
 
-      const allTab = popover.locator('[role="tab"]').filter({ hasText: /^All/i });
+      const allTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /^All/i });
       await expect(allTab).toBeVisible();
 
-      const matchesTab = popover.locator('[role="tab"]').filter({ hasText: /Matches/i });
+      const matchesTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Matches/i });
       await expect(matchesTab).toBeVisible();
 
-      const teamsTab = popover.locator('[role="tab"]').filter({ hasText: /Teams/i });
+      const teamsTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Teams/i });
       await expect(teamsTab).toBeVisible();
 
-      const socialTab = popover.locator('[role="tab"]').filter({ hasText: /Social/i });
+      const socialTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Social/i });
       await expect(socialTab).toBeVisible();
 
-      const rewardsTab = popover.locator('[role="tab"]').filter({ hasText: /Rewards/i });
+      const rewardsTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Rewards/i });
       await expect(rewardsTab).toBeVisible();
     });
 
@@ -363,22 +377,30 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await bellButton.click();
 
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
       await page.waitForTimeout(2_000);
 
       // Should show either "All clear" / "No notifications" empty state OR notification cards
       const emptyState = popover.getByText(/all clear|no notifications/i);
-      const hasEmpty = await emptyState.isVisible({ timeout: 3_000 }).catch(() => false);
+      const hasEmpty = await emptyState
+        .isVisible({ timeout: 3_000 })
+        .catch(() => false);
 
       // Or notification cards exist (aria-live="polite" region contains cards)
       const notifList = popover.locator('[aria-live="polite"]');
-      const hasCards = await notifList.locator('> *').count().then(c => c > 0).catch(() => false);
+      const hasCards = await notifList
+        .locator("> *")
+        .count()
+        .then((c) => c > 0)
+        .catch(() => false);
 
       expect(
         hasEmpty || hasCards,
@@ -392,12 +414,14 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await bellButton.click();
 
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
 
       // Should show "Live" or "Polling" status indicator
@@ -409,12 +433,14 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await bellButton.click();
 
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
 
       // Press Escape to close
@@ -426,16 +452,20 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await bellButton.click();
 
-      const popover = page.locator('[role="dialog"][aria-label="Notification center"]');
+      const popover = page.locator(
+        '[role="dialog"][aria-label="Notification center"]',
+      );
       await expect(popover).toBeVisible({ timeout: 5_000 });
 
       // Click "Matches" tab
-      const matchesTab = popover.locator('[role="tab"]').filter({ hasText: /Matches/i });
+      const matchesTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Matches/i });
       await matchesTab.click();
       await page.waitForTimeout(500);
 
@@ -443,13 +473,17 @@ test.describe("Production Regression", () => {
       await expect(matchesTab).toHaveAttribute("aria-selected", "true");
 
       // Click "Teams" tab
-      const teamsTab = popover.locator('[role="tab"]').filter({ hasText: /Teams/i });
+      const teamsTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /Teams/i });
       await teamsTab.click();
       await page.waitForTimeout(500);
       await expect(teamsTab).toHaveAttribute("aria-selected", "true");
 
       // Click back to "All"
-      const allTab = popover.locator('[role="tab"]').filter({ hasText: /^All/i });
+      const allTab = popover
+        .locator('[role="tab"]')
+        .filter({ hasText: /^All/i });
       await allTab.click();
       await page.waitForTimeout(500);
       await expect(allTab).toHaveAttribute("aria-selected", "true");
@@ -459,9 +493,9 @@ test.describe("Production Regression", () => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const bellButton = page.locator(
-        'button[aria-label^="Notifications"]',
-      ).first();
+      const bellButton = page
+        .locator('button[aria-label^="Notifications"]')
+        .first();
       await expect(bellButton).toBeVisible({ timeout: LOAD_TIMEOUT });
       await expect(bellButton).toHaveAttribute("aria-haspopup", "true");
       await expect(bellButton).toHaveAttribute("aria-expanded", "false");
@@ -490,14 +524,17 @@ test.describe("Production Regression", () => {
       await waitForPageReady(page);
 
       // Hero header with "Notifications" title
-      const heading = page.getByRole("heading", { name: /notifications/i }).or(
-        page.locator("h1").filter({ hasText: /notifications/i }),
-      );
+      const heading = page
+        .getByRole("heading", { name: /notifications/i })
+        .or(page.locator("h1").filter({ hasText: /notifications/i }));
       await expect(heading.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
 
       // No critical errors
       const critical = errors.filter((e) => e.isCritical);
-      expect(critical.length, `Critical errors: ${critical.map(e => e.text).join("; ")}`).toBe(0);
+      expect(
+        critical.length,
+        `Critical errors: ${critical.map((e) => e.text).join("; ")}`,
+      ).toBe(0);
     });
 
     test("notifications page shows stats dashboard", async ({ page }) => {
@@ -527,7 +564,9 @@ test.describe("Production Regression", () => {
 
       // Should show either "X unread" or "All caught up"
       const unreadSummary = page.getByText(/\d+ unread|all caught up/i);
-      await expect(unreadSummary.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+      await expect(unreadSummary.first()).toBeVisible({
+        timeout: LOAD_TIMEOUT,
+      });
     });
 
     test("notifications page has action toolbar with filter button", async ({
@@ -548,9 +587,9 @@ test.describe("Production Regression", () => {
       await waitForPageReady(page);
 
       // Settings button/link in action toolbar
-      const settingsBtn = page.getByRole("button", { name: /settings/i }).or(
-        page.getByRole("link", { name: /settings/i }),
-      );
+      const settingsBtn = page
+        .getByRole("button", { name: /settings/i })
+        .or(page.getByRole("link", { name: /settings/i }));
       await expect(settingsBtn.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
@@ -616,9 +655,7 @@ test.describe("Production Regression", () => {
       await waitForPageReady(page);
 
       // Should show step 1 of creation wizard (not an error page)
-      const heading = page.getByText(
-        /create.*team|create.*squad|step 1/i,
-      );
+      const heading = page.getByText(/create.*team|create.*squad|step 1/i);
       const hasHeading = await heading
         .first()
         .isVisible({ timeout: LOAD_TIMEOUT })
@@ -669,7 +706,10 @@ test.describe("Production Regression", () => {
       ).toBe(true);
 
       const critical = errors.filter((e) => e.isCritical);
-      expect(critical.length, `Critical errors on wallet: ${critical.map(e => e.text).join("; ")}`).toBe(0);
+      expect(
+        critical.length,
+        `Critical errors on wallet: ${critical.map((e) => e.text).join("; ")}`,
+      ).toBe(0);
     });
 
     test("matchmaking page loads correctly", async ({ page }) => {
@@ -799,12 +839,10 @@ test.describe("Production Regression", () => {
         await page.goto(route, { waitUntil: "domcontentloaded" });
         await waitForPageReady(page);
 
-        const bellButton = page.locator(
-          'button[aria-label^="Notifications"]',
-        ).first();
-        await expect(
-          bellButton,
-        ).toBeVisible({ timeout: LOAD_TIMEOUT });
+        const bellButton = page
+          .locator('button[aria-label^="Notifications"]')
+          .first();
+        await expect(bellButton).toBeVisible({ timeout: LOAD_TIMEOUT });
       }
     });
   });
@@ -823,9 +861,7 @@ test.describe("Production Regression", () => {
       await page.goto("/settings", { waitUntil: "domcontentloaded" });
       await waitForPageReady(page);
 
-      const settingsContent = page.getByText(
-        /settings|profile|account/i,
-      );
+      const settingsContent = page.getByText(/settings|profile|account/i);
       await expect(settingsContent.first()).toBeVisible({
         timeout: LOAD_TIMEOUT,
       });
