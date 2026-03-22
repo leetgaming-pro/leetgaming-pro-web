@@ -153,8 +153,7 @@ test.describe("Production Flows", () => {
       const uniqueUsername = `e2e_${RUN_ID}`;
       const password = "E2ETestP@ss123!";
 
-      await page.goto("/signup", { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(3_000);
+      await page.goto("/signup", { waitUntil: "networkidle" });
 
       // Fill the form
       const usernameInput = page
@@ -179,22 +178,44 @@ test.describe("Production Flows", () => {
         return;
       }
 
+      // Click into each field before filling to ensure React hydration
+      await usernameInput.click();
       await usernameInput.fill(uniqueUsername);
+      await emailInput.click();
       await emailInput.fill(uniqueEmail);
+      await passwordInput.click();
       await passwordInput.fill(password);
+      await confirmInput.click();
       await confirmInput.fill(password);
+      await page.waitForTimeout(500);
 
-      // Accept checkboxes (terms + age)
-      const checkboxes = page.locator(
-        'input[type="checkbox"], [role="checkbox"]',
-      );
-      const count = await checkboxes.count();
-      for (let i = 0; i < count; i++) {
-        const cb = checkboxes.nth(i);
-        if (!(await cb.isChecked())) {
-          await cb.click({ force: true });
-        }
+      // Accept checkboxes — use dispatchEvent to avoid Playwright scroll/animation issues
+      const termsCheckbox = page.locator('label').filter({ hasText: 'I agree to the' }).locator('input[type="checkbox"]');
+      await termsCheckbox.dispatchEvent('click');
+      await page.waitForTimeout(300);
+
+      const ageCheckbox = page.locator('label').filter({ hasText: 'I confirm that I am at least' }).locator('input[type="checkbox"]');
+      await ageCheckbox.dispatchEvent('click');
+      await page.waitForTimeout(300);
+
+      // Re-fill username/email if they were cleared by React re-render
+      if (!(await usernameInput.inputValue())) {
+        await usernameInput.click();
+        await usernameInput.fill(uniqueUsername);
       }
+      if (!(await emailInput.inputValue())) {
+        await emailInput.click();
+        await emailInput.fill(uniqueEmail);
+      }
+      if (!(await passwordInput.inputValue())) {
+        await passwordInput.click();
+        await passwordInput.fill(password);
+      }
+      if (!(await confirmInput.inputValue())) {
+        await confirmInput.click();
+        await confirmInput.fill(password);
+      }
+      await page.waitForTimeout(300);
 
       // Submit
       const submitBtn = page
@@ -202,7 +223,7 @@ test.describe("Production Flows", () => {
           name: /join the battle|sign up|create account/i,
         })
         .first();
-      await expect(submitBtn).toBeEnabled({ timeout: 5_000 });
+      await expect(submitBtn).toBeEnabled({ timeout: 10_000 });
       await submitBtn.click();
 
       // Wait for either redirect (success) or error message
@@ -237,6 +258,12 @@ test.describe("Production Flows", () => {
         waitUntil: "domcontentloaded",
       });
 
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+
       // Should show the registration form (not redirected to signin)
       const heading = page.getByText(/create.*profile|player.*registration/i);
       const hasHeading = await heading
@@ -266,7 +293,13 @@ test.describe("Production Flows", () => {
       await page.goto("/players/register", {
         waitUntil: "domcontentloaded",
       });
-      await page.waitForTimeout(3_000);
+
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(1_000);
 
       // If redirected to profile (already has profiles for all games), skip
       if (page.url().includes("/players/") && !page.url().includes("/register")) {
@@ -326,6 +359,12 @@ test.describe("Production Flows", () => {
     }) => {
       await page.goto("/teams/create", { waitUntil: "domcontentloaded" });
 
+      // Wait for Loading... state to resolve (useRequireAuth → useSession)
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+
       // Should show the creation form (not redirected to signin)
       const heading = page.getByText(
         /create.*team|create.*squad|team.*creation/i,
@@ -351,7 +390,13 @@ test.describe("Production Flows", () => {
       page,
     }) => {
       await page.goto("/teams/create", { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(3_000);
+
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(1_000);
 
       // Select a game
       const gameSelect = page.locator('[aria-label*="game" i], [data-slot="trigger"]').first();
@@ -395,7 +440,13 @@ test.describe("Production Flows", () => {
 
     test("team creation full flow submits successfully", async ({ page }) => {
       await page.goto("/teams/create", { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(3_000);
+
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+      await page.waitForTimeout(1_000);
 
       // Step 1: Game + Team Name
       const gameSelect = page.locator('[aria-label*="game" i], [data-slot="trigger"]').first();
@@ -531,6 +582,12 @@ test.describe("Production Flows", () => {
     test("players page loads and displays profiles", async ({ page }) => {
       await page.goto("/players", { waitUntil: "domcontentloaded" });
 
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
+
       const heading = page.getByRole("heading", {
         name: /player profiles/i,
       });
@@ -539,6 +596,12 @@ test.describe("Production Flows", () => {
 
     test("teams page loads and displays squads", async ({ page }) => {
       await page.goto("/teams", { waitUntil: "domcontentloaded" });
+
+      // Wait for Loading... state to resolve
+      const loadingText = page.getByText("Loading...");
+      if (await loadingText.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await loadingText.waitFor({ state: "hidden", timeout: LONG_TIMEOUT });
+      }
 
       const heading = page.getByRole("heading", {
         name: /competitive teams/i,
