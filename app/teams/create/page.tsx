@@ -41,6 +41,7 @@ import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
 import { GameTitle } from "@/types/replay-api/player.types";
+import { parseError } from "@/lib/errors/error-parser";
 
 // Initialize SDK (uses /api proxy for client-side requests)
 const sdk = new ReplayAPISDK(
@@ -104,6 +105,8 @@ export default function CreateTeamPage() {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingSymbol, setIsCheckingSymbol] = useState(false);
   const [symbolAvailable, setSymbolAvailable] = useState<boolean | null>(null);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   const [formData, setFormData] = useState({
     game: "" as GameTitle | "",
@@ -153,12 +156,17 @@ export default function CreateTeamPage() {
     const timer = setTimeout(async () => {
       setIsCheckingSymbol(true);
       try {
-        // Check if symbol is available via search
+        // Search squads by name which searches both Name and Symbol fields.
+        // Then filter results to check for an exact symbol match (case-insensitive).
         const existingSquads = await sdk.squads.searchSquads({
           name: formData.symbol,
           visibility: "public",
         });
-        setSymbolAvailable(!existingSquads || existingSquads.length === 0);
+        const exactMatch = existingSquads?.some(
+          (s) =>
+            s.symbol?.toUpperCase() === formData.symbol.toUpperCase(),
+        );
+        setSymbolAvailable(!exactMatch);
       } catch {
         setSymbolAvailable(null);
       }
@@ -167,6 +175,34 @@ export default function CreateTeamPage() {
 
     return () => clearTimeout(timer);
   }, [formData.symbol]);
+
+  // Check slug availability (debounced)
+  useEffect(() => {
+    if (!formData.slug || formData.slug.length < 3) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingSlug(true);
+      try {
+        // Search for squads with this slug — filter for exact match
+        const existingSquads = await sdk.squads.searchSquads({
+          name: formData.slug,
+        });
+        const exactMatch = existingSquads?.some(
+          (s) =>
+            s.slug_uri?.toLowerCase() === formData.slug.toLowerCase(),
+        );
+        setSlugAvailable(!exactMatch);
+      } catch {
+        setSlugAvailable(null);
+      }
+      setIsCheckingSlug(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.slug]);
 
   // Validation
   const validateStep = (currentStep: number): boolean => {
@@ -186,6 +222,8 @@ export default function CreateTeamPage() {
       if (!formData.slug) newErrors.slug = "Team URL is required";
       if (formData.slug.length < 3)
         newErrors.slug = "Team URL must be at least 3 characters";
+      if (slugAvailable === false)
+        newErrors.slug = "This URL is already taken. Please choose a different one.";
     }
 
     if (currentStep === 2) {
@@ -241,9 +279,12 @@ export default function CreateTeamPage() {
       const teamPath = squad.slug_uri || squad.id;
       router.push(`/teams/${teamPath}?welcome=true`);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create team";
-      setError(errorMessage);
+      const parsed = parseError(err);
+      setError(parsed.message);
+      // Map field-specific errors to form fields for inline display
+      if (parsed.fieldErrors) {
+        setErrors((prev) => ({ ...prev, ...parsed.fieldErrors }));
+      }
       setIsSubmitting(false);
     }
   };
@@ -561,6 +602,21 @@ export default function CreateTeamPage() {
                         <span className="text-xs text-[#34445C]/50 dark:text-white/50 whitespace-nowrap">
                           leetgaming.pro/teams/
                         </span>
+                      }
+                      endContent={
+                        isCheckingSlug ? (
+                          <Spinner size="sm" />
+                        ) : slugAvailable === true ? (
+                          <Icon
+                            icon="solar:check-circle-bold"
+                            className="text-green-500"
+                          />
+                        ) : slugAvailable === false ? (
+                          <Icon
+                            icon="solar:close-circle-bold"
+                            className="text-red-500"
+                          />
+                        ) : null
                       }
                     />
                   </motion.div>

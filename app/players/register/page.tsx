@@ -45,6 +45,7 @@ import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
 import { GameTitle, PlayerVisibility } from "@/types/replay-api/player.types";
+import { parseError } from "@/lib/errors/error-parser";
 
 // Initialize SDK (uses /api proxy for client-side requests)
 const sdk = new ReplayAPISDK(
@@ -364,9 +365,12 @@ export default function PlayerRegistrationPage() {
 
       router.push(`/players/${profile.id}?welcome=true`);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create profile";
-      setError(errorMessage);
+      const parsed = parseError(err);
+      setError(parsed.message);
+      // Map field-specific errors to form fields for inline display
+      if (parsed.fieldErrors) {
+        setErrors((prev) => ({ ...prev, ...parsed.fieldErrors }));
+      }
     } finally {
       setIsSubmitting(false);
     }

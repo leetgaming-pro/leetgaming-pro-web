@@ -83,13 +83,31 @@ export async function POST(request: NextRequest) {
     logger.error("[API /api/players] Create player error:", error);
     const status = (error as Record<string, unknown>)?.status;
     const apiError = (error as Record<string, unknown>)?.apiError;
+    const message = error instanceof Error ? error.message : "Failed to create player profile";
+
+    // Map "already exists" errors to user-friendly responses
+    if (message.toLowerCase().includes("already exists") || status === 409) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: message,
+          ...(apiError ? { apiError } : {}),
+        },
+        { status: 409 },
+      );
+    }
+
+    if (status === 401 || message.toLowerCase().includes("unauthorized")) {
+      return NextResponse.json(
+        { success: false, error: "Your session has expired. Please sign in again." },
+        { status: 401 },
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create player profile",
+        error: message,
         ...(apiError ? { apiError } : {}),
       },
       { status: typeof status === "number" && status >= 400 ? status : 500 },
