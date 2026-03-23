@@ -9,7 +9,7 @@
  */
 
 import crypto from "crypto";
-import { getBackendUrl } from "@/lib/api/backend-url";
+import { getBackendUrl, SERVER_USER_AGENT } from "@/lib/api/backend-url";
 import { ReplayAPISDK } from "@/types/replay-api/sdk";
 import { ReplayApiSettingsMock } from "@/types/replay-api/settings";
 import { logger } from "@/lib/logger";
@@ -51,7 +51,7 @@ export async function refreshRIDFromSession(
         .digest("hex");
       const resp = await fetch(`${backendUrl}/onboarding/google`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "User-Agent": SERVER_USER_AGENT },
         body: JSON.stringify({
           email: googleEmail,
           name: session.user.name,
@@ -77,7 +77,7 @@ export async function refreshRIDFromSession(
         .digest("hex");
       const resp = await fetch(`${backendUrl}/onboarding/steam`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "User-Agent": SERVER_USER_AGENT },
         body: JSON.stringify({ steam: { id: steamId }, v_hash: vHash }),
       });
       if (resp.ok) {

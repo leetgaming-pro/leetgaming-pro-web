@@ -4,7 +4,7 @@
  * Used by Next.js API routes to proxy requests to replay-api backend
  */
 
-import { getBackendUrl } from "./backend-url";
+import { getBackendUrl, SERVER_USER_AGENT } from "./backend-url";
 
 // ─── Request Types ──────────────────────────────────────────────────────
 
@@ -124,6 +124,7 @@ export async function buyBitcoin(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": SERVER_USER_AGENT,
       "X-Resource-Owner-ID": token,
     },
     body: JSON.stringify(req),
@@ -150,6 +151,7 @@ export async function sellBitcoin(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": SERVER_USER_AGENT,
       "X-Resource-Owner-ID": token,
     },
     body: JSON.stringify(req),
@@ -176,6 +178,7 @@ export async function getQuote(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": SERVER_USER_AGENT,
       "X-Resource-Owner-ID": token,
     },
     body: JSON.stringify(req),
@@ -199,6 +202,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": SERVER_USER_AGENT,
     },
   });
 
@@ -233,6 +237,7 @@ export async function getOrderHistory(
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "User-Agent": SERVER_USER_AGENT,
         "X-Resource-Owner-ID": token,
       },
     },
@@ -263,6 +268,7 @@ export async function cancelOrder(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "User-Agent": SERVER_USER_AGENT,
         "X-Resource-Owner-ID": token,
       },
     },
@@ -284,6 +290,7 @@ export async function getFeeSchedule(token: string): Promise<FeeSchedule> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      "User-Agent": SERVER_USER_AGENT,
       "X-Resource-Owner-ID": token,
     },
   });

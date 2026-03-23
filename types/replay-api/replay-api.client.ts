@@ -4,6 +4,7 @@ import { Loggable } from "@/lib/logger";
 import { getRIDTokenManager } from "./auth";
 import { SearchRequest } from "./search-builder";
 import { ErrorCategory, ErrorCode } from "@/lib/errors/error-types";
+import { SERVER_USER_AGENT } from "@/lib/api/backend-url";
 
 export interface ApiResponse<T> {
   data?: T;
@@ -330,6 +331,11 @@ export class ReplayApiClient {
     try {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
+        // Server-side requests need a browser-like User-Agent to pass
+        // Cloudflare Browser Integrity Check (error 1010)
+        ...(typeof window === "undefined" && {
+          "User-Agent": SERVER_USER_AGENT,
+        }),
         ...authHeaders,
         ...options?.headers,
       };

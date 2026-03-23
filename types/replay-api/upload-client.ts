@@ -289,7 +289,15 @@ export class UploadClient {
     }
 
     const authHeaders = await getRIDTokenManager().getAuthHeaders();
-    const url = `${this.settings.baseUrl}/games/${options.gameId}/replays`;
+
+    // For uploads, bypass the Next.js rewrite proxy (/api → backend) because
+    // Vercel has a ~4.5MB body size limit on proxied requests.
+    // Send directly to the backend API URL instead.
+    const directApiUrl =
+      typeof window !== "undefined"
+        ? process.env.NEXT_PUBLIC_REPLAY_API_URL || this.settings.baseUrl
+        : this.settings.baseUrl;
+    const url = `${directApiUrl}/games/${options.gameId}/replays`;
 
     this.logger.info(`[UploadClient] Uploading ${file.name} to ${url}`);
 

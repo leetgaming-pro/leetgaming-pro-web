@@ -4,6 +4,7 @@
  */
 
 import { cookies } from "next/headers";
+import { SERVER_USER_AGENT } from "@/lib/api/backend-url";
 
 const RID_TOKEN_COOKIE = "rid_token";
 const RID_METADATA_COOKIE = "rid_metadata";
@@ -145,6 +146,15 @@ export async function forwardAuthenticatedRequest(
   // Ensure content type is set for JSON requests
   if (options.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
+  }
+
+  // Server-side requests need a browser-like User-Agent to pass
+  // Cloudflare Browser Integrity Check (error 1010)
+  if (!headers.has("User-Agent")) {
+    headers.set(
+      "User-Agent",
+      SERVER_USER_AGENT,
+    );
   }
 
   return fetch(url, {

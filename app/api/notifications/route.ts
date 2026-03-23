@@ -21,9 +21,9 @@ export async function GET(_request: NextRequest) {
 
     if (!isAuthenticated) {
       return NextResponse.json({
-        success: true,
-        data: [],
-        unreadCount: 0,
+        notifications: [],
+        unread_count: 0,
+        total_count: 0,
       });
     }
 
@@ -42,25 +42,23 @@ export async function GET(_request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json({
-        success: true,
-        data: [],
-        unreadCount: 0,
+        notifications: [],
+        unread_count: 0,
+        total_count: 0,
       });
     }
 
     const data = await response.json();
 
-    return NextResponse.json({
-      success: true,
-      data: data.notifications || [],
-      unreadCount: data.unread_count || 0,
-    });
+    // Pass through backend format directly: {notifications, unread_count, total_count}
+    // The SDK (NotificationsAPI) and hook (useNotifications) expect this shape
+    return NextResponse.json(data);
   } catch (error) {
     console.error("[API /api/notifications] Error:", error);
     return NextResponse.json({
-      success: true,
-      data: [],
-      unreadCount: 0,
+      notifications: [],
+      unread_count: 0,
+      total_count: 0,
     });
   }
 }

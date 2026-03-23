@@ -34,3 +34,11 @@ export function getBackendUrl(): string {
 export function getMatchMakingApiUrl(): string {
   return process.env.MATCH_MAKING_API_URL || "http://localhost:4991";
 }
+
+/**
+ * User-Agent header for server-side requests to the backend.
+ * Required to pass Cloudflare Browser Integrity Check (error 1010)
+ * when requests originate from Vercel's server-side runtime.
+ */
+export const SERVER_USER_AGENT =
+  "Mozilla/5.0 (compatible; LeetGamingSSR/1.0; +https://leetgaming.pro)";
